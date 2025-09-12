@@ -24,13 +24,16 @@ export type Database = {
           creative_assets: Json | null
           cta_button: string | null
           end_date: string | null
+          external_id: string | null
           id: string
           location_targeting: Json | null
           name: string
           objective: string
           organization_id: string
+          performance_data: Json | null
           start_date: string | null
           status: string
+          tags: string[] | null
           updated_at: string
         }
         Insert: {
@@ -42,13 +45,16 @@ export type Database = {
           creative_assets?: Json | null
           cta_button?: string | null
           end_date?: string | null
+          external_id?: string | null
           id?: string
           location_targeting?: Json | null
           name: string
           objective?: string
           organization_id: string
+          performance_data?: Json | null
           start_date?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string
         }
         Update: {
@@ -60,13 +66,16 @@ export type Database = {
           creative_assets?: Json | null
           cta_button?: string | null
           end_date?: string | null
+          external_id?: string | null
           id?: string
           location_targeting?: Json | null
           name?: string
           objective?: string
           organization_id?: string
+          performance_data?: Json | null
           start_date?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string
         }
         Relationships: [
