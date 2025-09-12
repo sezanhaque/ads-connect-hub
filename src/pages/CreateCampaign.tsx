@@ -128,6 +128,37 @@ const CreateCampaign = () => {
 
       // TODO: Send email with campaign details to client
       // This would be implemented with an edge function
+      
+      // Send campaign email
+      try {
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-campaign-email', {
+          body: {
+            campaign_name: campaignData.name,
+            objective: campaignData.objective,
+            budget: parseFloat(campaignData.budget) || 0,
+            start_date: campaignData.startDate || '',
+            end_date: campaignData.endDate || '',
+            location_targeting: { locations: campaignData.locations },
+            audience_targeting: { 
+              type: campaignData.audienceType,
+              data: campaignData.audienceData 
+            },
+            ad_copy: campaignData.adCopy,
+            cta_button: campaignData.ctaButton,
+            creative_assets: {},
+            user_email: profile.email,
+            user_name: `${profile.first_name} ${profile.last_name}`.trim()
+          }
+        });
+
+        if (emailError) {
+          console.error('Email sending failed:', emailError);
+        } else {
+          console.log('Campaign email sent successfully:', emailData);
+        }
+      } catch (emailErr) {
+        console.error('Error sending campaign email:', emailErr);
+      }
 
       toast({
         title: "Campaign created successfully!",
