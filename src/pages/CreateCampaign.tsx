@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -34,7 +37,36 @@ interface CampaignData {
   audienceData: string;
   adCopy: string;
   ctaButton: string;
+  emailRecipients: string[];
 }
+
+// Validation schemas for each step
+const step1Schema = z.object({
+  name: z.string().min(1, 'Campaign name is required'),
+  objective: z.enum(['traffic', 'leads']),
+});
+
+const step2Schema = z.object({
+  budget: z.string().min(1, 'Budget is required').refine(val => !isNaN(Number(val)) && Number(val) > 0, 'Budget must be a positive number'),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+}).refine(data => new Date(data.endDate) > new Date(data.startDate), {
+  message: "End date must be after start date",
+  path: ["endDate"],
+});
+
+const step3Schema = z.object({
+  locations: z.array(z.string()).min(1, 'At least one location is required'),
+});
+
+const step4Schema = z.object({
+  audienceData: z.string().min(1, 'Audience information is required'),
+});
+
+const step5Schema = z.object({
+  adCopy: z.string().min(1, 'Ad copy is required'),
+  ctaButton: z.string().min(1, 'CTA button is required'),
+});
 
 const objectives = [
   { value: 'traffic', label: 'Traffic', description: 'Drive visitors to your website' },
@@ -47,6 +79,7 @@ const ctaButtons = [
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const { profile } = useAuth();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
@@ -62,7 +95,51 @@ const CreateCampaign = () => {
     audienceData: '',
     adCopy: '',
     ctaButton: 'Learn More',
+    emailRecipients: [],
   });
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setIsEditMode(true);
+      loadCampaign(id);
+    }
+  }, [id]);
+
+  const loadCampaign = async (campaignId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', campaignId)
+        .single();
+
+      if (error) throw error;
+
+      setCampaignData({
+        name: data.name || '',
+        objective: (data.objective as 'traffic' | 'leads') || 'traffic',
+        budget: data.budget?.toString() || '',
+        startDate: data.start_date || '',
+        endDate: data.end_date || '',
+        locations: (data.location_targeting as any)?.locations || [],
+        audienceType: (data.audience_targeting as any)?.type || 'interests',
+        audienceData: (data.audience_targeting as any)?.data || '',
+        adCopy: data.ad_copy || '',
+        ctaButton: data.cta_button || 'Learn More',
+        emailRecipients: [],
+      });
+    } catch (error: any) {
+      console.error('Error loading campaign:', error);
+      toast({
+        title: "Error loading campaign",
+        description: error.message,
+        variant: "destructive",
+      });
+      navigate('/campaigns');
+    }
+  };
 
   const steps = [
     { number: 1, title: 'Campaign Basics', icon: Target },
@@ -77,8 +154,44 @@ const CreateCampaign = () => {
     setCampaignData(prev => ({ ...prev, ...updates }));
   };
 
+  const validateCurrentStep = () => {
+    setValidationErrors({});
+    
+    try {
+      switch (currentStep) {
+        case 1:
+          step1Schema.parse(campaignData);
+          break;
+        case 2:
+          step2Schema.parse(campaignData);
+          break;
+        case 3:
+          step3Schema.parse(campaignData);
+          break;
+        case 4:
+          step4Schema.parse(campaignData);
+          break;
+        case 5:
+          step5Schema.parse(campaignData);
+          break;
+      }
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setValidationErrors(errors);
+      }
+      return false;
+    }
+  };
+
   const nextStep = () => {
-    if (currentStep < steps.length) {
+    if (validateCurrentStep() && currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -101,34 +214,46 @@ const CreateCampaign = () => {
 
     setIsLoading(true);
     try {
-      // Save campaign as draft
-      const { data, error } = await supabase
-        .from('campaigns')
-        .insert([{
-          organization_id: profile.organization_id,
-          name: campaignData.name,
-          objective: campaignData.objective,
-          status: 'draft',
-          budget: parseFloat(campaignData.budget) || 0,
-          start_date: campaignData.startDate || null,
-          end_date: campaignData.endDate || null,
-          location_targeting: { locations: campaignData.locations },
-          audience_targeting: { 
-            type: campaignData.audienceType,
-            data: campaignData.audienceData 
-          },
-          ad_copy: campaignData.adCopy,
-          cta_button: campaignData.ctaButton,
-          created_by: profile.user_id,
-        }])
-        .select()
-        .single();
+      const campaignPayload = {
+        organization_id: profile.organization_id,
+        name: campaignData.name,
+        objective: campaignData.objective,
+        status: 'draft',
+        budget: parseFloat(campaignData.budget) || 0,
+        start_date: campaignData.startDate || null,
+        end_date: campaignData.endDate || null,
+        location_targeting: { locations: campaignData.locations },
+        audience_targeting: { 
+          type: campaignData.audienceType,
+          data: campaignData.audienceData 
+        },
+        ad_copy: campaignData.adCopy,
+        cta_button: campaignData.ctaButton,
+        created_by: profile.user_id,
+      };
 
-      if (error) throw error;
+      let campaignResult;
+      if (isEditMode && id) {
+        const { data, error } = await supabase
+          .from('campaigns')
+          .update(campaignPayload)
+          .eq('id', id)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        campaignResult = data;
+      } else {
+        const { data, error } = await supabase
+          .from('campaigns')
+          .insert([campaignPayload])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        campaignResult = data;
+      }
 
-      // TODO: Send email with campaign details to client
-      // This would be implemented with an edge function
-      
       // Send campaign email
       try {
         const { data: emailData, error: emailError } = await supabase.functions.invoke('send-campaign-email', {
@@ -147,7 +272,8 @@ const CreateCampaign = () => {
             cta_button: campaignData.ctaButton,
             creative_assets: {},
             user_email: profile.email,
-            user_name: `${profile.first_name} ${profile.last_name}`.trim()
+            user_name: `${profile.first_name} ${profile.last_name}`.trim(),
+            email_recipients: campaignData.emailRecipients
           }
         });
 
@@ -161,15 +287,15 @@ const CreateCampaign = () => {
       }
 
       toast({
-        title: "Campaign created successfully!",
+        title: isEditMode ? "Campaign updated successfully!" : "Campaign created successfully!",
         description: "Campaign details will be emailed to you for manual publishing in Meta Ads Manager.",
       });
 
       navigate('/campaigns');
     } catch (error: any) {
-      console.error('Error creating campaign:', error);
+      console.error('Error saving campaign:', error);
       toast({
-        title: "Error creating campaign",
+        title: isEditMode ? "Error updating campaign" : "Error creating campaign",
         description: error.message,
         variant: "destructive",
       });
@@ -190,7 +316,11 @@ const CreateCampaign = () => {
                 placeholder="Enter campaign name"
                 value={campaignData.name}
                 onChange={(e) => updateCampaignData({ name: e.target.value })}
+                className={validationErrors.name ? 'border-destructive' : ''}
               />
+              {validationErrors.name && (
+                <p className="text-sm text-destructive">{validationErrors.name}</p>
+              )}
             </div>
             
             <div className="space-y-3">
@@ -235,7 +365,11 @@ const CreateCampaign = () => {
                 placeholder="1000"
                 value={campaignData.budget}
                 onChange={(e) => updateCampaignData({ budget: e.target.value })}
+                className={validationErrors.budget ? 'border-destructive' : ''}
               />
+              {validationErrors.budget && (
+                <p className="text-sm text-destructive">{validationErrors.budget}</p>
+              )}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
@@ -246,7 +380,11 @@ const CreateCampaign = () => {
                   type="date"
                   value={campaignData.startDate}
                   onChange={(e) => updateCampaignData({ startDate: e.target.value })}
+                  className={validationErrors.startDate ? 'border-destructive' : ''}
                 />
+                {validationErrors.startDate && (
+                  <p className="text-sm text-destructive">{validationErrors.startDate}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end-date">End Date</Label>
@@ -255,7 +393,11 @@ const CreateCampaign = () => {
                   type="date"
                   value={campaignData.endDate}
                   onChange={(e) => updateCampaignData({ endDate: e.target.value })}
+                  className={validationErrors.endDate ? 'border-destructive' : ''}
                 />
+                {validationErrors.endDate && (
+                  <p className="text-sm text-destructive">{validationErrors.endDate}</p>
+                )}
               </div>
             </div>
           </div>
@@ -273,7 +415,11 @@ const CreateCampaign = () => {
                 onChange={(e) => updateCampaignData({ 
                   locations: e.target.value.split(',').map(loc => loc.trim()).filter(Boolean)
                 })}
+                className={validationErrors.locations ? 'border-destructive' : ''}
               />
+              {validationErrors.locations && (
+                <p className="text-sm text-destructive">{validationErrors.locations}</p>
+              )}
               <p className="text-sm text-muted-foreground">
                 Separate multiple locations with commas
               </p>
@@ -319,7 +465,11 @@ const CreateCampaign = () => {
                 value={campaignData.audienceData}
                 onChange={(e) => updateCampaignData({ audienceData: e.target.value })}
                 rows={3}
+                className={validationErrors.audienceData ? 'border-destructive' : ''}
               />
+              {validationErrors.audienceData && (
+                <p className="text-sm text-destructive">{validationErrors.audienceData}</p>
+              )}
             </div>
           </div>
         );
@@ -335,7 +485,26 @@ const CreateCampaign = () => {
                 value={campaignData.adCopy}
                 onChange={(e) => updateCampaignData({ adCopy: e.target.value })}
                 rows={4}
+                className={validationErrors.adCopy ? 'border-destructive' : ''}
               />
+              {validationErrors.adCopy && (
+                <p className="text-sm text-destructive">{validationErrors.adCopy}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email-recipients">Email Recipients</Label>
+              <Input
+                id="email-recipients"
+                placeholder="Enter email addresses separated by commas"
+                value={campaignData.emailRecipients.join(', ')}
+                onChange={(e) => updateCampaignData({ 
+                  emailRecipients: e.target.value.split(',').map(email => email.trim()).filter(Boolean)
+                })}
+              />
+              <p className="text-sm text-muted-foreground">
+                Campaign details will be sent to these email addresses
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -412,13 +581,24 @@ const CreateCampaign = () => {
                   <span className="font-medium text-sm">CTA Button:</span> 
                   <Badge className="ml-2">{campaignData.ctaButton}</Badge>
                 </div>
+
+                {campaignData.emailRecipients.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="font-medium text-sm">Email Recipients:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {campaignData.emailRecipients.map((email, index) => (
+                        <Badge key={index} variant="outline">{email}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <Card className="border-primary/20 bg-primary/5">
               <CardContent className="p-4">
                 <p className="text-sm">
-                  <strong>Note:</strong> This campaign will be saved as a draft and all details will be emailed to you. 
+                  <strong>Note:</strong> This campaign will be saved as a draft and all details will be emailed to designated recipients. 
                   You'll need to manually set it up in Meta Ads Manager using the provided specifications.
                 </p>
               </CardContent>
@@ -441,7 +621,9 @@ const CreateCampaign = () => {
         </Button>
         
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Campaign</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {isEditMode ? 'Edit Campaign' : 'Create Campaign'}
+          </h1>
           <p className="text-muted-foreground">
             Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}
           </p>
@@ -497,26 +679,31 @@ const CreateCampaign = () => {
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-between">
+      <div className="flex items-center justify-between">
         <Button
           variant="outline"
           onClick={prevStep}
           disabled={currentStep === 1}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Previous
         </Button>
-
-        {currentStep === steps.length ? (
-          <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? 'Creating...' : 'Create Campaign'}
-          </Button>
-        ) : (
-          <Button onClick={nextStep}>
-            Next
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Button>
-        )}
+        
+        <Button
+          onClick={currentStep === steps.length ? handleSubmit : nextStep}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            'Processing...'
+          ) : currentStep === steps.length ? (
+            isEditMode ? 'Update Campaign' : 'Create Campaign'
+          ) : (
+            <>
+              Next
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

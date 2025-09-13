@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useIntegrations } from '@/hooks/useIntegrations';
 import { 
   Settings as SettingsIcon,
   User,
@@ -31,6 +33,7 @@ interface Integration {
 const Settings = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { syncGoogleSheets, syncMetaAds, loading: integrationsLoading } = useIntegrations();
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState({
@@ -38,6 +41,8 @@ const Settings = () => {
     last_name: '',
     email: '',
   });
+  const [googleSheetsUrl, setGoogleSheetsUrl] = useState('');
+  const [metaAccessToken, setMetaAccessToken] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -126,6 +131,44 @@ const Settings = () => {
         return 'Meta Ads';
       default:
         return type;
+    }
+  };
+
+  const handleGoogleSheetsConnect = async () => {
+    if (!googleSheetsUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid Google Sheets URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      await syncGoogleSheets(googleSheetsUrl);
+      setGoogleSheetsUrl('');
+      fetchIntegrations(); // Refresh integrations
+    } catch (error) {
+      console.error('Google Sheets sync error:', error);
+    }
+  };
+
+  const handleMetaAdsConnect = async () => {
+    if (!metaAccessToken.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid Meta Ads access token",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      await syncMetaAds(metaAccessToken);
+      setMetaAccessToken('');
+      fetchIntegrations(); // Refresh integrations
+    } catch (error) {
+      console.error('Meta Ads sync error:', error);
     }
   };
 
@@ -263,12 +306,69 @@ const Settings = () => {
                         Not Connected
                       </Badge>
                     )}
-                    <Button 
-                      variant={isActive ? "outline" : "default"}
-                      size="sm"
-                    >
-                      {isActive ? 'Configure' : 'Connect'}
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant={isActive ? "outline" : "default"}
+                          size="sm"
+                        >
+                          {isActive ? 'Configure' : 'Connect'}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Connect {name}</DialogTitle>
+                          <DialogDescription>
+                            {integrationType === 'google_sheets' 
+                              ? 'Enter your Google Sheets URL to sync job data'
+                              : 'Enter your Meta Ads access token to pull campaign performance'
+                            }
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {integrationType === 'google_sheets' ? (
+                            <>
+                              <div className="space-y-2">
+                                <Label htmlFor="sheets-url">Google Sheets URL</Label>
+                                <Input
+                                  id="sheets-url"
+                                  placeholder="https://docs.google.com/spreadsheets/d/..."
+                                  value={googleSheetsUrl}
+                                  onChange={(e) => setGoogleSheetsUrl(e.target.value)}
+                                />
+                              </div>
+                              <Button 
+                                onClick={handleGoogleSheetsConnect}
+                                disabled={integrationsLoading}
+                                className="w-full"
+                              >
+                                {integrationsLoading ? 'Connecting...' : 'Connect Google Sheets'}
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <div className="space-y-2">
+                                <Label htmlFor="meta-token">Meta Ads Access Token</Label>
+                                <Input
+                                  id="meta-token"
+                                  type="password"
+                                  placeholder="Enter your Meta Ads access token"
+                                  value={metaAccessToken}
+                                  onChange={(e) => setMetaAccessToken(e.target.value)}
+                                />
+                              </div>
+                              <Button 
+                                onClick={handleMetaAdsConnect}
+                                disabled={integrationsLoading}
+                                className="w-full"
+                              >
+                                {integrationsLoading ? 'Connecting...' : 'Connect Meta Ads'}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               );

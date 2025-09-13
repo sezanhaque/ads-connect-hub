@@ -19,6 +19,7 @@ interface CampaignEmailData {
   creative_assets: any;
   user_email: string;
   user_name: string;
+  email_recipients?: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -132,7 +133,13 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Email content generated:', emailContent.length, 'characters');
     
     // For demo purposes, we'll just log that the email was "sent"
-    console.log('Email sent to:', campaignData.user_email);
+    // Send Email to all recipients
+    const allRecipients = [campaignData.user_email];
+    if (campaignData.email_recipients && campaignData.email_recipients.length > 0) {
+      allRecipients.push(...campaignData.email_recipients);
+    }
+    
+    console.log('Campaign email sent to:', allRecipients.join(', '));
 
     return new Response(
       JSON.stringify({

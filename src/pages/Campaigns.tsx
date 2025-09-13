@@ -181,11 +181,23 @@ const Campaigns = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      View Details
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      asChild
+                    >
+                      <Link to={`/campaigns/${campaign.id}`}>
+                        View Details
+                      </Link>
                     </Button>
-                    <Button variant="ghost" size="sm">
-                      Edit
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      asChild
+                    >
+                      <Link to={`/campaigns/${campaign.id}/edit`}>
+                        Edit
+                      </Link>
                     </Button>
                   </div>
                 </div>
