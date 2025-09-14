@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useIntegrations } from '@/hooks/useIntegrations';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Plus, 
   Search, 
@@ -15,58 +19,65 @@ import {
   Calendar,
   DollarSign,
   Users,
-  RefreshCw
+  RefreshCw,
+  Edit,
+  Trash2
 } from 'lucide-react';
 
+interface Job {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  external_id: string | null;
+  created_at: string;
+  metadata: any;
+  organization_id: string;
+}
+
 const Jobs = () => {
+  const { profile } = useAuth();
+  const { toast } = useToast();
+  const { syncGoogleSheets, loading: integrationsLoading } = useIntegrations();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    budget: '',
+    status: 'active'
+  });
+  const [sheetsUrl, setSheetsUrl] = useState('');
 
-  // Mock data - would come from Supabase
-  const jobs = [
-    {
-      id: '1',
-      title: 'Senior Frontend Developer',
-      description: 'React, TypeScript, 3+ years experience',
-      status: 'active',
-      external_id: 'GSHEET_001',
-      created_at: '2024-01-15',
-      metadata: {
-        source: 'google_sheets',
-        last_sync: '2024-01-20T10:30:00Z',
-        applications: 45,
-        budget: 2500
-      }
-    },
-    {
-      id: '2', 
-      title: 'Product Marketing Manager',
-      description: 'B2B SaaS experience, campaign management',
-      status: 'paused',
-      external_id: 'GSHEET_002',
-      created_at: '2024-01-10',
-      metadata: {
-        source: 'google_sheets',
-        last_sync: '2024-01-19T15:45:00Z',
-        applications: 23,
-        budget: 1800
-      }
-    },
-    {
-      id: '3',
-      title: 'UX Designer',
-      description: 'Figma, user research, portfolio required',
-      status: 'active',
-      external_id: 'MANUAL_001',
-      created_at: '2024-01-18',
-      metadata: {
-        source: 'manual',
-        applications: 12,
-        budget: 2000
-      }
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error: any) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error loading jobs",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,9 +95,161 @@ const Jobs = () => {
     }
   };
 
-  const handleSync = () => {
-    // Would trigger Google Sheets sync edge function
-    console.log('Syncing with Google Sheets...');
+  const handleSync = async () => {
+    if (!sheetsUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a Google Sheets URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      await syncGoogleSheets(sheetsUrl);
+      setSheetsUrl('');
+      fetchJobs(); // Refresh jobs list
+    } catch (error) {
+      console.error('Sync error:', error);
+    }
+  };
+
+  const handleCreateJob = async () => {
+    if (!profile?.organization_id) {
+      toast({
+        title: "Error",
+        description: "Organization not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.title.trim()) {
+      toast({
+        title: "Error",
+        description: "Job title is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .insert([{
+          organization_id: profile.organization_id,
+          title: formData.title.trim(),
+          description: formData.description.trim() || null,
+          status: formData.status,
+          metadata: {
+            source: 'manual',
+            budget: formData.budget ? parseFloat(formData.budget) : null
+          }
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Job created",
+        description: "New job has been created successfully",
+      });
+
+      setFormData({ title: '', description: '', budget: '', status: 'active' });
+      setIsCreateDialogOpen(false);
+      fetchJobs();
+    } catch (error: any) {
+      console.error('Error creating job:', error);
+      toast({
+        title: "Error creating job",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditJob = (job: Job) => {
+    setEditingJob(job);
+    setFormData({
+      title: job.title,
+      description: job.description || '',
+      budget: job.metadata?.budget?.toString() || '',
+      status: job.status
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateJob = async () => {
+    if (!editingJob) return;
+
+    if (!formData.title.trim()) {
+      toast({
+        title: "Error",
+        description: "Job title is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({
+          title: formData.title.trim(),
+          description: formData.description.trim() || null,
+          status: formData.status,
+          metadata: {
+            ...editingJob.metadata,
+            budget: formData.budget ? parseFloat(formData.budget) : null
+          }
+        })
+        .eq('id', editingJob.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Job updated",
+        description: "Job has been updated successfully",
+      });
+
+      setFormData({ title: '', description: '', budget: '', status: 'active' });
+      setIsEditDialogOpen(false);
+      setEditingJob(null);
+      fetchJobs();
+    } catch (error: any) {
+      console.error('Error updating job:', error);
+      toast({
+        title: "Error updating job",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (!confirm('Are you sure you want to delete this job?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Job deleted",
+        description: "Job has been deleted successfully",
+      });
+
+      fetchJobs();
+    } catch (error: any) {
+      console.error('Error deleting job:', error);
+      toast({
+        title: "Error deleting job",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -101,10 +264,41 @@ const Jobs = () => {
         </div>
         
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSync}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Sync Sheets
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Sync Sheets
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Sync Google Sheets</DialogTitle>
+                <DialogDescription>
+                  Enter your Google Sheets URL to sync job data
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="sheets-url">Google Sheets URL</Label>
+                  <Input
+                    id="sheets-url"
+                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                    value={sheetsUrl}
+                    onChange={(e) => setSheetsUrl(e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={handleSync}
+                  disabled={integrationsLoading}
+                  className="w-full"
+                >
+                  {integrationsLoading ? 'Syncing...' : 'Sync Jobs'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -122,7 +316,12 @@ const Jobs = () => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="job-title">Job Title</Label>
-                  <Input id="job-title" placeholder="e.g. Senior Developer" />
+                  <Input 
+                    id="job-title" 
+                    placeholder="e.g. Senior Developer"
+                    value={formData.title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="job-description">Description</Label>
@@ -130,18 +329,103 @@ const Jobs = () => {
                     id="job-description" 
                     placeholder="Brief job description..."
                     rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   />
                 </div>
                 <div>
                   <Label htmlFor="job-budget">Budget ($)</Label>
-                  <Input id="job-budget" type="number" placeholder="2500" />
+                  <Input 
+                    id="job-budget" 
+                    type="number" 
+                    placeholder="2500"
+                    value={formData.budget}
+                    onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="job-status">Status</Label>
+                  <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="paused">Paused</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button onClick={handleCreateJob}>
                     Create Job
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit Job Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit Job</DialogTitle>
+                <DialogDescription>
+                  Update job posting details
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="edit-job-title">Job Title</Label>
+                  <Input 
+                    id="edit-job-title" 
+                    placeholder="e.g. Senior Developer"
+                    value={formData.title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-job-description">Description</Label>
+                  <Textarea 
+                    id="edit-job-description" 
+                    placeholder="Brief job description..."
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-job-budget">Budget ($)</Label>
+                  <Input 
+                    id="edit-job-budget" 
+                    type="number" 
+                    placeholder="2500"
+                    value={formData.budget}
+                    onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-job-status">Status</Label>
+                  <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="paused">Paused</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleUpdateJob}>
+                    Update Job
                   </Button>
                 </div>
               </div>
@@ -179,49 +463,73 @@ const Jobs = () => {
 
       {/* Jobs Grid */}
       <div className="grid gap-4">
-        {filteredJobs.map((job) => (
-          <Card key={job.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">{job.title}</CardTitle>
-                  <CardDescription>{job.description}</CardDescription>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="text-muted-foreground">Loading jobs...</div>
+          </div>
+        ) : (
+          filteredJobs.map((job) => (
+            <Card key={job.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-lg">{job.title}</CardTitle>
+                    <CardDescription>{job.description || 'No description'}</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={getStatusColor(job.status)}>
+                      {job.status}
+                    </Badge>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditJob(job)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteJob(job.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <Badge className={getStatusColor(job.status)}>
-                  {job.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Users className="h-4 w-4" />
-                  <span>{job.metadata.applications} applications</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <DollarSign className="h-4 w-4" />
-                  <span>${job.metadata.budget}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(job.created_at).toLocaleDateString()}</span>
-                </div>
-                {job.metadata.source === 'google_sheets' && (
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Google Sheets</span>
+                    <Users className="h-4 w-4" />
+                    <span>{job.metadata?.applications || 0} applications</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <DollarSign className="h-4 w-4" />
+                    <span>${job.metadata?.budget || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>{new Date(job.created_at).toLocaleDateString()}</span>
+                  </div>
+                  {job.metadata?.source === 'google_sheets' && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <ExternalLink className="h-4 w-4" />
+                      <span>Google Sheets</span>
+                    </div>
+                  )}
+                </div>
+                
+                {job.metadata?.last_sync && (
+                  <div className="text-xs text-muted-foreground">
+                    Last synced: {new Date(job.metadata.last_sync).toLocaleString()}
                   </div>
                 )}
-              </div>
-              
-              {job.metadata.last_sync && (
-                <div className="text-xs text-muted-foreground">
-                  Last synced: {new Date(job.metadata.last_sync).toLocaleString()}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {filteredJobs.length === 0 && (

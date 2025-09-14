@@ -42,30 +42,30 @@ interface CampaignData {
 
 // Validation schemas for each step
 const step1Schema = z.object({
-  name: z.string().min(1, 'Campaign name is required'),
+  name: z.string().min(1, 'Campaign name is required').refine(val => val.trim().length > 0, 'Campaign name cannot be empty'),
   objective: z.enum(['traffic', 'leads']),
 });
 
 const step2Schema = z.object({
-  budget: z.string().min(1, 'Budget is required').refine(val => !isNaN(Number(val)) && Number(val) > 0, 'Budget must be a positive number'),
-  startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required'),
+  budget: z.string().min(1, 'Budget is required').refine(val => val.trim().length > 0 && !isNaN(Number(val.trim())) && Number(val.trim()) > 0, 'Budget must be a valid positive number'),
+  startDate: z.string().min(1, 'Start date is required').refine(val => val.trim().length > 0, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required').refine(val => val.trim().length > 0, 'End date is required'),
 }).refine(data => new Date(data.endDate) > new Date(data.startDate), {
   message: "End date must be after start date",
   path: ["endDate"],
 });
 
 const step3Schema = z.object({
-  locations: z.array(z.string()).min(1, 'At least one location is required'),
+  locations: z.array(z.string()).min(1, 'At least one location is required').refine(locations => locations.some(loc => loc.trim().length > 0), 'At least one valid location is required'),
 });
 
 const step4Schema = z.object({
-  audienceData: z.string().min(1, 'Audience information is required'),
+  audienceData: z.string().min(1, 'Audience information is required').refine(val => val.trim().length > 0, 'Audience information cannot be empty'),
 });
 
 const step5Schema = z.object({
-  adCopy: z.string().min(1, 'Ad copy is required'),
-  ctaButton: z.string().min(1, 'CTA button is required'),
+  adCopy: z.string().min(1, 'Ad copy is required').refine(val => val.trim().length > 0, 'Ad copy cannot be empty'),
+  ctaButton: z.string().min(1, 'CTA button is required').refine(val => val.trim().length > 0, 'CTA button cannot be empty'),
 });
 
 const objectives = [

@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useIntegrations } from '@/hooks/useIntegrations';
+import IntegrationGuide from '@/components/IntegrationGuide';
 import { 
   Settings as SettingsIcon,
   User,
@@ -306,69 +307,72 @@ const Settings = () => {
                         Not Connected
                       </Badge>
                     )}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant={isActive ? "outline" : "default"}
-                          size="sm"
-                        >
-                          {isActive ? 'Configure' : 'Connect'}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Connect {name}</DialogTitle>
-                          <DialogDescription>
-                            {integrationType === 'google_sheets' 
-                              ? 'Enter your Google Sheets URL to sync job data'
-                              : 'Enter your Meta Ads access token to pull campaign performance'
-                            }
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          {integrationType === 'google_sheets' ? (
-                            <>
-                              <div className="space-y-2">
-                                <Label htmlFor="sheets-url">Google Sheets URL</Label>
-                                <Input
-                                  id="sheets-url"
-                                  placeholder="https://docs.google.com/spreadsheets/d/..."
-                                  value={googleSheetsUrl}
-                                  onChange={(e) => setGoogleSheetsUrl(e.target.value)}
-                                />
-                              </div>
-                              <Button 
-                                onClick={handleGoogleSheetsConnect}
-                                disabled={integrationsLoading}
-                                className="w-full"
-                              >
-                                {integrationsLoading ? 'Connecting...' : 'Connect Google Sheets'}
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <div className="space-y-2">
-                                <Label htmlFor="meta-token">Meta Ads Access Token</Label>
-                                <Input
-                                  id="meta-token"
-                                  type="password"
-                                  placeholder="Enter your Meta Ads access token"
-                                  value={metaAccessToken}
-                                  onChange={(e) => setMetaAccessToken(e.target.value)}
-                                />
-                              </div>
-                              <Button 
-                                onClick={handleMetaAdsConnect}
-                                disabled={integrationsLoading}
-                                className="w-full"
-                              >
-                                {integrationsLoading ? 'Connecting...' : 'Connect Meta Ads'}
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <div className="flex gap-2">
+                      <IntegrationGuide type={integrationType as 'google_sheets' | 'meta_ads'} />
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant={isActive ? "outline" : "default"}
+                            size="sm"
+                          >
+                            {isActive ? 'Configure' : 'Connect'}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Connect {name}</DialogTitle>
+                            <DialogDescription>
+                              {integrationType === 'google_sheets' 
+                                ? 'Enter your Google Sheets URL to sync job data'
+                                : 'Enter your Meta Ads access token to pull campaign performance'
+                              }
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            {integrationType === 'google_sheets' ? (
+                              <>
+                                <div className="space-y-2">
+                                  <Label htmlFor="sheets-url">Google Sheets URL</Label>
+                                  <Input
+                                    id="sheets-url"
+                                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                                    value={googleSheetsUrl}
+                                    onChange={(e) => setGoogleSheetsUrl(e.target.value)}
+                                  />
+                                </div>
+                                <Button 
+                                  onClick={handleGoogleSheetsConnect}
+                                  disabled={integrationsLoading}
+                                  className="w-full"
+                                >
+                                  {integrationsLoading ? 'Connecting...' : 'Connect Google Sheets'}
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <div className="space-y-2">
+                                  <Label htmlFor="meta-token">Meta Ads Access Token</Label>
+                                  <Input
+                                    id="meta-token"
+                                    type="password"
+                                    placeholder="Enter your Meta Ads access token"
+                                    value={metaAccessToken}
+                                    onChange={(e) => setMetaAccessToken(e.target.value)}
+                                  />
+                                </div>
+                                <Button 
+                                  onClick={handleMetaAdsConnect}
+                                  disabled={integrationsLoading}
+                                  className="w-full"
+                                >
+                                  {integrationsLoading ? 'Connecting...' : 'Connect Meta Ads'}
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
                 </div>
               );
@@ -378,12 +382,15 @@ const Settings = () => {
 
             <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
               <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Integration Setup Required</p>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Integration Setup Help</p>
                 <p className="text-sm text-muted-foreground">
-                  To use Google Sheets and Meta Ads integrations, you'll need to configure API credentials. 
-                  Contact your administrator or check the documentation for setup instructions.
+                  Need help setting up integrations? Click the "Setup Guide" button next to each integration for detailed instructions.
                 </p>
+                <div className="flex gap-2 mt-2">
+                  <IntegrationGuide type="google_sheets" />
+                  <IntegrationGuide type="meta_ads" />
+                </div>
               </div>
             </div>
           </div>
