@@ -29,10 +29,10 @@ interface Job {
   title: string;
   description: string | null;
   status: string;
-  external_id: string | null;
-  created_at: string;
-  metadata: any;
   organization_id: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const Jobs = () => {
@@ -81,7 +81,7 @@ const Jobs = () => {
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (job.description && job.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -141,10 +141,7 @@ const Jobs = () => {
           title: formData.title.trim(),
           description: formData.description.trim() || null,
           status: formData.status,
-          metadata: {
-            source: 'manual',
-            budget: formData.budget ? parseFloat(formData.budget) : null
-          }
+          created_by: profile.user_id
         }]);
 
       if (error) throw error;
@@ -172,7 +169,7 @@ const Jobs = () => {
     setFormData({
       title: job.title,
       description: job.description || '',
-      budget: job.metadata?.budget?.toString() || '',
+      budget: '',
       status: job.status
     });
     setIsEditDialogOpen(true);
@@ -196,11 +193,7 @@ const Jobs = () => {
         .update({
           title: formData.title.trim(),
           description: formData.description.trim() || null,
-          status: formData.status,
-          metadata: {
-            ...editingJob.metadata,
-            budget: formData.budget ? parseFloat(formData.budget) : null
-          }
+          status: formData.status
         })
         .eq('id', editingJob.id);
 
@@ -500,32 +493,20 @@ const Jobs = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="h-4 w-4" />
-                    <span>{job.metadata?.applications || 0} applications</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <DollarSign className="h-4 w-4" />
-                    <span>${job.metadata?.budget || 'N/A'}</span>
+                    <span>Status: {job.status}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     <span>{new Date(job.created_at).toLocaleDateString()}</span>
                   </div>
-                  {job.metadata?.source === 'google_sheets' && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <ExternalLink className="h-4 w-4" />
-                      <span>Google Sheets</span>
-                    </div>
-                  )}
-                </div>
-                
-                {job.metadata?.last_sync && (
-                  <div className="text-xs text-muted-foreground">
-                    Last synced: {new Date(job.metadata.last_sync).toLocaleString()}
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>Updated: {new Date(job.updated_at).toLocaleDateString()}</span>
                   </div>
-                )}
+                </div>
               </CardContent>
             </Card>
           ))

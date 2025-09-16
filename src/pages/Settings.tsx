@@ -58,14 +58,8 @@ const Settings = () => {
 
   const fetchIntegrations = async () => {
     try {
-      const { data, error } = await supabase
-        .from('integrations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setIntegrations(data || []);
+      // Since integrations table doesn't exist yet, we'll use mock data
+      setIntegrations([]);
     } catch (error: any) {
       console.error('Error fetching integrations:', error);
       toast({

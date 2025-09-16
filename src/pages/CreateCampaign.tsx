@@ -117,6 +117,10 @@ const CreateCampaign = () => {
 
       if (error) throw error;
 
+      if (!data) {
+        throw new Error('Campaign not found');
+      }
+
       setCampaignData({
         name: data.name || '',
         objective: (data.objective as 'traffic' | 'leads') || 'traffic',
