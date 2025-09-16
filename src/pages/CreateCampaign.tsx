@@ -207,14 +207,7 @@ const CreateCampaign = () => {
   };
 
   const handleSubmit = async () => {
-    if (!profile?.organization_id) {
-      toast({
-        title: "Error",
-        description: "Organization not found",
-        variant: "destructive",
-      });
-      return;
-    }
+    const orgId = profile?.organization_id ?? null;
 
     setIsLoading(true);
     try {

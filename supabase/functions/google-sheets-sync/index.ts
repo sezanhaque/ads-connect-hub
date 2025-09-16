@@ -6,150 +6,132 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface GoogleSheetsJob {
-  title: string;
-  description: string;
-  budget: number;
-  status: string;
-  external_id: string;
+interface IncomingBody {
+  organization_id: string | null;
+  sheet_url?: string;
 }
 
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
+interface SheetJobRow {
+  title: string;
+  description: string;
+  status: 'active' | 'paused' | 'draft' | string;
+}
+
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get request data
-    const { organization_id, sheet_url } = await req.json();
+    const authHeader = req.headers.get('Authorization');
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: authHeader ? { Authorization: authHeader } : {} },
+    });
 
-    console.log('Starting Google Sheets sync for organization:', organization_id);
+    const { organization_id }: IncomingBody = await req.json();
 
-    // In a real implementation, you would:
-    // 1. Use Google Sheets API to fetch data from the provided sheet_url
-    // 2. Parse the rows and map them to job objects
-    // 3. Handle authentication with Google API using stored credentials
-    
-    // For now, we'll simulate the sync with mock data
-    const mockJobs: GoogleSheetsJob[] = [
+    // Identify caller to populate created_by
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ success: false, message: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+    const createdBy = userData.user.id;
+
+    // Simulated rows fetched from Google Sheets
+    const rows: SheetJobRow[] = [
       {
         title: 'Senior React Developer',
         description: 'Looking for experienced React developer with TypeScript',
-        budget: 3000,
         status: 'active',
-        external_id: 'GSHEET_001'
       },
       {
         title: 'Product Manager',
         description: 'Lead product strategy and roadmap development',
-        budget: 2500,
-        status: 'active', 
-        external_id: 'GSHEET_002'
-      }
+        status: 'active',
+      },
     ];
 
-    // Sync jobs to database
-    const syncResults = [];
-    
-    for (const job of mockJobs) {
-      // Check if job already exists
-      const { data: existingJob } = await supabase
+    const syncResults: Array<Record<string, unknown>> = [];
+
+    for (const row of rows) {
+      // Try to find an existing job by title + created_by (+ organization scope)
+      let query = supabase
         .from('jobs')
         .select('id')
-        .eq('external_id', job.external_id)
-        .eq('organization_id', organization_id)
-        .single();
+        .eq('title', row.title)
+        .eq('created_by', createdBy);
 
-      if (existingJob) {
-        // Update existing job
+      if (organization_id) {
+        query = query.eq('organization_id', organization_id);
+      } else {
+        query = query.is('organization_id', null);
+      }
+
+      const { data: existing, error: findErr } = await query.maybeSingle();
+      if (findErr) {
+        console.error('Find job error:', findErr);
+      }
+
+      if (existing?.id) {
         const { data, error } = await supabase
           .from('jobs')
           .update({
-            title: job.title,
-            description: job.description,
-            status: job.status,
-            metadata: {
-              ...job,
-              source: 'google_sheets',
-              last_sync: new Date().toISOString(),
-              budget: job.budget
-            }
+            description: row.description,
+            status: row.status,
           })
-          .eq('id', existingJob.id)
+          .eq('id', existing.id)
           .select()
           .single();
 
         if (error) {
-          console.error('Error updating job:', error);
-          syncResults.push({ external_id: job.external_id, status: 'error', error: error.message });
+          console.error('Update job error:', error);
+          syncResults.push({ title: row.title, status: 'error', error: error.message });
         } else {
-          syncResults.push({ external_id: job.external_id, status: 'updated', data });
+          syncResults.push({ title: row.title, status: 'updated', data });
         }
       } else {
-        // Create new job
         const { data, error } = await supabase
           .from('jobs')
           .insert({
-            title: job.title,
-            description: job.description,
-            status: job.status,
-            external_id: job.external_id,
-            organization_id,
-            metadata: {
-              ...job,
-              source: 'google_sheets',
-              last_sync: new Date().toISOString(),
-              budget: job.budget
-            }
+            title: row.title,
+            description: row.description,
+            status: row.status,
+            organization_id: organization_id ?? null,
+            created_by: createdBy,
           })
           .select()
           .single();
 
         if (error) {
-          console.error('Error creating job:', error);
-          syncResults.push({ external_id: job.external_id, status: 'error', error: error.message });
+          console.error('Create job error:', error);
+          syncResults.push({ title: row.title, status: 'error', error: error.message });
         } else {
-          syncResults.push({ external_id: job.external_id, status: 'created', data });
+          syncResults.push({ title: row.title, status: 'created', data });
         }
       }
     }
-
-    console.log('Sync completed:', syncResults);
 
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Google Sheets sync completed',
         results: syncResults,
-        synced_count: syncResults.filter(r => r.status !== 'error').length,
-        error_count: syncResults.filter(r => r.status === 'error').length
+        synced_count: syncResults.filter((r) => r.status !== 'error').length,
+        error_count: syncResults.filter((r) => r.status === 'error').length,
       }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      }
+      { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
     );
-
   } catch (error: any) {
     console.error('Error in google-sheets-sync function:', error);
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message,
-        message: 'Failed to sync Google Sheets data'
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      }
+      JSON.stringify({ success: false, message: 'Failed to sync Google Sheets data', error: error.message }),
+      { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } },
     );
   }
-};
-
-serve(handler);
+});

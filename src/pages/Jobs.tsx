@@ -36,7 +36,7 @@ interface Job {
 }
 
 const Jobs = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { toast } = useToast();
   const { syncGoogleSheets, loading: integrationsLoading } = useIntegrations();
   const [searchTerm, setSearchTerm] = useState('');
@@ -115,14 +115,7 @@ const Jobs = () => {
   };
 
   const handleCreateJob = async () => {
-    if (!profile?.organization_id) {
-      toast({
-        title: "Error",
-        description: "Organization not found",
-        variant: "destructive",
-      });
-      return;
-    }
+    const orgId = profile?.organization_id ?? null;
 
     if (!formData.title.trim()) {
       toast({
@@ -136,13 +129,13 @@ const Jobs = () => {
     try {
       const { error } = await supabase
         .from('jobs')
-        .insert([{
-          organization_id: profile.organization_id,
-          title: formData.title.trim(),
-          description: formData.description.trim() || null,
-          status: formData.status,
-          created_by: profile.user_id
-        }]);
+          .insert([{
+            organization_id: orgId,
+            title: formData.title.trim(),
+            description: formData.description.trim() || null,
+            status: formData.status,
+            created_by: profile?.user_id ?? user?.id as string
+          }]);
 
       if (error) throw error;
 
