@@ -38,7 +38,7 @@ interface Job {
 const Jobs = () => {
   const { profile, user } = useAuth();
   const { toast } = useToast();
-  const { syncGoogleSheets, loading: integrationsLoading } = useIntegrations();
+  const { syncJobsFromSheet, loading: integrationsLoading } = useIntegrations();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -52,11 +52,36 @@ const Jobs = () => {
     budget: '',
     status: 'active'
   });
-  const [sheetsUrl, setSheetsUrl] = useState('');
+  const [organization, setOrganization] = useState<any>(null);
 
   useEffect(() => {
     fetchJobs();
+    fetchOrganization();
   }, []);
+
+  const fetchOrganization = async () => {
+    if (!profile?.user_id) return;
+
+    try {
+      const { data: memberData } = await supabase
+        .from('members')
+        .select('org_id')
+        .eq('user_id', profile.user_id)
+        .single();
+
+      if (memberData?.org_id) {
+        const { data: orgData } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', memberData.org_id)
+          .single();
+
+        setOrganization(orgData);
+      }
+    } catch (error) {
+      console.error('Error fetching organization:', error);
+    }
+  };
 
   const fetchJobs = async () => {
     try {
@@ -96,18 +121,17 @@ const Jobs = () => {
   };
 
   const handleSync = async () => {
-    if (!sheetsUrl.trim()) {
+    if (!organization?.google_sheet_id) {
       toast({
-        title: "Error",
-        description: "Please enter a Google Sheets URL",
+        title: "No Google Sheet configured",
+        description: "Please configure a Google Sheet ID in Organization Settings first.",
         variant: "destructive",
       });
       return;
     }
     
     try {
-      await syncGoogleSheets(sheetsUrl);
-      setSheetsUrl('');
+      await syncJobsFromSheet(organization.id, organization.google_sheet_id);
       fetchJobs(); // Refresh jobs list
     } catch (error) {
       console.error('Sync error:', error);
@@ -266,40 +290,23 @@ const Jobs = () => {
         </div>
         
         <div className="flex gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={handleSync}
+            disabled={integrationsLoading || !organization?.google_sheet_id}
+          >
+            {integrationsLoading ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Sync Sheets
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Sync Google Sheets</DialogTitle>
-                <DialogDescription>
-                  Enter your Google Sheets URL to sync job data
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="sheets-url">Google Sheets URL</Label>
-                  <Input
-                    id="sheets-url"
-                    placeholder="https://docs.google.com/spreadsheets/d/..."
-                    value={sheetsUrl}
-                    onChange={(e) => setSheetsUrl(e.target.value)}
-                  />
-                </div>
-                <Button 
-                  onClick={handleSync}
-                  disabled={integrationsLoading}
-                  className="w-full"
-                >
-                  {integrationsLoading ? 'Syncing...' : 'Sync Jobs'}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </>
+            )}
+          </Button>
           
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
