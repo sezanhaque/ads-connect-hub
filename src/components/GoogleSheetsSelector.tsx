@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
@@ -36,15 +36,6 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [sheets, setSheets] = useState<GoogleSheet[]>([]);
   const [selectedSheetId, setSelectedSheetId] = useState<string>('');
-  const [manualInput, setManualInput] = useState<string>('');
-
-  const extractSheetId = (input: string) => {
-    if (!input) return '';
-    const urlMatch = input.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-    if (urlMatch?.[1]) return urlMatch[1];
-    const idMatch = input.match(/^[a-zA-Z0-9-_]{20,}$/);
-    return idMatch ? input : '';
-  };
 
   const handleGoogleAuth = async () => {
     setIsAuthenticating(true);
@@ -103,6 +94,7 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
             if (tokenError) throw tokenError;
 
             setAccessToken(tokenData.access_token);
+            await loadGoogleSheets(tokenData.access_token);
             
             toast({
               title: "Authentication successful",
@@ -154,20 +146,36 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
     }
   };
 
-  const loadGoogleSheets = async (_token: string) => {
-    // Listing is disabled to avoid Drive permissions
-    setSheets([]);
+  const loadGoogleSheets = async (token: string) => {
+    setIsLoadingSheets(true);
+    try {
+      const { data, error } = await supabase.functions
+        .invoke('google-sheets-list', { body: { accessToken: token } });
+      if (error) throw error;
+      setSheets(data.sheets);
+    } catch (error: any) {
+      console.error('Error loading sheets:', error);
+      const msg = error?.message || String(error);
+      const needsEnable = msg.includes('drive.googleapis.com') || msg.includes('Google Drive API has not been used') || msg.includes('SERVICE_DISABLED');
+      toast({
+        title: needsEnable ? 'Enable Google Drive API' : 'Failed to load sheets',
+        description: needsEnable
+          ? 'Please enable the Google Drive API for your OAuth project in Google Cloud, then try again.'
+          : msg,
+        variant: 'destructive',
+      });
+      setSheets([]);
+    } finally {
+      setIsLoadingSheets(false);
+    }
   };
 
   const handleSyncSheet = async () => {
-    if (!accessToken) return;
-
-    const idToUse = selectedSheetId || extractSheetId(manualInput);
-    if (!idToUse) {
+    if (!selectedSheetId || !accessToken) {
       toast({
-        title: "Missing sheet",
-        description: "Paste a valid Google Sheet URL or ID first.",
-        variant: "destructive",
+        title: 'Select a sheet',
+        description: 'Please choose a Google Sheet from the list first.',
+        variant: 'destructive',
       });
       return;
     }
@@ -179,7 +187,7 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
         .invoke('google-sheets-private-sync', {
           body: {
             organizationId,
-            sheetId: idToUse,
+            sheetId: selectedSheetId,
             accessToken
           }
         });
@@ -213,7 +221,7 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
     });
   };
 
-  const computedId = selectedSheetId || extractSheetId(manualInput);
+  
 
   return (
     <Card>
