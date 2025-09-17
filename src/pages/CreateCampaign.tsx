@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,61 +19,34 @@ import {
   MapPin, 
   Users, 
   Image,
-  Type,
-  MousePointer,
-  Check
+  Play,
+  AlertCircle,
+  Check,
+  Upload,
+  X
 } from 'lucide-react';
 
+interface Job {
+  id: string;
+  title: string;
+  company_name: string;
+  status: string;
+}
+
 interface CampaignData {
+  jobId: string;
   name: string;
-  objective: 'traffic' | 'leads';
   budget: string;
   startDate: string;
   endDate: string;
-  locations: string[];
-  audienceType: 'interests' | 'freetext';
-  audienceData: string;
+  locations: string;
+  targetAudience: string;
+  creativeAssets: File[];
   adCopy: string;
-  ctaButton: string;
-  emailRecipients: string[];
+  ctaButton: 'none' | 'learn-more';
 }
 
-// Validation schemas for each step
-const step1Schema = z.object({
-  name: z.string().min(1, 'Campaign name is required').refine(val => val.trim().length > 0, 'Campaign name cannot be empty'),
-  objective: z.enum(['traffic', 'leads']),
-});
-
-const step2Schema = z.object({
-  budget: z.string().min(1, 'Budget is required').refine(val => val.trim().length > 0 && !isNaN(Number(val.trim())) && Number(val.trim()) > 0, 'Budget must be a valid positive number'),
-  startDate: z.string().min(1, 'Start date is required').refine(val => val.trim().length > 0, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required').refine(val => val.trim().length > 0, 'End date is required'),
-}).refine(data => new Date(data.endDate) > new Date(data.startDate), {
-  message: "End date must be after start date",
-  path: ["endDate"],
-});
-
-const step3Schema = z.object({
-  locations: z.array(z.string()).min(1, 'At least one location is required').refine(locations => locations.some(loc => loc.trim().length > 0), 'At least one valid location is required'),
-});
-
-const step4Schema = z.object({
-  audienceData: z.string().min(1, 'Audience information is required').refine(val => val.trim().length > 0, 'Audience information cannot be empty'),
-});
-
-const step5Schema = z.object({
-  adCopy: z.string().min(1, 'Ad copy is required').refine(val => val.trim().length > 0, 'Ad copy cannot be empty'),
-  ctaButton: z.string().min(1, 'CTA button is required').refine(val => val.trim().length > 0, 'CTA button cannot be empty'),
-});
-
-const objectives = [
-  { value: 'traffic', label: 'Traffic', description: 'Drive visitors to your website' },
-  { value: 'leads', label: 'Leads', description: 'Generate leads and conversions' },
-];
-
-const ctaButtons = [
-  'Learn More', 'Sign Up', 'Shop Now', 'Download', 'Get Quote', 'Contact Us', 'Book Now', 'Try Free'
-];
+const FIXED_EMAIL_RECIPIENTS = ['ortv.schyns@gmail.com', 'moalamin001@gmail.com'];
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -84,118 +55,84 @@ const CreateCampaign = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [showDisabledPopup, setShowDisabledPopup] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
+    jobId: '',
     name: '',
-    objective: 'traffic',
     budget: '',
     startDate: '',
     endDate: '',
-    locations: [],
-    audienceType: 'interests',
-    audienceData: '',
+    locations: '',
+    targetAudience: '',
+    creativeAssets: [],
     adCopy: '',
-    ctaButton: 'Learn More',
-    emailRecipients: [],
+    ctaButton: 'none'
   });
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  useEffect(() => {
-    if (id) {
-      setIsEditMode(true);
-      loadCampaign(id);
-    }
-  }, [id]);
-
-  const loadCampaign = async (campaignId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('campaigns')
-        .select('*')
-        .eq('id', campaignId)
-        .single();
-
-      if (error) throw error;
-
-      if (!data) {
-        throw new Error('Campaign not found');
-      }
-
-      setCampaignData({
-        name: data.name || '',
-        objective: (data.objective as 'traffic' | 'leads') || 'traffic',
-        budget: data.budget?.toString() || '',
-        startDate: data.start_date || '',
-        endDate: data.end_date || '',
-        locations: (data.location_targeting as any)?.locations || [],
-        audienceType: (data.audience_targeting as any)?.type || 'interests',
-        audienceData: (data.audience_targeting as any)?.data || '',
-        adCopy: data.ad_copy || '',
-        ctaButton: data.cta_button || 'Learn More',
-        emailRecipients: [],
-      });
-    } catch (error: any) {
-      console.error('Error loading campaign:', error);
-      toast({
-        title: "Error loading campaign",
-        description: error.message,
-        variant: "destructive",
-      });
-      navigate('/campaigns');
-    }
-  };
 
   const steps = [
     { number: 1, title: 'Campaign Basics', icon: Target },
-    { number: 2, title: 'Budget & Schedule', icon: DollarSign },
-    { number: 3, title: 'Targeting', icon: MapPin },
-    { number: 4, title: 'Audience', icon: Users },
-    { number: 5, title: 'Creative & Copy', icon: Type },
-    { number: 6, title: 'Review & Publish', icon: Check },
+    { number: 2, title: 'Audience', icon: Users },
+    { number: 3, title: 'Creative & Copy', icon: Image },
+    { number: 4, title: 'Summary & Publishing', icon: Check }
   ];
+
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  const loadJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('id, title, company_name, status')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+    }
+  };
 
   const updateCampaignData = (updates: Partial<CampaignData>) => {
     setCampaignData(prev => ({ ...prev, ...updates }));
   };
 
   const validateCurrentStep = () => {
-    setValidationErrors({});
-    
-    try {
-      switch (currentStep) {
-        case 1:
-          step1Schema.parse(campaignData);
-          break;
-        case 2:
-          step2Schema.parse(campaignData);
-          break;
-        case 3:
-          step3Schema.parse(campaignData);
-          break;
-        case 4:
-          step4Schema.parse(campaignData);
-          break;
-        case 5:
-          step5Schema.parse(campaignData);
-          break;
-      }
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const errors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            errors[err.path[0] as string] = err.message;
-          }
-        });
-        setValidationErrors(errors);
-      }
-      return false;
+    switch (currentStep) {
+      case 1:
+        if (!campaignData.jobId || !campaignData.name || !campaignData.budget || !campaignData.startDate || !campaignData.endDate) {
+          toast({ title: "Please fill all required fields", variant: "destructive" });
+          return false;
+        }
+        if (new Date(campaignData.startDate) < new Date()) {
+          toast({ title: "Start date cannot be in the past", variant: "destructive" });
+          return false;
+        }
+        if (new Date(campaignData.endDate) <= new Date(campaignData.startDate)) {
+          toast({ title: "End date must be after start date", variant: "destructive" });
+          return false;
+        }
+        break;
+      case 2:
+        if (!campaignData.locations || !campaignData.targetAudience) {
+          toast({ title: "Please fill all required fields", variant: "destructive" });
+          return false;
+        }
+        break;
+      case 3:
+        if (!campaignData.adCopy) {
+          toast({ title: "Please provide ad copy", variant: "destructive" });
+          return false;
+        }
+        break;
     }
+    return true;
   };
 
   const nextStep = () => {
-    if (validateCurrentStep() && currentStep < steps.length) {
+    if (validateCurrentStep() && currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -204,6 +141,20 @@ const CreateCampaign = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (campaignData.creativeAssets.length + files.length > 10) {
+      toast({ title: "Maximum 10 files allowed", variant: "destructive" });
+      return;
+    }
+    updateCampaignData({ creativeAssets: [...campaignData.creativeAssets, ...files] });
+  };
+
+  const removeFile = (index: number) => {
+    const newAssets = campaignData.creativeAssets.filter((_, i) => i !== index);
+    updateCampaignData({ creativeAssets: newAssets });
   };
 
   const handleSubmit = async () => {
@@ -219,97 +170,61 @@ const CreateCampaign = () => {
         .maybeSingle();
 
       if (!memberData?.org_id) {
-        toast({
-          title: "Error",
-          description: "Organization not found. Please contact support.",
-          variant: "destructive",
-        });
+        toast({ title: "Organization not found", variant: "destructive" });
         return;
       }
 
-      // Use the create_campaign RPC function for new campaigns
-      if (!isEditMode) {
-        const { data: campaignId, error } = await supabase.rpc('create_campaign', {
-          p_org_id: memberData.org_id,
-          p_job_id: null, // You can add job selection in the UI later
-          p_name: campaignData.name,
-          p_objective: campaignData.objective,
-          p_budget: parseFloat(campaignData.budget) || 0,
-          p_currency: 'USD',
-          p_start_date: campaignData.startDate || null,
-          p_end_date: campaignData.endDate || null,
-          p_targeting: { locations: campaignData.locations },
-          p_creatives: {},
-          p_ad_copy: campaignData.adCopy || null,
-          p_cta: campaignData.ctaButton || null,
-          p_destination_url: null
-        });
+      // Create campaign
+      const { data: campaignId, error } = await supabase.rpc('create_campaign', {
+        p_org_id: memberData.org_id,
+        p_job_id: campaignData.jobId,
+        p_name: campaignData.name,
+        p_objective: 'traffic',
+        p_budget: parseFloat(campaignData.budget) || 0,
+        p_currency: 'USD',
+        p_start_date: campaignData.startDate,
+        p_end_date: campaignData.endDate,
+        p_targeting: { locations: campaignData.locations },
+        p_creatives: { assets_count: campaignData.creativeAssets.length },
+        p_ad_copy: campaignData.adCopy,
+        p_cta: campaignData.ctaButton === 'learn-more' ? 'Learn More' : null,
+        p_destination_url: null
+      });
 
-        if (error) throw error;
-      } else if (id) {
-        // Update existing campaign
-        const { error } = await supabase
-          .from('campaigns')
-          .update({
-            name: campaignData.name,
-            objective: campaignData.objective,
-            budget: parseFloat(campaignData.budget) || 0,
-            start_date: campaignData.startDate || null,
-            end_date: campaignData.endDate || null,
-            targeting: { locations: campaignData.locations },
-            ad_copy: campaignData.adCopy,
-            cta_button: campaignData.ctaButton,
-          })
-          .eq('id', id);
-        
-        if (error) throw error;
-      }
+      if (error) throw error;
+
+      // Update job status to "Live"
+      await supabase
+        .from('jobs')
+        .update({ status: 'Live' })
+        .eq('id', campaignData.jobId);
 
       // Send campaign email
       try {
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-campaign-email', {
+        await supabase.functions.invoke('send-campaign-email', {
           body: {
             campaign_name: campaignData.name,
-            objective: campaignData.objective,
+            job_id: campaignData.jobId,
             budget: parseFloat(campaignData.budget) || 0,
-            start_date: campaignData.startDate || '',
-            end_date: campaignData.endDate || '',
-            location_targeting: { locations: campaignData.locations },
-            audience_targeting: { 
-              type: campaignData.audienceType,
-              data: campaignData.audienceData 
-            },
+            start_date: campaignData.startDate,
+            end_date: campaignData.endDate,
+            location_targeting: campaignData.locations,
+            target_audience: campaignData.targetAudience,
             ad_copy: campaignData.adCopy,
-            cta_button: campaignData.ctaButton,
-            creative_assets: {},
-            user_email: profile.email,
-            user_name: `${profile.first_name} ${profile.last_name}`.trim(),
-            email_recipients: campaignData.emailRecipients
+            cta_button: campaignData.ctaButton === 'learn-more' ? 'Learn More' : 'None',
+            creative_assets_count: campaignData.creativeAssets.length,
+            recipients: FIXED_EMAIL_RECIPIENTS
           }
         });
-
-        if (emailError) {
-          console.error('Email sending failed:', emailError);
-        } else {
-          console.log('Campaign email sent successfully:', emailData);
-        }
       } catch (emailErr) {
-        console.error('Error sending campaign email:', emailErr);
+        console.error('Error sending email:', emailErr);
       }
 
-      toast({
-        title: isEditMode ? "Campaign updated successfully!" : "Campaign created successfully!",
-        description: "Campaign details will be emailed to you for manual publishing in Meta Ads Manager.",
-      });
-
+      toast({ title: "Campaign created successfully!" });
       navigate('/campaigns');
     } catch (error: any) {
-      console.error('Error saving campaign:', error);
-      toast({
-        title: isEditMode ? "Error updating campaign" : "Error creating campaign",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error('Error creating campaign:', error);
+      toast({ title: "Error creating campaign", description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -320,46 +235,79 @@ const CreateCampaign = () => {
       case 1:
         return (
           <div className="space-y-6">
+            {/* Job Selection */}
             <div className="space-y-2">
-              <Label htmlFor="campaign-name">Campaign Name</Label>
+              <Label htmlFor="job">Select Job *</Label>
+              <Select value={campaignData.jobId} onValueChange={(value) => updateCampaignData({ jobId: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a job" />
+                </SelectTrigger>
+                <SelectContent>
+                  {jobs.map((job) => (
+                    <SelectItem key={job.id} value={job.id}>
+                      {job.title} - {job.company_name} ({job.status})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Campaign Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Campaign Name *</Label>
               <Input
-                id="campaign-name"
+                id="name"
                 placeholder="Enter campaign name"
                 value={campaignData.name}
                 onChange={(e) => updateCampaignData({ name: e.target.value })}
-                className={validationErrors.name ? 'border-destructive' : ''}
               />
-              {validationErrors.name && (
-                <p className="text-sm text-destructive">{validationErrors.name}</p>
-              )}
             </div>
-            
-            <div className="space-y-3">
-              <Label>Campaign Objective</Label>
-              <div className="grid gap-3">
-                {objectives.map((objective) => (
-                  <Card 
-                    key={objective.value}
-                    className={`cursor-pointer transition-colors ${
-                      campaignData.objective === objective.value 
-                        ? 'border-primary bg-primary/5' 
-                        : 'hover:border-primary/50'
-                    }`}
-                    onClick={() => updateCampaignData({ objective: objective.value as 'traffic' | 'leads' })}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium">{objective.label}</h4>
-                          <p className="text-sm text-muted-foreground">{objective.description}</p>
-                        </div>
-                        {campaignData.objective === objective.value && (
-                          <Check className="h-5 w-5 text-primary" />
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+
+            {/* Objective - Disabled */}
+            <div className="space-y-2">
+              <Label>Objective</Label>
+              <Button 
+                variant="outline" 
+                className="w-full justify-between opacity-50 cursor-not-allowed"
+                onClick={() => setShowDisabledPopup(true)}
+              >
+                Traffic or Leads
+                <AlertCircle className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Budget & Schedule */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="budget">Total Budget ($) *</Label>
+                <Input
+                  id="budget"
+                  type="number"
+                  placeholder="1000"
+                  value={campaignData.budget}
+                  onChange={(e) => updateCampaignData({ budget: e.target.value })}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Start Date *</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={campaignData.startDate}
+                    onChange={(e) => updateCampaignData({ startDate: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">End Date *</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={campaignData.endDate}
+                    onChange={(e) => updateCampaignData({ endDate: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -368,48 +316,30 @@ const CreateCampaign = () => {
       case 2:
         return (
           <div className="space-y-6">
+            {/* Location Targeting */}
             <div className="space-y-2">
-              <Label htmlFor="budget">Total Budget ($)</Label>
+              <Label htmlFor="locations">Location Targeting *</Label>
               <Input
-                id="budget"
-                type="number"
-                placeholder="1000"
-                value={campaignData.budget}
-                onChange={(e) => updateCampaignData({ budget: e.target.value })}
-                className={validationErrors.budget ? 'border-destructive' : ''}
+                id="locations"
+                placeholder="Country, region, city, radius"
+                value={campaignData.locations}
+                onChange={(e) => updateCampaignData({ locations: e.target.value })}
               />
-              {validationErrors.budget && (
-                <p className="text-sm text-destructive">{validationErrors.budget}</p>
-              )}
+              <p className="text-sm text-muted-foreground">
+                Enter location details (e.g., "New York, 25 mile radius")
+              </p>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="start-date">Start Date</Label>
-                <Input
-                  id="start-date"
-                  type="date"
-                  value={campaignData.startDate}
-                  onChange={(e) => updateCampaignData({ startDate: e.target.value })}
-                  className={validationErrors.startDate ? 'border-destructive' : ''}
-                />
-                {validationErrors.startDate && (
-                  <p className="text-sm text-destructive">{validationErrors.startDate}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="end-date">End Date</Label>
-                <Input
-                  id="end-date"
-                  type="date"
-                  value={campaignData.endDate}
-                  onChange={(e) => updateCampaignData({ endDate: e.target.value })}
-                  className={validationErrors.endDate ? 'border-destructive' : ''}
-                />
-                {validationErrors.endDate && (
-                  <p className="text-sm text-destructive">{validationErrors.endDate}</p>
-                )}
-              </div>
+
+            {/* Target Audience */}
+            <div className="space-y-2">
+              <Label htmlFor="audience">Target Audience *</Label>
+              <Textarea
+                id="audience"
+                placeholder="Describe your target audience..."
+                value={campaignData.targetAudience}
+                onChange={(e) => updateCampaignData({ targetAudience: e.target.value })}
+                rows={4}
+              />
             </div>
           </div>
         );
@@ -417,23 +347,106 @@ const CreateCampaign = () => {
       case 3:
         return (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="locations">Location Targeting</Label>
-              <Input
-                id="locations"
-                placeholder="Enter locations (e.g., New York, California)"
-                value={campaignData.locations.join(', ')}
-                onChange={(e) => updateCampaignData({ 
-                  locations: e.target.value.split(',').map(loc => loc.trim()).filter(Boolean)
-                })}
-                className={validationErrors.locations ? 'border-destructive' : ''}
-              />
-              {validationErrors.locations && (
-                <p className="text-sm text-destructive">{validationErrors.locations}</p>
+            {/* Creative Assets */}
+            <div className="space-y-4">
+              <Label>Creative Assets (Max 10 files)</Label>
+              
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-sm text-muted-foreground">
+                    Click to upload images or videos
+                  </p>
+                </label>
+              </div>
+
+              {campaignData.creativeAssets.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Uploaded Files ({campaignData.creativeAssets.length}/10)</Label>
+                  <div className="space-y-2">
+                    {campaignData.creativeAssets.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                        <span className="text-sm">{file.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFile(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-              <p className="text-sm text-muted-foreground">
-                Separate multiple locations with commas
-              </p>
+
+              {/* AI Generation Placeholder */}
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="opacity-50 cursor-not-allowed"
+                  onClick={() => setShowDisabledPopup(true)}
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  AI Generate Images
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="opacity-50 cursor-not-allowed"
+                  onClick={() => setShowDisabledPopup(true)}
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  AI Generate Videos
+                </Button>
+              </div>
+            </div>
+
+            {/* Ad Copy */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="adCopy">Ad Copy *</Label>
+                <Textarea
+                  id="adCopy"
+                  placeholder="Write your ad copy here..."
+                  value={campaignData.adCopy}
+                  onChange={(e) => updateCampaignData({ adCopy: e.target.value })}
+                  rows={4}
+                />
+              </div>
+              
+              <Button 
+                variant="outline" 
+                className="opacity-50 cursor-not-allowed"
+                onClick={() => setShowDisabledPopup(true)}
+              >
+                <Play className="h-4 w-4 mr-2" />
+                AI Generate Copy
+              </Button>
+            </div>
+
+            {/* Call-to-Action */}
+            <div className="space-y-2">
+              <Label>Call-to-Action</Label>
+              <Select 
+                value={campaignData.ctaButton} 
+                onValueChange={(value: 'none' | 'learn-more') => updateCampaignData({ ctaButton: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="learn-more">Learn More</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         );
@@ -441,179 +454,53 @@ const CreateCampaign = () => {
       case 4:
         return (
           <div className="space-y-6">
-            <div className="space-y-3">
-              <Label>Audience Type</Label>
-              <Select
-                value={campaignData.audienceType}
-                onValueChange={(value: 'interests' | 'freetext') => 
-                  updateCampaignData({ audienceType: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="interests">Interest-based</SelectItem>
-                  <SelectItem value="freetext">Free-text description</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="audience-data">
-                {campaignData.audienceType === 'interests' 
-                  ? 'Target Interests' 
-                  : 'Audience Description'
-                }
-              </Label>
-              <Textarea
-                id="audience-data"
-                placeholder={
-                  campaignData.audienceType === 'interests'
-                    ? "e.g., fitness, healthy eating, workout supplements"
-                    : "Describe your target audience in detail"
-                }
-                value={campaignData.audienceData}
-                onChange={(e) => updateCampaignData({ audienceData: e.target.value })}
-                rows={3}
-                className={validationErrors.audienceData ? 'border-destructive' : ''}
-              />
-              {validationErrors.audienceData && (
-                <p className="text-sm text-destructive">{validationErrors.audienceData}</p>
-              )}
-            </div>
-          </div>
-        );
-
-      case 5:
-        return (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="ad-copy">Ad Copy</Label>
-              <Textarea
-                id="ad-copy"
-                placeholder="Write compelling ad copy that will engage your audience..."
-                value={campaignData.adCopy}
-                onChange={(e) => updateCampaignData({ adCopy: e.target.value })}
-                rows={4}
-                className={validationErrors.adCopy ? 'border-destructive' : ''}
-              />
-              {validationErrors.adCopy && (
-                <p className="text-sm text-destructive">{validationErrors.adCopy}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email-recipients">Email Recipients</Label>
-              <Input
-                id="email-recipients"
-                placeholder="Enter email addresses separated by commas"
-                value={campaignData.emailRecipients.join(', ')}
-                onChange={(e) => updateCampaignData({ 
-                  emailRecipients: e.target.value.split(',').map(email => email.trim()).filter(Boolean)
-                })}
-              />
-              <p className="text-sm text-muted-foreground">
-                Campaign details will be sent to these email addresses
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Call-to-Action Button</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {ctaButtons.map((cta) => (
-                  <Button
-                    key={cta}
-                    variant={campaignData.ctaButton === cta ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => updateCampaignData({ ctaButton: cta })}
-                  >
-                    {cta}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <Card className="bg-muted/50">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Image className="h-4 w-4" />
-                  <span>Creative assets (images/videos) will be handled during manual setup in Meta Ads Manager</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case 6:
-        return (
-          <div className="space-y-6">
+            <h3 className="text-lg font-semibold">Campaign Summary</h3>
+            
             <Card>
               <CardHeader>
-                <CardTitle>Campaign Summary</CardTitle>
-                <CardDescription>Review your campaign details before publishing</CardDescription>
+                <CardTitle>{campaignData.name}</CardTitle>
+                <CardDescription>Campaign Preview</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="font-medium">Name:</span> {campaignData.name}
+                    <strong>Budget:</strong> ${campaignData.budget}
                   </div>
                   <div>
-                    <span className="font-medium">Objective:</span> {campaignData.objective}
+                    <strong>Duration:</strong> {campaignData.startDate} to {campaignData.endDate}
                   </div>
                   <div>
-                    <span className="font-medium">Budget:</span> ${campaignData.budget}
+                    <strong>Location:</strong> {campaignData.locations}
                   </div>
                   <div>
-                    <span className="font-medium">Duration:</span> {campaignData.startDate} to {campaignData.endDate}
+                    <strong>Assets:</strong> {campaignData.creativeAssets.length} files
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <span className="font-medium text-sm">Locations:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {campaignData.locations.map((location, index) => (
-                      <Badge key={index} variant="secondary">{location}</Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <span className="font-medium text-sm">Audience:</span>
-                  <p className="text-sm text-muted-foreground">{campaignData.audienceData}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <span className="font-medium text-sm">Ad Copy:</span>
-                  <p className="text-sm text-muted-foreground">{campaignData.adCopy}</p>
-                </div>
-
                 <div>
-                  <span className="font-medium text-sm">CTA Button:</span> 
-                  <Badge className="ml-2">{campaignData.ctaButton}</Badge>
+                  <strong>Target Audience:</strong>
+                  <p className="mt-1 text-muted-foreground">{campaignData.targetAudience}</p>
                 </div>
-
-                {campaignData.emailRecipients.length > 0 && (
-                  <div className="space-y-2">
-                    <span className="font-medium text-sm">Email Recipients:</span>
-                    <div className="flex flex-wrap gap-1">
-                      {campaignData.emailRecipients.map((email, index) => (
-                        <Badge key={index} variant="outline">{email}</Badge>
-                      ))}
-                    </div>
+                
+                <div>
+                  <strong>Ad Copy:</strong>
+                  <p className="mt-1 text-muted-foreground">{campaignData.adCopy}</p>
+                </div>
+                
+                {campaignData.ctaButton !== 'none' && (
+                  <div>
+                    <strong>Call-to-Action:</strong>
+                    <Badge variant="secondary" className="ml-2">Learn More</Badge>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="p-4">
-                <p className="text-sm">
-                  <strong>Note:</strong> This campaign will be saved as a draft and all details will be emailed to designated recipients. 
-                  You'll need to manually set it up in Meta Ads Manager using the provided specifications.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="bg-muted p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                This campaign will be emailed to: <strong>{FIXED_EMAIL_RECIPIENTS.join(', ')}</strong>
+              </p>
+            </div>
           </div>
         );
 
@@ -623,66 +510,47 @@ const CreateCampaign = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/campaigns')}>
+    <div className="container mx-auto py-8 max-w-4xl">
+      <div className="mb-8">
+        <Button variant="ghost" onClick={() => navigate('/campaigns')} className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Campaigns
         </Button>
-        
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {isEditMode ? 'Edit Campaign' : 'Create Campaign'}
-          </h1>
-          <p className="text-muted-foreground">
-            Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}
-          </p>
-        </div>
+        <h1 className="text-2xl font-bold">Create Campaign</h1>
+        <p className="text-muted-foreground">Set up your marketing campaign</p>
       </div>
 
       {/* Progress Steps */}
-      <div className="flex items-center justify-between">
-        {steps.map((step) => {
-          const Icon = step.icon;
-          const isActive = currentStep === step.number;
-          const isCompleted = currentStep > step.number;
-          
-          return (
-            <div key={step.number} className="flex items-center">
-              <div className={`
-                flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors
-                ${isActive 
-                  ? 'border-primary bg-primary text-primary-foreground' 
-                  : isCompleted 
-                    ? 'border-success bg-success text-success-foreground'
-                    : 'border-muted-foreground/30 text-muted-foreground'
-                }
-              `}>
-                {isCompleted ? (
-                  <Check className="h-5 w-5" />
-                ) : (
-                  <Icon className="h-5 w-5" />
-                )}
-              </div>
-              {step.number < steps.length && (
-                <div className={`
-                  w-12 h-0.5 ml-2 transition-colors
-                  ${isCompleted ? 'bg-success' : 'bg-muted-foreground/30'}
-                `} />
-              )}
+      <div className="flex justify-between mb-8">
+        {steps.map((step, index) => (
+          <div key={step.number} className="flex items-center">
+            <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+              currentStep >= step.number 
+                ? 'bg-primary border-primary text-primary-foreground' 
+                : 'border-muted-foreground text-muted-foreground'
+            }`}>
+              <step.icon className="h-5 w-5" />
             </div>
-          );
-        })}
+            <div className="ml-3 hidden sm:block">
+              <p className={`text-sm font-medium ${
+                currentStep >= step.number ? 'text-foreground' : 'text-muted-foreground'
+              }`}>
+                {step.title}
+              </p>
+            </div>
+            {index < steps.length - 1 && (
+              <div className={`w-12 h-px mx-4 ${
+                currentStep > step.number ? 'bg-primary' : 'bg-muted-foreground'
+              }`} />
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Step Content */}
-      <Card>
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {React.createElement(steps[currentStep - 1].icon, { className: "h-5 w-5" })}
-            {steps[currentStep - 1].title}
-          </CardTitle>
+          <CardTitle>{steps[currentStep - 1]?.title}</CardTitle>
         </CardHeader>
         <CardContent>
           {renderStepContent()}
@@ -690,32 +558,42 @@ const CreateCampaign = () => {
       </Card>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
+      <div className="flex justify-between">
+        <Button 
+          variant="outline" 
           onClick={prevStep}
           disabled={currentStep === 1}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 mr-2" />
           Previous
         </Button>
         
-        <Button
-          onClick={currentStep === steps.length ? handleSubmit : nextStep}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            'Processing...'
-          ) : currentStep === steps.length ? (
-            isEditMode ? 'Update Campaign' : 'Create Campaign'
-          ) : (
-            <>
-              Next
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </>
-          )}
-        </Button>
+        {currentStep < 4 ? (
+          <Button onClick={nextStep}>
+            Next
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
+        ) : (
+          <Button onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? 'Publishing...' : 'Publish Campaign'}
+          </Button>
+        )}
       </div>
+
+      {/* Disabled Feature Popup */}
+      <Dialog open={showDisabledPopup} onOpenChange={setShowDisabledPopup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Feature Not Available</DialogTitle>
+            <DialogDescription>
+              This feature is not yet ready for the MVP.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => setShowDisabledPopup(false)}>
+            Got it
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

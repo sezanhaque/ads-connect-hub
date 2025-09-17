@@ -8,18 +8,16 @@ const corsHeaders = {
 
 interface CampaignEmailData {
   campaign_name: string;
-  objective: string;
+  job_id: string;
   budget: number;
   start_date: string;
   end_date: string;
-  location_targeting: any;
-  audience_targeting: any;
+  location_targeting: string;
+  target_audience: string;
   ad_copy: string;
   cta_button: string;
-  creative_assets: any;
-  user_email: string;
-  user_name: string;
-  email_recipients?: string[];
+  creative_assets_count: number;
+  recipients: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -63,22 +61,18 @@ const handler = async (req: Request): Promise<Response> => {
 </head>
 <body>
     <div class="header">
-        <h1>Campaign Setup Details</h1>
+        <h1>New Campaign Setup Request</h1>
         <p>Ready for Meta Ads Manager</p>
     </div>
     
     <div class="content">
-        <p>Hi ${campaignData.user_name},</p>
-        <p>Your campaign "${campaignData.campaign_name}" is ready to be set up in Meta Ads Manager. Here are all the details:</p>
+        <p>A new campaign "${campaignData.campaign_name}" has been created and is ready for setup in Meta Ads Manager.</p>
         
         <div class="section">
-            <div class="label">Campaign Objective</div>
-            <div class="value">${campaignData.objective}</div>
-        </div>
-        
-        <div class="section">
-            <div class="label">Budget & Schedule</div>
+            <div class="label">Campaign Details</div>
             <div class="value">
+                Campaign Name: ${campaignData.campaign_name}<br>
+                Job ID: ${campaignData.job_id}<br>
                 Total Budget: $${campaignData.budget}<br>
                 Start Date: ${campaignData.start_date}<br>
                 End Date: ${campaignData.end_date}
@@ -87,12 +81,12 @@ const handler = async (req: Request): Promise<Response> => {
         
         <div class="section">
             <div class="label">Location Targeting</div>
-            <div class="value">${JSON.stringify(campaignData.location_targeting, null, 2)}</div>
+            <div class="value">${campaignData.location_targeting}</div>
         </div>
         
         <div class="section">
             <div class="label">Target Audience</div>
-            <div class="value">${JSON.stringify(campaignData.audience_targeting, null, 2)}</div>
+            <div class="value">${campaignData.target_audience}</div>
         </div>
         
         <div class="section">
@@ -107,7 +101,7 @@ const handler = async (req: Request): Promise<Response> => {
         
         <div class="section">
             <div class="label">Creative Assets</div>
-            <div class="value">${JSON.stringify(campaignData.creative_assets, null, 2)}</div>
+            <div class="value">${campaignData.creative_assets_count} files uploaded</div>
         </div>
         
         <div class="section">
@@ -115,13 +109,13 @@ const handler = async (req: Request): Promise<Response> => {
             <div class="value">
                 1. Log into Meta Ads Manager<br>
                 2. Create a new campaign with the above settings<br>
-                3. Upload your creative assets<br>
-                4. Review and publish your campaign
+                3. Upload the creative assets<br>
+                4. Review and publish the campaign
             </div>
         </div>
         
         <div class="footer">
-            <p>This email was sent from your AdsConnect dashboard. If you need help setting up your campaign in Meta Ads Manager, please contact support.</p>
+            <p>This campaign request was generated automatically from the campaign creation system.</p>
         </div>
     </div>
 </body>
@@ -133,19 +127,14 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Email content generated:', emailContent.length, 'characters');
     
     // For demo purposes, we'll just log that the email was "sent"
-    // Send Email to all recipients
-    const allRecipients = [campaignData.user_email];
-    if (campaignData.email_recipients && campaignData.email_recipients.length > 0) {
-      allRecipients.push(...campaignData.email_recipients);
-    }
-    
-    console.log('Campaign email sent to:', allRecipients.join(', '));
+    // Send Email to fixed recipients
+    console.log('Campaign email sent to:', campaignData.recipients.join(', '));
 
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Campaign details email sent successfully',
-        recipient: campaignData.user_email,
+        recipients: campaignData.recipients,
         campaign_name: campaignData.campaign_name
       }),
       {
