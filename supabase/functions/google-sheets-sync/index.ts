@@ -54,41 +54,81 @@ async function syncJobsFromGoogleSheets(supabase: any, organizationId: string, s
     // Fetch data from Google Sheets
     const response = await fetch(csvUrl);
     if (!response.ok) {
-      throw new Error(`Failed to fetch Google Sheets data: ${response.status} ${response.statusText}`);
+      throw new Error(`Failed to fetch Google Sheets data: ${response.status} ${response.statusText}. Make sure the sheet is publicly viewable.`);
     }
     
     const csvData = await response.text();
     console.log('CSV data received, length:', csvData.length);
+    console.log('First 500 chars of CSV:', csvData.substring(0, 500));
     
-    // Parse CSV data
+    // Parse CSV data - handle both comma and quote variations
     const rows = csvData.split('\n').filter(row => row.trim());
     if (rows.length === 0) {
       throw new Error('No data found in Google Sheets');
     }
     
+    // Parse CSV more robustly
+    function parseCSVRow(row: string): string[] {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < row.length; i++) {
+        const char = row[i];
+        const nextChar = row[i + 1];
+        
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            current += '"';
+            i++; // Skip next quote
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim()); // Push last field
+      return result;
+    }
+    
     // Extract headers and data rows
-    const headers = rows[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const headers = parseCSVRow(rows[0]).map(h => h.toLowerCase().trim());
     const dataRows = rows.slice(1);
     
     console.log('Headers found:', headers);
     console.log('Data rows count:', dataRows.length);
     
-    // Expected column mapping
+    // Expected column mapping (flexible header matching)
     const columnMapping = {
-      'company_name': 'company_name',
-      'job_id': 'external_id',
-      'job_status': 'status',
-      'job_title': 'title',
-      'short_description': 'description',
-      'location_city': 'location',
-      'vacancy_url': 'vacancy_url'
+      'company_name': ['company_name', 'company name', 'company'],
+      'job_id': ['job_id', 'job id', 'id', 'jobid'],
+      'job_status': ['job_status', 'job status', 'status'],
+      'job_title': ['job_title', 'job title', 'title', 'position'],
+      'short_description': ['short_description', 'short description', 'description', 'desc'],
+      'location_city': ['location_city', 'location city', 'location', 'city'],
+      'vacancy_url': ['vacancy_url', 'vacancy url', 'url', 'link']
     };
     
+    // Find column indices
+    const columnIndices: Record<string, number> = {};
+    for (const [dbField, possibleHeaders] of Object.entries(columnMapping)) {
+      const headerIndex = headers.findIndex(h => possibleHeaders.includes(h));
+      if (headerIndex !== -1) {
+        columnIndices[dbField] = headerIndex;
+      }
+    }
+    
+    console.log('Column indices found:', columnIndices);
+    
     // Validate required columns
-    const requiredColumns = Object.keys(columnMapping);
-    const missingColumns = requiredColumns.filter(col => !headers.includes(col));
-    if (missingColumns.length > 0) {
-      throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+    const requiredFields = ['job_id', 'job_title'];
+    const missingFields = requiredFields.filter(field => columnIndices[field] === undefined);
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required columns: ${missingFields.join(', ')}. Found headers: ${headers.join(', ')}`);
     }
     
     let syncedCount = 0;
@@ -97,37 +137,45 @@ async function syncJobsFromGoogleSheets(supabase: any, organizationId: string, s
     // Process each row
     for (let i = 0; i < dataRows.length; i++) {
       try {
-        const rowData = dataRows[i].split(',').map(cell => cell.trim().replace(/"/g, ''));
+        const rowData = parseCSVRow(dataRows[i]);
         
         // Skip empty rows
         if (rowData.every(cell => !cell)) continue;
         
-        // Create job object from row data
+        // Extract data using column indices
         const jobData: any = {
           org_id: organizationId,
           created_by: organizationId // Using org_id as fallback for created_by
         };
         
-        // Map each column
-        headers.forEach((header, index) => {
-          if (columnMapping[header as keyof typeof columnMapping]) {
-            const dbField = columnMapping[header as keyof typeof columnMapping];
-            let value = rowData[index] || null;
-            
-            // Special handling for location - convert to JSON
-            if (dbField === 'location' && value) {
-              jobData[dbField] = JSON.stringify({ city: value });
-            } else {
-              jobData[dbField] = value;
-            }
+        // Map each field
+        for (const [dbField, columnIndex] of Object.entries(columnIndices)) {
+          const value = rowData[columnIndex]?.trim() || null;
+          
+          if (dbField === 'job_id') {
+            jobData.external_id = value;
+          } else if (dbField === 'job_title') {
+            jobData.title = value;
+          } else if (dbField === 'job_status') {
+            jobData.status = value || 'active';
+          } else if (dbField === 'short_description') {
+            jobData.description = value;
+          } else if (dbField === 'location_city') {
+            jobData.location = value ? JSON.stringify({ city: value }) : null;
+          } else if (dbField === 'vacancy_url') {
+            jobData.vacancy_url = value;
+          } else if (dbField === 'company_name') {
+            jobData.company_name = value;
           }
-        });
+        }
         
         // Validate required fields
         if (!jobData.external_id || !jobData.title) {
-          console.warn(`Skipping row ${i + 1}: missing job_id or job_title`);
+          console.warn(`Skipping row ${i + 1}: missing job_id (${jobData.external_id}) or job_title (${jobData.title})`);
           continue;
         }
+        
+        console.log(`Processing job: ${jobData.title} (${jobData.external_id})`);
         
         // Check if job exists (upsert logic)
         const { data: existingJob } = await supabase
