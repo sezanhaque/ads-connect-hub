@@ -175,11 +175,9 @@ const CreateJob = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
+                    <SelectItem value="live">Live</SelectItem>
+                    <SelectItem value="offline">Offline</SelectItem>
                     <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="paused">Paused</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
