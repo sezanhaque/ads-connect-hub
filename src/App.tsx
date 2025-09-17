@@ -12,6 +12,7 @@ import Campaigns from "./pages/Campaigns";
 import CreateCampaign from "./pages/CreateCampaign";
 import CampaignDetails from "./pages/CampaignDetails";
 import Jobs from "./pages/Jobs";
+import CreateJob from "./pages/CreateJob";
 import Settings from "./pages/Settings";
 import OrganizationSettings from "./pages/OrganizationSettings";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/campaigns/:id" element={<DashboardLayout><CampaignDetails /></DashboardLayout>} />
             <Route path="/campaigns/:id/edit" element={<DashboardLayout><CreateCampaign /></DashboardLayout>} />
             <Route path="/jobs" element={<DashboardLayout><Jobs /></DashboardLayout>} />
+            <Route path="/jobs/create" element={<DashboardLayout><CreateJob /></DashboardLayout>} />
             <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
             <Route path="/settings/organization" element={<DashboardLayout><OrganizationSettings /></DashboardLayout>} />
             <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />

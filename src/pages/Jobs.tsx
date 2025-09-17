@@ -4,44 +4,47 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
   Filter, 
   ExternalLink,
-  Calendar,
-  DollarSign,
-  Users,
   RefreshCw,
   Edit,
   Trash2
 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Job {
   id: string;
+  external_id: string | null;
   title: string;
   description: string | null;
   status: string;
-  organization_id: string;
+  company_name: string | null;
+  location: string | null;
+  vacancy_url: string | null;
+  org_id: string;
   created_by: string;
   created_at: string;
   updated_at: string;
 }
 
 const Jobs = () => {
+  const navigate = useNavigate();
   const { profile, user } = useAuth();
   const { toast } = useToast();
   const { syncJobsFromSheet, loading: integrationsLoading } = useIntegrations();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,8 +52,7 @@ const Jobs = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    budget: '',
-    status: 'active'
+    status: 'open'
   });
   const [organization, setOrganization] = useState<any>(null);
 
@@ -106,7 +108,9 @@ const Jobs = () => {
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (job.description && job.description.toLowerCase().includes(searchTerm.toLowerCase()));
+                         (job.description && job.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (job.company_name && job.company_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (job.external_id && job.external_id.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -114,7 +118,9 @@ const Jobs = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800 border-green-200';
+      case 'open': return 'bg-green-100 text-green-800 border-green-200';
       case 'paused': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'closed': return 'bg-red-100 text-red-800 border-red-200';
       case 'draft': return 'bg-gray-100 text-gray-800 border-gray-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -138,71 +144,11 @@ const Jobs = () => {
     }
   };
 
-  const handleCreateJob = async () => {
-    if (!profile?.user_id) return;
-
-    if (!formData.title.trim()) {
-      toast({
-        title: "Error",
-        description: "Job title is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // Get user's organization
-      const { data: memberData } = await supabase
-        .from('members')
-        .select('org_id')
-        .eq('user_id', profile.user_id)
-        .maybeSingle();
-
-      if (!memberData?.org_id) {
-        toast({
-          title: "Error", 
-          description: "Organization not found. Please contact support.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from('jobs')
-        .insert([{
-          org_id: memberData.org_id,
-          title: formData.title.trim(),
-          description: formData.description.trim() || null,
-          status: formData.status,
-          created_by: profile.user_id
-        }]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Job created",
-        description: "New job has been created successfully",
-      });
-
-      setFormData({ title: '', description: '', budget: '', status: 'active' });
-      setIsCreateDialogOpen(false);
-      fetchJobs();
-    } catch (error: any) {
-      console.error('Error creating job:', error);
-      toast({
-        title: "Error creating job",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleEditJob = (job: Job) => {
     setEditingJob(job);
     setFormData({
       title: job.title,
       description: job.description || '',
-      budget: '',
       status: job.status
     });
     setIsEditDialogOpen(true);
@@ -237,7 +183,7 @@ const Jobs = () => {
         description: "Job has been updated successfully",
       });
 
-      setFormData({ title: '', description: '', budget: '', status: 'active' });
+      setFormData({ title: '', description: '', status: 'open' });
       setIsEditDialogOpen(false);
       setEditingJob(null);
       fetchJobs();
@@ -308,138 +254,10 @@ const Jobs = () => {
             )}
           </Button>
           
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Job
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add New Job</DialogTitle>
-                <DialogDescription>
-                  Create a new job posting manually
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="job-title">Job Title</Label>
-                  <Input 
-                    id="job-title" 
-                    placeholder="e.g. Senior Developer"
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="job-description">Description</Label>
-                  <Textarea 
-                    id="job-description" 
-                    placeholder="Brief job description..."
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="job-budget">Budget ($)</Label>
-                  <Input 
-                    id="job-budget" 
-                    type="number" 
-                    placeholder="2500"
-                    value={formData.budget}
-                    onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="job-status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="paused">Paused</SelectItem>
-                      <SelectItem value="draft">Draft</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateJob}>
-                    Create Job
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* Edit Job Dialog */}
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Edit Job</DialogTitle>
-                <DialogDescription>
-                  Update job posting details
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-job-title">Job Title</Label>
-                  <Input 
-                    id="edit-job-title" 
-                    placeholder="e.g. Senior Developer"
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-job-description">Description</Label>
-                  <Textarea 
-                    id="edit-job-description" 
-                    placeholder="Brief job description..."
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-job-budget">Budget ($)</Label>
-                  <Input 
-                    id="edit-job-budget" 
-                    type="number" 
-                    placeholder="2500"
-                    value={formData.budget}
-                    onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-job-status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="paused">Paused</SelectItem>
-                      <SelectItem value="draft">Draft</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleUpdateJob}>
-                    Update Job
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => navigate('/jobs/create')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Job
+          </Button>
         </div>
       </div>
 
@@ -462,86 +280,162 @@ const Jobs = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="open">Open</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="paused">Paused</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* Jobs Grid */}
-      <div className="grid gap-4">
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="text-muted-foreground">Loading jobs...</div>
-          </div>
-        ) : (
-          filteredJobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">{job.title}</CardTitle>
-                    <CardDescription>{job.description || 'No description'}</CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(job.status)}>
-                      {job.status}
-                    </Badge>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditJob(job)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteJob(job.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    <span>Status: {job.status}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>{new Date(job.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>Updated: {new Date(job.updated_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+      {/* Jobs Table */}
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="text-muted-foreground">Loading jobs...</div>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-muted-foreground">No jobs found</div>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Job ID</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredJobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">
+                      {job.external_id || '-'}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{job.title}</div>
+                        {job.description && (
+                          <div className="text-sm text-muted-foreground truncate max-w-xs">
+                            {job.description}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{job.company_name || '-'}</TableCell>
+                    <TableCell>{job.location || '-'}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className={getStatusColor(job.status)}>
+                        {job.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(job.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {job.vacancy_url && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                          >
+                            <a 
+                              href={job.vacancy_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditJob(job)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteJob(job.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
-      {filteredJobs.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-muted-foreground">
-            <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg mb-2">No jobs found</p>
-            <p className="text-sm">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Try adjusting your filters' 
-                : 'Create your first job or sync with Google Sheets'}
-            </p>
+      {/* Edit Job Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Job</DialogTitle>
+            <DialogDescription>
+              Update job posting details
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-job-title">Job Title</Label>
+              <Input 
+                id="edit-job-title" 
+                placeholder="e.g. Senior Developer"
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-job-description">Description</Label>
+              <Textarea 
+                id="edit-job-description" 
+                placeholder="Brief job description..."
+                rows={3}
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-job-status">Status</Label>
+              <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateJob}>
+                Update Job
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
