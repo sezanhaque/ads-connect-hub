@@ -98,6 +98,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Error creating profile:', insertError);
           return;
         }
+
+        // Also create organization for existing users who don't have one
+        try {
+          await supabase.rpc('app_create_org_if_missing', {
+            p_user_id: userId,
+            p_email: authUser?.email ?? '',
+            p_name: (authUser?.user_metadata as any)?.company_name ?? 'My Organization'
+          });
+        } catch (orgError) {
+          console.error('Error creating organization:', orgError);
+        }
+
         setProfile(newProfile);
       } else {
         setProfile(data);
@@ -110,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, firstName: string, lastName: string, companyName: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -129,7 +141,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: error.message,
         variant: "destructive",
       });
-    } else {
+    } else if (data.user) {
+      // Create organization for new user
+      try {
+        await supabase.rpc('app_create_org_if_missing', {
+          p_user_id: data.user.id,
+          p_email: email,
+          p_name: companyName
+        });
+      } catch (orgError) {
+        console.error('Error creating organization:', orgError);
+      }
+      
       toast({
         title: "Account created successfully!",
         description: "Please check your email to verify your account.",

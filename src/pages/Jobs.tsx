@@ -115,7 +115,7 @@ const Jobs = () => {
   };
 
   const handleCreateJob = async () => {
-    const orgId = profile?.organization_id ?? null;
+    if (!profile?.user_id) return;
 
     if (!formData.title.trim()) {
       toast({
@@ -127,15 +127,31 @@ const Jobs = () => {
     }
 
     try {
+      // Get user's organization
+      const { data: memberData } = await supabase
+        .from('members')
+        .select('org_id')
+        .eq('user_id', profile.user_id)
+        .single();
+
+      if (!memberData?.org_id) {
+        toast({
+          title: "Error", 
+          description: "Organization not found. Please contact support.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('jobs')
-          .insert([{
-            organization_id: orgId,
-            title: formData.title.trim(),
-            description: formData.description.trim() || null,
-            status: formData.status,
-            created_by: profile?.user_id ?? user?.id as string
-          }]);
+        .insert([{
+          org_id: memberData.org_id,
+          title: formData.title.trim(),
+          description: formData.description.trim() || null,
+          status: formData.status,
+          created_by: profile.user_id
+        }]);
 
       if (error) throw error;
 

@@ -42,6 +42,11 @@ const Settings = () => {
     last_name: '',
     email: '',
   });
+  const [organizationData, setOrganizationData] = useState({
+    name: '',
+    role: '',
+    id: '',
+  });
   const [googleSheetsUrl, setGoogleSheetsUrl] = useState('');
   const [metaAccessToken, setMetaAccessToken] = useState('');
 
@@ -52,9 +57,46 @@ const Settings = () => {
         last_name: profile.last_name || '',
         email: profile.email || '',
       });
+      
+      // Fetch organization information
+      fetchOrganizationInfo();
     }
     fetchIntegrations();
   }, [profile]);
+
+  const fetchOrganizationInfo = async () => {
+    if (!profile?.user_id) return;
+
+    try {
+      const { data: memberData, error } = await supabase
+        .from('members')
+        .select(`
+          role,
+          org_id,
+          organizations (
+            id,
+            name
+          )
+        `)
+        .eq('user_id', profile.user_id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching organization:', error);
+        return;
+      }
+
+      if (memberData?.organizations) {
+        setOrganizationData({
+          name: (memberData.organizations as any).name || '',
+          role: memberData.role || '',
+          id: (memberData.organizations as any).id || '',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching organization info:', error);
+    }
+  };
 
   const fetchIntegrations = async () => {
     try {
@@ -238,14 +280,18 @@ const Settings = () => {
         <CardContent>
           <div className="space-y-4">
             <div>
+              <Label className="text-sm font-medium">Organization Name</Label>
+              <p className="text-sm text-muted-foreground mt-1">{organizationData.name || 'Loading...'}</p>
+            </div>
+            <div>
               <Label className="text-sm font-medium">Role</Label>
               <div className="mt-1">
-                <Badge variant="secondary">{profile?.role}</Badge>
+                <Badge variant="secondary">{organizationData.role || 'Loading...'}</Badge>
               </div>
             </div>
             <div>
               <Label className="text-sm font-medium">Organization ID</Label>
-              <p className="text-sm text-muted-foreground mt-1">{profile?.organization_id}</p>
+              <p className="text-sm text-muted-foreground mt-1">{organizationData.id || 'Loading...'}</p>
             </div>
           </div>
         </CardContent>

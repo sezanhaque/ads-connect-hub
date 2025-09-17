@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_metrics: {
+        Row: {
+          campaign_id: string
+          clicks: number | null
+          cpc: number | null
+          cpl: number | null
+          created_at: string | null
+          ctr: number | null
+          day: string
+          id: string
+          impressions: number | null
+          leads: number | null
+          raw: Json | null
+          spend: number | null
+        }
+        Insert: {
+          campaign_id: string
+          clicks?: number | null
+          cpc?: number | null
+          cpl?: number | null
+          created_at?: string | null
+          ctr?: number | null
+          day: string
+          id?: string
+          impressions?: number | null
+          leads?: number | null
+          raw?: Json | null
+          spend?: number | null
+        }
+        Update: {
+          campaign_id?: string
+          clicks?: number | null
+          cpc?: number | null
+          cpl?: number | null
+          created_at?: string | null
+          ctr?: number | null
+          day?: string
+          id?: string
+          impressions?: number | null
+          leads?: number | null
+          raw?: Json | null
+          spend?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_metrics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           ad_copy: string | null
@@ -21,15 +74,21 @@ export type Database = {
           budget: number
           created_at: string
           created_by: string
+          creatives: Json | null
           cta_button: string | null
+          currency: string | null
+          destination_url: string | null
           end_date: string | null
           id: string
+          job_id: string | null
           location_targeting: Json
           name: string
           objective: string
+          org_id: string | null
           organization_id: string | null
           start_date: string | null
           status: string
+          targeting: Json | null
           updated_at: string
         }
         Insert: {
@@ -38,15 +97,21 @@ export type Database = {
           budget?: number
           created_at?: string
           created_by: string
+          creatives?: Json | null
           cta_button?: string | null
+          currency?: string | null
+          destination_url?: string | null
           end_date?: string | null
           id?: string
+          job_id?: string | null
           location_targeting?: Json
           name: string
           objective: string
+          org_id?: string | null
           organization_id?: string | null
           start_date?: string | null
           status?: string
+          targeting?: Json | null
           updated_at?: string
         }
         Update: {
@@ -55,51 +120,165 @@ export type Database = {
           budget?: number
           created_at?: string
           created_by?: string
+          creatives?: Json | null
           cta_button?: string | null
+          currency?: string | null
+          destination_url?: string | null
           end_date?: string | null
           id?: string
+          job_id?: string | null
           location_targeting?: Json
           name?: string
           objective?: string
+          org_id?: string | null
           organization_id?: string | null
           start_date?: string | null
           status?: string
+          targeting?: Json | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invites: {
+        Row: {
+          accepted: boolean | null
+          created_at: string | null
+          email: string
+          id: string
+          org_id: string
+          role: string
+          token: string
+        }
+        Insert: {
+          accepted?: boolean | null
+          created_at?: string | null
+          email: string
+          id?: string
+          org_id: string
+          role?: string
+          token: string
+        }
+        Update: {
+          accepted?: boolean | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          org_id?: string
+          role?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       jobs: {
         Row: {
+          company_name: string | null
           created_at: string
           created_by: string
           description: string | null
+          external_id: string | null
           id: string
+          location: string | null
+          org_id: string | null
           organization_id: string | null
           status: string
           title: string
           updated_at: string
+          vacancy_url: string | null
         }
         Insert: {
+          company_name?: string | null
           created_at?: string
           created_by: string
           description?: string | null
+          external_id?: string | null
           id?: string
+          location?: string | null
+          org_id?: string | null
           organization_id?: string | null
           status?: string
           title: string
           updated_at?: string
+          vacancy_url?: string | null
         }
         Update: {
+          company_name?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
+          external_id?: string | null
           id?: string
+          location?: string | null
+          org_id?: string | null
           organization_id?: string | null
           status?: string
           title?: string
           updated_at?: string
+          vacancy_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      members: {
+        Row: {
+          created_at: string | null
+          id: string
+          org_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          org_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          org_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "members_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       metrics: {
         Row: {
@@ -131,6 +310,24 @@ export type Database = {
           impressions?: number
           leads?: number
           spend?: number
+        }
+        Relationships: []
+      }
+      organizations: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -175,7 +372,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      app_create_org_if_missing: {
+        Args: { p_email: string; p_name: string; p_user_id: string }
+        Returns: string
+      }
+      create_campaign: {
+        Args: {
+          p_ad_copy?: string
+          p_budget: number
+          p_creatives?: Json
+          p_cta?: string
+          p_currency?: string
+          p_destination_url?: string
+          p_end_date?: string
+          p_job_id: string
+          p_name: string
+          p_objective: string
+          p_org_id: string
+          p_start_date?: string
+          p_targeting?: Json
+        }
+        Returns: string
+      }
+      publish_campaign: {
+        Args: { p_campaign_id: string; p_requester: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

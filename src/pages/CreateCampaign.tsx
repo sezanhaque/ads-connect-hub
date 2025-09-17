@@ -207,48 +207,62 @@ const CreateCampaign = () => {
   };
 
   const handleSubmit = async () => {
-    const orgId = profile?.organization_id ?? null;
+    if (!profile?.user_id) return;
 
     setIsLoading(true);
     try {
-      const campaignPayload = {
-        organization_id: profile.organization_id,
-        name: campaignData.name,
-        objective: campaignData.objective,
-        status: 'draft',
-        budget: parseFloat(campaignData.budget) || 0,
-        start_date: campaignData.startDate || null,
-        end_date: campaignData.endDate || null,
-        location_targeting: { locations: campaignData.locations },
-        audience_targeting: { 
-          type: campaignData.audienceType,
-          data: campaignData.audienceData 
-        },
-        ad_copy: campaignData.adCopy,
-        cta_button: campaignData.ctaButton,
-        created_by: profile.user_id,
-      };
+      // Get user's organization
+      const { data: memberData } = await supabase
+        .from('members')
+        .select('org_id')
+        .eq('user_id', profile.user_id)
+        .single();
 
-      let campaignResult;
-      if (isEditMode && id) {
-        const { data, error } = await supabase
+      if (!memberData?.org_id) {
+        toast({
+          title: "Error",
+          description: "Organization not found. Please contact support.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Use the create_campaign RPC function for new campaigns
+      if (!isEditMode) {
+        const { data: campaignId, error } = await supabase.rpc('create_campaign', {
+          p_org_id: memberData.org_id,
+          p_job_id: null, // You can add job selection in the UI later
+          p_name: campaignData.name,
+          p_objective: campaignData.objective,
+          p_budget: parseFloat(campaignData.budget) || 0,
+          p_currency: 'USD',
+          p_start_date: campaignData.startDate || null,
+          p_end_date: campaignData.endDate || null,
+          p_targeting: { locations: campaignData.locations },
+          p_creatives: {},
+          p_ad_copy: campaignData.adCopy || null,
+          p_cta: campaignData.ctaButton || null,
+          p_destination_url: null
+        });
+
+        if (error) throw error;
+      } else if (id) {
+        // Update existing campaign
+        const { error } = await supabase
           .from('campaigns')
-          .update(campaignPayload)
-          .eq('id', id)
-          .select()
-          .single();
+          .update({
+            name: campaignData.name,
+            objective: campaignData.objective,
+            budget: parseFloat(campaignData.budget) || 0,
+            start_date: campaignData.startDate || null,
+            end_date: campaignData.endDate || null,
+            targeting: { locations: campaignData.locations },
+            ad_copy: campaignData.adCopy,
+            cta_button: campaignData.ctaButton,
+          })
+          .eq('id', id);
         
         if (error) throw error;
-        campaignResult = data;
-      } else {
-        const { data, error } = await supabase
-          .from('campaigns')
-          .insert([campaignPayload])
-          .select()
-          .single();
-        
-        if (error) throw error;
-        campaignResult = data;
       }
 
       // Send campaign email
