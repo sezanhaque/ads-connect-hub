@@ -23,10 +23,11 @@ serve(async (req) => {
     }
 
     if (action === 'getAuthUrl') {
-      // Generate OAuth URL
+      // Generate OAuth URL with explicit scopes
       const scopes = [
         'https://www.googleapis.com/auth/spreadsheets.readonly',
-        'https://www.googleapis.com/auth/drive.readonly'
+        'https://www.googleapis.com/auth/drive.readonly',
+        'https://www.googleapis.com/auth/drive.file'
       ].join(' ');
 
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
@@ -35,8 +36,11 @@ serve(async (req) => {
         `scope=${encodeURIComponent(scopes)}&` +
         `response_type=code&` +
         `access_type=offline&` +
-        `prompt=consent`;
+        `prompt=consent&` +
+        `include_granted_scopes=true`;
 
+      console.log('Generated auth URL with scopes:', scopes);
+      
       return new Response(JSON.stringify({ authUrl }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -61,8 +65,11 @@ serve(async (req) => {
       const tokenData = await tokenResponse.json();
 
       if (!tokenResponse.ok) {
+        console.error('Token exchange failed:', tokenData);
         throw new Error(tokenData.error_description || 'Failed to exchange code for token');
       }
+
+      console.log('Token exchange successful, scopes granted:', tokenData.scope);
 
       return new Response(JSON.stringify(tokenData), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

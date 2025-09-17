@@ -36,7 +36,12 @@ serve(async (req) => {
 
     if (!driveResponse.ok) {
       const errorData = await driveResponse.json();
-      throw new Error(errorData.error?.message || 'Failed to fetch Google Sheets');
+      console.error('Drive API error:', {
+        status: driveResponse.status,
+        statusText: driveResponse.statusText,
+        error: errorData
+      });
+      throw new Error(errorData.error?.message || `Drive API error: ${driveResponse.status} ${driveResponse.statusText}`);
     }
 
     const driveData = await driveResponse.json();
