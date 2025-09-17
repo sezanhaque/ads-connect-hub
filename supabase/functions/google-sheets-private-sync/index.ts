@@ -114,20 +114,45 @@ serve(async (req) => {
           continue;
         }
 
-        // Upsert job data
-        const { error: upsertError } = await supabase
+        // Upsert job data without relying on DB constraints
+        const { data: existing, error: selectError } = await supabase
           .from('jobs')
-          .upsert(jobData, {
-            onConflict: 'external_id,org_id',
-            ignoreDuplicates: false
-          });
+          .select('id')
+          .eq('external_id', jobData.external_id)
+          .eq('org_id', organizationId)
+          .maybeSingle();
 
-        if (upsertError) {
-          console.error(`Error upserting job ${jobData.external_id}:`, upsertError);
-          errors.push(`Row ${i + 2}: ${upsertError.message}`);
+        if (selectError) {
+          console.error(`Error checking existing job ${jobData.external_id}:`, selectError);
+          errors.push(`Row ${i + 2}: ${selectError.message}`);
+          continue;
+        }
+
+        if (existing) {
+          const { error: updateError } = await supabase
+            .from('jobs')
+            .update(jobData)
+            .eq('id', existing.id);
+
+          if (updateError) {
+            console.error(`Error updating job ${jobData.external_id}:`, updateError);
+            errors.push(`Row ${i + 2}: ${updateError.message}`);
+          } else {
+            syncedCount++;
+            console.log(`Updated job: ${jobData.external_id}`);
+          }
         } else {
-          syncedCount++;
-          console.log(`Successfully synced job: ${jobData.external_id}`);
+          const { error: insertError } = await supabase
+            .from('jobs')
+            .insert(jobData);
+
+          if (insertError) {
+            console.error(`Error inserting job ${jobData.external_id}:`, insertError);
+            errors.push(`Row ${i + 2}: ${insertError.message}`);
+          } else {
+            syncedCount++;
+            console.log(`Inserted job: ${jobData.external_id}`);
+          }
         }
 
       } catch (rowError: any) {

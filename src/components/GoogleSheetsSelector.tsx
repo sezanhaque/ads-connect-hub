@@ -33,7 +33,10 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isLoadingSheets, setIsLoadingSheets] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(() => {
+    // Persist token across page changes
+    return localStorage.getItem('google_sheets_access_token');
+  });
   const [sheets, setSheets] = useState<GoogleSheet[]>([]);
   const [selectedSheetId, setSelectedSheetId] = useState<string>('');
 
@@ -94,6 +97,7 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
             if (tokenError) throw tokenError;
 
             setAccessToken(tokenData.access_token);
+            localStorage.setItem('google_sheets_access_token', tokenData.access_token);
             await loadGoogleSheets(tokenData.access_token);
             
             toast({
@@ -372,6 +376,7 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
                 size="sm"
                 onClick={() => {
                   setAccessToken(null);
+                  localStorage.removeItem('google_sheets_access_token');
                   setSheets([]);
                   setSelectedSheetId('');
                 }}
