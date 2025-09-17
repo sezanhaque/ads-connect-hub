@@ -3,6 +3,15 @@ project_id = "ctchkdgmlcbuobzqyams"
 [functions.google-sheets-sync]
 verify_jwt = true
 
+[functions.google-auth]
+verify_jwt = false
+
+[functions.google-sheets-list]
+verify_jwt = false
+
+[functions.google-sheets-private-sync]
+verify_jwt = false
+
 [functions.meta-api-sync]
 verify_jwt = true
 

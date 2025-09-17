@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useIntegrations } from '@/hooks/useIntegrations';
+import GoogleSheetsSelector from '@/components/GoogleSheetsSelector';
 import { 
   Building2,
   Sheet,
@@ -292,6 +293,9 @@ const OrganizationSettings = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Private Google Sheets Integration */}
+      <GoogleSheetsSelector organizationId={organization.id} />
     </div>
   );
 };

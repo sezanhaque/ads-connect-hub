@@ -162,9 +162,42 @@ export const useIntegrations = () => {
     }
   };
 
+  const syncPrivateGoogleSheets = async (organizationId: string, sheetId: string, accessToken: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('google-sheets-private-sync', {
+        body: {
+          organizationId,
+          sheetId,
+          accessToken
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Private sheet sync completed!",
+        description: `Synced ${data?.synced_count || 0} jobs from your private Google Sheet.`,
+      });
+
+      return data;
+    } catch (error: any) {
+      console.error('Error syncing private sheet:', error);
+      toast({
+        title: "Private sync failed",
+        description: error.message || "Failed to sync jobs from private Google Sheet.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     syncGoogleSheets,
     syncJobsFromSheet,
+    syncPrivateGoogleSheets,
     syncMetaAds,
     sendCampaignEmail,
     loading
