@@ -236,7 +236,7 @@ const Jobs = () => {
         </div>
         
         <div className="flex gap-2">
-          <Button 
+          {/* <Button 
             variant="outline"
             onClick={handleSync}
             disabled={integrationsLoading || !organization?.google_sheet_id}
@@ -252,7 +252,7 @@ const Jobs = () => {
                 Sync Sheets
               </>
             )}
-          </Button>
+          </Button> */}
           
           <Button onClick={() => navigate('/jobs/create')}>
             <Plus className="h-4 w-4 mr-2" />
