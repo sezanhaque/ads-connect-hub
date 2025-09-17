@@ -13,6 +13,7 @@ import CreateCampaign from "./pages/CreateCampaign";
 import CampaignDetails from "./pages/CampaignDetails";
 import Jobs from "./pages/Jobs";
 import Settings from "./pages/Settings";
+import OrganizationSettings from "./pages/OrganizationSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/campaigns/:id/edit" element={<DashboardLayout><CreateCampaign /></DashboardLayout>} />
             <Route path="/jobs" element={<DashboardLayout><Jobs /></DashboardLayout>} />
             <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
+            <Route path="/settings/organization" element={<DashboardLayout><OrganizationSettings /></DashboardLayout>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

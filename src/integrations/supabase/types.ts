@@ -316,16 +316,19 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string | null
+          google_sheet_id: string | null
           id: string
           name: string
         }
         Insert: {
           created_at?: string | null
+          google_sheet_id?: string | null
           id?: string
           name: string
         }
         Update: {
           created_at?: string | null
+          google_sheet_id?: string | null
           id?: string
           name?: string
         }

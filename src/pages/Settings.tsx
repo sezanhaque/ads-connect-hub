@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -293,6 +294,35 @@ const Settings = () => {
               <Label className="text-sm font-medium">Organization ID</Label>
               <p className="text-sm text-muted-foreground mt-1">{organizationData.id || 'Loading...'}</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Organization Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building className="h-5 w-5" />
+            Organization Management
+          </CardTitle>
+          <CardDescription>
+            Manage organization settings and Google Sheets integration
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium">Organization Settings</h4>
+              <p className="text-sm text-muted-foreground">
+                Configure Google Sheets integration and sync job data from external sources
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/settings/organization">
+                <Building className="mr-2 h-4 w-4" />
+                Manage Organization
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>
