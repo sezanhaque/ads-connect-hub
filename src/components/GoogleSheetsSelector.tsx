@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
@@ -35,6 +36,15 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [sheets, setSheets] = useState<GoogleSheet[]>([]);
   const [selectedSheetId, setSelectedSheetId] = useState<string>('');
+  const [manualInput, setManualInput] = useState<string>('');
+
+  const extractSheetId = (input: string) => {
+    if (!input) return '';
+    const urlMatch = input.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+    if (urlMatch?.[1]) return urlMatch[1];
+    const idMatch = input.match(/^[a-zA-Z0-9-_]{20,}$/);
+    return idMatch ? input : '';
+  };
 
   const handleGoogleAuth = async () => {
     setIsAuthenticating(true);
@@ -68,11 +78,14 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
         }
       }, 1000);
 
-      // Listen for the auth code from the popup
+      // Listen for the auth code from the popup (guard against duplicate events)
+      let handled = false;
       const handleMessage = async (event: MessageEvent) => {
         if (event.origin !== window.location.origin) return;
+        if (handled) return; // ignore duplicates
         
         if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+          handled = true;
           clearInterval(checkClosed);
           popup?.close();
           
@@ -90,7 +103,6 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
             if (tokenError) throw tokenError;
 
             setAccessToken(tokenData.access_token);
-            await loadGoogleSheets(tokenData.access_token);
             
             toast({
               title: "Authentication successful",
@@ -106,8 +118,10 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
             });
           } finally {
             setIsAuthenticating(false);
+            window.removeEventListener('message', handleMessage);
           }
         } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
+          handled = true;
           clearInterval(checkClosed);
           popup?.close();
           setIsAuthenticating(false);
@@ -117,6 +131,7 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
             description: event.data.error,
             variant: "destructive",
           });
+          window.removeEventListener('message', handleMessage);
         }
       };
 
@@ -139,32 +154,23 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
     }
   };
 
-  const loadGoogleSheets = async (token: string) => {
-    setIsLoadingSheets(true);
-    
-    try {
-      const { data, error } = await supabase.functions
-        .invoke('google-sheets-list', {
-          body: { accessToken: token }
-        });
-
-      if (error) throw error;
-
-      setSheets(data.sheets);
-    } catch (error: any) {
-      console.error('Error loading sheets:', error);
-      toast({
-        title: "Failed to load sheets",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingSheets(false);
-    }
+  const loadGoogleSheets = async (_token: string) => {
+    // Listing is disabled to avoid Drive permissions
+    setSheets([]);
   };
 
   const handleSyncSheet = async () => {
-    if (!selectedSheetId || !accessToken) return;
+    if (!accessToken) return;
+
+    const idToUse = selectedSheetId || extractSheetId(manualInput);
+    if (!idToUse) {
+      toast({
+        title: "Missing sheet",
+        description: "Paste a valid Google Sheet URL or ID first.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsSyncing(true);
     
@@ -173,7 +179,7 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
         .invoke('google-sheets-private-sync', {
           body: {
             organizationId,
-            sheetId: selectedSheetId,
+            sheetId: idToUse,
             accessToken
           }
         });
@@ -206,6 +212,8 @@ const GoogleSheetsSelector = ({ organizationId, onSyncComplete }: GoogleSheetsSe
       day: 'numeric'
     });
   };
+
+  const computedId = selectedSheetId || extractSheetId(manualInput);
 
   return (
     <Card>
