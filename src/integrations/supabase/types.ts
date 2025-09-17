@@ -394,6 +394,14 @@ export type Database = {
         }
         Returns: string
       }
+      is_org_member: {
+        Args: { p_org_id: string; p_user_id?: string }
+        Returns: boolean
+      }
+      is_org_owner: {
+        Args: { p_org_id: string; p_user_id?: string }
+        Returns: boolean
+      }
       publish_campaign: {
         Args: { p_campaign_id: string; p_requester: string }
         Returns: boolean

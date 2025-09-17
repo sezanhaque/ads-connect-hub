@@ -132,7 +132,7 @@ const Jobs = () => {
         .from('members')
         .select('org_id')
         .eq('user_id', profile.user_id)
-        .single();
+        .maybeSingle();
 
       if (!memberData?.org_id) {
         toast({

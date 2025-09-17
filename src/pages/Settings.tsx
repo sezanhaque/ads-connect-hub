@@ -79,7 +79,7 @@ const Settings = () => {
           )
         `)
         .eq('user_id', profile.user_id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching organization:', error);

@@ -99,13 +99,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // Also create organization for existing users who don't have one
+        // Create organization and get organization_id for the profile
         try {
-          await supabase.rpc('app_create_org_if_missing', {
+          const orgId = await supabase.rpc('app_create_org_if_missing', {
             p_user_id: userId,
             p_email: authUser?.email ?? '',
             p_name: (authUser?.user_metadata as any)?.company_name ?? 'My Organization'
           });
+          
+          // Update profile with organization_id
+          await supabase
+            .from('profiles')
+            .update({ organization_id: orgId.data })
+            .eq('user_id', userId);
         } catch (orgError) {
           console.error('Error creating organization:', orgError);
         }
@@ -142,13 +148,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         variant: "destructive",
       });
     } else if (data.user) {
-      // Create organization for new user
+      // Create organization for new user and link to profile
       try {
-        await supabase.rpc('app_create_org_if_missing', {
+        const orgResult = await supabase.rpc('app_create_org_if_missing', {
           p_user_id: data.user.id,
           p_email: email,
           p_name: companyName
         });
+        
+        // Update profile with organization_id
+        if (orgResult.data) {
+          await supabase
+            .from('profiles')
+            .update({ organization_id: orgResult.data })
+            .eq('user_id', data.user.id);
+        }
       } catch (orgError) {
         console.error('Error creating organization:', orgError);
       }
