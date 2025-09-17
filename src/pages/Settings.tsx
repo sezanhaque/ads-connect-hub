@@ -5,39 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useIntegrations } from '@/hooks/useIntegrations';
-import IntegrationGuide from '@/components/IntegrationGuide';
 import { 
-  Settings as SettingsIcon,
   User,
   Building,
-  Plug,
-  Sheet,
-  Facebook,
-  Check,
-  X,
-  AlertCircle
+  ArrowRight,
+  Settings as SettingsIcon
 } from 'lucide-react';
-
-interface Integration {
-  id: string;
-  integration_type: string;
-  is_active: boolean;
-  config: any;
-  created_at: string;
-}
 
 const Settings = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
-  const { syncGoogleSheets, syncMetaAds, loading: integrationsLoading } = useIntegrations();
-  const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     first_name: '',
     last_name: '',
@@ -48,8 +28,6 @@ const Settings = () => {
     role: '',
     id: '',
   });
-  const [googleSheetsUrl, setGoogleSheetsUrl] = useState('');
-  const [metaAccessToken, setMetaAccessToken] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -62,7 +40,6 @@ const Settings = () => {
       // Fetch organization information
       fetchOrganizationInfo();
     }
-    fetchIntegrations();
   }, [profile]);
 
   const fetchOrganizationInfo = async () => {
@@ -99,22 +76,6 @@ const Settings = () => {
     }
   };
 
-  const fetchIntegrations = async () => {
-    try {
-      // Since integrations table doesn't exist yet, we'll use mock data
-      setIntegrations([]);
-    } catch (error: any) {
-      console.error('Error fetching integrations:', error);
-      toast({
-        title: "Error loading integrations",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile?.user_id) return;
@@ -145,327 +106,150 @@ const Settings = () => {
     }
   };
 
-  const getIntegrationStatus = (integrationType: string) => {
-    const integration = integrations.find(i => i.integration_type === integrationType);
-    return integration?.is_active || false;
-  };
-
-  const getIntegrationIcon = (type: string) => {
-    switch (type) {
-      case 'google_sheets':
-        return Sheet;
-      case 'meta_ads':
-        return Facebook;
-      default:
-        return Plug;
-    }
-  };
-
-  const getIntegrationName = (type: string) => {
-    switch (type) {
-      case 'google_sheets':
-        return 'Google Sheets';
-      case 'meta_ads':
-        return 'Meta Ads';
-      default:
-        return type;
-    }
-  };
-
-  const handleGoogleSheetsConnect = async () => {
-    if (!googleSheetsUrl.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid Google Sheets URL",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    try {
-      await syncGoogleSheets(googleSheetsUrl);
-      setGoogleSheetsUrl('');
-      fetchIntegrations(); // Refresh integrations
-    } catch (error) {
-      console.error('Google Sheets sync error:', error);
-    }
-  };
-
-  const handleMetaAdsConnect = async () => {
-    if (!metaAccessToken.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid Meta Ads access token",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    try {
-      await syncMetaAds(metaAccessToken);
-      setMetaAccessToken('');
-      fetchIntegrations(); // Refresh integrations
-    } catch (error) {
-      console.error('Meta Ads sync error:', error);
-    }
-  };
-
-  const integrationTypes = ['google_sheets', 'meta_ads'];
-
   return (
-    <div className="space-y-8 max-w-4xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your profile, organization, and integrations
-        </p>
-      </div>
-
-      {/* Profile Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Profile Settings
-          </CardTitle>
-          <CardDescription>
-            Update your personal information and preferences
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleProfileUpdate} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first_name">First Name</Label>
-                <Input
-                  id="first_name"
-                  value={profileData.first_name}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name</Label>
-                <Input
-                  id="last_name"
-                  value={profileData.last_name}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={profileData.email}
-                onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-              />
-            </div>
-            <Button type="submit">Update Profile</Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Organization Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
-            Organization
-          </CardTitle>
-          <CardDescription>
-            Organization information and settings
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium">Organization Name</Label>
-              <p className="text-sm text-muted-foreground mt-1">{organizationData.name || 'Loading...'}</p>
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <SettingsIcon className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <Label className="text-sm font-medium">Role</Label>
-              <div className="mt-1">
-                <Badge variant="secondary">{organizationData.role || 'Loading...'}</Badge>
-              </div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Organization ID</Label>
-              <p className="text-sm text-muted-foreground mt-1">{organizationData.id || 'Loading...'}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Organization Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
-            Organization Management
-          </CardTitle>
-          <CardDescription>
-            Manage organization settings and Google Sheets integration
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium">Organization Settings</h4>
-              <p className="text-sm text-muted-foreground">
-                Configure Google Sheets integration and sync job data from external sources
+              <h1 className="text-4xl font-bold tracking-tight">Settings</h1>
+              <p className="text-muted-foreground text-lg">
+                Manage your profile and organization settings
               </p>
             </div>
-            <Button asChild variant="outline">
-              <Link to="/settings/organization">
-                <Building className="mr-2 h-4 w-4" />
-                Manage Organization
-              </Link>
-            </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Integrations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plug className="h-5 w-5" />
-            Integrations
-          </CardTitle>
-          <CardDescription>
-            Connect external services to sync your data
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {integrationTypes.map((integrationType) => {
-              const isActive = getIntegrationStatus(integrationType);
-              const Icon = getIntegrationIcon(integrationType);
-              const name = getIntegrationName(integrationType);
-
-              return (
-                <div key={integrationType} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-lg ${
-                      isActive ? 'bg-success/10' : 'bg-muted'
-                    }`}>
-                      <Icon className={`h-5 w-5 ${
-                        isActive ? 'text-success' : 'text-muted-foreground'
-                      }`} />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {integrationType === 'google_sheets' 
-                          ? 'Sync job data from your Google Sheets'
-                          : 'Pull campaign performance from Meta Ads'
-                        }
-                      </p>
-                    </div>
+        <div className="grid gap-8 lg:grid-cols-2">
+          {/* Profile Settings */}
+          <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <User className="h-5 w-5 text-primary" />
+                </div>
+                Profile Settings
+              </CardTitle>
+              <CardDescription className="text-base">
+                Update your personal information and account details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <form onSubmit={handleProfileUpdate} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="first_name" className="text-sm font-medium">First Name</Label>
+                    <Input
+                      id="first_name"
+                      value={profileData.first_name}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
+                      className="h-11"
+                    />
                   </div>
-                  <div className="flex items-center gap-3">
-                    {isActive ? (
-                      <Badge className="bg-success text-success-foreground">
-                        <Check className="h-3 w-3 mr-1" />
-                        Connected
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name" className="text-sm font-medium">Last Name</Label>
+                    <Input
+                      id="last_name"
+                      value={profileData.last_name}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                    className="h-11"
+                  />
+                </div>
+                <Button type="submit" className="h-11 px-8">
+                  Update Profile
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Organization Information */}
+          <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Building className="h-5 w-5 text-primary" />
+                </div>
+                Organization
+              </CardTitle>
+              <CardDescription className="text-base">
+                Your organization information and current role
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-6">
+                <div className="p-4 rounded-lg bg-muted/50 border">
+                  <Label className="text-sm font-medium text-muted-foreground">Organization Name</Label>
+                  <p className="text-lg font-semibold mt-1">{organizationData.name || 'Loading...'}</p>
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Your Role</Label>
+                    <div className="mt-2">
+                      <Badge variant="secondary" className="text-sm px-3 py-1">
+                        {organizationData.role || 'Loading...'}
                       </Badge>
-                    ) : (
-                      <Badge variant="secondary">
-                        <X className="h-3 w-3 mr-1" />
-                        Not Connected
-                      </Badge>
-                    )}
-                    <div className="flex gap-2">
-                      <IntegrationGuide type={integrationType as 'google_sheets' | 'meta_ads'} />
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant={isActive ? "outline" : "default"}
-                            size="sm"
-                          >
-                            {isActive ? 'Configure' : 'Connect'}
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Connect {name}</DialogTitle>
-                            <DialogDescription>
-                              {integrationType === 'google_sheets' 
-                                ? 'Enter your Google Sheets URL to sync job data'
-                                : 'Enter your Meta Ads access token to pull campaign performance'
-                              }
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            {integrationType === 'google_sheets' ? (
-                              <>
-                                <div className="space-y-2">
-                                  <Label htmlFor="sheets-url">Google Sheets URL</Label>
-                                  <Input
-                                    id="sheets-url"
-                                    placeholder="https://docs.google.com/spreadsheets/d/..."
-                                    value={googleSheetsUrl}
-                                    onChange={(e) => setGoogleSheetsUrl(e.target.value)}
-                                  />
-                                </div>
-                                <Button 
-                                  onClick={handleGoogleSheetsConnect}
-                                  disabled={integrationsLoading}
-                                  className="w-full"
-                                >
-                                  {integrationsLoading ? 'Connecting...' : 'Connect Google Sheets'}
-                                </Button>
-                              </>
-                            ) : (
-                              <>
-                                <div className="space-y-2">
-                                  <Label htmlFor="meta-token">Meta Ads Access Token</Label>
-                                  <Input
-                                    id="meta-token"
-                                    type="password"
-                                    placeholder="Enter your Meta Ads access token"
-                                    value={metaAccessToken}
-                                    onChange={(e) => setMetaAccessToken(e.target.value)}
-                                  />
-                                </div>
-                                <Button 
-                                  onClick={handleMetaAdsConnect}
-                                  disabled={integrationsLoading}
-                                  className="w-full"
-                                >
-                                  {integrationsLoading ? 'Connecting...' : 'Connect Meta Ads'}
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-
-            <Separator />
-
-            <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Integration Setup Help</p>
-                <p className="text-sm text-muted-foreground">
-                  Need help setting up integrations? Click the "Setup Guide" button next to each integration for detailed instructions.
-                </p>
-                <div className="flex gap-2 mt-2">
-                  <IntegrationGuide type="google_sheets" />
-                  <IntegrationGuide type="meta_ads" />
+                <div className="p-4 rounded-lg bg-muted/50 border">
+                  <Label className="text-sm font-medium text-muted-foreground">Organization ID</Label>
+                  <p className="text-sm font-mono text-muted-foreground mt-1 break-all">
+                    {organizationData.id || 'Loading...'}
+                  </p>
                 </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Organization Management - Full Width */}
+        <div className="mt-8">
+          <Card className="shadow-xl border-0 bg-gradient-to-r from-primary/5 to-primary/10 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-3 text-2xl">
+                <div className="p-3 rounded-lg bg-primary/10">
+                  <Building className="h-6 w-6 text-primary" />
+                </div>
+                Organization Management
+              </CardTitle>
+              <CardDescription className="text-base">
+                Manage organization settings and configure integrations for your team
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex items-center justify-between p-6 rounded-lg bg-background/60 border">
+                <div className="space-y-1">
+                  <h4 className="text-lg font-semibold">Advanced Settings</h4>
+                  <p className="text-muted-foreground">
+                    Configure Google Sheets integration, manage team members, and sync job data from external sources
+                  </p>
+                </div>
+                <Button asChild size="lg" className="h-12 px-6">
+                  <Link to="/settings/organization" className="flex items-center gap-2">
+                    Manage Organization
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
