@@ -23,11 +23,10 @@ serve(async (req) => {
     }
 
     if (action === 'getAuthUrl') {
-      // Generate OAuth URL with explicit scopes
+      // Generate OAuth URL with minimal scopes
       const scopes = [
         'https://www.googleapis.com/auth/spreadsheets.readonly',
-        'https://www.googleapis.com/auth/drive.readonly',
-        'https://www.googleapis.com/auth/drive.file'
+        'https://www.googleapis.com/auth/drive.metadata.readonly'
       ].join(' ');
 
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
