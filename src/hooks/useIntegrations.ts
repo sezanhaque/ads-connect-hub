@@ -48,6 +48,38 @@ export const useIntegrations = () => {
     }
   };
 
+  const syncJobsFromSheet = async (organizationId: string, sheetId: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('google-sheets-sync', {
+        body: {
+          organization_id: organizationId,
+          sheet_id: sheetId,
+          sync_type: 'jobs'
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Jobs synced successfully!",
+        description: `Synced ${data?.synced_count || 0} jobs from Google Sheets.`,
+      });
+
+      return data;
+    } catch (error: any) {
+      console.error('Error syncing jobs:', error);
+      toast({
+        title: "Sync failed",
+        description: error.message || "Failed to sync jobs from Google Sheets.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const syncMetaAds = async (accessToken: string, dateRange: string = '7d') => {
     if (!profile?.organization_id) {
       toast({
@@ -132,6 +164,7 @@ export const useIntegrations = () => {
 
   return {
     syncGoogleSheets,
+    syncJobsFromSheet,
     syncMetaAds,
     sendCampaignEmail,
     loading

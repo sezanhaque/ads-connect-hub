@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useIntegrations } from '@/hooks/useIntegrations';
 import { 
   Building2,
   Sheet,
@@ -27,8 +28,8 @@ interface OrganizationData {
 const OrganizationSettings = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { syncJobsFromSheet, loading: integrationsLoading } = useIntegrations();
   const [loading, setLoading] = useState(true);
-  const [syncLoading, setSyncLoading] = useState(false);
   const [organization, setOrganization] = useState<OrganizationData | null>(null);
   const [googleSheetId, setGoogleSheetId] = useState('');
   const [isOwner, setIsOwner] = useState(false);
@@ -117,31 +118,10 @@ const OrganizationSettings = () => {
       return;
     }
 
-    setSyncLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('google-sheets-sync', {
-        body: {
-          organization_id: organization.id,
-          sheet_id: organization.google_sheet_id,
-          sync_type: 'jobs'
-        }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Jobs synced successfully!",
-        description: `Synced ${data?.synced_count || 0} jobs from Google Sheets.`,
-      });
-    } catch (error: any) {
+      await syncJobsFromSheet(organization.id, organization.google_sheet_id);
+    } catch (error) {
       console.error('Error syncing jobs:', error);
-      toast({
-        title: "Sync failed",
-        description: error.message || "Failed to sync jobs from Google Sheets.",
-        variant: "destructive",
-      });
-    } finally {
-      setSyncLoading(false);
     }
   };
 
@@ -284,10 +264,10 @@ const OrganizationSettings = () => {
             {organization.google_sheet_id && isOwner && (
               <Button 
                 onClick={handleSyncJobs}
-                disabled={syncLoading}
+                disabled={integrationsLoading}
                 className="w-fit"
               >
-                {syncLoading ? (
+                {integrationsLoading ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     Syncing Jobs...
