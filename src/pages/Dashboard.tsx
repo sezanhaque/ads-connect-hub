@@ -65,49 +65,68 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch campaigns
-      const { data: campaignsData, error: campaignsError } = await supabase
+      // Fetch recent campaigns for display (limit 5)
+      const { data: recentCampaignsData, error: recentCampaignsError } = await supabase
         .from('campaigns')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (campaignsError) throw campaignsError;
+      if (recentCampaignsError) throw recentCampaignsError;
 
-      // Fetch jobs
-      const { data: jobsData, error: jobsError } = await supabase
+      // Fetch total campaign count and active campaigns count
+      const { data: campaignCountData, error: campaignCountError } = await supabase
+        .from('campaigns')
+        .select('id, status');
+
+      if (campaignCountError) throw campaignCountError;
+
+      // Fetch recent jobs for display (limit 5)
+      const { data: recentJobsData, error: recentJobsError } = await supabase
         .from('jobs')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (jobsError) throw jobsError;
+      if (recentJobsError) throw recentJobsError;
 
-      // Fetch metrics
+      // Fetch total jobs count
+      const { data: jobCountData, error: jobCountError } = await supabase
+        .from('jobs')
+        .select('id');
+
+      if (jobCountError) throw jobCountError;
+
+      // Fetch metrics data
       const { data: metricsData, error: metricsError } = await supabase
         .from('metrics')
         .select('spend, impressions, clicks, leads');
 
       if (metricsError) throw metricsError;
 
-      // Calculate stats
+      // Calculate performance metrics
       const totalSpend = metricsData?.reduce((sum, metric) => sum + (Number(metric.spend) || 0), 0) || 0;
       const totalImpressions = metricsData?.reduce((sum, metric) => sum + (metric.impressions || 0), 0) || 0;
       const totalClicks = metricsData?.reduce((sum, metric) => sum + (metric.clicks || 0), 0) || 0;
       const totalLeads = metricsData?.reduce((sum, metric) => sum + (metric.leads || 0), 0) || 0;
 
+      // Calculate correct totals and active counts
+      const totalCampaigns = campaignCountData?.length || 0;
+      const activeCampaigns = campaignCountData?.filter(c => c.status === 'active').length || 0;
+      const totalJobs = jobCountData?.length || 0;
+
       setStats({
-        totalCampaigns: campaignsData?.length || 0,
-        activeCampaigns: campaignsData?.filter(c => c.status === 'active').length || 0,
-        totalJobs: jobsData?.length || 0,
+        totalCampaigns,
+        activeCampaigns,
+        totalJobs,
         totalSpend,
         totalImpressions,
         totalClicks,
         totalLeads,
       });
 
-      setCampaigns(campaignsData || []);
-      setJobs(jobsData || []);
+      setCampaigns(recentCampaignsData || []);
+      setJobs(recentJobsData || []);
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -174,9 +193,11 @@ const Dashboard = () => {
             <DollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalSpend.toFixed(2)}</div>
+            <div className="text-2xl font-bold">
+              {stats.totalSpend > 0 ? `$${stats.totalSpend.toFixed(2)}` : '$0.00'}
+            </div>
             <p className="text-xs text-muted-foreground">
-              Across all campaigns
+              {stats.totalSpend > 0 ? 'Across all campaigns' : 'No spend data yet'}
             </p>
           </CardContent>
         </Card>
@@ -187,9 +208,11 @@ const Dashboard = () => {
             <Eye className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalImpressions.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {stats.totalImpressions > 0 ? stats.totalImpressions.toLocaleString() : '0'}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {stats.totalClicks} clicks
+              {stats.totalClicks > 0 ? `${stats.totalClicks} clicks` : 'No impression data yet'}
             </p>
           </CardContent>
         </Card>
@@ -202,7 +225,7 @@ const Dashboard = () => {
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalLeads}</div>
             <p className="text-xs text-muted-foreground">
-              Total generated
+              {stats.totalLeads > 0 ? 'Total generated' : 'No leads data yet'}
             </p>
           </CardContent>
         </Card>
