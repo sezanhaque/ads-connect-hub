@@ -108,7 +108,14 @@ const CreateCampaign = () => {
           toast({ title: "Please fill all required fields", variant: "destructive" });
           return false;
         }
-        if (new Date(campaignData.startDate) < new Date()) {
+        if (parseFloat(campaignData.budget) <= 0) {
+          toast({ title: "Budget must be greater than 0", variant: "destructive" });
+          return false;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const startDate = new Date(campaignData.startDate);
+        if (startDate < today) {
           toast({ title: "Start date cannot be in the past", variant: "destructive" });
           return false;
         }
@@ -319,6 +326,8 @@ const CreateCampaign = () => {
                 <Input
                   id="budget"
                   type="number"
+                  min="0"
+                  step="0.01"
                   placeholder="1000"
                   value={campaignData.budget}
                   onChange={(e) => updateCampaignData({ budget: e.target.value })}
@@ -341,6 +350,7 @@ const CreateCampaign = () => {
                   <Input
                     id="endDate"
                     type="date"
+                    min={campaignData.startDate || new Date().toISOString().split('T')[0]}
                     value={campaignData.endDate}
                     onChange={(e) => updateCampaignData({ endDate: e.target.value })}
                   />
