@@ -415,6 +415,7 @@ const Jobs = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="live">Live</SelectItem>
                   <SelectItem value="offline">Offline</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
