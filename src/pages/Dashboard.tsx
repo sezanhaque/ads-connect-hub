@@ -21,6 +21,7 @@ interface DashboardStats {
   totalCampaigns: number;
   activeCampaigns: number;
   totalJobs: number;
+  totalBudget: number;
   totalSpend: number;
   totalImpressions: number;
   totalClicks: number;
@@ -50,6 +51,7 @@ const Dashboard = () => {
     totalCampaigns: 0,
     activeCampaigns: 0,
     totalJobs: 0,
+    totalBudget: 0,
     totalSpend: 0,
     totalImpressions: 0,
     totalClicks: 0,
@@ -74,10 +76,10 @@ const Dashboard = () => {
 
       if (recentCampaignsError) throw recentCampaignsError;
 
-      // Fetch total campaign count and active campaigns count
+      // Fetch total campaign count, active campaigns count, and budget totals
       const { data: campaignCountData, error: campaignCountError } = await supabase
         .from('campaigns')
-        .select('id, status');
+        .select('id, status, budget');
 
       if (campaignCountError) throw campaignCountError;
 
@@ -97,33 +99,47 @@ const Dashboard = () => {
 
       if (jobCountError) throw jobCountError;
 
-      // Fetch metrics data
+      // Fetch metrics from both possible tables
       const { data: metricsData, error: metricsError } = await supabase
         .from('metrics')
         .select('spend, impressions, clicks, leads');
 
-      if (metricsError) throw metricsError;
+      const { data: campaignMetricsData, error: campaignMetricsError } = await supabase
+        .from('campaign_metrics')
+        .select('spend, impressions, clicks, leads');
 
+      if (metricsError && campaignMetricsError) {
+        console.warn('Both metrics queries failed:', { metricsError, campaignMetricsError });
+      }
+
+      // Combine metrics from both tables
+      const allMetrics = [...(metricsData || []), ...(campaignMetricsData || [])];
+      
       // Calculate performance metrics
-      const totalSpend = metricsData?.reduce((sum, metric) => sum + (Number(metric.spend) || 0), 0) || 0;
-      const totalImpressions = metricsData?.reduce((sum, metric) => sum + (metric.impressions || 0), 0) || 0;
-      const totalClicks = metricsData?.reduce((sum, metric) => sum + (metric.clicks || 0), 0) || 0;
-      const totalLeads = metricsData?.reduce((sum, metric) => sum + (metric.leads || 0), 0) || 0;
+      const totalSpend = allMetrics.reduce((sum, metric) => sum + (Number(metric.spend) || 0), 0);
+      const totalImpressions = allMetrics.reduce((sum, metric) => sum + (metric.impressions || 0), 0);
+      const totalClicks = allMetrics.reduce((sum, metric) => sum + (metric.clicks || 0), 0);
+      const totalLeads = allMetrics.reduce((sum, metric) => sum + (metric.leads || 0), 0);
 
-      // Calculate correct totals and active counts
+      // Calculate budget and campaign totals
       const totalCampaigns = campaignCountData?.length || 0;
       const activeCampaigns = campaignCountData?.filter(c => c.status === 'active').length || 0;
+      const totalBudget = campaignCountData?.reduce((sum, campaign) => sum + (Number(campaign.budget) || 0), 0) || 0;
       const totalJobs = jobCountData?.length || 0;
 
       setStats({
         totalCampaigns,
         activeCampaigns,
         totalJobs,
+        totalBudget,
         totalSpend,
         totalImpressions,
         totalClicks,
         totalLeads,
       });
+
+      setCampaigns(recentCampaignsData || []);
+      setJobs(recentJobsData || []);
 
       setCampaigns(recentCampaignsData || []);
       setJobs(recentJobsData || []);
@@ -189,16 +205,28 @@ const Dashboard = () => {
 
         <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spend</CardTitle>
+            <CardTitle className="text-sm font-medium">Budget vs Spend</CardTitle>
             <DollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.totalSpend > 0 ? `$${stats.totalSpend.toFixed(2)}` : '$0.00'}
+            <div className="space-y-1">
+              <div className="text-2xl font-bold">
+                ${stats.totalBudget.toLocaleString()}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Budget • ${stats.totalSpend.toFixed(2)} spent
+              </p>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div 
+                  className="bg-success h-2 rounded-full transition-all" 
+                  style={{ 
+                    width: stats.totalBudget > 0 
+                      ? `${Math.min((stats.totalSpend / stats.totalBudget) * 100, 100)}%` 
+                      : '0%' 
+                  }}
+                />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalSpend > 0 ? 'Across all campaigns' : 'No spend data yet'}
-            </p>
           </CardContent>
         </Card>
 
