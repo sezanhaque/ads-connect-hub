@@ -201,9 +201,15 @@ const CreateCampaign = () => {
         .update({ status: 'Live' })
         .eq('id', campaignData.jobId);
 
+      // Update campaign status to "active"
+      await supabase
+        .from('campaigns')
+        .update({ status: 'active' })
+        .eq('id', campaignId);
+
       // Send campaign email
       try {
-        await supabase.functions.invoke('send-campaign-email', {
+        const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-campaign-email', {
           body: {
             campaign_name: campaignData.name,
             job_id: campaignData.jobId,
@@ -218,11 +224,27 @@ const CreateCampaign = () => {
             recipients: FIXED_EMAIL_RECIPIENTS
           }
         });
+        
+        if (emailError) {
+          console.error('Email function error:', emailError);
+          toast({ 
+            title: "Campaign created but email failed", 
+            description: `Campaign is active but notification email could not be sent: ${emailError.message}`,
+            variant: "destructive" 
+          });
+        } else {
+          console.log('Email sent successfully:', emailResult);
+          toast({ title: "Campaign created and email sent successfully!" });
+        }
       } catch (emailErr) {
         console.error('Error sending email:', emailErr);
+        toast({ 
+          title: "Campaign created but email failed", 
+          description: "Campaign is active but notification email could not be sent",
+          variant: "destructive" 
+        });
       }
 
-      toast({ title: "Campaign created successfully!" });
       navigate('/campaigns');
     } catch (error: any) {
       console.error('Error creating campaign:', error);

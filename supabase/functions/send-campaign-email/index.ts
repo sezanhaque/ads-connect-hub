@@ -30,12 +30,19 @@ const handler = async (req: Request): Promise<Response> => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase environment variables');
+      throw new Error('Supabase configuration missing');
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get request data
     const campaignData: CampaignEmailData = await req.json();
 
     console.log('Sending campaign email for:', campaignData.campaign_name);
+    console.log('Recipients:', campaignData.recipients);
 
     // In a real implementation, you would integrate with an email service like:
     // - Resend
