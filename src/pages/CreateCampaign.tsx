@@ -47,7 +47,7 @@ interface CampaignData {
   ctaButton: 'none' | 'learn-more';
 }
 
-const FIXED_EMAIL_RECIPIENTS = ['ortv.schyns@gmail.com', 'moalamin001@gmail.com'];
+const FIXED_EMAIL_RECIPIENTS = ['ortv.schyns@gmail.com', 'moalamin001@gmail.com', 'thealaminislam@gmail.com'];
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
