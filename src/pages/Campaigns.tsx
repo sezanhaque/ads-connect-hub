@@ -53,6 +53,48 @@ const Campaigns = () => {
     }
   };
 
+  const handlePauseCampaign = async (campaignId: string) => {
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'paused' })
+        .eq('id', campaignId);
+
+      if (error) throw error;
+
+      toast({ title: "Campaign paused successfully" });
+      fetchCampaigns();
+    } catch (error: any) {
+      console.error('Error pausing campaign:', error);
+      toast({
+        title: "Error pausing campaign",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResumeCampaign = async (campaignId: string) => {
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'active' })
+        .eq('id', campaignId);
+
+      if (error) throw error;
+
+      toast({ title: "Campaign resumed successfully" });
+      fetchCampaigns();
+    } catch (error: any) {
+      console.error('Error resuming campaign:', error);
+      toast({
+        title: "Error resuming campaign",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -190,15 +232,24 @@ const Campaigns = () => {
                         View Details
                       </Link>
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      asChild
-                    >
-                      <Link to={`/campaigns/${campaign.id}/edit`}>
-                        Edit
-                      </Link>
-                    </Button>
+                    {campaign.status === 'active' && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handlePauseCampaign(campaign.id)}
+                      >
+                        Pause
+                      </Button>
+                    )}
+                    {campaign.status === 'paused' && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleResumeCampaign(campaign.id)}
+                      >
+                        Resume
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
