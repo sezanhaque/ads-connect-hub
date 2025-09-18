@@ -72,6 +72,7 @@ export type Database = {
           ad_copy: string | null
           audience_targeting: Json
           budget: number
+          campaign_assets: Json | null
           created_at: string
           created_by: string
           creatives: Json | null
@@ -95,6 +96,7 @@ export type Database = {
           ad_copy?: string | null
           audience_targeting?: Json
           budget?: number
+          campaign_assets?: Json | null
           created_at?: string
           created_by: string
           creatives?: Json | null
@@ -118,6 +120,7 @@ export type Database = {
           ad_copy?: string | null
           audience_targeting?: Json
           budget?: number
+          campaign_assets?: Json | null
           created_at?: string
           created_by?: string
           creatives?: Json | null

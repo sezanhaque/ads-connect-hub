@@ -18,6 +18,13 @@ interface CampaignEmailData {
   ad_copy: string;
   cta_button: string;
   creative_assets_count: number;
+  creative_assets: Array<{
+    name: string;
+    path: string;
+    url: string;
+    type: string;
+    size: number;
+  }>;
   recipients: string[];
 }
 
@@ -109,7 +116,13 @@ const handler = async (req: Request): Promise<Response> => {
         
         <div class="section">
             <div class="label">Creative Assets</div>
-            <div class="value">${campaignData.creative_assets_count} files uploaded</div>
+            <div class="value">
+                ${campaignData.creative_assets_count} files uploaded${campaignData.creative_assets && campaignData.creative_assets.length > 0 ? 
+                  '<br><br><strong>Attached Files:</strong><br>' + 
+                  campaignData.creative_assets.map(asset => 
+                    `• ${asset.name} (${asset.type.startsWith('image/') ? 'Image' : 'Video'} - ${(asset.size / 1024 / 1024).toFixed(1)} MB)`
+                  ).join('<br>') : ''}
+            </div>
         </div>
         
         <div class="section">
@@ -139,6 +152,36 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Email service not configured. Please set RESEND_API_KEY in Supabase.');
     }
 
+    // Prepare attachments from uploaded assets
+    const attachments = [];
+    if (campaignData.creative_assets && campaignData.creative_assets.length > 0) {
+      for (const asset of campaignData.creative_assets) {
+        try {
+          // Download file from Supabase Storage
+          const { data: fileData, error: downloadError } = await supabase.storage
+            .from('campaign-assets')
+            .download(asset.path);
+
+          if (downloadError) {
+            console.error(`Failed to download ${asset.name}:`, downloadError);
+            continue;
+          }
+
+          // Convert to buffer for attachment
+          const buffer = await fileData.arrayBuffer();
+          const uint8Array = new Uint8Array(buffer);
+
+          attachments.push({
+            filename: asset.name,
+            content: Array.from(uint8Array),
+            type: asset.type,
+          });
+        } catch (error) {
+          console.error(`Error processing attachment ${asset.name}:`, error);
+        }
+      }
+    }
+
     const resend = new Resend(resendApiKey);
     const emailResponse = await resend.emails.send({
       from: 'Campaigns <onboarding@resend.dev>',
@@ -146,6 +189,7 @@ const handler = async (req: Request): Promise<Response> => {
       to: ['thealaminislam@gmail.com'],
       subject: `Campaign Setup: ${campaignData.campaign_name}`,
       html: emailContent,
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
 
     console.log('Resend email response:', JSON.stringify(emailResponse));

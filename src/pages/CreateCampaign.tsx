@@ -42,7 +42,13 @@ interface CampaignData {
   endDate: string;
   locations: string;
   targetAudience: string;
-  creativeAssets: File[];
+  creativeAssets: Array<{
+    name: string;
+    path: string;
+    url: string;
+    type: string;
+    size: number;
+  }>;
   adCopy: string;
   ctaButton: 'none' | 'learn-more';
 }
@@ -152,16 +158,98 @@ const CreateCampaign = () => {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
+    
+    // Validate file count
     if (campaignData.creativeAssets.length + files.length > 10) {
       toast({ title: "Maximum 10 files allowed", variant: "destructive" });
       return;
     }
-    updateCampaignData({ creativeAssets: [...campaignData.creativeAssets, ...files] });
+
+    // Validate file types and sizes
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/mov', 'video/avi'];
+    const maxSize = 50 * 1024 * 1024; // 50MB per file
+
+    for (const file of files) {
+      if (!validTypes.includes(file.type)) {
+        toast({ 
+          title: "Invalid file type", 
+          description: `${file.name} is not a supported image or video format`,
+          variant: "destructive" 
+        });
+        return;
+      }
+      if (file.size > maxSize) {
+        toast({ 
+          title: "File too large", 
+          description: `${file.name} exceeds 50MB limit`,
+          variant: "destructive" 
+        });
+        return;
+      }
+    }
+
+    // Upload files to Supabase Storage
+    const uploadedFiles = [];
+    setIsLoading(true);
+    
+    try {
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('campaign-assets')
+          .upload(fileName, file);
+
+        if (error) {
+          throw new Error(`Failed to upload ${file.name}: ${error.message}`);
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('campaign-assets')
+          .getPublicUrl(fileName);
+
+        uploadedFiles.push({
+          name: file.name,
+          path: fileName,
+          url: urlData.publicUrl,
+          type: file.type,
+          size: file.size
+        });
+      }
+
+      updateCampaignData({ creativeAssets: [...campaignData.creativeAssets, ...uploadedFiles] });
+      toast({ title: `Successfully uploaded ${files.length} file(s)` });
+      
+    } catch (error: any) {
+      console.error('File upload error:', error);
+      toast({ 
+        title: "Upload failed", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const removeFile = (index: number) => {
+  const removeFile = async (index: number) => {
+    const assetToRemove = campaignData.creativeAssets[index];
+    
+    // Delete from storage if it has a path (uploaded file)
+    if (assetToRemove?.path) {
+      try {
+        await supabase.storage
+          .from('campaign-assets')
+          .remove([assetToRemove.path]);
+      } catch (error) {
+        console.error('Error deleting file from storage:', error);
+      }
+    }
+    
     const newAssets = campaignData.creativeAssets.filter((_, i) => i !== index);
     updateCampaignData({ creativeAssets: newAssets });
   };
@@ -194,7 +282,15 @@ const CreateCampaign = () => {
         p_start_date: campaignData.startDate,
         p_end_date: campaignData.endDate,
         p_targeting: { locations: campaignData.locations },
-        p_creatives: { assets_count: campaignData.creativeAssets.length },
+        p_creatives: { 
+          assets_count: campaignData.creativeAssets.length,
+          assets: campaignData.creativeAssets.map(asset => ({
+            name: asset.name,
+            path: asset.path,
+            type: asset.type,
+            size: asset.size
+          }))
+        },
         p_ad_copy: campaignData.adCopy,
         p_cta: campaignData.ctaButton === 'learn-more' ? 'Learn More' : null,
         p_destination_url: null
@@ -228,6 +324,7 @@ const CreateCampaign = () => {
             ad_copy: campaignData.adCopy,
             cta_button: campaignData.ctaButton === 'learn-more' ? 'Learn More' : 'None',
             creative_assets_count: campaignData.creativeAssets.length,
+            creative_assets: campaignData.creativeAssets,
             recipients: FIXED_EMAIL_RECIPIENTS
           }
         });
@@ -420,12 +517,29 @@ const CreateCampaign = () => {
                   <Label>Uploaded Files ({campaignData.creativeAssets.length}/10)</Label>
                   <div className="space-y-2">
                     {campaignData.creativeAssets.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                        <span className="text-sm">{file.name}</span>
+                      <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          {file.type?.startsWith('image/') ? (
+                            <div className="w-10 h-10 bg-blue-100 rounded flex items-center justify-center">
+                              <span className="text-blue-600 text-xs font-semibold">IMG</span>
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 bg-purple-100 rounded flex items-center justify-center">
+                              <span className="text-purple-600 text-xs font-semibold">VID</span>
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-sm font-medium">{file.name}</span>
+                            <p className="text-xs text-muted-foreground">
+                              {file.size ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : 'Unknown size'}
+                            </p>
+                          </div>
+                        </div>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => removeFile(index)}
+                          disabled={isLoading}
                         >
                           <X className="h-4 w-4" />
                         </Button>
