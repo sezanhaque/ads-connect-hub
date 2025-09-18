@@ -331,6 +331,7 @@ const CreateCampaign = () => {
                   <Input
                     id="startDate"
                     type="date"
+                    min={new Date().toISOString().split('T')[0]}
                     value={campaignData.startDate}
                     onChange={(e) => updateCampaignData({ startDate: e.target.value })}
                   />
