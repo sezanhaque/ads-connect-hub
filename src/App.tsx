@@ -34,7 +34,6 @@ const App = () => (
             <Route path="/campaigns" element={<DashboardLayout><Campaigns /></DashboardLayout>} />
             <Route path="/campaigns/create" element={<DashboardLayout><CreateCampaign /></DashboardLayout>} />
             <Route path="/campaigns/:id" element={<DashboardLayout><CampaignDetails /></DashboardLayout>} />
-            <Route path="/campaigns/:id/edit" element={<DashboardLayout><CreateCampaign /></DashboardLayout>} />
             <Route path="/jobs" element={<DashboardLayout><Jobs /></DashboardLayout>} />
             <Route path="/jobs/create" element={<DashboardLayout><CreateJob /></DashboardLayout>} />
             <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />

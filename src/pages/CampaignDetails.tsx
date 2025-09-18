@@ -60,6 +60,48 @@ const CampaignDetails = () => {
     }
   };
 
+  const handlePauseCampaign = async () => {
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'paused' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({ title: "Campaign paused successfully" });
+      fetchCampaign();
+    } catch (error: any) {
+      console.error('Error pausing campaign:', error);
+      toast({
+        title: "Error pausing campaign",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResumeCampaign = async () => {
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'active' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({ title: "Campaign resumed successfully" });
+      fetchCampaign();
+    } catch (error: any) {
+      console.error('Error resuming campaign:', error);
+      toast({
+        title: "Error resuming campaign",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -132,9 +174,24 @@ const CampaignDetails = () => {
             </p>
           </div>
         </div>
-        <Button onClick={() => navigate(`/campaigns/${id}/edit`)}>
-          Edit Campaign
-        </Button>
+        <div className="flex items-center gap-2">
+          {campaign.status === 'active' && (
+            <Button 
+              variant="outline"
+              onClick={() => handlePauseCampaign()}
+            >
+              Pause Campaign
+            </Button>
+          )}
+          {campaign.status === 'paused' && (
+            <Button 
+              variant="outline"
+              onClick={() => handleResumeCampaign()}
+            >
+              Resume Campaign
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Campaign Overview */}
