@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -129,13 +130,24 @@ const handler = async (req: Request): Promise<Response> => {
 </html>
     `;
 
-    // Simulate email sending
-    // In real implementation, you would use an email service here
     console.log('Email content generated:', emailContent.length, 'characters');
     
-    // For demo purposes, we'll just log that the email was "sent"
-    // Send Email to fixed recipients
-    console.log('Campaign email sent to:', campaignData.recipients.join(', '));
+    // Send email via Resend
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.error('Missing RESEND_API_KEY secret');
+      throw new Error('Email service not configured. Please set RESEND_API_KEY in Supabase.');
+    }
+
+    const resend = new Resend(resendApiKey);
+    const emailResponse = await resend.emails.send({
+      from: 'Campaigns <onboarding@resend.dev>',
+      to: campaignData.recipients,
+      subject: `Campaign Setup: ${campaignData.campaign_name}`,
+      html: emailContent,
+    });
+
+    console.log('Resend email response:', JSON.stringify(emailResponse));
 
     return new Response(
       JSON.stringify({
