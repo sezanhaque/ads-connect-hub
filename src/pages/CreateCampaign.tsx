@@ -36,6 +36,7 @@ interface Job {
 interface CampaignData {
   jobId: string;
   name: string;
+  objective: 'traffic' | '';
   budget: string;
   startDate: string;
   endDate: string;
@@ -60,6 +61,7 @@ const CreateCampaign = () => {
   const [campaignData, setCampaignData] = useState<CampaignData>({
     jobId: '',
     name: '',
+    objective: '',
     budget: '',
     startDate: '',
     endDate: '',
@@ -102,7 +104,7 @@ const CreateCampaign = () => {
   const validateCurrentStep = () => {
     switch (currentStep) {
       case 1:
-        if (!campaignData.jobId || !campaignData.name || !campaignData.budget || !campaignData.startDate || !campaignData.endDate) {
+        if (!campaignData.jobId || !campaignData.name || !campaignData.objective || !campaignData.budget || !campaignData.startDate || !campaignData.endDate) {
           toast({ title: "Please fill all required fields", variant: "destructive" });
           return false;
         }
@@ -179,7 +181,7 @@ const CreateCampaign = () => {
         p_org_id: memberData.org_id,
         p_job_id: campaignData.jobId,
         p_name: campaignData.name,
-        p_objective: 'traffic',
+        p_objective: campaignData.objective || 'traffic',
         p_budget: parseFloat(campaignData.budget) || 0,
         p_currency: 'USD',
         p_start_date: campaignData.startDate,
@@ -263,17 +265,29 @@ const CreateCampaign = () => {
               />
             </div>
 
-            {/* Objective - Disabled */}
+            {/* Objective */}
             <div className="space-y-2">
-              <Label>Objective</Label>
-              <Button 
-                variant="outline" 
-                className="w-full justify-between opacity-50 cursor-not-allowed"
-                onClick={() => setShowDisabledPopup(true)}
-              >
-                Traffic or Leads
-                <AlertCircle className="h-4 w-4" />
-              </Button>
+              <Label>Objective *</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={campaignData.objective === 'traffic' ? 'default' : 'outline'}
+                  className="w-full justify-center"
+                  onClick={() => updateCampaignData({ objective: 'traffic' })}
+                >
+                  <Target className="h-4 w-4 mr-2" />
+                  Traffic
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-center opacity-60"
+                  onClick={() => setShowDisabledPopup(true)}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Leads
+                </Button>
+              </div>
             </div>
 
             {/* Budget & Schedule */}
