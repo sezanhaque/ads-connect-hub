@@ -97,7 +97,21 @@ const AcceptInvite = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        const status = (error as any)?.context?.status ?? (error as any)?.status;
+        const serverMsg = (error as any)?.context?.error || (error as any)?.message;
+        const msg = serverMsg || "Failed to accept invitation.";
+        if (status === 409 || /already registered/i.test(msg)) {
+          toast({
+            title: "Email already registered",
+            description: "Please sign in or reset your password.",
+            variant: "destructive",
+          });
+          navigate('/auth');
+          return;
+        }
+        throw new Error(msg);
+      }
 
       toast({
         title: "Account created",
@@ -107,9 +121,10 @@ const AcceptInvite = () => {
       navigate('/auth');
     } catch (error: any) {
       console.error('Error accepting invite:', error);
+      const msg = error?.context?.error || error?.message || "Failed to accept invitation. Please try again.";
       toast({
         title: "Error",
-        description: error.message || "Failed to accept invitation. Please try again.",
+        description: msg,
         variant: "destructive",
       });
     } finally {
