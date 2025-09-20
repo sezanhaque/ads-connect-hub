@@ -41,7 +41,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { email, role, token: inviteToken, inviterName, organizationName }: InviteEmailRequest = await req.json();
 
-    const inviteUrl = `${req.headers.get('origin')}/auth?invite=${inviteToken}`;
+    const inviteUrl = `${req.headers.get('origin')}/accept-invite?invite=${inviteToken}`;
 
     const emailResponse = await resend.emails.send({
       from: "AdsConnect <onboarding@resend.dev>",

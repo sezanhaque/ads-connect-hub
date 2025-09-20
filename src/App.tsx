@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import OrganizationSettings from "./pages/OrganizationSettings";
 import MetaConnection from "./pages/MetaConnection";
 import InviteUsers from "./pages/InviteUsers";
+import AcceptInvite from "./pages/AcceptInvite";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import NotFound from "./pages/NotFound";
 
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/settings/organization" element={<DashboardLayout><OrganizationSettings /></DashboardLayout>} />
             <Route path="/meta-connection" element={<DashboardLayout><MetaConnection /></DashboardLayout>} />
             <Route path="/invite-users" element={<DashboardLayout><InviteUsers /></DashboardLayout>} />
+            <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
