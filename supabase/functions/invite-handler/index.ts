@@ -101,7 +101,9 @@ serve(async (req) => {
         );
       }
 
-      // Create the user account via Admin API
+      // Create or link user account via Admin API
+      let existingUser = false;
+      let userId: string | undefined = undefined;
       const { data: createRes, error: createErr } = await admin.auth.admin.createUser({
         email: invite.email,
         password,
@@ -111,19 +113,37 @@ serve(async (req) => {
 
       if (createErr) {
         const msg = (createErr as any)?.message?.toLowerCase?.() || '';
+        console.error('createUser error:', createErr);
         if (msg.includes('already registered') || msg.includes('user already exists')) {
+          // Try to resolve existing user_id from profiles by email
+          const { data: profileByEmail, error: profileLookupErr } = await admin
+            .from('profiles')
+            .select('user_id')
+            .eq('email', invite.email)
+            .maybeSingle();
+          if (profileLookupErr) {
+            console.error('Profile lookup error:', profileLookupErr);
+          }
+          if (profileByEmail?.user_id) {
+            userId = profileByEmail.user_id;
+            existingUser = true;
+          } else {
+            // Could not resolve the user id safely
+            return new Response(
+              JSON.stringify({ error: 'This email is already registered. Please sign in or reset your password.' }),
+              { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            );
+          }
+        } else {
           return new Response(
-            JSON.stringify({ error: 'This email is already registered. Please sign in or reset your password.' }),
-            { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            JSON.stringify({ error: 'Failed to create user.' }),
+            { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
           );
         }
-        return new Response(
-          JSON.stringify({ error: 'Failed to create user.' }),
-          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-        );
+      } else {
+        userId = createRes?.user?.id;
       }
 
-      const userId = createRes?.user?.id;
       if (!userId) {
         return new Response(
           JSON.stringify({ error: 'User creation failed.' }),
@@ -179,7 +199,7 @@ serve(async (req) => {
         console.error('Invite deletion error:', deleteErr);
       }
 
-      return new Response(JSON.stringify({ success: true }), {
+      return new Response(JSON.stringify({ success: true, existingUser }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });

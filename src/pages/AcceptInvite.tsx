@@ -87,7 +87,7 @@ const AcceptInvite = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.functions.invoke('invite-handler', {
+      const { data, error } = await supabase.functions.invoke('invite-handler', {
         body: {
           action: 'accept',
           token,
@@ -131,8 +131,8 @@ const AcceptInvite = () => {
       }
 
       toast({
-        title: "Account created",
-        description: "You can now sign in with your new password.",
+        title: data?.existingUser ? "You're added to the organization" : "Account created",
+        description: data?.existingUser ? "Your existing account was linked. Please sign in." : "You can now sign in with your new password.",
       });
 
       navigate('/auth');
