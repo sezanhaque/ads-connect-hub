@@ -38,17 +38,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  console.log('DashboardLayout render:', { user: !!user, profile, loading, pathname: location.pathname });
-
   // Redirect to auth if not authenticated
   if (!user && !loading) {
-    console.log('Redirecting to auth - no user and not loading');
     return <Navigate to="/auth" replace />;
   }
 
   // Show loading state
   if (loading) {
-    console.log('Showing loading state');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2 text-primary">
@@ -62,8 +58,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const handleSignOut = async () => {
     await signOut();
   };
-
-  console.log('Rendering DashboardLayout with children:', !!children);
 
   return (
     <div className="min-h-screen bg-background">

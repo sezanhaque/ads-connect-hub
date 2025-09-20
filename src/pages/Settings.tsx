@@ -16,10 +16,8 @@ import {
 } from 'lucide-react';
 
 const Settings = () => {
-  console.log('Settings component rendering');
   const { profile } = useAuth();
   const { toast } = useToast();
-  console.log('Settings profile:', profile);
   const [profileData, setProfileData] = useState({
     first_name: '',
     last_name: '',

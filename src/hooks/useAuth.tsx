@@ -71,7 +71,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          members!inner(role, org_id)
+        `)
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -118,7 +121,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setProfile(newProfile);
       } else {
-        setProfile(data);
+        // Use the member role (owner/admin/member) instead of profile role
+        const memberRole = (data as any).members?.[0]?.role || 'member';
+        const profileWithMemberRole = {
+          ...data,
+          role: memberRole === 'owner' ? 'admin' : memberRole
+        };
+        setProfile(profileWithMemberRole);
       }
     } catch (error) {
       console.error('Error fetching/creating profile:', error);
