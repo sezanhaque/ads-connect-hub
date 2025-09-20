@@ -14,6 +14,28 @@ interface InviteDetailsRequest {
   first_name?: string;
   last_name?: string;
 }
+async function findUserIdByEmail(admin: any, email: string): Promise<string | null> {
+  try {
+    const perPage = 1000;
+    let page = 1;
+    while (true) {
+      const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+      if (error) {
+        console.error('listUsers error:', error);
+        return null;
+      }
+      const users = data?.users ?? [];
+      const found = users.find((u: any) => (u.email || '').toLowerCase() === email.toLowerCase());
+      if (found) return found.id;
+      if (users.length < perPage) break; // no more pages
+      page += 1;
+      if (page > 20) break; // safety cap
+    }
+  } catch (e) {
+    console.error('findUserIdByEmail error:', e);
+  }
+  return null;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -101,47 +123,32 @@ serve(async (req) => {
         );
       }
 
-      // Create or link user account via Admin API
+      // Create or link user account via Admin API (clean flow)
       let existingUser = false;
       let userId: string | undefined = undefined;
-      const { data: createRes, error: createErr } = await admin.auth.admin.createUser({
-        email: invite.email,
-        password,
-        email_confirm: false,
-        user_metadata: { first_name, last_name },
-      });
 
-      if (createErr) {
-        const msg = (createErr as any)?.message?.toLowerCase?.() || '';
-        console.error('createUser error:', createErr);
-        if (msg.includes('already registered') || msg.includes('user already exists')) {
-          // Try to resolve existing user_id from profiles by email
-          const { data: profileByEmail, error: profileLookupErr } = await admin
-            .from('profiles')
-            .select('user_id')
-            .eq('email', invite.email)
-            .maybeSingle();
-          if (profileLookupErr) {
-            console.error('Profile lookup error:', profileLookupErr);
-          }
-          if (profileByEmail?.user_id) {
-            userId = profileByEmail.user_id;
-            existingUser = true;
-          } else {
-            // Could not resolve the user id safely
-            return new Response(
-              JSON.stringify({ error: 'This email is already registered. Please sign in or reset your password.' }),
-              { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            );
-          }
-        } else {
+      // First, try to find an existing user by email to avoid 422 errors
+      const foundId = await findUserIdByEmail(admin, invite.email);
+      if (foundId) {
+        existingUser = true;
+        userId = foundId;
+      } else {
+        const { data: createRes, error: createErr } = await admin.auth.admin.createUser({
+          email: invite.email,
+          password,
+          email_confirm: true,
+          user_metadata: { first_name, last_name },
+        });
+
+        if (createErr) {
+          console.error('createUser error:', createErr);
           return new Response(
             JSON.stringify({ error: 'Failed to create user.' }),
             { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
           );
+        } else {
+          userId = createRes?.user?.id;
         }
-      } else {
-        userId = createRes?.user?.id;
       }
 
       if (!userId) {
@@ -150,6 +157,7 @@ serve(async (req) => {
           { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         );
       }
+
 
       // Upsert profile to avoid duplicates
       const { error: profileUpsertErr } = await admin
