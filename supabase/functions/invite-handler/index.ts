@@ -101,9 +101,7 @@ serve(async (req) => {
         );
       }
 
-      // Create or link user account via Admin API
-      let existingUser = false;
-      let userId: string | undefined = undefined;
+      // Create the user account via Admin API
       const { data: createRes, error: createErr } = await admin.auth.admin.createUser({
         email: invite.email,
         password,
@@ -113,37 +111,19 @@ serve(async (req) => {
 
       if (createErr) {
         const msg = (createErr as any)?.message?.toLowerCase?.() || '';
-        console.error('createUser error:', createErr);
         if (msg.includes('already registered') || msg.includes('user already exists')) {
-          // Try to resolve existing user_id from profiles by email
-          const { data: profileByEmail, error: profileLookupErr } = await admin
-            .from('profiles')
-            .select('user_id')
-            .eq('email', invite.email)
-            .maybeSingle();
-          if (profileLookupErr) {
-            console.error('Profile lookup error:', profileLookupErr);
-          }
-          if (profileByEmail?.user_id) {
-            userId = profileByEmail.user_id;
-            existingUser = true;
-          } else {
-            // Could not resolve the user id safely
-            return new Response(
-              JSON.stringify({ error: 'This email is already registered. Please sign in or reset your password.' }),
-              { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            );
-          }
-        } else {
           return new Response(
-            JSON.stringify({ error: 'Failed to create user.' }),
-            { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            JSON.stringify({ error: 'This email is already registered. Please sign in or reset your password.' }),
+            { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
           );
         }
-      } else {
-        userId = createRes?.user?.id;
+        return new Response(
+          JSON.stringify({ error: 'Failed to create user.' }),
+          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
       }
 
+      const userId = createRes?.user?.id;
       if (!userId) {
         return new Response(
           JSON.stringify({ error: 'User creation failed.' }),
@@ -151,43 +131,31 @@ serve(async (req) => {
         );
       }
 
-      // Upsert profile to avoid duplicates
-      const { error: profileUpsertErr } = await admin
+      // Create profile
+      const { error: profileErr } = await admin
         .from('profiles')
-        .upsert({
+        .insert({
           user_id: userId,
           first_name,
           last_name,
           email: invite.email,
           role: 'member',
           organization_id: invite.org_id,
-        }, { onConflict: 'user_id' });
-      if (profileUpsertErr) {
-        console.error('Profile upsert error:', profileUpsertErr);
+        });
+      if (profileErr) {
+        console.error('Profile creation error:', profileErr);
       }
 
-      // Ensure membership exists
-      const { data: existingMember } = await admin
+      // Add to members
+      const { error: memberErr } = await admin
         .from('members')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('org_id', invite.org_id)
-        .maybeSingle();
-
-      if (!existingMember) {
-        const { error: memberErr } = await admin
-          .from('members')
-          .insert({ user_id: userId, org_id: invite.org_id, role: invite.role });
-        if (memberErr) {
-          const msg = (memberErr as any)?.message?.toLowerCase?.() || '';
-          if (!msg.includes('duplicate')) {
-            console.error('Member creation error:', memberErr);
-            return new Response(
-              JSON.stringify({ error: 'Failed to add user to organization.' }),
-              { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            );
-          }
-        }
+        .insert({ user_id: userId, org_id: invite.org_id, role: invite.role });
+      if (memberErr) {
+        console.error('Member creation error:', memberErr);
+        return new Response(
+          JSON.stringify({ error: 'Failed to add user to organization.' }),
+          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
       }
 
       // Delete invite
@@ -199,7 +167,7 @@ serve(async (req) => {
         console.error('Invite deletion error:', deleteErr);
       }
 
-      return new Response(JSON.stringify({ success: true, existingUser }), {
+      return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });

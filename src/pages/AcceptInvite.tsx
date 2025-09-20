@@ -87,7 +87,7 @@ const AcceptInvite = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('invite-handler', {
+      const { error } = await supabase.functions.invoke('invite-handler', {
         body: {
           action: 'accept',
           token,
@@ -97,51 +97,19 @@ const AcceptInvite = () => {
         },
       });
 
-      if (error) {
-        const status = (error as any)?.context?.status ?? (error as any)?.status;
-        const ctx = (error as any)?.context;
-        let serverMsg = (ctx as any)?.error || (error as any)?.message;
-        if (!serverMsg && (ctx as any)?.body) {
-          try {
-            const parsed = JSON.parse((ctx as any).body);
-            serverMsg = parsed?.error || parsed?.message || (ctx as any).body;
-          } catch {
-            serverMsg = (ctx as any).body;
-          }
-        }
-        if (status === 404) {
-          toast({
-            title: "Invalid or expired invitation",
-            description: "Please ask the inviter to send a new invite.",
-            variant: "destructive",
-          });
-          navigate('/auth');
-          return;
-        }
-        if (status === 409 || /already registered/i.test(String(serverMsg))) {
-          toast({
-            title: "Email already registered",
-            description: "Please sign in or reset your password.",
-            variant: "destructive",
-          });
-          navigate('/auth');
-          return;
-        }
-        throw new Error(String(serverMsg) || "Failed to accept invitation.");
-      }
+      if (error) throw error;
 
       toast({
-        title: data?.existingUser ? "You're added to the organization" : "Account created",
-        description: data?.existingUser ? "Your existing account was linked. Please sign in." : "You can now sign in with your new password.",
+        title: "Account created",
+        description: "You can now sign in with your new password.",
       });
 
       navigate('/auth');
     } catch (error: any) {
       console.error('Error accepting invite:', error);
-      const msg = error?.context?.error || error?.message || "Failed to accept invitation. Please try again.";
       toast({
         title: "Error",
-        description: msg,
+        description: error.message || "Failed to accept invitation. Please try again.",
         variant: "destructive",
       });
     } finally {
