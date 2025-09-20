@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.send-campaign-email]
 verify_jwt = true
+
+[functions.invite-handler]
+verify_jwt = false
