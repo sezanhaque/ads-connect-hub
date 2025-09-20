@@ -11,7 +11,9 @@ import {
   X,
   LogOut,
   Briefcase,
-  Users
+  Users,
+  Share2,
+  UserPlus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +26,11 @@ const navigation = [
   { name: 'Campaigns', href: '/campaigns', icon: Target },
   { name: 'Jobs', href: '/jobs', icon: Briefcase },
   { name: 'Settings', href: '/settings', icon: Settings },
+];
+
+const adminNavigation = [
+  { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
+  { name: 'Invite Users', href: '/invite-users', icon: UserPlus },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
@@ -121,6 +128,33 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </Link>
               );
             })}
+            
+            {/* Admin-only navigation */}
+            {profile?.role === 'admin' && (
+              <>
+                <div className="px-3 py-2">
+                  <div className="h-px bg-sidebar-border" />
+                </div>
+                {adminNavigation.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                        isActive
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-foreground"
+                      )}
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </>
+            )}
           </nav>
 
           {/* Sign out */}

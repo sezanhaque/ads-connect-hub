@@ -15,6 +15,8 @@ import Jobs from "./pages/Jobs";
 import CreateJob from "./pages/CreateJob";
 import Settings from "./pages/Settings";
 import OrganizationSettings from "./pages/OrganizationSettings";
+import MetaConnection from "./pages/MetaConnection";
+import InviteUsers from "./pages/InviteUsers";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/jobs/create" element={<DashboardLayout><CreateJob /></DashboardLayout>} />
             <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
             <Route path="/settings/organization" element={<DashboardLayout><OrganizationSettings /></DashboardLayout>} />
+            <Route path="/meta-connection" element={<DashboardLayout><MetaConnection /></DashboardLayout>} />
+            <Route path="/invite-users" element={<DashboardLayout><InviteUsers /></DashboardLayout>} />
             <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
