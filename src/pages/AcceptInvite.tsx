@@ -99,9 +99,26 @@ const AcceptInvite = () => {
 
       if (error) {
         const status = (error as any)?.context?.status ?? (error as any)?.status;
-        const serverMsg = (error as any)?.context?.error || (error as any)?.message;
-        const msg = serverMsg || "Failed to accept invitation.";
-        if (status === 409 || /already registered/i.test(msg)) {
+        const ctx = (error as any)?.context;
+        let serverMsg = (ctx as any)?.error || (error as any)?.message;
+        if (!serverMsg && (ctx as any)?.body) {
+          try {
+            const parsed = JSON.parse((ctx as any).body);
+            serverMsg = parsed?.error || parsed?.message || (ctx as any).body;
+          } catch {
+            serverMsg = (ctx as any).body;
+          }
+        }
+        if (status === 404) {
+          toast({
+            title: "Invalid or expired invitation",
+            description: "Please ask the inviter to send a new invite.",
+            variant: "destructive",
+          });
+          navigate('/auth');
+          return;
+        }
+        if (status === 409 || /already registered/i.test(String(serverMsg))) {
           toast({
             title: "Email already registered",
             description: "Please sign in or reset your password.",
@@ -110,7 +127,7 @@ const AcceptInvite = () => {
           navigate('/auth');
           return;
         }
-        throw new Error(msg);
+        throw new Error(String(serverMsg) || "Failed to accept invitation.");
       }
 
       toast({

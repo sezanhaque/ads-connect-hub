@@ -131,43 +131,43 @@ serve(async (req) => {
         );
       }
 
-      // Update profile (likely created by trigger) instead of inserting
-      const { error: profileErr } = await admin
+      // Upsert profile to avoid duplicates
+      const { error: profileUpsertErr } = await admin
         .from('profiles')
-        .update({
+        .upsert({
+          user_id: userId,
           first_name,
           last_name,
+          email: invite.email,
+          role: 'member',
           organization_id: invite.org_id,
-        })
-        .eq('user_id', userId);
-      if (profileErr) {
-        console.error('Profile update error:', profileErr);
-        // If update fails, try insert (in case trigger didn't fire)
-        const { error: insertErr } = await admin
-          .from('profiles')
-          .insert({
-            user_id: userId,
-            first_name,
-            last_name,
-            email: invite.email,
-            role: 'member',
-            organization_id: invite.org_id,
-          });
-        if (insertErr) {
-          console.error('Profile insert error:', insertErr);
-        }
+        }, { onConflict: 'user_id' });
+      if (profileUpsertErr) {
+        console.error('Profile upsert error:', profileUpsertErr);
       }
 
-      // Add to members
-      const { error: memberErr } = await admin
+      // Ensure membership exists
+      const { data: existingMember } = await admin
         .from('members')
-        .insert({ user_id: userId, org_id: invite.org_id, role: invite.role });
-      if (memberErr) {
-        console.error('Member creation error:', memberErr);
-        return new Response(
-          JSON.stringify({ error: 'Failed to add user to organization.' }),
-          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-        );
+        .select('id')
+        .eq('user_id', userId)
+        .eq('org_id', invite.org_id)
+        .maybeSingle();
+
+      if (!existingMember) {
+        const { error: memberErr } = await admin
+          .from('members')
+          .insert({ user_id: userId, org_id: invite.org_id, role: invite.role });
+        if (memberErr) {
+          const msg = (memberErr as any)?.message?.toLowerCase?.() || '';
+          if (!msg.includes('duplicate')) {
+            console.error('Member creation error:', memberErr);
+            return new Response(
+              JSON.stringify({ error: 'Failed to add user to organization.' }),
+              { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            );
+          }
+        }
       }
 
       // Delete invite
