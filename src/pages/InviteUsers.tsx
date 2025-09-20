@@ -35,7 +35,7 @@ const InviteUsers = () => {
       const token = crypto.randomUUID();
       
       // Create invite record
-      const { error } = await supabase
+      const { error: inviteError } = await supabase
         .from('invites')
         .insert({
           email,
@@ -44,12 +44,39 @@ const InviteUsers = () => {
           token,
         });
 
-      if (error) throw error;
+      if (inviteError) throw inviteError;
 
-      toast({
-        title: "Invitation sent!",
-        description: `An invitation has been sent to ${email}`,
+      // Get organization name for the email
+      const { data: orgData } = await supabase
+        .from('organizations')
+        .select('name')
+        .eq('id', profile.organization_id)
+        .single();
+
+      // Send invitation email
+      const { error: emailError } = await supabase.functions.invoke('send-invite-email', {
+        body: {
+          email,
+          role,
+          token,
+          inviterName: `${profile.first_name} ${profile.last_name}`,
+          organizationName: orgData?.name || 'Your Organization'
+        }
       });
+
+      if (emailError) {
+        console.error('Error sending invitation email:', emailError);
+        toast({
+          title: "Invitation created but email failed",
+          description: "The invitation was saved but the email could not be sent. Please check the logs.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Invitation sent!",
+          description: `An invitation email has been sent to ${email}`,
+        });
+      }
       
       setEmail('');
       setRole('member');
