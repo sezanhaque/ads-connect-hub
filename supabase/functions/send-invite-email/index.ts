@@ -63,12 +63,18 @@ const handler = async (req: Request): Promise<Response> => {
               AdsConnect helps teams manage advertising campaigns, connect with Meta Marketing APIs, and track performance metrics all in one place.
             </p>
             
-            <div style="text-align: center;">
+            <div style="text-align: center; margin-bottom: 10px;">
               <a href="${inviteUrl}" 
                  style="background: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
                 Accept Invitation
               </a>
             </div>
+
+            <p style="font-size: 12px; color: #777; text-align: center; margin-top: 6px;">
+              If the button doesn’t work, copy and paste this link into your browser:
+              <br/>
+              <span style="word-break: break-all; color: #333;">${inviteUrl}</span>
+            </p>
           </div>
           
           <div style="background: #e9ecef; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
