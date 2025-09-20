@@ -69,21 +69,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // 1) Fetch base profile
+      const { data: profileRow, error: profileError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          members!inner(role, org_id)
-        `)
+        .select('*')
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
       }
 
-      if (!data) {
-        // Create a basic profile for existing users who don't have one yet
+      let ensuredProfile = profileRow;
+
+      // If missing, create a simple profile
+      if (!ensuredProfile) {
         const { data: userRes } = await supabase.auth.getUser();
         const authUser = userRes.user;
         const { data: newProfile, error: insertError } = await supabase
@@ -102,33 +102,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // Create organization and get organization_id for the profile
+        // Create or get organization membership
         try {
           const orgId = await supabase.rpc('app_create_org_if_missing', {
             p_user_id: userId,
             p_email: authUser?.email ?? '',
             p_name: (authUser?.user_metadata as any)?.company_name ?? 'My Organization'
           });
-          
-          // Update profile with organization_id
+          // Persist org id on profile for convenience
           await supabase
             .from('profiles')
             .update({ organization_id: orgId.data })
             .eq('user_id', userId);
+          ensuredProfile = { ...newProfile, organization_id: orgId.data } as any;
         } catch (orgError) {
           console.error('Error creating organization:', orgError);
+          ensuredProfile = newProfile as any;
         }
-
-        setProfile(newProfile);
-      } else {
-        // Use the member role (owner/admin/member) instead of profile role
-        const memberRole = (data as any).members?.[0]?.role || 'member';
-        const profileWithMemberRole = {
-          ...data,
-          role: memberRole === 'owner' ? 'admin' : memberRole
-        };
-        setProfile(profileWithMemberRole);
       }
+
+      // 2) Fetch member role and org
+      const { data: memberRow, error: memberError } = await supabase
+        .from('members')
+        .select('role, org_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (memberError) {
+        console.error('Error fetching member role:', memberError);
+      }
+
+      const normalizedRole = memberRow?.role === 'owner' ? 'admin' : (memberRow?.role ?? ensuredProfile?.role ?? 'member');
+      const organizationId = memberRow?.org_id ?? ensuredProfile?.organization_id ?? null;
+
+      setProfile({ ...(ensuredProfile as any), role: normalizedRole, organization_id: organizationId } as any);
     } catch (error) {
       console.error('Error fetching/creating profile:', error);
     }
