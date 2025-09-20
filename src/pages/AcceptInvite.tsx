@@ -37,14 +37,9 @@ const AcceptInvite = () => {
 
   const fetchInviteData = async () => {
     try {
-      const { data, error } = await supabase
-        .from('invites')
-        .select(`
-          *,
-          organizations (name)
-        `)
-        .eq('token', token)
-        .single();
+      const { data, error } = await supabase.functions.invoke('invite-handler', {
+        body: { action: 'details', token },
+      });
 
       if (error || !data) {
         toast({
@@ -92,62 +87,24 @@ const AcceptInvite = () => {
     setLoading(true);
 
     try {
-      // Create user account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: inviteData.email,
-        password: password,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-          },
-          emailRedirectTo: `${window.location.origin}/dashboard`
-        }
+      const { error } = await supabase.functions.invoke('invite-handler', {
+        body: {
+          action: 'accept',
+          token,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+        },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      if (authData.user) {
-        // Create profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: authData.user.id,
-            first_name: firstName,
-            last_name: lastName,
-            email: inviteData.email,
-            role: 'member',
-            organization_id: inviteData.org_id
-          });
+      toast({
+        title: "Account created",
+        description: "You can now sign in with your new password.",
+      });
 
-        if (profileError) console.error('Profile creation error:', profileError);
-
-        // Add user to members table
-        const { error: memberError } = await supabase
-          .from('members')
-          .insert({
-            user_id: authData.user.id,
-            org_id: inviteData.org_id,
-            role: inviteData.role
-          });
-
-        if (memberError) throw memberError;
-
-        // Delete the invite
-        const { error: deleteError } = await supabase
-          .from('invites')
-          .delete()
-          .eq('token', token);
-
-        if (deleteError) console.error('Invite deletion error:', deleteError);
-
-        toast({
-          title: "Welcome!",
-          description: "Your account has been created successfully. Please check your email to verify your account.",
-        });
-
-        navigate('/dashboard');
-      }
+      navigate('/auth');
     } catch (error: any) {
       console.error('Error accepting invite:', error);
       toast({
@@ -180,7 +137,7 @@ const AcceptInvite = () => {
             Accept Invitation
           </CardTitle>
           <CardDescription>
-            You've been invited to join <strong>{inviteData.organizations?.name}</strong> as a <strong>{inviteData.role}</strong>.
+            You've been invited to join <strong>{inviteData.org_name ?? inviteData.organizations?.name}</strong> as a <strong>{inviteData.role}</strong>.
           </CardDescription>
         </CardHeader>
         <CardContent>
