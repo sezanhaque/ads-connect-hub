@@ -131,19 +131,31 @@ serve(async (req) => {
         );
       }
 
-      // Create profile
+      // Update profile (likely created by trigger) instead of inserting
       const { error: profileErr } = await admin
         .from('profiles')
-        .insert({
-          user_id: userId,
+        .update({
           first_name,
           last_name,
-          email: invite.email,
-          role: 'member',
           organization_id: invite.org_id,
-        });
+        })
+        .eq('user_id', userId);
       if (profileErr) {
-        console.error('Profile creation error:', profileErr);
+        console.error('Profile update error:', profileErr);
+        // If update fails, try insert (in case trigger didn't fire)
+        const { error: insertErr } = await admin
+          .from('profiles')
+          .insert({
+            user_id: userId,
+            first_name,
+            last_name,
+            email: invite.email,
+            role: 'member',
+            organization_id: invite.org_id,
+          });
+        if (insertErr) {
+          console.error('Profile insert error:', insertErr);
+        }
       }
 
       // Add to members
