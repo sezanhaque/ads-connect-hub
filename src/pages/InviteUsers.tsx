@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { UserPlus, Mail, Search, Users, Shield } from 'lucide-react';
+import { UserPlus, Mail, Search, Users, Shield, CheckCircle, UserX } from 'lucide-react';
 
 interface User {
   id: string;
@@ -126,10 +126,17 @@ const InviteUsers = () => {
   };
 
   const handleInviteExistingUser = async (userId: string, userEmail: string) => {
-    if (!profile?.organization_id) return;
+    if (!profile?.organization_id) {
+      toast({
+        title: "Error",
+        description: "Organization not found",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
-      // Add user to organization
+      // Add user to organization as member
       const { error } = await supabase
         .from('members')
         .insert({
@@ -142,18 +149,28 @@ const InviteUsers = () => {
 
       toast({
         title: "User invited successfully!",
-        description: `${userEmail} has been added to your organization`,
+        description: `${userEmail} has been added to your organization as a member`,
       });
 
       // Refresh users list
       fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error inviting user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to invite user",
-        variant: "destructive",
-      });
+      
+      // Handle duplicate key error (user already in org)
+      if (error?.code === '23505') {
+        toast({
+          title: "User already in organization",
+          description: "This user is already a member of your organization",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to invite user. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -200,7 +217,7 @@ const InviteUsers = () => {
           email,
           role,
           token,
-          inviterName: `${profile.first_name} ${profile.last_name}`,
+          inviterName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Admin',
           organizationName: orgData?.name || 'Your Organization'
         }
       });
@@ -221,13 +238,23 @@ const InviteUsers = () => {
       
       setEmail('');
       setRole('member');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending invite:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send invitation. Please try again.",
-        variant: "destructive",
-      });
+      
+      // Handle duplicate invite error
+      if (error?.code === '23505') {
+        toast({
+          title: "Invitation already sent",
+          description: "An invitation has already been sent to this email address",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to send invitation. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -266,7 +293,10 @@ const InviteUsers = () => {
             </div>
 
             {loadingUsers ? (
-              <div className="text-center py-4">Loading users...</div>
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-2 text-muted-foreground">Loading users...</p>
+              </div>
             ) : (
               <div className="rounded-md border">
                 <Table>
@@ -274,7 +304,7 @@ const InviteUsers = () => {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Joined</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -282,7 +312,8 @@ const InviteUsers = () => {
                   <TableBody>
                     {filteredUsers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          <UserX className="h-8 w-8 mx-auto mb-2 opacity-50" />
                           No users found
                         </TableCell>
                       </TableRow>
@@ -298,26 +329,37 @@ const InviteUsers = () => {
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
                             {user.is_member ? (
-                              <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                                {user.role === 'admin' && <Shield className="h-3 w-3 mr-1" />}
-                                {user.role}
+                              <Badge variant={user.role === 'admin' || user.role === 'owner' ? 'default' : 'secondary'} className="flex items-center gap-1 w-fit">
+                                {(user.role === 'admin' || user.role === 'owner') && <Shield className="h-3 w-3" />}
+                                {user.role === 'owner' ? 'Owner' : user.role === 'admin' ? 'Admin' : 'Member'}
                               </Badge>
                             ) : (
-                              <Badge variant="outline">Not a member</Badge>
+                              <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                                <UserX className="h-3 w-3" />
+                                Not a member
+                              </Badge>
                             )}
                           </TableCell>
                           <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleInviteExistingUser(user.user_id, user.email)}
-                              disabled={user.is_member}
-                            >
-                              {user.is_member ? 'Already Member' : 'Invite'}
-                            </Button>
+                            {user.is_member ? (
+                              <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                                <CheckCircle className="h-3 w-3" />
+                                In Organization
+                              </Badge>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleInviteExistingUser(user.user_id, user.email)}
+                                className="flex items-center gap-1"
+                              >
+                                <UserPlus className="h-3 w-3" />
+                                Invite
+                              </Button>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))
@@ -329,85 +371,103 @@ const InviteUsers = () => {
           </CardContent>
         </Card>
 
-        {/* Invite Form */}
+        {/* Invite Form & Role Info */}
         <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5" />
-              Send Email Invitation
-            </CardTitle>
-            <CardDescription>
-              Send an invitation email to someone not yet registered in the system.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="colleague@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="member">Member</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                <Mail className="mr-2 h-4 w-4" />
-                {isLoading ? 'Sending...' : 'Send Invitation'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Send Email Invitation
+              </CardTitle>
+              <CardDescription>
+                Send an invitation email to someone not yet registered in the system.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleInvite} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="colleague@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Select value={role} onValueChange={setRole}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="member">Member</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Admin roles can only be assigned from the backend
+                  </p>
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Sending...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Send Invitation
+                    </div>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Role Permissions</CardTitle>
-            <CardDescription>
-              Understand what each role can do in your organization.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-3 bg-muted rounded-lg">
-              <h4 className="font-medium mb-2">Member</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• View and create campaigns</li>
-                <li>• Manage jobs</li>
-                <li>• Access dashboard and reports</li>
-                <li>• Update their own profile</li>
-              </ul>
-            </div>
-            
-            <div className="p-3 bg-muted rounded-lg">
-              <h4 className="font-medium mb-2">Admin</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• All member permissions</li>
-                <li>• Invite and manage users</li>
-                <li>• Connect Meta accounts</li>
-                <li>• Organization settings</li>
-                <li>• Full administrative access</li>
-              </ul>
-              <p className="text-xs text-muted-foreground mt-2 italic">
-                Admin roles can only be assigned from the backend
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Role Permissions
+              </CardTitle>
+              <CardDescription>
+                Understand what each role can do in your organization.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 bg-muted/50 rounded-lg border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="h-4 w-4" />
+                  <h4 className="font-medium">Member</h4>
+                </div>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• View and create campaigns</li>
+                  <li>• Manage jobs and applications</li>
+                  <li>• Access dashboard and reports</li>
+                  <li>• Update their own profile</li>
+                </ul>
+              </div>
+              
+              <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-4 w-4" />
+                  <h4 className="font-medium">Admin/Owner</h4>
+                </div>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• All member permissions</li>
+                  <li>• Invite and manage users</li>
+                  <li>• Connect Meta accounts</li>
+                  <li>• Organization settings</li>
+                  <li>• Full administrative access</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

@@ -344,7 +344,6 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
-          organization_id: string | null
           role: string
           updated_at: string
           user_id: string
@@ -355,7 +354,6 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
-          organization_id?: string | null
           role?: string
           updated_at?: string
           user_id: string
@@ -366,7 +364,6 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
-          organization_id?: string | null
           role?: string
           updated_at?: string
           user_id?: string
@@ -411,6 +408,10 @@ export type Database = {
       publish_campaign: {
         Args: { p_campaign_id: string; p_requester: string }
         Returns: boolean
+      }
+      sync_profile_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

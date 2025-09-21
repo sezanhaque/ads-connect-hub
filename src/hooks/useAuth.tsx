@@ -154,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Role priority: member role > profile role > default member
       // Only 'admin' role in members table gets admin access
       const normalizedRole = memberRow?.role === 'admin' ? 'admin' : (memberRow?.role ?? ensuredProfile?.role ?? 'member');
-      const organizationId = memberRow?.org_id ?? ensuredProfile?.organization_id ?? null;
+      const organizationId = memberRow?.org_id ?? null;
 
       setProfile({ ...(ensuredProfile as any), role: normalizedRole, organization_id: organizationId } as any);
     } catch (error) {
