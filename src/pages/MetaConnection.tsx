@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,15 @@ const MetaConnection = () => {
   const { toast } = useToast();
   const { syncMetaAds, loading } = useIntegrations();
 
+  // Check for existing Meta connection on component mount
+  useEffect(() => {
+    const storedConnection = localStorage.getItem('meta-connection-status');
+    if (storedConnection === 'connected') {
+      setIsConnected(true);
+      setConnectionStatus('connected');
+    }
+  }, []);
+
   const form = useForm<MetaConnectionForm>({
     resolver: zodResolver(metaConnectionSchema),
     defaultValues: {
@@ -39,6 +48,10 @@ const MetaConnection = () => {
       
       setConnectionStatus('connected');
       setIsConnected(true);
+      
+      // Store connection status in localStorage for persistence
+      localStorage.setItem('meta-connection-status', 'connected');
+      
       toast({
         title: 'Connection successful',
         description: 'Successfully connected to Meta Marketing API and synced campaigns.',
