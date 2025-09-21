@@ -218,7 +218,7 @@ const Settings = () => {
         </div>
 
         {/* Organization Management - Full Width */}
-        <div className="mt-8">
+        {/* <div className="mt-8">
           <Card className="shadow-xl border-0 bg-gradient-to-r from-primary/5 to-primary/10 backdrop-blur-sm">
             <CardHeader className="pb-6">
               <CardTitle className="flex items-center gap-3 text-2xl">
@@ -248,7 +248,7 @@ const Settings = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
       </div>
     </div>
   );
