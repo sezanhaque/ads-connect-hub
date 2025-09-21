@@ -120,9 +120,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // If user has no membership yet, create an org + membership server-side
       if (!memberRow?.org_id) {
-        const fallbackName = ensuredProfile?.first_name
-          ? `${ensuredProfile.first_name}'s Organization`
-          : (ensuredProfile?.email?.split('@')[0] || 'My') + "'s Organization";
+        // Get user metadata to check for company name from signup
+        const { data: userRes } = await supabase.auth.getUser();
+        const companyName = userRes.user?.user_metadata?.company_name;
+        
+        const fallbackName = companyName || 
+          (ensuredProfile?.first_name 
+            ? `${ensuredProfile.first_name}'s Organization`
+            : (ensuredProfile?.email?.split('@')[0] || 'My') + "'s Organization");
 
         const { data: createdOrgId, error: orgEnsureError } = await supabase.rpc(
           'app_create_org_if_missing',
