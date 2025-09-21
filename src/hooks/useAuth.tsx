@@ -127,7 +127,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const fallbackName = companyName || 
           (ensuredProfile?.first_name 
             ? `${ensuredProfile.first_name}'s Organization`
-            : (ensuredProfile?.email?.split('@')[0] || 'My') + "'s Organization");
+            : ensuredProfile?.email?.split('@')[0] 
+              ? `${ensuredProfile.email.split('@')[0]}'s Organization`
+              : 'My Organization');
 
         const { data: createdOrgId, error: orgEnsureError } = await supabase.rpc(
           'app_create_org_if_missing',
@@ -185,68 +187,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         variant: "destructive",
       });
     } else if (data.user) {
-      // Check if user already has a profile and organization membership
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', data.user.id)
-        .single();
-
-      if (!existingProfile) {
-        // Create profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              user_id: data.user.id,
-              email: email,
-              first_name: firstName || '',
-              last_name: lastName || '',
-            }
-          ]);
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-        }
-
-        // Check if user is already a member of any organization
-        const { data: existingMember } = await supabase
-          .from('members')
-          .select('*')
-          .eq('user_id', data.user.id)
-          .single();
-
-        if (!existingMember) {
-          // Create a default organization and add user as member
-          const orgName = companyName || `${firstName || email.split('@')[0]}'s Organization`;
-          
-          const { data: orgData, error: orgError } = await supabase
-            .from('organizations')
-            .insert([{ name: orgName }])
-            .select()
-            .single();
-
-          if (orgError) {
-            console.error('Error creating organization:', orgError);
-          } else {
-            // Add user as member (not owner) of the organization
-            const { error: memberError } = await supabase
-              .from('members')
-              .insert([
-                {
-                  org_id: orgData.id,
-                  user_id: data.user.id,
-                  role: 'member'
-                }
-              ]);
-
-            if (memberError) {
-              console.error('Error creating member:', memberError);
-            }
-          }
-        }
-      }
-      
       toast({
         title: "Account created successfully!",
         description: "Please check your email to verify your account.",
