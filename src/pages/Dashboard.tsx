@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { MetaCampaignsDashboard } from '@/components/MetaCampaignsDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -258,6 +259,9 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Meta Campaigns Dashboard */}
+      <MetaCampaignsDashboard />
 
       {/* Recent Activity */}
       <div className="grid gap-8 lg:grid-cols-2">
