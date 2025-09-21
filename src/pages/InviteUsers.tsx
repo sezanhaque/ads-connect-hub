@@ -18,7 +18,7 @@ interface User {
   last_name: string | null;
   role: string;
   created_at: string;
-  organization_id: string | null;
+  user_id: string;
 }
 
 const InviteUsers = () => {
@@ -45,15 +45,50 @@ const InviteUsers = () => {
   }, [users, searchTerm]);
 
   const fetchUsers = async () => {
+    if (!profile?.organization_id) return;
+    
     try {
       setLoadingUsers(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
+      // First get all members of the organization
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('id, role, created_at, user_id')
+        .eq('org_id', profile.organization_id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (membersError) throw membersError;
+
+      if (!membersData || membersData.length === 0) {
+        setUsers([]);
+        return;
+      }
+
+      // Get user IDs
+      const userIds = membersData.map(member => member.user_id);
+
+      // Then get profile data for those users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, email, first_name, last_name')
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine the data
+      const transformedUsers = membersData.map(member => {
+        const profile = profilesData?.find(p => p.user_id === member.user_id);
+        return {
+          id: member.id,
+          user_id: member.user_id,
+          email: profile?.email || '',
+          first_name: profile?.first_name || null,
+          last_name: profile?.last_name || null,
+          role: member.role,
+          created_at: member.created_at,
+        };
+      });
+      
+      setUsers(transformedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -206,17 +241,17 @@ const InviteUsers = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              All Users
+              Organization Members
             </CardTitle>
             <CardDescription>
-              View all users in the system and invite them to your organization.
+              View and manage members of your organization.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               <Search className="h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search users by email or name..."
+                placeholder="Search members by email or name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="max-w-sm"
@@ -241,7 +276,7 @@ const InviteUsers = () => {
                     {filteredUsers.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
-                          No users found
+                          No members found
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -264,14 +299,9 @@ const InviteUsers = () => {
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleInviteExistingUser(user.id, user.email)}
-                              disabled={user.organization_id === profile?.organization_id}
-                            >
-                              {user.organization_id === profile?.organization_id ? 'In Org' : 'Invite'}
-                            </Button>
+                            <Badge variant="outline">
+                              Member
+                            </Badge>
                           </TableCell>
                         </TableRow>
                       ))
