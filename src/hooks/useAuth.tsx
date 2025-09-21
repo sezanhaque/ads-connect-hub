@@ -82,33 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       let ensuredProfile = profileRow;
 
-      // If missing, create a simple profile
+      // If no profile exists, the trigger should have created one already
+      // Don't create profiles manually in the frontend - let the trigger handle it
       if (!ensuredProfile) {
-        const { data: userRes } = await supabase.auth.getUser();
-        const authUser = userRes.user;
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: userId,
-            email: authUser?.email ?? null,
-            first_name: (authUser?.user_metadata as any)?.first_name ?? null,
-            last_name: (authUser?.user_metadata as any)?.last_name ?? null,
-            // New users default to member role
-            role: 'member'
-          })
-          .select('*')
-          .single();
-
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-          return;
-        }
-
-        ensuredProfile = newProfile as any;
+        console.log('No profile found for user, waiting for trigger...');
+        return;
       }
 
       // 2) Fetch member role and org
-      let { data: memberRow, error: memberError } = await supabase
+      const { data: memberRow, error: memberError } = await supabase
         .from('members')
         .select('role, org_id')
         .eq('user_id', userId)
@@ -116,41 +98,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (memberError) {
         console.error('Error fetching member role:', memberError);
-      }
-
-      // If user has no membership yet, create an org + membership server-side
-      if (!memberRow?.org_id) {
-        // Get user metadata to check for company name from signup
-        const { data: userRes } = await supabase.auth.getUser();
-        const companyName = userRes.user?.user_metadata?.company_name;
-        
-        const fallbackName = companyName || 
-          (ensuredProfile?.first_name 
-            ? `${ensuredProfile.first_name}'s Organization`
-            : ensuredProfile?.email?.split('@')[0] 
-              ? `${ensuredProfile.email.split('@')[0]}'s Organization`
-              : 'My Organization');
-
-        const { data: createdOrgId, error: orgEnsureError } = await supabase.rpc(
-          'app_create_org_if_missing',
-          {
-            p_user_id: userId,
-            p_email: ensuredProfile?.email || null,
-            p_name: fallbackName,
-          }
-        );
-
-        if (orgEnsureError) {
-          console.error('Error ensuring organization:', orgEnsureError);
-        } else if (createdOrgId) {
-          // Re-fetch membership to reflect the new org
-          const { data: refreshedMember } = await supabase
-            .from('members')
-            .select('role, org_id')
-            .eq('user_id', userId)
-            .maybeSingle();
-          if (refreshedMember) memberRow = refreshedMember;
-        }
       }
 
       // Role priority: member role > profile role > default member
