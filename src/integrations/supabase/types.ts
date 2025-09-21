@@ -397,6 +397,10 @@ export type Database = {
         }
         Returns: string
       }
+      get_user_org_role: {
+        Args: { p_org_id: string; p_user_id?: string }
+        Returns: string
+      }
       is_org_member: {
         Args: { p_org_id: string; p_user_id?: string }
         Returns: boolean
