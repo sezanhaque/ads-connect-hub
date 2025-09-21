@@ -34,27 +34,45 @@ const InviteUsers = () => {
   const { profile } = useAuth();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (profile?.organization_id) {
+      fetchUsers();
+    }
+  }, [profile?.organization_id]);
 
   useEffect(() => {
-    const filtered = users.filter(user => 
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = users.filter(user => {
+      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+      const email = user.email || '';
+      const searchLower = searchTerm.toLowerCase();
+      
+      return email.toLowerCase().includes(searchLower) ||
+             fullName.toLowerCase().includes(searchLower);
+    });
     setFilteredUsers(filtered);
   }, [users, searchTerm]);
 
   const fetchUsers = async () => {
+    if (!profile?.organization_id) {
+      console.log('No organization_id available yet');
+      return;
+    }
+
     try {
       setLoadingUsers(true);
+      console.log('Fetching users for org:', profile.organization_id);
+      
       // Fetch all users in the app for admin to see and invite
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, email, first_name, last_name, created_at')
         .order('created_at', { ascending: false });
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('Found profiles:', profilesData?.length || 0);
 
       if (!profilesData || profilesData.length === 0) {
         setUsers([]);
@@ -68,10 +86,15 @@ const InviteUsers = () => {
       const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('user_id, role')
-        .eq('org_id', profile?.organization_id)
+        .eq('org_id', profile.organization_id)
         .in('user_id', userIds);
 
-      if (membersError) throw membersError;
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+        throw membersError;
+      }
+
+      console.log('Found members:', membersData?.length || 0);
 
       // Transform the data to include membership status
       const transformedUsers = profilesData.map(userProfile => {
@@ -79,7 +102,7 @@ const InviteUsers = () => {
         return {
           id: userProfile.user_id,
           user_id: userProfile.user_id,
-          email: userProfile.email || '',
+          email: userProfile.email || 'No email',
           first_name: userProfile.first_name,
           last_name: userProfile.last_name,
           role: membership ? membership.role : null,
@@ -88,6 +111,7 @@ const InviteUsers = () => {
         };
       });
       
+      console.log('Transformed users:', transformedUsers.length);
       setUsers(transformedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -266,9 +290,9 @@ const InviteUsers = () => {
                       filteredUsers.map((user) => (
                         <TableRow key={user.id}>
                           <TableCell className="font-medium">
-                            {user.first_name && user.last_name 
-                              ? `${user.first_name} ${user.last_name}`
-                              : 'No name'
+                            {user.first_name || user.last_name 
+                              ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+                              : 'No name provided'
                             }
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
