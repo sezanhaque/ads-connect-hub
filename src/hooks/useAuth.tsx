@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // 2) Fetch member role and org
-      const { data: memberRow, error: memberError } = await supabase
+      let { data: memberRow, error: memberError } = await supabase
         .from('members')
         .select('role, org_id')
         .eq('user_id', userId)
@@ -116,6 +116,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (memberError) {
         console.error('Error fetching member role:', memberError);
+      }
+
+      // If user has no membership yet, create an org + membership server-side
+      if (!memberRow?.org_id) {
+        const fallbackName = ensuredProfile?.first_name
+          ? `${ensuredProfile.first_name}'s Organization`
+          : (ensuredProfile?.email?.split('@')[0] || 'My') + "'s Organization";
+
+        const { data: createdOrgId, error: orgEnsureError } = await supabase.rpc(
+          'app_create_org_if_missing',
+          {
+            p_user_id: userId,
+            p_email: ensuredProfile?.email || null,
+            p_name: fallbackName,
+          }
+        );
+
+        if (orgEnsureError) {
+          console.error('Error ensuring organization:', orgEnsureError);
+        } else if (createdOrgId) {
+          // Re-fetch membership to reflect the new org
+          const { data: refreshedMember } = await supabase
+            .from('members')
+            .select('role, org_id')
+            .eq('user_id', userId)
+            .maybeSingle();
+          if (refreshedMember) memberRow = refreshedMember;
+        }
       }
 
       // Role priority: member role > profile role > default member

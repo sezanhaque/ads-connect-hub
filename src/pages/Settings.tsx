@@ -46,29 +46,37 @@ const Settings = () => {
     if (!profile?.user_id) return;
 
     try {
-      const { data: memberData, error } = await supabase
+      // Fetch membership (role + org_id)
+      const { data: memberData, error: memberErr } = await supabase
         .from('members')
-        .select(`
-          role,
-          org_id,
-          organizations (
-            id,
-            name
-          )
-        `)
+        .select('role, org_id')
         .eq('user_id', profile.user_id)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching organization:', error);
+      if (memberErr) {
+        console.error('Error fetching membership:', memberErr);
         return;
       }
 
-      if (memberData?.organizations) {
+      if (!memberData?.org_id) return; // not a member yet
+
+      // Fetch organization details separately (no FK metadata available)
+      const { data: org, error: orgErr } = await supabase
+        .from('organizations')
+        .select('id, name')
+        .eq('id', memberData.org_id)
+        .maybeSingle();
+
+      if (orgErr) {
+        console.error('Error fetching organization:', orgErr);
+        return;
+      }
+
+      if (org) {
         setOrganizationData({
-          name: (memberData.organizations as any).name || '',
+          name: org.name || '',
           role: memberData.role || '',
-          id: (memberData.organizations as any).id || '',
+          id: org.id || '',
         });
       }
     } catch (error) {
