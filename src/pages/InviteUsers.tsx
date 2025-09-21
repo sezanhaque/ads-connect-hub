@@ -372,7 +372,7 @@ const InviteUsers = () => {
         </Card>
 
         {/* Invite Form & Role Info */}
-        <div className="grid gap-6 md:grid-cols-2">
+        {/* <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -468,7 +468,7 @@ const InviteUsers = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
       </div>
     </div>
   );
