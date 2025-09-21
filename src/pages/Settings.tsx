@@ -191,28 +191,40 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="space-y-6">
-                <div className="p-4 rounded-lg bg-muted/50 border">
-                  <Label className="text-sm font-medium text-muted-foreground">Organization Name</Label>
-                  <p className="text-lg font-semibold mt-1">{organizationData.name || 'Loading...'}</p>
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Your Role</Label>
-                    <div className="mt-2">
-                      <Badge variant="secondary" className="text-sm px-3 py-1">
-                        {organizationData.role || 'Loading...'}
-                      </Badge>
+              {organizationData.name ? (
+                <div className="space-y-6">
+                  <div className="p-4 rounded-lg bg-muted/50 border">
+                    <Label className="text-sm font-medium text-muted-foreground">Organization Name</Label>
+                    <p className="text-lg font-semibold mt-1">{organizationData.name}</p>
+                  </div>
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Your Role</Label>
+                      <div className="mt-2">
+                        <Badge variant="secondary" className="text-sm px-3 py-1">
+                          {organizationData.role}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
+                  <div className="p-4 rounded-lg bg-muted/50 border">
+                    <Label className="text-sm font-medium text-muted-foreground">Organization ID</Label>
+                    <p className="text-sm font-mono text-muted-foreground mt-1 break-all">
+                      {organizationData.id}
+                    </p>
+                  </div>
                 </div>
-                <div className="p-4 rounded-lg bg-muted/50 border">
-                  <Label className="text-sm font-medium text-muted-foreground">Organization ID</Label>
-                  <p className="text-sm font-mono text-muted-foreground mt-1 break-all">
-                    {organizationData.id || 'Loading...'}
-                  </p>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="p-4 rounded-lg bg-muted/50 border border-dashed">
+                    <Building className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Organization</h3>
+                    <p className="text-muted-foreground">
+                      You are not currently a member of any organization. An admin needs to invite you to join an organization.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
