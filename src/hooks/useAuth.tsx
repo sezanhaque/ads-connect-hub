@@ -93,6 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: authUser?.email ?? null,
             first_name: (authUser?.user_metadata as any)?.first_name ?? null,
             last_name: (authUser?.user_metadata as any)?.last_name ?? null,
+            // New users default to member role
+            role: 'member'
           })
           .select('*')
           .single();
@@ -102,23 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // Create or get organization membership
-        try {
-          const orgId = await supabase.rpc('app_create_org_if_missing', {
-            p_user_id: userId,
-            p_email: authUser?.email ?? '',
-            p_name: (authUser?.user_metadata as any)?.company_name ?? 'My Organization'
-          });
-          // Persist org id on profile for convenience
-          await supabase
-            .from('profiles')
-            .update({ organization_id: orgId.data })
-            .eq('user_id', userId);
-          ensuredProfile = { ...newProfile, organization_id: orgId.data } as any;
-        } catch (orgError) {
-          console.error('Error creating organization:', orgError);
-          ensuredProfile = newProfile as any;
-        }
+        ensuredProfile = newProfile as any;
       }
 
       // 2) Fetch member role and org
@@ -132,7 +118,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Error fetching member role:', memberError);
       }
 
-      const normalizedRole = memberRow?.role === 'owner' ? 'admin' : (memberRow?.role ?? ensuredProfile?.role ?? 'member');
+      // Role priority: member role > profile role > default member
+      // Only 'admin' role in members table gets admin access
+      const normalizedRole = memberRow?.role === 'admin' ? 'admin' : (memberRow?.role ?? ensuredProfile?.role ?? 'member');
       const organizationId = memberRow?.org_id ?? ensuredProfile?.organization_id ?? null;
 
       setProfile({ ...(ensuredProfile as any), role: normalizedRole, organization_id: organizationId } as any);
@@ -164,24 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         variant: "destructive",
       });
     } else if (data.user) {
-      // Create organization for new user and link to profile
-      try {
-        const orgResult = await supabase.rpc('app_create_org_if_missing', {
-          p_user_id: data.user.id,
-          p_email: email,
-          p_name: companyName
-        });
-        
-        // Update profile with organization_id
-        if (orgResult.data) {
-          await supabase
-            .from('profiles')
-            .update({ organization_id: orgResult.data })
-            .eq('user_id', data.user.id);
-        }
-      } catch (orgError) {
-        console.error('Error creating organization:', orgError);
-      }
+      // New users are just regular members - no automatic organization creation
       
       toast({
         title: "Account created successfully!",
