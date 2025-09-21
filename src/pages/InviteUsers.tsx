@@ -16,9 +16,10 @@ interface User {
   email: string;
   first_name: string | null;
   last_name: string | null;
-  role: string;
+  role: string | null;
   created_at: string;
   user_id: string;
+  is_member: boolean;
 }
 
 const InviteUsers = () => {
@@ -45,46 +46,45 @@ const InviteUsers = () => {
   }, [users, searchTerm]);
 
   const fetchUsers = async () => {
-    if (!profile?.organization_id) return;
-    
     try {
       setLoadingUsers(true);
-      // First get all members of the organization
-      const { data: membersData, error: membersError } = await supabase
-        .from('members')
-        .select('id, role, created_at, user_id')
-        .eq('org_id', profile.organization_id)
+      // Fetch all users in the app for admin to see and invite
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, email, first_name, last_name, created_at')
         .order('created_at', { ascending: false });
 
-      if (membersError) throw membersError;
+      if (profilesError) throw profilesError;
 
-      if (!membersData || membersData.length === 0) {
+      if (!profilesData || profilesData.length === 0) {
         setUsers([]);
         return;
       }
 
-      // Get user IDs
-      const userIds = membersData.map(member => member.user_id);
+      // Get all user IDs to check their membership status
+      const userIds = profilesData.map(profile => profile.user_id);
 
-      // Then get profile data for those users
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, email, first_name, last_name')
+      // Check which users are already members of this organization
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('user_id, role')
+        .eq('org_id', profile?.organization_id)
         .in('user_id', userIds);
 
-      if (profilesError) throw profilesError;
+      if (membersError) throw membersError;
 
-      // Combine the data
-      const transformedUsers = membersData.map(member => {
-        const profile = profilesData?.find(p => p.user_id === member.user_id);
+      // Transform the data to include membership status
+      const transformedUsers = profilesData.map(userProfile => {
+        const membership = membersData?.find(m => m.user_id === userProfile.user_id);
         return {
-          id: member.id,
-          user_id: member.user_id,
-          email: profile?.email || '',
-          first_name: profile?.first_name || null,
-          last_name: profile?.last_name || null,
-          role: member.role,
-          created_at: member.created_at,
+          id: userProfile.user_id,
+          user_id: userProfile.user_id,
+          email: userProfile.email || '',
+          first_name: userProfile.first_name,
+          last_name: userProfile.last_name,
+          role: membership ? membership.role : null,
+          created_at: userProfile.created_at,
+          is_member: !!membership,
         };
       });
       
@@ -105,23 +105,6 @@ const InviteUsers = () => {
     if (!profile?.organization_id) return;
 
     try {
-      // Check if user is already in the organization
-      const { data: existingMember } = await supabase
-        .from('members')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('org_id', profile.organization_id)
-        .maybeSingle();
-
-      if (existingMember) {
-        toast({
-          title: "User already invited",
-          description: "This user is already a member of your organization",
-          variant: "destructive",
-        });
-        return;
-      }
-
       // Add user to organization
       const { error } = await supabase
         .from('members')
@@ -241,17 +224,17 @@ const InviteUsers = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Organization Members
+              All Users
             </CardTitle>
             <CardDescription>
-              View and manage members of your organization.
+              View all users in the app and invite them to your organization.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               <Search className="h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search members by email or name..."
+                placeholder="Search users by email or name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="max-w-sm"
@@ -276,7 +259,7 @@ const InviteUsers = () => {
                     {filteredUsers.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
-                          No members found
+                          No users found
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -290,18 +273,27 @@ const InviteUsers = () => {
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
-                            <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                              {user.role === 'admin' && <Shield className="h-3 w-3 mr-1" />}
-                              {user.role}
-                            </Badge>
+                            {user.is_member ? (
+                              <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                                {user.role === 'admin' && <Shield className="h-3 w-3 mr-1" />}
+                                {user.role}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline">Not a member</Badge>
+                            )}
                           </TableCell>
                           <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            <Badge variant="outline">
-                              Member
-                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleInviteExistingUser(user.user_id, user.email)}
+                              disabled={user.is_member}
+                            >
+                              {user.is_member ? 'Already Member' : 'Invite'}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))
