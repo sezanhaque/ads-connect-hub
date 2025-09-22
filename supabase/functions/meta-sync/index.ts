@@ -59,14 +59,58 @@ serve(async (req) => {
     console.log('Authenticated user:', userId);
 
     // Parse request body
-    const { access_token, ad_account_id, org_id } = await req.json();
+    const { access_token, ad_account_id, org_id, save_connection = true } = await req.json();
+    
     console.log('Request params:', { 
       hasToken: !!access_token, 
       adAccountId: ad_account_id, 
-      orgId: org_id 
+      orgId: org_id,
+      saveConnection: save_connection
     });
 
-    if (!access_token) {
+    // Check if we have stored credentials if no access token provided
+    let actualAccessToken = access_token;
+    let actualAdAccountId = ad_account_id;
+    let accountName = '';
+    
+    if (!access_token && org_id) {
+      console.log('No access token provided, checking for stored credentials...');
+      const { data: integration, error: integrationError } = await supabase
+        .from('integrations')
+        .select('access_token, ad_account_id, account_name, status')
+        .eq('org_id', org_id)
+        .eq('integration_type', 'meta')
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (integrationError) {
+        console.error('Error fetching integration:', integrationError);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'Failed to fetch stored credentials' 
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+
+      if (integration) {
+        actualAccessToken = integration.access_token;
+        actualAdAccountId = integration.ad_account_id;
+        accountName = integration.account_name || '';
+        console.log('Using stored credentials for account:', accountName);
+      } else {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'No access token provided and no stored credentials found' 
+        }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    }
+
+    if (!actualAccessToken) {
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'Access token is required' 
@@ -87,7 +131,7 @@ serve(async (req) => {
     }
 
     // Validate Meta access token format
-    if (!access_token.startsWith('EAA') && !access_token.startsWith('EAAG')) {
+    if (!actualAccessToken.startsWith('EAA') && !actualAccessToken.startsWith('EAAG')) {
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'Invalid Meta access token format. Must start with EAA or EAAG.' 
@@ -100,11 +144,11 @@ serve(async (req) => {
     console.log('Starting Meta API calls...');
 
     // Step 1: Get ad accounts if no specific account provided
-    let targetAdAccountId = ad_account_id;
+    let targetAdAccountId = actualAdAccountId;
     
     if (!targetAdAccountId) {
       console.log('Fetching ad accounts...');
-      const adAccountsUrl = `https://graph.facebook.com/v19.0/me/adaccounts?access_token=${access_token}&fields=id,name`;
+      const adAccountsUrl = `https://graph.facebook.com/v19.0/me/adaccounts?access_token=${actualAccessToken}&fields=id,name`;
       const adAccountsResponse = await fetch(adAccountsUrl);
       const adAccountsData = await adAccountsResponse.json();
 
@@ -131,12 +175,43 @@ serve(async (req) => {
       }
 
       targetAdAccountId = adAccountsData.data[0].id;
-      console.log('Using ad account:', targetAdAccountId);
+      accountName = adAccountsData.data[0].name;
+      console.log('Using ad account:', targetAdAccountId, accountName);
+    }
+
+    // Save or update integration credentials if this is a new connection
+    if (access_token && save_connection) {
+      try {
+        console.log('Saving integration credentials...');
+        const { error: upsertError } = await supabase
+          .from('integrations')
+          .upsert({
+            org_id: org_id,
+            integration_type: 'meta',
+            access_token: actualAccessToken,
+            ad_account_id: targetAdAccountId,
+            account_name: accountName,
+            status: 'active',
+            last_sync_at: new Date().toISOString(),
+          }, {
+            onConflict: 'org_id,integration_type,ad_account_id'
+          });
+
+        if (upsertError) {
+          console.error('Error saving integration:', upsertError);
+          // Don't fail the sync, just log the error
+        } else {
+          console.log('Integration credentials saved successfully');
+        }
+      } catch (error) {
+        console.error('Error saving integration credentials:', error);
+        // Don't fail the sync, just log the error
+      }
     }
 
     // Step 2: Get campaigns from the ad account
     console.log('Fetching campaigns...');
-    const campaignsUrl = `https://graph.facebook.com/v19.0/${targetAdAccountId}/campaigns?access_token=${access_token}&fields=id,name,status,objective,start_time,stop_time`;
+    const campaignsUrl = `https://graph.facebook.com/v19.0/${targetAdAccountId}/campaigns?access_token=${actualAccessToken}&fields=id,name,status,objective,start_time,stop_time`;
     const campaignsResponse = await fetch(campaignsUrl);
     const campaignsData = await campaignsResponse.json();
 
@@ -172,7 +247,7 @@ serve(async (req) => {
     for (const campaign of campaigns) {
       try {
         console.log(`Fetching insights for campaign: ${campaign.name}`);
-        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${access_token}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
+        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${actualAccessToken}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
         const insightsResponse = await fetch(insightsUrl);
         const insightsData = await insightsResponse.json();
 

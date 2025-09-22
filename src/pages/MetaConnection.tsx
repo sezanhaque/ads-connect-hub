@@ -6,9 +6,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { ExternalLink, CheckCircle, AlertCircle, Unplug, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMetaIntegration } from '@/hooks/useMetaIntegration';
+import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
+import { Badge } from '@/components/ui/badge';
 
 const metaConnectionSchema = z.object({
   accessToken: z.string().min(1, 'Access token is required').refine(
@@ -21,19 +23,18 @@ const metaConnectionSchema = z.object({
 type MetaConnectionForm = z.infer<typeof metaConnectionSchema>;
 
 const MetaConnection = () => {
-  const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const { toast } = useToast();
   const { connectMetaAccount, loading } = useMetaIntegration();
+  const { integration, loading: statusLoading, isConnected, refetch, disconnect } = useMetaIntegrationStatus();
 
-  // Check for existing Meta connection on component mount
+  // Remove localStorage check since we're using database storage
   useEffect(() => {
-    const storedConnection = localStorage.getItem('meta-connection-status');
-    if (storedConnection === 'connected') {
-      setIsConnected(true);
-      setConnectionStatus('connected');
+    // Trigger refetch when component mounts to ensure we have the latest status
+    if (!statusLoading) {
+      refetch();
     }
-  }, []);
+  }, [refetch, statusLoading]);
 
   const form = useForm<MetaConnectionForm>({
     resolver: zodResolver(metaConnectionSchema),
@@ -52,15 +53,16 @@ const MetaConnection = () => {
       
       if (result.success) {
         setConnectionStatus('connected');
-        setIsConnected(true);
         
-        // Store connection status in localStorage for persistence
-        localStorage.setItem('meta-connection-status', 'connected');
+        // Remove localStorage storage since we're using database now
         
         toast({
           title: 'Connection successful!',
           description: `Successfully synced ${result.syncedCount} campaigns from your Meta account.`,
         });
+
+        // Refetch integration status to show connected state
+        await refetch();
       } else {
         setConnectionStatus('error');
       }
@@ -77,9 +79,24 @@ const MetaConnection = () => {
 
   const handleTryAgain = () => {
     setConnectionStatus('idle');
-    setIsConnected(false);
-    localStorage.removeItem('meta-connection-status');
+    // Remove localStorage since we're using database storage now
     form.reset();
+  };
+
+  const handleDisconnect = async () => {
+    const result = await disconnect();
+    if (result?.success) {
+      toast({
+        title: 'Disconnected successfully',
+        description: 'Your Meta account has been disconnected.',
+      });
+    } else {
+      toast({
+        title: 'Disconnect failed',
+        description: result?.error || 'Failed to disconnect Meta account.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -96,6 +113,7 @@ const MetaConnection = () => {
           <CardTitle className="flex items-center gap-2">
             Connect to Meta Marketing API
             {isConnected && <CheckCircle className="h-5 w-5 text-green-600" />}
+            {statusLoading && <Loader2 className="h-5 w-5 animate-spin" />}
           </CardTitle>
           <CardDescription>
             Link your Meta Business Manager account to automatically sync your campaigns, 
@@ -103,6 +121,41 @@ const MetaConnection = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Connected Status */}
+          {isConnected && integration && (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                  <div>
+                    <h3 className="font-medium text-green-800">Connected to Meta</h3>
+                    <p className="text-sm text-green-600">
+                      Account: {integration.account_name || integration.ad_account_id}
+                    </p>
+                    {integration.last_sync_at && (
+                      <p className="text-xs text-green-600">
+                        Last sync: {new Date(integration.last_sync_at).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                    {integration.status}
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDisconnect}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Unplug className="h-4 w-4 mr-1" />
+                    Disconnect
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground mb-2">
               <strong>What you'll get:</strong>

@@ -7,6 +7,7 @@ import { MetaCampaignsDashboard } from '@/components/MetaCampaignsDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
 import { 
   Plus, 
   Target, 
@@ -48,6 +49,7 @@ interface Job {
 const Dashboard = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { integration, isConnected } = useMetaIntegrationStatus();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [stats, setStats] = useState<DashboardStats>({
     totalCampaigns: 0,
@@ -65,9 +67,55 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    autoSyncMetaCampaigns();
     // Trigger refresh for MetaCampaignsDashboard
     setRefreshTrigger(prev => prev + 1);
   }, []);
+
+  const autoSyncMetaCampaigns = async () => {
+    if (!isConnected || !integration) return;
+
+    try {
+      console.log('Auto-syncing Meta campaigns on dashboard load...');
+      
+      // Get user's organization
+      const { data: memberships, error: membershipsError } = await supabase
+        .from('members')
+        .select('org_id, role')
+        .eq('user_id', profile?.user_id);
+
+      if (membershipsError || !memberships?.length) {
+        console.warn('No organization found for auto-sync');
+        return;
+      }
+
+      const primaryOrg = memberships.find((m: any) => m.role === 'owner') ||
+                        memberships.find((m: any) => m.role === 'admin') ||
+                        memberships.find((m: any) => m.role === 'member') ||
+                        memberships[0];
+
+      // Auto-sync using stored credentials (no access_token needed)
+      const { data, error } = await supabase.functions.invoke('meta-sync', {
+        body: {
+          org_id: primaryOrg.org_id,
+          save_connection: false // Don't overwrite existing connection
+        }
+      });
+
+      if (error) {
+        console.error('Auto-sync error:', error);
+        return;
+      }
+
+      if (data?.success) {
+        console.log('Auto-sync successful:', data.synced_count, 'campaigns updated');
+        // Refresh dashboard after sync
+        setRefreshTrigger(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Auto-sync failed:', error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {

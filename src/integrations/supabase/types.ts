@@ -157,6 +157,48 @@ export type Database = {
           },
         ]
       }
+      integrations: {
+        Row: {
+          access_token: string
+          account_name: string | null
+          ad_account_id: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          integration_type: string
+          last_sync_at: string | null
+          org_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          account_name?: string | null
+          ad_account_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          integration_type: string
+          last_sync_at?: string | null
+          org_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          account_name?: string | null
+          ad_account_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          integration_type?: string
+          last_sync_at?: string | null
+          org_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invites: {
         Row: {
           accepted: boolean | null
