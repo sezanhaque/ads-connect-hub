@@ -259,21 +259,38 @@ const CreateCampaign = () => {
 
     setIsLoading(true);
     try {
-      // Get user's organization
-      const { data: memberData } = await supabase
+      // Get all user memberships and select preferred org (owner > admin > member)
+      const { data: memberships, error: membershipsError } = await supabase
         .from('members')
-        .select('org_id')
-        .eq('user_id', profile.user_id)
-        .maybeSingle();
+        .select('org_id, role')
+        .eq('user_id', profile.user_id);
 
-      if (!memberData?.org_id) {
-        toast({ title: "Organization not found", variant: "destructive" });
+      if (membershipsError) {
+        throw membershipsError;
+      }
+
+      const preferred = (() => {
+        if (!memberships || memberships.length === 0) return null;
+        return (
+          memberships.find((m: any) => m.role === 'owner') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'member') ||
+          memberships[0]
+        );
+      })();
+
+      if (!preferred?.org_id) {
+        toast({ 
+          title: "Organization not found", 
+          description: "Organization not found for this account. Please accept your invite or contact support.",
+          variant: "destructive" 
+        });
         return;
       }
 
       // Create campaign
       const { data: campaignId, error } = await supabase.rpc('create_campaign', {
-        p_org_id: memberData.org_id,
+        p_org_id: preferred.org_id,
         p_job_id: campaignData.jobId,
         p_name: campaignData.name,
         p_objective: campaignData.objective || 'traffic',
