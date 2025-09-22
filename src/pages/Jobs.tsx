@@ -65,17 +65,27 @@ const Jobs = () => {
     if (!profile?.user_id) return;
 
     try {
-      const { data: memberData } = await supabase
+      // Get all user memberships and pick the best one (owner > admin > member)  
+      const { data: memberships } = await supabase
         .from('members')
-        .select('org_id')
-        .eq('user_id', profile.user_id)
-        .single();
+        .select('org_id, role')
+        .eq('user_id', profile.user_id);
 
-      if (memberData?.org_id) {
+      const preferred = (() => {
+        if (!memberships || memberships.length === 0) return null;
+        return (
+          memberships.find((m: any) => m.role === 'owner') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'member') ||
+          memberships[0]
+        );
+      })();
+
+      if (preferred?.org_id) {
         const { data: orgData } = await supabase
           .from('organizations')
           .select('*')
-          .eq('id', memberData.org_id)
+          .eq('id', preferred.org_id)
           .single();
 
         setOrganization(orgData);

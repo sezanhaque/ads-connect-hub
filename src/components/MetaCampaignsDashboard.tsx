@@ -27,20 +27,29 @@ export const MetaCampaignsDashboard = () => {
     if (!user) return;
 
     try {
-      // First get the user's organization
-      const { data: memberData } = await supabase
+      // Get all user memberships and pick the best one (owner > admin > member)
+      const { data: memberships } = await supabase
         .from('members')
-        .select('org_id')
-        .eq('user_id', user.id)
-        .single();
+        .select('org_id, role')
+        .eq('user_id', user.id);
 
-      if (!memberData?.org_id) return;
+      const preferred = (() => {
+        if (!memberships || memberships.length === 0) return null;
+        return (
+          memberships.find((m: any) => m.role === 'owner') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'member') ||
+          memberships[0]
+        );
+      })();
+
+      if (!preferred?.org_id) return;
 
       // Fetch campaigns
       const { data: campaignsData, error: campaignsError } = await supabase
         .from('campaigns')
         .select('id, name, status, objective')
-        .eq('org_id', memberData.org_id);
+        .eq('org_id', preferred.org_id);
 
       if (campaignsError) {
         console.error('Error fetching campaigns:', campaignsError);
