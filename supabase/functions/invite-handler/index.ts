@@ -173,27 +173,44 @@ serve(async (req) => {
         console.error('Profile upsert error:', profileUpsertErr);
       }
 
-      // Ensure membership exists
-      const { data: existingMember } = await admin
-        .from('members')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('org_id', invite.org_id)
-        .maybeSingle();
+      // Create a separate organization for the invited user (complete data isolation)
+      const orgName = first_name && last_name 
+        ? `${first_name} ${last_name} Organization`
+        : `${invite.email.split('@')[0]} Organization`;
 
-      if (!existingMember) {
-        const { error: memberErr } = await admin
-          .from('members')
-          .insert({ user_id: userId, org_id: invite.org_id, role: invite.role });
-        if (memberErr) {
-          const msg = (memberErr as any)?.message?.toLowerCase?.() || '';
-          if (!msg.includes('duplicate')) {
-            console.error('Member creation error:', memberErr);
-            return new Response(
-              JSON.stringify({ error: 'Failed to add user to organization.' }),
-              { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            );
-          }
+      const { data: newOrg, error: orgError } = await admin
+        .from('organizations')
+        .insert({
+          name: orgName
+        })
+        .select()
+        .single();
+
+      if (orgError) {
+        console.error('Error creating organization:', orgError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create organization' }),
+          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
+      }
+
+      // Add user as owner of their own organization (not the admin's organization)
+      const { error: memberErr } = await admin
+        .from('members')
+        .insert({ 
+          user_id: userId, 
+          org_id: newOrg.id, 
+          role: 'owner' // Make them owner of their own org
+        });
+        
+      if (memberErr) {
+        const msg = (memberErr as any)?.message?.toLowerCase?.() || '';
+        if (!msg.includes('duplicate')) {
+          console.error('Member creation error:', memberErr);
+          return new Response(
+            JSON.stringify({ error: 'Failed to add user to organization.' }),
+            { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+          );
         }
       }
 
