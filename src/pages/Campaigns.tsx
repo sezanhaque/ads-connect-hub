@@ -28,8 +28,6 @@ const Campaigns = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-
-// Members with restricted role will be redirected below during render
   useEffect(() => {
     fetchCampaigns();
   }, []);

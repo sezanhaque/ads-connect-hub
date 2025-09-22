@@ -43,11 +43,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Restrict member access to certain routes
-  if (!loading && profile?.role === 'member' && (location.pathname.startsWith('/campaigns') || location.pathname.startsWith('/jobs'))) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   // Show loading state
   if (loading) {
     return (
@@ -64,13 +59,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     await signOut();
   };
 
-  // Compute visible navigation based on role
-  const visibleNavigation = navigation.filter((item) => {
-    if (profile?.role === 'member' && (item.href === '/campaigns' || item.href === '/jobs')) {
-      return false;
-    }
-    return true;
-  });
+  // Compute visible navigation - all users can see campaigns and jobs for their own org
+  const visibleNavigation = navigation;
 
   return (
     <div className="min-h-screen bg-background">

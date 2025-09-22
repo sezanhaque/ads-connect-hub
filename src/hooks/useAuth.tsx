@@ -99,13 +99,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Error fetching member roles:', membersErr);
       }
 
-      // Prefer the most restrictive role for safety: member > admin > owner
+      // Prefer the highest privilege role: owner > admin > member  
       const preferred = (() => {
         if (!memberships || memberships.length === 0) return null;
         return (
-          memberships.find((m: any) => m.role === 'member') ||
-          memberships.find((m: any) => m.role === 'admin') ||
           memberships.find((m: any) => m.role === 'owner') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'member') ||
           memberships[0]
         );
       })();
