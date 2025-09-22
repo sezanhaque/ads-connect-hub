@@ -67,16 +67,16 @@ serve(async (req) => {
     let campaigns: MetaCampaign[] = [];
     let insights: MetaInsights[] = [];
 
-    // Fetch campaigns from Meta API or use mock data
+    // Fetch campaigns from Meta API or use mock data only for explicit demo tokens
     try {
-      if (tokenToUse === 'demo' || !tokenToUse.startsWith('EAA')) {
-        // Use mock data for demo purposes
-        console.log('Using mock Meta API data for demonstration');
+      if (tokenToUse === 'demo') {
+        // Use mock data ONLY for explicit demo requests
+        console.log('Using mock Meta API data for demo token');
         
         const mockInsights: MetaInsights[] = [
           {
             campaign_id: 'meta_123456',
-            campaign_name: 'Summer Sale Campaign',
+            campaign_name: 'Demo Summer Sale Campaign',
             date_start: new Date().toISOString().split('T')[0],
             date_stop: new Date().toISOString().split('T')[0],
             spend: '150.75',
@@ -87,7 +87,7 @@ serve(async (req) => {
           },
           {
             campaign_id: 'meta_789012',
-            campaign_name: 'Brand Awareness Q1',
+            campaign_name: 'Demo Brand Awareness Q1',
             date_start: new Date().toISOString().split('T')[0],
             date_stop: new Date().toISOString().split('T')[0],
             spend: '275.50',
@@ -96,21 +96,21 @@ serve(async (req) => {
             objective: 'OUTCOME_AWARENESS',
             actions: [{ action_type: 'lead', value: '18' }],
           },
-          {
-            campaign_id: 'meta_345678',
-            campaign_name: 'Product Launch Campaign',
-            date_start: new Date().toISOString().split('T')[0],
-            date_stop: new Date().toISOString().split('T')[0],
-            spend: '95.25',
-            impressions: '8900',
-            clicks: '210',
-            objective: 'OUTCOME_LEADS',
-            actions: [{ action_type: 'lead', value: '42' }],
-          },
         ];
         
         insights = mockInsights;
       } else {
+        // Validate Meta access token format
+        if (!tokenToUse.startsWith('EAA') && !tokenToUse.startsWith('EAAG')) {
+          return new Response(JSON.stringify({ 
+            success: false, 
+            message: 'Invalid Meta access token format. Token must start with EAA or EAAG' 
+          }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
+
         // Real Meta API calls
         let campaignUrl = `https://graph.facebook.com/v19.0/me/adaccounts`;
         
@@ -123,7 +123,11 @@ serve(async (req) => {
           
           if (adAccountsData.error) {
             console.error('Meta API Error (Ad Accounts):', adAccountsData.error);
-            return new Response(JSON.stringify({ success: false, message: `Meta API Error: ${adAccountsData.error.message}` }), {
+            return new Response(JSON.stringify({ 
+              success: false, 
+              message: `Meta API Error: ${adAccountsData.error.message}`,
+              details: adAccountsData.error
+            }), {
               status: 400,
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             });
@@ -134,7 +138,10 @@ serve(async (req) => {
             const adAccountId = adAccountsData.data[0].id;
             campaignUrl = `https://graph.facebook.com/v19.0/${adAccountId}/campaigns`;
           } else {
-            return new Response(JSON.stringify({ success: false, message: 'No ad accounts found' }), {
+            return new Response(JSON.stringify({ 
+              success: false, 
+              message: 'No ad accounts found for your Meta access token' 
+            }), {
               status: 400,
               headers: { 'Content-Type': 'application/json', ...corsHeaders },
             });
@@ -146,7 +153,11 @@ serve(async (req) => {
 
         if (campaignsData.error) {
           console.error('Meta API Error (Campaigns):', campaignsData.error);
-          return new Response(JSON.stringify({ success: false, message: `Meta API Error: ${campaignsData.error.message}` }), {
+          return new Response(JSON.stringify({ 
+            success: false, 
+            message: `Meta API Error: ${campaignsData.error.message}`,
+            details: campaignsData.error
+          }), {
             status: 400,
             headers: { 'Content-Type': 'application/json', ...corsHeaders },
           });

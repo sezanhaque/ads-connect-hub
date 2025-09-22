@@ -103,13 +103,15 @@ const MetaConnection = () => {
             <div className="flex items-start gap-2">
               <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-yellow-800 mb-1">How to get your credentials:</p>
+                <p className="font-medium text-yellow-800 mb-1">How to get your real Meta access token:</p>
                 <ol className="list-decimal list-inside text-yellow-700 space-y-1">
                   <li>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer" className="underline">Facebook for Developers</a></li>
                   <li>Create an app and add the Marketing API product</li>
-                  <li>Generate an access token with ads_read permissions</li>
-                  <li>Find your Ad Account ID in Business Manager</li>
+                  <li>Generate a <strong>long-lived access token</strong> with ads_read permissions</li>
+                  <li>Token must start with "EAA" or "EAAG" to be valid</li>
+                  <li>Find your Ad Account ID in Business Manager (format: act_1234567890)</li>
                 </ol>
+                <p className="font-medium text-yellow-800 mt-2">⚠️ Note: Only real Meta tokens will sync actual campaign data. Demo tokens show no data.</p>
               </div>
             </div>
           </div>
