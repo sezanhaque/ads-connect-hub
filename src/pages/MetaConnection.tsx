@@ -2,18 +2,20 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useIntegrations } from '@/hooks/useIntegrations';
+import { useMetaIntegration } from '@/hooks/useMetaIntegration';
 
 const metaConnectionSchema = z.object({
-  accessToken: z.string().min(1, 'Access token is required'),
-  adAccountId: z.string().min(1, 'Ad Account ID is required'),
+  accessToken: z.string().min(1, 'Access token is required').refine(
+    (token) => token.startsWith('EAA') || token.startsWith('EAAG'),
+    'Access token must be a valid Meta token starting with EAA or EAAG'
+  ),
+  adAccountId: z.string().optional(),
 });
 
 type MetaConnectionForm = z.infer<typeof metaConnectionSchema>;
@@ -22,7 +24,7 @@ const MetaConnection = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const { toast } = useToast();
-  const { syncMetaAds, loading } = useIntegrations();
+  const { connectMetaAccount, loading } = useMetaIntegration();
 
   // Check for existing Meta connection on component mount
   useEffect(() => {
@@ -44,23 +46,26 @@ const MetaConnection = () => {
   const onSubmit = async (data: MetaConnectionForm) => {
     try {
       setConnectionStatus('connecting');
-      console.log('Starting Meta connection with:', { accessToken: data.accessToken.substring(0, 10) + '...', adAccountId: data.adAccountId });
+      console.log('Starting Meta connection...');
       
-      const result = await syncMetaAds(data.accessToken, data.adAccountId, 'last_7_days');
-      console.log('Meta sync result:', result);
+      const result = await connectMetaAccount(data.accessToken, data.adAccountId);
       
-      setConnectionStatus('connected');
-      setIsConnected(true);
-      
-      // Store connection status in localStorage for persistence
-      localStorage.setItem('meta-connection-status', 'connected');
-      
-      toast({
-        title: 'Connection successful',
-        description: 'Successfully connected to Meta Marketing API and synced campaigns.',
-      });
+      if (result.success) {
+        setConnectionStatus('connected');
+        setIsConnected(true);
+        
+        // Store connection status in localStorage for persistence
+        localStorage.setItem('meta-connection-status', 'connected');
+        
+        toast({
+          title: 'Connection successful!',
+          description: `Successfully synced ${result.syncedCount} campaigns from your Meta account.`,
+        });
+      } else {
+        setConnectionStatus('error');
+      }
     } catch (error: any) {
-      console.error('Meta connection error:', error);
+      console.error('Connection error:', error);
       setConnectionStatus('error');
       toast({
         title: 'Connection failed',
@@ -68,6 +73,13 @@ const MetaConnection = () => {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleTryAgain = () => {
+    setConnectionStatus('idle');
+    setIsConnected(false);
+    localStorage.removeItem('meta-connection-status');
+    form.reset();
   };
 
   return (
@@ -146,13 +158,16 @@ const MetaConnection = () => {
                   name="adAccountId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ad Account ID</FormLabel>
+                      <FormLabel>Ad Account ID (Optional)</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="act_1234567890"
+                          placeholder="act_1234567890 (leave empty to use first account)"
                           {...field} 
                         />
                       </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        If left empty, we'll use your first available ad account
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -177,10 +192,34 @@ const MetaConnection = () => {
           )}
 
           {isConnected && (
-            <div className="text-center py-4">
+            <div className="text-center py-4 space-y-4">
               <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
               <p className="text-lg font-medium text-green-600">Successfully Connected!</p>
               <p className="text-sm text-muted-foreground">Your Meta campaigns are now being synced.</p>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleTryAgain}
+                className="mt-4"
+              >
+                Connect Different Account
+              </Button>
+            </div>
+          )}
+
+          {connectionStatus === 'error' && !isConnected && (
+            <div className="text-center py-4 space-y-4">
+              <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-2" />
+              <p className="text-lg font-medium text-red-600">Connection Failed</p>
+              <p className="text-sm text-muted-foreground">Please check your credentials and try again.</p>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleTryAgain}
+                className="mt-4"
+              >
+                Try Again
+              </Button>
             </div>
           )}
         </CardContent>
