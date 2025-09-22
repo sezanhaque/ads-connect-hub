@@ -168,7 +168,6 @@ serve(async (req) => {
           last_name,
           email: invite.email,
           role: 'member',
-          organization_id: invite.org_id,
         }, { onConflict: 'user_id' });
       if (profileUpsertErr) {
         console.error('Profile upsert error:', profileUpsertErr);
