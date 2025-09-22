@@ -80,7 +80,7 @@ export const useIntegrations = () => {
     }
   };
 
-  const syncMetaAds = async (accessToken: string, dateRange: string = '7d') => {
+  const syncMetaAds = async (accessToken: string, adAccountId?: string, dateRange: string = 'last_7_days') => {
     setLoading(true);
     try {
       // Get user's memberships to find the correct organization
@@ -115,6 +115,7 @@ export const useIntegrations = () => {
         body: {
           organization_id: primaryOrg.org_id,
           access_token: accessToken,
+          ad_account_id: adAccountId,
           date_range: dateRange
         }
       });
@@ -129,9 +130,10 @@ export const useIntegrations = () => {
       return data;
     } catch (error: any) {
       console.error('Error syncing Meta Ads:', error);
+      const desc = error?.message || error?.context?.error || 'Failed to connect to Meta API';
       toast({
         title: "Sync failed",
-        description: error.message,
+        description: desc,
         variant: "destructive",
       });
       throw error;

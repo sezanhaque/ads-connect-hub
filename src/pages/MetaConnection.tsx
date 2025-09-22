@@ -44,7 +44,7 @@ const MetaConnection = () => {
   const onSubmit = async (data: MetaConnectionForm) => {
     try {
       setConnectionStatus('connecting');
-      await syncMetaAds(data.accessToken, 'last_7_days');
+      await syncMetaAds(data.accessToken, data.adAccountId, 'last_7_days');
       
       setConnectionStatus('connected');
       setIsConnected(true);
@@ -56,11 +56,11 @@ const MetaConnection = () => {
         title: 'Connection successful',
         description: 'Successfully connected to Meta Marketing API and synced campaigns.',
       });
-    } catch (error) {
+    } catch (error: any) {
       setConnectionStatus('error');
       toast({
         title: 'Connection failed',
-        description: 'Failed to connect to Meta Marketing API. Please check your credentials.',
+        description: error?.message || 'Failed to connect to Meta Marketing API. Please check your credentials.',
         variant: 'destructive',
       });
     }
