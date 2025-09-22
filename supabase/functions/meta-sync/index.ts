@@ -136,7 +136,7 @@ serve(async (req) => {
 
     // Step 2: Get campaigns from the ad account
     console.log('Fetching campaigns...');
-    const campaignsUrl = `https://graph.facebook.com/v19.0/${targetAdAccountId}/campaigns?access_token=${access_token}&fields=id,name,status,objective`;
+    const campaignsUrl = `https://graph.facebook.com/v19.0/${targetAdAccountId}/campaigns?access_token=${access_token}&fields=id,name,status,objective,start_time,stop_time`;
     const campaignsResponse = await fetch(campaignsUrl);
     const campaignsData = await campaignsResponse.json();
 
@@ -172,7 +172,7 @@ serve(async (req) => {
     for (const campaign of campaigns) {
       try {
         console.log(`Fetching insights for campaign: ${campaign.name}`);
-        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${access_token}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_7_days`;
+        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${access_token}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
         const insightsResponse = await fetch(insightsUrl);
         const insightsData = await insightsResponse.json();
 
@@ -199,6 +199,7 @@ serve(async (req) => {
 
     // Step 4: Save campaigns and metrics to database
     let syncedCount = 0;
+    const clearedCampaigns = new Set<string>();
     
     for (const insight of insights) {
       try {
@@ -211,7 +212,6 @@ serve(async (req) => {
           .select('id')
           .eq('name', insight.campaign_name)
           .eq('org_id', org_id)
-          .eq('created_by', userId)
           .maybeSingle();
 
         let campaignId: string;
@@ -271,32 +271,32 @@ serve(async (req) => {
         // Get leads count from actions
         const leads = insight.actions?.find(action => action.action_type === 'lead')?.value || '0';
 
-        // Insert or update metrics
-        const { data: existingMetric } = await supabase
-          .from('metrics')
-          .select('id')
-          .eq('campaign_id', campaignId)
-          .eq('date', insight.date_start)
-          .maybeSingle();
+        // Clear previous metrics for this campaign once per run
+        if (!clearedCampaigns.has(campaignId)) {
+          const { error: deleteError } = await supabase
+            .from('metrics')
+            .delete()
+            .eq('campaign_id', campaignId);
+          if (deleteError) {
+            console.error('Error clearing old metrics:', deleteError);
+          }
+          clearedCampaigns.add(campaignId);
+        }
 
+        // Insert fresh aggregated metrics (last 30 days)
         const metricsData = {
           campaign_id: campaignId,
-          date: insight.date_start,
           impressions: parseInt(insight.impressions) || 0,
           clicks: parseInt(insight.clicks) || 0,
           spend: parseFloat(insight.spend) || 0,
           leads: parseInt(leads) || 0,
         };
 
-        if (existingMetric) {
-          await supabase
-            .from('metrics')
-            .update(metricsData)
-            .eq('id', existingMetric.id);
-        } else {
-          await supabase
-            .from('metrics')
-            .insert(metricsData);
+        const { error: insertError } = await supabase
+          .from('metrics')
+          .insert(metricsData);
+        if (insertError) {
+          console.error('Error inserting metrics:', insertError);
         }
 
         syncedCount++;
