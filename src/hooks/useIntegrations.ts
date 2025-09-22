@@ -81,20 +81,39 @@ export const useIntegrations = () => {
   };
 
   const syncMetaAds = async (accessToken: string, dateRange: string = '7d') => {
-    if (!profile?.organization_id) {
-      toast({
-        title: "Error",
-        description: "Organization not found",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
     try {
+      // Get user's memberships to find the correct organization
+      const { data: memberships, error: membershipsError } = await supabase
+        .from('members')
+        .select('org_id, role')
+        .eq('user_id', profile?.user_id);
+
+      if (membershipsError) throw membershipsError;
+
+      // Find user's primary org (prefer owner/admin roles over member)
+      const primaryOrg = (() => {
+        if (!memberships || memberships.length === 0) return null;
+        return (
+          memberships.find((m: any) => m.role === 'owner') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'member') ||
+          memberships[0]
+        );
+      })();
+
+      if (!primaryOrg) {
+        toast({
+          title: "Error",
+          description: "Organization not found",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('meta-api-sync', {
         body: {
-          organization_id: profile.organization_id,
+          organization_id: primaryOrg.org_id,
           access_token: accessToken,
           date_range: dateRange
         }

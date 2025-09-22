@@ -189,8 +189,8 @@ serve(async (req) => {
         .eq('name', insight.campaign_name)
         .eq('created_by', createdBy);
 
-      if (organization_id) campQuery = campQuery.eq('organization_id', organization_id);
-      else campQuery = campQuery.is('organization_id', null);
+      if (organization_id) campQuery = campQuery.eq('org_id', organization_id);
+      else campQuery = campQuery.is('org_id', null);
 
       const { data: foundCampaign } = await campQuery.maybeSingle();
 
@@ -200,8 +200,7 @@ serve(async (req) => {
           .from('campaigns')
           .insert({
             name: insight.campaign_name,
-            organization_id: organization_id ?? null,
-            org_id: organization_id ?? null, // Also set org_id for consistency
+            org_id: organization_id ?? null,
             status: 'active',
             objective: insight.objective || 'OUTCOME_TRAFFIC',
             budget: 0,
