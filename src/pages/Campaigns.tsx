@@ -46,13 +46,13 @@ const Campaigns = () => {
 
       if (membershipsError) throw membershipsError;
 
-      // Find user's primary org (prefer member role over admin roles)
+      // Find user's primary org (prefer owner/admin roles over member)
       const primaryOrg = (() => {
         if (!memberships || memberships.length === 0) return null;
         return (
-          memberships.find((m: any) => m.role === 'member') ||
           memberships.find((m: any) => m.role === 'owner') ||
           memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'member') ||
           memberships[0]
         );
       })();
