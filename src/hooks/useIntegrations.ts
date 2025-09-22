@@ -83,6 +83,8 @@ export const useIntegrations = () => {
   const syncMetaAds = async (accessToken: string, adAccountId?: string, dateRange: string = 'last_7_days') => {
     setLoading(true);
     try {
+      console.log('syncMetaAds called with:', { accessToken: accessToken.substring(0, 10) + '...', adAccountId, dateRange });
+      
       // Get user's memberships to find the correct organization
       const { data: memberships, error: membershipsError } = await supabase
         .from('members')
@@ -90,6 +92,7 @@ export const useIntegrations = () => {
         .eq('user_id', profile?.user_id);
 
       if (membershipsError) throw membershipsError;
+      console.log('User memberships:', memberships);
 
       // Find user's primary org (prefer owner/admin roles over member)
       const primaryOrg = (() => {
@@ -102,6 +105,8 @@ export const useIntegrations = () => {
         );
       })();
 
+      console.log('Primary org selected:', primaryOrg);
+
       if (!primaryOrg) {
         toast({
           title: "Error",
@@ -111,6 +116,7 @@ export const useIntegrations = () => {
         return;
       }
 
+      console.log('Calling meta-api-sync function with org_id:', primaryOrg.org_id);
       const { data, error } = await supabase.functions.invoke('meta-api-sync', {
         body: {
           organization_id: primaryOrg.org_id,
@@ -120,7 +126,12 @@ export const useIntegrations = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Edge function response:', data);
 
       toast({
         title: "Meta Ads sync completed",

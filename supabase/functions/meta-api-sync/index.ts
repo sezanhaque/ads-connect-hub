@@ -62,13 +62,15 @@ serve(async (req) => {
       });
     }
 
-    console.log('Starting Meta API sync for organization:', organization_id, 'range:', date_range);
+    console.log('Starting Meta API sync for organization:', organization_id, 'range:', date_range, 'ad_account_id:', ad_account_id);
 
     let campaigns: MetaCampaign[] = [];
     let insights: MetaInsights[] = [];
 
     // Fetch campaigns from Meta API or use mock data only for explicit demo tokens
     try {
+      console.log('Token being used (first 10 chars):', tokenToUse.substring(0, 10));
+      
       if (tokenToUse === 'demo') {
         // Use mock data ONLY for explicit demo requests
         console.log('Using mock Meta API data for demo token');

@@ -44,7 +44,10 @@ const MetaConnection = () => {
   const onSubmit = async (data: MetaConnectionForm) => {
     try {
       setConnectionStatus('connecting');
-      await syncMetaAds(data.accessToken, data.adAccountId, 'last_7_days');
+      console.log('Starting Meta connection with:', { accessToken: data.accessToken.substring(0, 10) + '...', adAccountId: data.adAccountId });
+      
+      const result = await syncMetaAds(data.accessToken, data.adAccountId, 'last_7_days');
+      console.log('Meta sync result:', result);
       
       setConnectionStatus('connected');
       setIsConnected(true);
@@ -57,6 +60,7 @@ const MetaConnection = () => {
         description: 'Successfully connected to Meta Marketing API and synced campaigns.',
       });
     } catch (error: any) {
+      console.error('Meta connection error:', error);
       setConnectionStatus('error');
       toast({
         title: 'Connection failed',

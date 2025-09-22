@@ -27,11 +27,15 @@ export const MetaCampaignsDashboard = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching campaigns for user:', user.id);
+      
       // Get all user memberships and pick the best one (owner > admin > member)
       const { data: memberships } = await supabase
         .from('members')
         .select('org_id, role')
         .eq('user_id', user.id);
+
+      console.log('Dashboard memberships:', memberships);
 
       const preferred = (() => {
         if (!memberships || memberships.length === 0) return null;
@@ -43,6 +47,8 @@ export const MetaCampaignsDashboard = () => {
         );
       })();
 
+      console.log('Dashboard preferred org:', preferred);
+
       if (!preferred?.org_id) return;
 
       // Fetch campaigns
@@ -51,6 +57,8 @@ export const MetaCampaignsDashboard = () => {
         .select('id, name, status, objective')
         .eq('org_id', preferred.org_id);
 
+      console.log('Campaigns data:', campaignsData);
+
       if (campaignsError) {
         console.error('Error fetching campaigns:', campaignsError);
         return;
@@ -58,6 +66,7 @@ export const MetaCampaignsDashboard = () => {
 
       // Fetch metrics for all campaigns
       const campaignIds = campaignsData?.map(c => c.id) || [];
+      console.log('Campaign IDs for metrics:', campaignIds);
       
       if (campaignIds.length === 0) {
         setCampaigns([]);
@@ -68,6 +77,8 @@ export const MetaCampaignsDashboard = () => {
         .from('metrics')
         .select('campaign_id, impressions, clicks, spend, leads')
         .in('campaign_id', campaignIds);
+
+      console.log('Metrics data:', metricsData);
 
       if (metricsError) {
         console.error('Error fetching metrics:', metricsError);
@@ -102,6 +113,7 @@ export const MetaCampaignsDashboard = () => {
         };
       }) || [];
 
+      console.log('Final aggregated campaigns:', aggregatedCampaigns);
       setCampaigns(aggregatedCampaigns);
     } catch (error) {
       console.error('Error in fetchCampaigns:', error);
