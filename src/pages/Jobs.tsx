@@ -57,9 +57,11 @@ const Jobs = () => {
   const [organization, setOrganization] = useState<any>(null);
 
   useEffect(() => {
-    fetchJobs();
-    fetchOrganization();
-  }, []);
+    if (profile?.user_id) {
+      fetchJobs();
+      fetchOrganization();
+    }
+  }, [profile?.user_id]);
 
   const fetchOrganization = async () => {
     if (!profile?.user_id) return;
@@ -96,10 +98,39 @@ const Jobs = () => {
   };
 
   const fetchJobs = async () => {
+    if (!profile?.user_id) return;
+
     try {
+      // Get user's primary organization (prioritize their own org over admin orgs)
+      const { data: memberships, error: membershipsError } = await supabase
+        .from('members')
+        .select('org_id, role')
+        .eq('user_id', profile.user_id);
+
+      if (membershipsError) throw membershipsError;
+
+      // Find user's primary org (prefer member role over admin roles)
+      const primaryOrg = (() => {
+        if (!memberships || memberships.length === 0) return null;
+        return (
+          memberships.find((m: any) => m.role === 'member') ||
+          memberships.find((m: any) => m.role === 'owner') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships[0]
+        );
+      })();
+
+      if (!primaryOrg?.org_id) {
+        setJobs([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch jobs only from user's primary organization
       const { data, error } = await supabase
         .from('jobs')
         .select('*')
+        .eq('org_id', primaryOrg.org_id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
