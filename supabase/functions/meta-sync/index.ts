@@ -202,6 +202,9 @@ serve(async (req) => {
     
     for (const insight of insights) {
       try {
+        // Find the corresponding Meta campaign data for status and objective
+        const metaCampaign = campaigns.find(c => c.id === insight.campaign_id);
+        
         // Find or create campaign
         const { data: existingCampaign } = await supabase
           .from('campaigns')
@@ -213,6 +216,20 @@ serve(async (req) => {
 
         let campaignId: string;
 
+        // Map Meta status to our status
+        const mapStatus = (metaStatus: string) => {
+          switch (metaStatus) {
+            case 'ACTIVE': return 'active';
+            case 'PAUSED': return 'paused';
+            case 'DELETED': return 'deleted';
+            case 'ARCHIVED': return 'archived';
+            default: return 'draft';
+          }
+        };
+
+        const campaignStatus = metaCampaign ? mapStatus(metaCampaign.status) : 'active';
+        const campaignObjective = metaCampaign?.objective || 'OUTCOME_TRAFFIC';
+
         if (!existingCampaign) {
           // Create new campaign
           const { data: newCampaign, error: campaignError } = await supabase
@@ -220,8 +237,8 @@ serve(async (req) => {
             .insert({
               name: insight.campaign_name,
               org_id: org_id,
-              status: 'active',
-              objective: 'OUTCOME_TRAFFIC',
+              status: campaignStatus,
+              objective: campaignObjective,
               budget: 0,
               created_by: userId,
               location_targeting: {},
@@ -236,10 +253,19 @@ serve(async (req) => {
           }
 
           campaignId = newCampaign.id;
-          console.log(`Created campaign: ${insight.campaign_name}`);
+          console.log(`Created campaign: ${insight.campaign_name} with status: ${campaignStatus}`);
         } else {
+          // Update existing campaign status and objective
+          await supabase
+            .from('campaigns')
+            .update({
+              status: campaignStatus,
+              objective: campaignObjective,
+            })
+            .eq('id', existingCampaign.id);
+
           campaignId = existingCampaign.id;
-          console.log(`Found existing campaign: ${insight.campaign_name}`);
+          console.log(`Updated existing campaign: ${insight.campaign_name} with status: ${campaignStatus}`);
         }
 
         // Get leads count from actions

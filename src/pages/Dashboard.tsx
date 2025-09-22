@@ -48,6 +48,7 @@ interface Job {
 const Dashboard = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [stats, setStats] = useState<DashboardStats>({
     totalCampaigns: 0,
     activeCampaigns: 0,
@@ -64,6 +65,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    // Trigger refresh for MetaCampaignsDashboard
+    setRefreshTrigger(prev => prev + 1);
   }, []);
 
   const fetchDashboardData = async () => {
@@ -124,7 +127,9 @@ const Dashboard = () => {
 
       // Calculate budget and campaign totals
       const totalCampaigns = campaignCountData?.length || 0;
-      const activeCampaigns = campaignCountData?.filter(c => c.status === 'active').length || 0;
+      const activeCampaigns = campaignCountData?.filter(c => 
+        c.status === 'active' || c.status === 'ACTIVE'
+      ).length || 0;
       const totalBudget = campaignCountData?.reduce((sum, campaign) => sum + (Number(campaign.budget) || 0), 0) || 0;
       const totalJobs = jobCountData?.length || 0;
 
@@ -261,7 +266,7 @@ const Dashboard = () => {
       </div>
 
       {/* Meta Campaigns Dashboard */}
-      <MetaCampaignsDashboard />
+      <MetaCampaignsDashboard refreshTrigger={refreshTrigger} />
 
       {/* Recent Activity */}
       <div className="grid gap-8 lg:grid-cols-2">

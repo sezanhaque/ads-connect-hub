@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { TrendingUp, Eye, MousePointer, DollarSign, Users } from 'lucide-react';
+import { TrendingUp, Eye, MousePointer, DollarSign, Users, RefreshCw } from 'lucide-react';
 
 interface MetaCampaign {
   id: string;
@@ -18,12 +19,18 @@ interface MetaCampaign {
   total_leads: number;
 }
 
-export const MetaCampaignsDashboard = () => {
+interface MetaCampaignsDashboardProps {
+  refreshTrigger?: number;
+}
+
+export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboardProps) => {
   const [campaigns, setCampaigns] = useState<MetaCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   const fetchCampaigns = async () => {
+    console.log('MetaCampaignsDashboard: Fetching campaigns...');
+    setLoading(true);
     if (!user) return;
 
     try {
@@ -112,7 +119,7 @@ export const MetaCampaignsDashboard = () => {
 
   useEffect(() => {
     fetchCampaigns();
-  }, [user]);
+  }, [user, refreshTrigger]);
 
   const calculateCTR = (clicks: number, impressions: number) => {
     if (impressions === 0) return '0.00';
@@ -161,10 +168,20 @@ export const MetaCampaignsDashboard = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5" />
-          Meta Campaigns
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            <CardTitle>Meta Campaigns</CardTitle>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={fetchCampaigns}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
         <CardDescription>Your Meta Marketing campaigns performance</CardDescription>
       </CardHeader>
       <CardContent>
@@ -208,8 +225,15 @@ export const MetaCampaignsDashboard = () => {
                 <TableRow key={campaign.id}>
                   <TableCell className="font-medium">{campaign.name}</TableCell>
                   <TableCell>
-                    <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                      {campaign.status}
+                    <Badge 
+                      variant={
+                        campaign.status === 'active' ? 'default' : 
+                        campaign.status === 'paused' ? 'secondary' : 
+                        campaign.status === 'deleted' ? 'destructive' :
+                        'outline'
+                      }
+                    >
+                      {campaign.status.toUpperCase()}
                     </Badge>
                   </TableCell>
                   <TableCell>
