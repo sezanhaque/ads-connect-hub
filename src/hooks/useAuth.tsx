@@ -89,21 +89,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 2) Fetch member role and org
-      const { data: memberRow, error: memberError } = await supabase
+      // 2) Fetch memberships (may be multiple)
+      const { data: memberships, error: membersErr } = await supabase
         .from('members')
         .select('role, org_id')
-        .eq('user_id', userId)
-        .maybeSingle();
+        .eq('user_id', userId);
 
-      if (memberError) {
-        console.error('Error fetching member role:', memberError);
+      if (membersErr) {
+        console.error('Error fetching member roles:', membersErr);
       }
 
-      // Role priority: member role > profile role > default member
-      // Only 'admin' role in members table gets admin access
-      const normalizedRole = memberRow?.role === 'admin' ? 'admin' : (memberRow?.role ?? ensuredProfile?.role ?? 'member');
-      const organizationId = memberRow?.org_id ?? null;
+      // Prefer the most restrictive role for safety: member > admin > owner
+      const preferred = (() => {
+        if (!memberships || memberships.length === 0) return null;
+        return (
+          memberships.find((m: any) => m.role === 'member') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'owner') ||
+          memberships[0]
+        );
+      })();
+
+      const normalizedRole = preferred?.role ?? ensuredProfile?.role ?? 'member';
+      const organizationId = preferred?.org_id ?? null;
 
       setProfile({ ...(ensuredProfile as any), role: normalizedRole, organization_id: organizationId } as any);
     } catch (error) {
