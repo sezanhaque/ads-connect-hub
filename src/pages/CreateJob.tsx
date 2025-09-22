@@ -54,17 +54,30 @@ const CreateJob = () => {
     setLoading(true);
 
     try {
-      // Get user's organization
-      const { data: memberData } = await supabase
+      // Get all user memberships and select preferred org (owner > admin > member)
+      const { data: memberships, error: membershipsError } = await supabase
         .from('members')
-        .select('org_id')
-        .eq('user_id', profile.user_id)
-        .maybeSingle();
+        .select('org_id, role')
+        .eq('user_id', profile.user_id);
 
-      if (!memberData?.org_id) {
+      if (membershipsError) {
+        throw membershipsError;
+      }
+
+      const preferred = (() => {
+        if (!memberships || memberships.length === 0) return null;
+        return (
+          memberships.find((m: any) => m.role === 'owner') ||
+          memberships.find((m: any) => m.role === 'admin') ||
+          memberships.find((m: any) => m.role === 'member') ||
+          memberships[0]
+        );
+      })();
+
+      if (!preferred?.org_id) {
         toast({
           title: "Error",
-          description: "Organization not found. Please contact support.",
+          description: "Organization not found for this account. Please accept your invite or contact support.",
           variant: "destructive",
         });
         return;
@@ -72,17 +85,19 @@ const CreateJob = () => {
 
       const { error } = await supabase
         .from('jobs')
-        .insert([{
-          org_id: memberData.org_id,
-          external_id: formData.job_id.trim() || null,
-          title: formData.job_title.trim(),
-          description: formData.short_description.trim() || null,
-          status: formData.job_status,
-          company_name: formData.company_name.trim() || null,
-          location: formData.location_city.trim() || null,
-          vacancy_url: formData.vacancy_url.trim() || null,
-          created_by: profile.user_id
-        }]);
+        .insert([
+          {
+            org_id: preferred.org_id,
+            external_id: formData.job_id.trim() || null,
+            title: formData.job_title.trim(),
+            description: formData.short_description.trim() || null,
+            status: formData.job_status,
+            company_name: formData.company_name.trim() || null,
+            location: formData.location_city.trim() || null,
+            vacancy_url: formData.vacancy_url.trim() || null,
+            created_by: profile.user_id,
+          },
+        ]);
 
       if (error) throw error;
 
