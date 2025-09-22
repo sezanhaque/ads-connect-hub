@@ -250,13 +250,13 @@ const MetaConnection = () => {
               <p className="text-lg font-medium text-green-600">Successfully Connected!</p>
               <p className="text-sm text-muted-foreground">Your Meta campaigns are now being synced.</p>
               
-              <Button 
+              {/* <Button 
                 variant="outline" 
                 onClick={handleTryAgain}
                 className="mt-4"
               >
                 Connect Different Account
-              </Button>
+              </Button> */}
             </div>
           )}
 
