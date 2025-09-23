@@ -319,7 +319,7 @@ const CreateCampaign = () => {
       // Update job status to "Live"
       await supabase
         .from('jobs')
-        .update({ status: 'Live' })
+        .update({ status: 'live' })
         .eq('id', campaignData.jobId);
 
       // Update campaign status to "active"
