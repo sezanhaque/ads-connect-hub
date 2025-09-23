@@ -39,11 +39,30 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
     if (!user) return;
 
     try {
-      // Fetch campaigns created by this user only
+      // Determine the user's primary organization (owner > admin > member)
+      const { data: memberships, error: membershipError } = await supabase
+        .from('members')
+        .select('org_id, role')
+        .eq('user_id', user.id)
+        .order('role', { ascending: true });
+
+      if (membershipError || !memberships || memberships.length === 0) {
+        console.log('No organizations found for user');
+        setCampaigns([]);
+        return;
+      }
+
+      const primaryOrg =
+        memberships.find((m: any) => m.role === 'owner') ||
+        memberships.find((m: any) => m.role === 'admin') ||
+        memberships.find((m: any) => m.role === 'member') ||
+        memberships[0];
+
+      // Fetch campaigns for the user's organization (not only the ones created by the user)
       const { data: campaignsData, error: campaignsError } = await supabase
         .from('campaigns')
         .select('id, name, status, objective')
-        .eq('created_by', user.id);
+        .eq('org_id', primaryOrg.org_id);
 
       if (campaignsError) {
         console.error('Error fetching campaigns:', campaignsError);
