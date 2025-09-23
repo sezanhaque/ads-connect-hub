@@ -20,14 +20,7 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
-    // Client as caller (uses JWT from request)
-    const anonClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: { headers: { Authorization: req.headers.get('Authorization') || '' } },
-    } as any);
-
-    // Admin client with service role (bypasses RLS inside the function)
-    const admin = createClient(supabaseUrl, serviceKey);
+    const supabaseClient = createClient(supabaseUrl, serviceKey);
 
     const body: SetupRequest = await req.json();
     const { target_user_id, ad_account_id, admin_org_id } = body || {};
@@ -41,19 +34,33 @@ serve(async (req) => {
       );
     }
 
-    // Auth: ensure requester is authenticated and member of admin_org_id
-    const { data: authData, error: authError } = await anonClient.auth.getUser();
-    if (authError || !authData?.user) {
-      console.error('Auth error:', authError);
+    // Get the JWT token from the request headers for user verification
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No authorization header found');
+      return new Response(JSON.stringify({ error: 'Unauthorized: no auth header' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    // Extract user from JWT token using service role client
+    const jwt = authHeader.replace('Bearer ', '');
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(jwt);
+    
+    if (userError || !userData?.user) {
+      console.error('Auth error:', userError);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
-    const requesterId = authData.user.id;
+    
+    const requesterId = userData.user.id;
     console.log('Authenticated user:', requesterId);
 
-    const { data: membership, error: membershipError } = await anonClient
+    // Verify user is member of admin org using service role client
+    const { data: membership, error: membershipError } = await supabaseClient
       .from('members')
       .select('role')
       .eq('org_id', admin_org_id)
@@ -79,7 +86,7 @@ serve(async (req) => {
 
     // Get admin org Meta integration to copy access token
     console.log('Fetching admin Meta integration for org:', admin_org_id);
-    const { data: adminIntegration, error: adminIntErr } = await admin
+    const { data: adminIntegration, error: adminIntErr } = await supabaseClient
       .from('integrations')
       .select('access_token')
       .eq('org_id', admin_org_id)
@@ -104,13 +111,12 @@ serve(async (req) => {
     }
 
     console.log('Found admin Meta integration');
-
     const token = adminIntegration.access_token as string;
     const adId = String(ad_account_id);
 
     // Find the target user's owner organization, or create one if missing
     console.log('Looking for target user owner org:', target_user_id);
-    const { data: ownerMembership, error: ownerMemberErr } = await admin
+    const { data: ownerMembership, error: ownerMemberErr } = await supabaseClient
       .from('members')
       .select('org_id')
       .eq('user_id', target_user_id)
@@ -128,7 +134,7 @@ serve(async (req) => {
       // Create a new organization and add the user as owner
       console.log('Creating new organization for target user...');
       const nameFallback = `User ${target_user_id.substring(0, 8)} Organization`;
-      const { data: newOrg, error: orgErr } = await admin
+      const { data: newOrg, error: orgErr } = await supabaseClient
         .from('organizations')
         .insert({ name: nameFallback })
         .select('id')
@@ -143,7 +149,7 @@ serve(async (req) => {
       targetOrgId = newOrg.id as string;
       console.log('Created new org:', targetOrgId);
 
-      const { error: ownerInsertErr } = await admin
+      const { error: ownerInsertErr } = await supabaseClient
         .from('members')
         .insert({ user_id: target_user_id, org_id: targetOrgId, role: 'owner' });
       if (ownerInsertErr) {
@@ -154,7 +160,7 @@ serve(async (req) => {
     }
 
     // Upsert integration for the target user's organization
-    const { data: existingIntegration } = await admin
+    const { data: existingIntegration } = await supabaseClient
       .from('integrations')
       .select('id')
       .eq('org_id', targetOrgId)
@@ -163,7 +169,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (existingIntegration) {
-      const { error: updateErr } = await admin
+      const { error: updateErr } = await supabaseClient
         .from('integrations')
         .update({
           access_token: token,
@@ -181,7 +187,7 @@ serve(async (req) => {
         });
       }
     } else {
-      const { error: insertErr } = await admin
+      const { error: insertErr } = await supabaseClient
         .from('integrations')
         .insert({
           org_id: targetOrgId,
@@ -226,7 +232,7 @@ serve(async (req) => {
 
         for (const c of campaigns) {
           // Upsert campaign by name within target org
-          const { data: existingCampaign } = await admin
+          const { data: existingCampaign } = await supabaseClient
             .from('campaigns')
             .select('id')
             .eq('name', c.name)
@@ -238,7 +244,7 @@ serve(async (req) => {
           const objective = c.objective || 'OUTCOME_TRAFFIC';
 
           if (!campaignId) {
-            const { data: inserted, error: insertCampErr } = await admin
+            const { data: inserted, error: insertCampErr } = await supabaseClient
               .from('campaigns')
               .insert({
                 name: c.name,
@@ -258,7 +264,7 @@ serve(async (req) => {
             }
             campaignId = inserted.id as string;
           } else {
-            await admin.from('campaigns')
+            await supabaseClient.from('campaigns')
               .update({ status: statusMapped, objective })
               .eq('id', campaignId);
           }
@@ -279,8 +285,8 @@ serve(async (req) => {
           }
 
           if (campaignId) {
-            await admin.from('metrics').delete().eq('campaign_id', campaignId);
-            const { error: metricsInsertErr } = await admin
+            await supabaseClient.from('metrics').delete().eq('campaign_id', campaignId);
+            const { error: metricsInsertErr } = await supabaseClient
               .from('metrics')
               .insert({
                 campaign_id: campaignId,
