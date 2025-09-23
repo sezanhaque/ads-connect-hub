@@ -54,22 +54,36 @@ serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    // Get the authenticated user using the JWT token
-    const { data: userData, error: userError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-    if (userError || !userData?.user) {
-      console.error('Authentication error:', userError);
+    // Extract user id from JWT without extra auth call (platform already verifies JWT)
+    const rawToken = authHeader.replace('Bearer ', '').trim();
+    let userId = '';
+    try {
+      const base64Url = rawToken.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      userId = payload.sub as string;
+    } catch (e) {
+      console.error('Failed to decode JWT:', e);
       return new Response(JSON.stringify({ 
         success: false, 
-        error: 'Unauthorized - invalid authentication' 
+        error: 'Unauthorized - invalid token' 
       }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
 
-    const userId = userData.user.id;
+    if (!userId) {
+      console.error('JWT missing sub');
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Unauthorized - no user' 
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
     console.log('Authenticated user:', userId);
 
     // Parse request body
