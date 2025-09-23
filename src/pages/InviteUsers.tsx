@@ -25,6 +25,7 @@ interface User {
 const InviteUsers = () => {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('member');
+  const [adAccountId, setAdAccountId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -125,7 +126,7 @@ const InviteUsers = () => {
     }
   };
 
-  const handleInviteExistingUser = async (userId: string, userEmail: string) => {
+  const handleInviteExistingUser = async (userId: string, userEmail: string, adAccountId: string) => {
     if (!profile?.organization_id) {
       toast({
         title: "Error",
@@ -135,9 +136,18 @@ const InviteUsers = () => {
       return;
     }
 
+    if (!adAccountId.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide an AD Account ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       // Add user to organization as member
-      const { error } = await supabase
+      const { error: memberError } = await supabase
         .from('members')
         .insert({
           user_id: userId,
@@ -145,15 +155,47 @@ const InviteUsers = () => {
           role: 'member'
         });
 
-      if (error) throw error;
+      if (memberError) throw memberError;
+
+      // Get the admin's Meta integration to get the access token
+      const { data: adminIntegration, error: integrationError } = await supabase
+        .from('integrations')
+        .select('access_token')
+        .eq('org_id', profile.organization_id)
+        .eq('integration_type', 'meta')
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (integrationError) {
+        console.error('Error fetching admin integration:', integrationError);
+      }
+
+      // Create user-specific integration if we have admin's access token
+      if (adminIntegration?.access_token) {
+        const { error: userIntegrationError } = await supabase
+          .from('integrations')
+          .insert({
+            org_id: profile.organization_id,
+            integration_type: 'meta',
+            access_token: adminIntegration.access_token,
+            ad_account_id: adAccountId.trim(),
+            account_name: `Ad Account ${adAccountId.trim()}`,
+            status: 'active'
+          });
+
+        if (userIntegrationError) {
+          console.error('Error creating user integration:', userIntegrationError);
+        }
+      }
 
       toast({
         title: "User invited successfully!",
-        description: `${userEmail} has been added to your organization as a member`,
+        description: `${userEmail} has been added to your organization with AD Account ${adAccountId}`,
       });
 
       // Refresh users list
       fetchUsers();
+      setAdAccountId(''); // Clear the form
     } catch (error: any) {
       console.error('Error inviting user:', error);
       
@@ -186,6 +228,15 @@ const InviteUsers = () => {
       return;
     }
 
+    if (!adAccountId.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide an AD Account ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -200,6 +251,7 @@ const InviteUsers = () => {
           role,
           org_id: profile.organization_id,
           token,
+          ad_account_id: adAccountId.trim(),
         });
 
       if (inviteError) throw inviteError;
@@ -238,6 +290,7 @@ const InviteUsers = () => {
       
       setEmail('');
       setRole('member');
+      setAdAccountId('');
     } catch (error: any) {
       console.error('Error sending invite:', error);
       
@@ -349,16 +402,25 @@ const InviteUsers = () => {
                                 <CheckCircle className="h-3 w-3" />
                                 In Organization
                               </Badge>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleInviteExistingUser(user.user_id, user.email)}
-                                className="flex items-center gap-1"
-                              >
-                                <UserPlus className="h-3 w-3" />
-                                Invite
-                              </Button>
+                           ) : (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  placeholder="AD Account ID"
+                                  value={adAccountId}
+                                  onChange={(e) => setAdAccountId(e.target.value)}
+                                  className="w-32 h-8"
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleInviteExistingUser(user.user_id, user.email, adAccountId)}
+                                  className="flex items-center gap-1"
+                                  disabled={!adAccountId.trim()}
+                                >
+                                  <UserPlus className="h-3 w-3" />
+                                  Invite
+                                </Button>
+                              </div>
                             )}
                           </TableCell>
                         </TableRow>

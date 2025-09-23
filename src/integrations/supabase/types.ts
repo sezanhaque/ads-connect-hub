@@ -202,6 +202,7 @@ export type Database = {
       invites: {
         Row: {
           accepted: boolean | null
+          ad_account_id: string | null
           created_at: string | null
           email: string
           id: string
@@ -211,6 +212,7 @@ export type Database = {
         }
         Insert: {
           accepted?: boolean | null
+          ad_account_id?: string | null
           created_at?: string | null
           email: string
           id?: string
@@ -220,6 +222,7 @@ export type Database = {
         }
         Update: {
           accepted?: boolean | null
+          ad_account_id?: string | null
           created_at?: string | null
           email?: string
           id?: string

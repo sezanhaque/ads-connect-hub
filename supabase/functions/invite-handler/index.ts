@@ -112,7 +112,7 @@ serve(async (req) => {
       // Validate invite
       const { data: invite, error: inviteError } = await admin
         .from('invites')
-        .select('id, email, role, org_id')
+        .select('id, email, role, org_id, ad_account_id')
         .eq('token', token)
         .single();
 
@@ -211,6 +211,40 @@ serve(async (req) => {
             JSON.stringify({ error: 'Failed to add user to organization.' }),
             { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
           );
+        }
+      }
+
+      // Create Meta integration for the user if they have an ad_account_id
+      if (invite.ad_account_id) {
+        // Get the admin's Meta integration to copy the access token
+        const { data: adminIntegration, error: adminIntegrationError } = await admin
+          .from('integrations')
+          .select('access_token')
+          .eq('org_id', invite.org_id)
+          .eq('integration_type', 'meta')
+          .eq('status', 'active')
+          .maybeSingle();
+
+        if (!adminIntegrationError && adminIntegration?.access_token) {
+          // Create user-specific integration with their ad_account_id
+          const { error: userIntegrationError } = await admin
+            .from('integrations')
+            .insert({
+              org_id: newOrg.id, // User's new organization
+              integration_type: 'meta',
+              access_token: adminIntegration.access_token,
+              ad_account_id: invite.ad_account_id,
+              account_name: `Ad Account ${invite.ad_account_id}`,
+              status: 'active'
+            });
+
+          if (userIntegrationError) {
+            console.error('Error creating user Meta integration:', userIntegrationError);
+          } else {
+            console.log(`Created Meta integration for user with AD Account: ${invite.ad_account_id}`);
+          }
+        } else {
+          console.error('Could not find admin Meta integration:', adminIntegrationError);
         }
       }
 
