@@ -113,7 +113,6 @@ const MetaConnection = () => {
           <CardTitle className="flex items-center gap-2">
             Connect to Meta Marketing API
             {isConnected && <CheckCircle className="h-5 w-5 text-green-600" />}
-            /* {statusLoading && <Loader2 className="h-5 w-5 animate-spin" />} */
           </CardTitle>
           <CardDescription>
             Link your Meta Business Manager account to automatically sync your campaigns, 
