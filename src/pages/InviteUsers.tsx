@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,6 +32,8 @@ const InviteUsers = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const { profile } = useAuth();
 
@@ -126,11 +129,11 @@ const InviteUsers = () => {
     }
   };
 
-  const handleInviteExistingUser = async (userId: string, userEmail: string, adAccountId: string) => {
-    if (!profile?.organization_id) {
+  const handleInviteUser = async () => {
+    if (!selectedUser || !profile?.organization_id) {
       toast({
         title: "Error",
-        description: "Organization not found",
+        description: "Invalid user or organization",
         variant: "destructive",
       });
       return;
@@ -145,17 +148,10 @@ const InviteUsers = () => {
       return;
     }
 
+    setIsLoading(true);
+    
     try {
-      // Add user to organization as member
-      const { error: memberError } = await supabase
-        .from('members')
-        .insert({
-          user_id: userId,
-          org_id: profile.organization_id,
-          role: 'member'
-        });
-
-      if (memberError) throw memberError;
+      console.log('Starting user invitation process...');
 
       // Get the admin's Meta integration to get the access token
       const { data: adminIntegration, error: integrationError } = await supabase
@@ -166,86 +162,102 @@ const InviteUsers = () => {
         .eq('status', 'active')
         .maybeSingle();
 
-      if (integrationError) {
-        console.error('Error fetching admin integration:', integrationError);
+      if (integrationError || !adminIntegration?.access_token) {
+        throw new Error('Admin Meta connection not found. Please connect Meta account first.');
       }
 
-      // Create user-specific integration if we have admin's access token
-      if (adminIntegration?.access_token) {
-        const token = adminIntegration.access_token;
-        const trimmedAd = adAccountId.trim();
+      // Add user to organization as member
+      const { error: memberError } = await supabase
+        .from('members')
+        .insert({
+          user_id: selectedUser.user_id,
+          org_id: profile.organization_id,
+          role: 'member'
+        });
 
-        // First check if user already has an integration
-        const { data: existingIntegration } = await supabase
+      if (memberError && memberError.code !== '23505') {
+        throw memberError;
+      }
+
+      // Create user-specific integration with the provided AD account ID
+      const token = adminIntegration.access_token;
+      const trimmedAd = adAccountId.trim();
+
+      // Check if user already has an integration
+      const { data: existingIntegration } = await supabase
+        .from('integrations')
+        .select('id')
+        .eq('org_id', profile.organization_id)
+        .eq('integration_type', 'meta')
+        .eq('user_id', selectedUser.user_id)
+        .maybeSingle();
+
+      if (existingIntegration) {
+        // Update existing integration
+        const { error: updateError } = await supabase
           .from('integrations')
-          .select('id')
-          .eq('org_id', profile.organization_id)
-          .eq('integration_type', 'meta')
-          .eq('user_id', userId)
-          .maybeSingle();
+          .update({
+            access_token: token,
+            ad_account_id: trimmedAd,
+            account_name: `Ad Account ${trimmedAd}`,
+            status: 'active',
+            last_sync_at: new Date().toISOString()
+          })
+          .eq('id', existingIntegration.id);
 
-        if (existingIntegration) {
-          // Update existing integration
-          const { error: updateError } = await supabase
-            .from('integrations')
-            .update({
-              access_token: token,
-              ad_account_id: trimmedAd,
-              account_name: `Ad Account ${trimmedAd}`,
-              status: 'active'
-            })
-            .eq('id', existingIntegration.id);
-
-          if (updateError) {
-            console.error('Error updating user integration:', updateError);
-          }
-        } else {
-          // Insert new integration
-          const { error: insertError } = await supabase
-            .from('integrations')
-            .insert({
-              org_id: profile.organization_id,
-              integration_type: 'meta',
-              access_token: token,
-              ad_account_id: trimmedAd,
-              account_name: `Ad Account ${trimmedAd}`,
-              status: 'active',
-              user_id: userId
-            });
-
-          if (insertError) {
-            console.error('Error creating user integration:', insertError);
-          }
+        if (updateError) {
+          console.error('Error updating user integration:', updateError);
+          throw updateError;
         }
-
-        // Immediately sync Meta data for this ad account so member sees data on first login
-        try {
-          const { data: syncRes, error: syncErr } = await supabase.functions.invoke('meta-sync', {
-            body: {
-              access_token: token,
-              ad_account_id: trimmedAd,
-              org_id: profile.organization_id,
-              save_connection: false,
-            },
+      } else {
+        // Insert new integration
+        const { error: insertError } = await supabase
+          .from('integrations')
+          .insert({
+            org_id: profile.organization_id,
+            integration_type: 'meta',
+            access_token: token,
+            ad_account_id: trimmedAd,
+            account_name: `Ad Account ${trimmedAd}`,
+            status: 'active',
+            user_id: selectedUser.user_id
           });
-          if (syncErr) {
-            console.error('Immediate sync error:', syncErr);
-          } else if (!syncRes?.success) {
-            console.warn('Immediate sync response not successful:', syncRes);
-          }
-        } catch (e) {
-          console.error('Immediate sync exception:', e);
+
+        if (insertError) {
+          console.error('Error creating user integration:', insertError);
+          throw insertError;
         }
+      }
+
+      // Sync Meta data for this ad account immediately
+      console.log('Syncing Meta data for user...');
+      const { data: syncRes, error: syncErr } = await supabase.functions.invoke('meta-sync', {
+        body: {
+          access_token: token,
+          ad_account_id: trimmedAd,
+          org_id: profile.organization_id,
+          save_connection: false,
+        },
+      });
+
+      if (syncErr) {
+        console.error('Sync error:', syncErr);
+      } else if (syncRes?.success) {
+        console.log('Meta sync successful:', syncRes);
       }
 
       toast({
         title: "User invited successfully!",
-        description: `${userEmail} has been added to your organization with AD Account ${adAccountId}`,
+        description: `${selectedUser.email} has been added to your organization and can now access the dashboard`,
       });
 
+      // Reset form and close dialog
+      setAdAccountId('');
+      setSelectedUser(null);
+      setDialogOpen(false);
+      
       // Refresh users list
       fetchUsers();
-      setAdAccountId(''); // Clear the form
     } catch (error: any) {
       console.error('Error inviting user:', error);
       
@@ -259,10 +271,12 @@ const InviteUsers = () => {
       } else {
         toast({
           title: "Error",
-          description: "Failed to invite user. Please try again.",
+          description: error.message || "Failed to invite user. Please try again.",
           variant: "destructive",
         });
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -446,33 +460,77 @@ const InviteUsers = () => {
                           <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
-                          <TableCell>
-                            {user.is_member ? (
-                              <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                                <CheckCircle className="h-3 w-3" />
-                                In Organization
-                              </Badge>
-                           ) : (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  placeholder="AD Account ID"
-                                  value={adAccountId}
-                                  onChange={(e) => setAdAccountId(e.target.value)}
-                                  className="w-32 h-8"
-                                />
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleInviteExistingUser(user.user_id, user.email, adAccountId)}
-                                  className="flex items-center gap-1"
-                                  disabled={!adAccountId.trim()}
-                                >
-                                  <UserPlus className="h-3 w-3" />
-                                  Invite
-                                </Button>
-                              </div>
-                            )}
-                          </TableCell>
+                           <TableCell>
+                             {user.is_member ? (
+                               <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                                 <CheckCircle className="h-3 w-3" />
+                                 In Organization
+                               </Badge>
+                            ) : (
+                               <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
+                                 setDialogOpen(open);
+                                 if (!open) {
+                                   setSelectedUser(null);
+                                   setAdAccountId('');
+                                 }
+                               }}>
+                                 <DialogTrigger asChild>
+                                   <Button
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => {
+                                       setSelectedUser(user);
+                                       setDialogOpen(true);
+                                     }}
+                                     className="flex items-center gap-1"
+                                   >
+                                     <UserPlus className="h-3 w-3" />
+                                     Invite User
+                                   </Button>
+                                 </DialogTrigger>
+                                 <DialogContent>
+                                   <DialogHeader>
+                                     <DialogTitle>Invite User to Organization</DialogTitle>
+                                     <DialogDescription>
+                                       Invite {user.email} to join your organization with Meta integration access.
+                                     </DialogDescription>
+                                   </DialogHeader>
+                                   <div className="space-y-4">
+                                     <div>
+                                       <Label htmlFor="ad-account-id">AD Account ID</Label>
+                                       <Input
+                                         id="ad-account-id"
+                                         placeholder="act_1234567890"
+                                         value={adAccountId}
+                                         onChange={(e) => setAdAccountId(e.target.value)}
+                                       />
+                                       <p className="text-xs text-muted-foreground mt-1">
+                                         The Meta AD Account ID this user will have access to
+                                       </p>
+                                     </div>
+                                   </div>
+                                   <DialogFooter>
+                                     <Button
+                                       variant="outline"
+                                       onClick={() => {
+                                         setDialogOpen(false);
+                                         setSelectedUser(null);
+                                         setAdAccountId('');
+                                       }}
+                                     >
+                                       Cancel
+                                     </Button>
+                                     <Button
+                                       onClick={handleInviteUser}
+                                       disabled={!adAccountId.trim() || isLoading}
+                                     >
+                                       {isLoading ? 'Inviting...' : 'Invite User'}
+                                     </Button>
+                                   </DialogFooter>
+                                 </DialogContent>
+                               </Dialog>
+                             )}
+                           </TableCell>
                         </TableRow>
                       ))
                     )}
