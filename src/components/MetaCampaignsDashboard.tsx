@@ -277,7 +277,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
             <TrendingUp className="h-5 w-5" />
             <CardTitle>Meta Campaigns</CardTitle>
           </div>
-          <Button 
+          {/* <Button 
             variant="outline" 
             size="sm" 
             onClick={fetchCampaigns}
@@ -296,7 +296,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
               <LinkIcon className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
               {syncing ? 'Syncing...' : 'Sync Meta'}
             </Button>
-          )}
+          )} */}
         </div>
         <CardDescription>Your Meta Marketing campaigns performance</CardDescription>
       </CardHeader>
