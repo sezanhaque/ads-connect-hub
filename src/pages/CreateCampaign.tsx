@@ -675,11 +675,11 @@ const CreateCampaign = () => {
               </CardContent>
             </Card>
 
-            <div className="bg-muted p-4 rounded-lg">
+            {/* <div className="bg-muted p-4 rounded-lg">
               <p className="text-sm text-muted-foreground">
                 This campaign will be emailed to: <strong>{FIXED_EMAIL_RECIPIENTS.join(', ')}</strong>
               </p>
-            </div>
+            </div> */}
           </div>
         );
 
