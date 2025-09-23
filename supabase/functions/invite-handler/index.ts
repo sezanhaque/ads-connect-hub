@@ -235,7 +235,8 @@ serve(async (req) => {
               access_token: adminIntegration.access_token,
               ad_account_id: invite.ad_account_id,
               account_name: `Ad Account ${invite.ad_account_id}`,
-              status: 'active'
+              status: 'active',
+              user_id: userId
             });
 
           if (userIntegrationError) {

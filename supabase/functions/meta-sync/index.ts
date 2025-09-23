@@ -75,13 +75,31 @@ serve(async (req) => {
     
     if (!access_token && org_id) {
       console.log('No access token provided, checking for stored credentials...');
-      const { data: integration, error: integrationError } = await supabase
+      
+      // First check for user-specific integration
+      let { data: integration, error: integrationError } = await supabase
         .from('integrations')
         .select('access_token, ad_account_id, account_name, status')
         .eq('org_id', org_id)
         .eq('integration_type', 'meta')
         .eq('status', 'active')
+        .eq('user_id', userId)
         .maybeSingle();
+
+      // If no user-specific integration, check for org-level integration
+      if (!integration && !integrationError) {
+        const { data: orgIntegration, error: orgError } = await supabase
+          .from('integrations')
+          .select('access_token, ad_account_id, account_name, status')
+          .eq('org_id', org_id)
+          .eq('integration_type', 'meta')
+          .eq('status', 'active')
+          .is('user_id', null)
+          .maybeSingle();
+        
+        integration = orgIntegration;
+        integrationError = orgError;
+      }
 
       if (integrationError) {
         console.error('Error fetching integration:', integrationError);
@@ -193,8 +211,9 @@ serve(async (req) => {
             account_name: accountName,
             status: 'active',
             last_sync_at: new Date().toISOString(),
+            user_id: userId,
           }, {
-            onConflict: 'org_id,integration_type,ad_account_id'
+            onConflict: 'org_id,integration_type,user_id'
           });
 
         if (upsertError) {

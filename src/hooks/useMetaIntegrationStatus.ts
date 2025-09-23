@@ -55,14 +55,30 @@ export const useMetaIntegrationStatus = () => {
 
       console.log('Using organization:', primaryOrg.org_id, 'with role:', primaryOrg.role);
 
-      // Check for existing Meta integration in the user's primary organization
-      const { data: metaIntegration, error: integrationError } = await supabase
+      // Check for user-specific Meta integration first, then org-level
+      let { data: metaIntegration, error: integrationError } = await supabase
         .from('integrations')
         .select('*')
         .eq('org_id', primaryOrg.org_id)
         .eq('integration_type', 'meta')
         .eq('status', 'active')
+        .eq('user_id', user.id)
         .maybeSingle();
+
+      // If no user-specific integration, check for org-level integration
+      if (!metaIntegration && !integrationError) {
+        const { data: orgIntegration, error: orgError } = await supabase
+          .from('integrations')
+          .select('*')
+          .eq('org_id', primaryOrg.org_id)
+          .eq('integration_type', 'meta')
+          .eq('status', 'active')
+          .is('user_id', null)
+          .maybeSingle();
+        
+        metaIntegration = orgIntegration;
+        integrationError = orgError;
+      }
 
       if (integrationError) {
         console.error('Integration fetch error:', integrationError);
