@@ -172,19 +172,47 @@ const InviteUsers = () => {
 
       // Create user-specific integration if we have admin's access token
       if (adminIntegration?.access_token) {
-        const { error: userIntegrationError } = await supabase
+        // First check if user already has an integration
+        const { data: existingIntegration } = await supabase
           .from('integrations')
-          .insert({
-            org_id: profile.organization_id,
-            integration_type: 'meta',
-            access_token: adminIntegration.access_token,
-            ad_account_id: adAccountId.trim(),
-            account_name: `Ad Account ${adAccountId.trim()}`,
-            status: 'active'
-          });
+          .select('id')
+          .eq('org_id', profile.organization_id)
+          .eq('integration_type', 'meta')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-        if (userIntegrationError) {
-          console.error('Error creating user integration:', userIntegrationError);
+        if (existingIntegration) {
+          // Update existing integration
+          const { error: updateError } = await supabase
+            .from('integrations')
+            .update({
+              access_token: adminIntegration.access_token,
+              ad_account_id: adAccountId.trim(),
+              account_name: `Ad Account ${adAccountId.trim()}`,
+              status: 'active'
+            })
+            .eq('id', existingIntegration.id);
+
+          if (updateError) {
+            console.error('Error updating user integration:', updateError);
+          }
+        } else {
+          // Insert new integration
+          const { error: insertError } = await supabase
+            .from('integrations')
+            .insert({
+              org_id: profile.organization_id,
+              integration_type: 'meta',
+              access_token: adminIntegration.access_token,
+              ad_account_id: adAccountId.trim(),
+              account_name: `Ad Account ${adAccountId.trim()}`,
+              status: 'active',
+              user_id: userId
+            });
+
+          if (insertError) {
+            console.error('Error creating user integration:', insertError);
+          }
         }
       }
 

@@ -173,34 +173,13 @@ serve(async (req) => {
         console.error('Profile upsert error:', profileUpsertErr);
       }
 
-      // Create a separate organization for the invited user (complete data isolation)
-      const orgName = first_name && last_name 
-        ? `${first_name} ${last_name} Organization`
-        : `${invite.email.split('@')[0]} Organization`;
-
-      const { data: newOrg, error: orgError } = await admin
-        .from('organizations')
-        .insert({
-          name: orgName
-        })
-        .select()
-        .single();
-
-      if (orgError) {
-        console.error('Error creating organization:', orgError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to create organization' }),
-          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-        );
-      }
-
-      // Add user as owner of their own organization (not the admin's organization)
+      // Add user to the inviter's organization (join admin's organization)
       const { error: memberErr } = await admin
         .from('members')
         .insert({ 
           user_id: userId, 
-          org_id: newOrg.id, 
-          role: 'owner' // Make them owner of their own org
+          org_id: invite.org_id, // Join the admin's organization
+          role: invite.role
         });
         
       if (memberErr) {
@@ -230,7 +209,7 @@ serve(async (req) => {
           const { error: userIntegrationError } = await admin
             .from('integrations')
             .insert({
-              org_id: newOrg.id, // User's new organization
+              org_id: invite.org_id, // Same organization as admin
               integration_type: 'meta',
               access_token: adminIntegration.access_token,
               ad_account_id: invite.ad_account_id,

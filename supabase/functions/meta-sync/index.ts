@@ -229,26 +229,54 @@ serve(async (req) => {
     if (access_token && save_connection) {
       try {
         console.log('Saving integration credentials...');
-        const { error: upsertError } = await supabase
+        
+        // Check if integration already exists
+        const { data: existingIntegration } = await supabase
           .from('integrations')
-          .upsert({
-            org_id: org_id,
-            integration_type: 'meta',
-            access_token: actualAccessToken,
-            ad_account_id: targetAdAccountId,
-            account_name: accountName,
-            status: 'active',
-            last_sync_at: new Date().toISOString(),
-            user_id: userId,
-          }, {
-            onConflict: 'org_id,integration_type,user_id'
-          });
+          .select('id')
+          .eq('org_id', org_id)
+          .eq('integration_type', 'meta')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-        if (upsertError) {
-          console.error('Error saving integration:', upsertError);
-          // Don't fail the sync, just log the error
+        if (existingIntegration) {
+          // Update existing integration
+          const { error: updateError } = await supabase
+            .from('integrations')
+            .update({
+              access_token: actualAccessToken,
+              ad_account_id: targetAdAccountId,
+              account_name: accountName,
+              status: 'active',
+              last_sync_at: new Date().toISOString(),
+            })
+            .eq('id', existingIntegration.id);
+
+          if (updateError) {
+            console.error('Error updating integration:', updateError);
+          } else {
+            console.log('Integration credentials updated successfully');
+          }
         } else {
-          console.log('Integration credentials saved successfully');
+          // Insert new integration
+          const { error: insertError } = await supabase
+            .from('integrations')
+            .insert({
+              org_id: org_id,
+              integration_type: 'meta',
+              access_token: actualAccessToken,
+              ad_account_id: targetAdAccountId,
+              account_name: accountName,
+              status: 'active',
+              last_sync_at: new Date().toISOString(),
+              user_id: userId,
+            });
+
+          if (insertError) {
+            console.error('Error inserting integration:', insertError);
+          } else {
+            console.log('Integration credentials inserted successfully');
+          }
         }
       } catch (error) {
         console.error('Error saving integration credentials:', error);

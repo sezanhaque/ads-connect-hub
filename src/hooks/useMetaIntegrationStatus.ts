@@ -63,6 +63,8 @@ export const useMetaIntegrationStatus = () => {
         .eq('integration_type', 'meta')
         .eq('status', 'active')
         .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       // If no user-specific integration, check for org-level integration
@@ -74,6 +76,8 @@ export const useMetaIntegrationStatus = () => {
           .eq('integration_type', 'meta')
           .eq('status', 'active')
           .is('user_id', null)
+          .order('created_at', { ascending: false })
+          .limit(1)
           .maybeSingle();
         
         metaIntegration = orgIntegration;
