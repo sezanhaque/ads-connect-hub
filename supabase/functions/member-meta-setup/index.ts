@@ -1,9 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 interface SetupRequest {
@@ -13,54 +13,57 @@ interface SetupRequest {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabaseClient = createClient(supabaseUrl, serviceKey);
 
-    const body: SetupRequest = await req.json();
-    const { target_user_id, ad_account_id, admin_org_id } = body || {};
-
-    console.log('member-meta-setup called with:', body);
-
-    if (!target_user_id || !ad_account_id || !admin_org_id) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-      );
-    }
-
-    // Get the JWT token from the request headers for user verification
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      console.error('No authorization header found');
-      return new Response(JSON.stringify({ error: 'Unauthorized: no auth header' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      });
-    }
-
-    // Extract user from JWT token using service role client
-    const jwt = authHeader.replace('Bearer ', '');
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(jwt);
-    
-    if (userError || !userData?.user) {
-      console.error('Auth error:', userError);
+      console.error('member-meta-setup: missing Authorization header');
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
-    
-    const requesterId = userData.user.id;
-    console.log('Authenticated user:', requesterId);
 
-    // Verify user is member of admin org using service role client
-    const { data: membership, error: membershipError } = await supabaseClient
+    // Service role client, but keep caller Authorization for context/logging parity
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Extract user id from JWT
+    const rawToken = authHeader.replace('Bearer ', '').trim();
+    let requesterId = '';
+    try {
+      const base64Url = rawToken.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      requesterId = payload.sub as string;
+    } catch (e) {
+      console.error('member-meta-setup: failed to decode JWT', e);
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    const { target_user_id, ad_account_id, admin_org_id }: SetupRequest = await req.json();
+    console.log('member-meta-setup called with:', { target_user_id, ad_account_id, admin_org_id });
+
+    if (!target_user_id || !ad_account_id || !admin_org_id) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    // Verify requester is member of the admin org
+    const { data: membership, error: membershipError } = await supabase
       .from('members')
       .select('role')
       .eq('org_id', admin_org_id)
@@ -68,7 +71,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (membershipError) {
-      console.error('Membership check error:', membershipError);
+      console.error('member-meta-setup: membership check error', membershipError);
       return new Response(JSON.stringify({ error: 'Failed to verify membership' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -76,17 +79,16 @@ serve(async (req) => {
     }
 
     if (!membership) {
-      console.error('User not member of admin org:', requesterId, admin_org_id);
-      return new Response(JSON.stringify({ error: 'Forbidden: not a member of the admin organization' }), {
+      console.error('member-meta-setup: requester not member of admin org', requesterId, admin_org_id);
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
-    console.log('User has valid membership:', membership.role);
+    console.log('member-meta-setup: requester membership ok, role:', membership.role);
 
-    // Get admin org Meta integration to copy access token
-    console.log('Fetching admin Meta integration for org:', admin_org_id);
-    const { data: adminIntegration, error: adminIntErr } = await supabaseClient
+    // Fetch admin org meta access token
+    const { data: adminIntegration, error: adminIntErr } = await supabase
       .from('integrations')
       .select('access_token')
       .eq('org_id', admin_org_id)
@@ -95,72 +97,51 @@ serve(async (req) => {
       .maybeSingle();
 
     if (adminIntErr) {
-      console.error('Admin integration fetch error:', adminIntErr);
+      console.error('member-meta-setup: admin integration fetch error', adminIntErr);
       return new Response(JSON.stringify({ error: 'Failed to fetch admin Meta connection' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
-
     if (!adminIntegration?.access_token) {
-      console.error('No admin Meta integration found');
       return new Response(JSON.stringify({ error: 'Admin Meta connection not found' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
 
-    console.log('Found admin Meta integration');
     const token = adminIntegration.access_token as string;
     const adId = String(ad_account_id);
 
-    // Find the target user's owner organization, or create one if missing
-    console.log('Looking for target user owner org:', target_user_id);
-    const { data: ownerMembership, error: ownerMemberErr } = await supabaseClient
+    // Find or create target user's owner org
+    const { data: ownerMembership } = await supabase
       .from('members')
       .select('org_id')
       .eq('user_id', target_user_id)
       .eq('role', 'owner')
       .maybeSingle();
 
-    if (ownerMemberErr) {
-      console.error('Error fetching owner membership:', ownerMemberErr);
-    }
-
     let targetOrgId: string | null = ownerMembership?.org_id ?? null;
-    console.log('Target user existing owner org:', targetOrgId);
-
     if (!targetOrgId) {
-      // Create a new organization and add the user as owner
-      console.log('Creating new organization for target user...');
-      const nameFallback = `User ${target_user_id.substring(0, 8)} Organization`;
-      const { data: newOrg, error: orgErr } = await supabaseClient
+      const orgName = `User ${target_user_id.slice(0, 8)} Organization`;
+      const { data: newOrg, error: orgErr } = await supabase
         .from('organizations')
-        .insert({ name: nameFallback })
+        .insert({ name: orgName })
         .select('id')
         .single();
       if (orgErr) {
-        console.error('Failed creating organization for target user:', orgErr);
+        console.error('member-meta-setup: create org error', orgErr);
         return new Response(JSON.stringify({ error: 'Failed to create organization for user' }), {
           status: 500,
           headers: { 'Content-Type': 'application/json', ...corsHeaders },
         });
       }
       targetOrgId = newOrg.id as string;
-      console.log('Created new org:', targetOrgId);
-
-      const { error: ownerInsertErr } = await supabaseClient
-        .from('members')
-        .insert({ user_id: target_user_id, org_id: targetOrgId, role: 'owner' });
-      if (ownerInsertErr) {
-        console.error('Failed adding owner membership for target user:', ownerInsertErr);
-      } else {
-        console.log('Added user as owner of new org');
-      }
+      await supabase.from('members').insert({ user_id: target_user_id, org_id: targetOrgId, role: 'owner' });
     }
 
-    // Upsert integration for the target user's organization
-    const { data: existingIntegration } = await supabaseClient
+    // Upsert integration for target user/org
+    const { data: existingIntegration } = await supabase
       .from('integrations')
       .select('id')
       .eq('org_id', targetOrgId)
@@ -169,7 +150,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (existingIntegration) {
-      const { error: updateErr } = await supabaseClient
+      const { error: updateErr } = await supabase
         .from('integrations')
         .update({
           access_token: token,
@@ -180,14 +161,14 @@ serve(async (req) => {
         })
         .eq('id', existingIntegration.id);
       if (updateErr) {
-        console.error('Integration update error:', updateErr);
+        console.error('member-meta-setup: integration update error', updateErr);
         return new Response(JSON.stringify({ error: 'Failed to update integration' }), {
           status: 500,
           headers: { 'Content-Type': 'application/json', ...corsHeaders },
         });
       }
     } else {
-      const { error: insertErr } = await supabaseClient
+      const { error: insertErr } = await supabase
         .from('integrations')
         .insert({
           org_id: targetOrgId,
@@ -199,7 +180,7 @@ serve(async (req) => {
           user_id: target_user_id,
         });
       if (insertErr) {
-        console.error('Integration insert error:', insertErr);
+        console.error('member-meta-setup: integration insert error', insertErr);
         return new Response(JSON.stringify({ error: 'Failed to create integration' }), {
           status: 500,
           headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -207,15 +188,16 @@ serve(async (req) => {
       }
     }
 
-    // Immediate sync of campaigns and metrics into target user's org
+    // Sync campaigns + metrics into target org
     let synced = 0;
     let totalCampaigns = 0;
     try {
       const campaignsUrl = `https://graph.facebook.com/v19.0/${adId}/campaigns?access_token=${token}&fields=id,name,status,objective`;
       const campaignsResp = await fetch(campaignsUrl);
       const campaignsJson = await campaignsResp.json();
+
       if (campaignsJson?.error) {
-        console.error('Meta campaigns fetch error:', campaignsJson.error);
+        console.error('member-meta-setup: campaigns error', campaignsJson.error);
       } else {
         const campaigns: Array<{ id: string; name: string; status: string; objective: string }> = campaignsJson?.data || [];
         totalCampaigns = campaigns.length;
@@ -231,8 +213,7 @@ serve(async (req) => {
         };
 
         for (const c of campaigns) {
-          // Upsert campaign by name within target org
-          const { data: existingCampaign } = await supabaseClient
+          const { data: existingCampaign } = await supabase
             .from('campaigns')
             .select('id')
             .eq('name', c.name)
@@ -244,7 +225,7 @@ serve(async (req) => {
           const objective = c.objective || 'OUTCOME_TRAFFIC';
 
           if (!campaignId) {
-            const { data: inserted, error: insertCampErr } = await supabaseClient
+            const { data: inserted, error: insertCampErr } = await supabase
               .from('campaigns')
               .insert({
                 name: c.name,
@@ -259,17 +240,16 @@ serve(async (req) => {
               .select('id')
               .single();
             if (insertCampErr) {
-              console.error('Insert campaign error:', insertCampErr);
+              console.error('member-meta-setup: insert campaign error', insertCampErr);
               continue;
             }
             campaignId = inserted.id as string;
           } else {
-            await supabaseClient.from('campaigns')
+            await supabase.from('campaigns')
               .update({ status: statusMapped, objective })
               .eq('id', campaignId);
           }
 
-          // Fetch insights last 30 days for this campaign
           const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${token}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
           const insightsResp = await fetch(insightsUrl);
           const insightsJson = await insightsResp.json();
@@ -285,8 +265,8 @@ serve(async (req) => {
           }
 
           if (campaignId) {
-            await supabaseClient.from('metrics').delete().eq('campaign_id', campaignId);
-            const { error: metricsInsertErr } = await supabaseClient
+            await supabase.from('metrics').delete().eq('campaign_id', campaignId);
+            const { error: metricsInsertErr } = await supabase
               .from('metrics')
               .insert({
                 campaign_id: campaignId,
@@ -296,17 +276,16 @@ serve(async (req) => {
                 leads,
               });
             if (metricsInsertErr) {
-              console.error('Metrics insert error:', metricsInsertErr);
+              console.error('member-meta-setup: metrics insert error', metricsInsertErr);
             }
           }
           synced += 1;
         }
       }
-    } catch (syncErr) {
-      console.error('Immediate sync for member setup failed:', syncErr);
+    } catch (e) {
+      console.error('member-meta-setup: sync block error', e);
     }
 
-    console.log(`Setup complete: synced ${synced}/${totalCampaigns} campaigns to org ${targetOrgId}`);
     return new Response(JSON.stringify({ success: true, synced_count: synced, total_campaigns: totalCampaigns, org_id: targetOrgId }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
