@@ -159,24 +159,26 @@ const CreateJob = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="company_name">Company Name</Label>
+                <Label htmlFor="company_name">Company Name *</Label>
                 <Input
                   id="company_name"
                   placeholder="e.g. Tech Corp"
                   value={formData.company_name}
                   onChange={(e) => handleInputChange('company_name', e.target.value)}
+                  required
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="job_id">Job ID</Label>
+                <Label htmlFor="job_id">Job ID *</Label>
                 <Input
                   id="job_id"
                   placeholder="e.g. JOB-001"
                   value={formData.job_id}
                   onChange={(e) => handleInputChange('job_id', e.target.value)}
+                  required
                 />
               </div>
 
