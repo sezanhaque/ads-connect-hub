@@ -73,15 +73,37 @@ const Dashboard = () => {
   }, []);
 
   const autoSyncMetaCampaigns = async () => {
-    if (!isConnected || !integration || !profile?.user_id) return;
+    if (!isConnected || !integration) return;
 
     try {
       console.log('Auto-syncing Meta campaigns for user...');
+      console.log('Using integration:', integration);
       
-      // Auto-sync using stored credentials for current user
+      // Get user's organization ID from their membership
+      const { data: memberships, error: membershipError } = await supabase
+        .from('members')
+        .select('org_id, role')
+        .eq('user_id', profile?.user_id)
+        .order('role', { ascending: true }); // owner first, then admin, then member
+
+      if (membershipError) {
+        console.error('Error fetching user memberships:', membershipError);
+        return;
+      }
+
+      if (!memberships || memberships.length === 0) {
+        console.error('No organization found for user');
+        return;
+      }
+
+      // Use the first organization (highest role)
+      const userOrgId = memberships[0].org_id;
+      console.log('Using organization ID:', userOrgId);
+      
+      // Auto-sync using stored credentials for current user's organization
       const { data, error } = await supabase.functions.invoke('meta-sync', {
         body: {
-          user_id: profile.user_id,
+          org_id: userOrgId,
           save_connection: false // Don't overwrite existing connection
         }
       });
@@ -95,6 +117,7 @@ const Dashboard = () => {
         console.log('Auto-sync successful:', data.synced_count, 'campaigns updated');
         // Refresh dashboard after sync
         setRefreshTrigger(prev => prev + 1);
+        fetchDashboardData(); // Also refresh the main dashboard data
       }
     } catch (error) {
       console.error('Auto-sync failed:', error);

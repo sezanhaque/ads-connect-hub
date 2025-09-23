@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { TrendingUp, Eye, MousePointer, DollarSign, Users, RefreshCw } from 'lucide-react';
+import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
+import { useToast } from '@/hooks/use-toast';
+import { TrendingUp, Eye, MousePointer, DollarSign, Users, RefreshCw, Link as LinkIcon } from 'lucide-react';
 
 interface MetaCampaign {
   id: string;
@@ -26,7 +28,10 @@ interface MetaCampaignsDashboardProps {
 export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboardProps) => {
   const [campaigns, setCampaigns] = useState<MetaCampaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const { user } = useAuth();
+  const { integration, isConnected } = useMetaIntegrationStatus();
+  const { toast } = useToast();
 
   const fetchCampaigns = async () => {
     console.log('MetaCampaignsDashboard: Fetching user campaigns...');
@@ -113,6 +118,59 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
     return (spend / clicks).toFixed(2);
   };
 
+  const handleManualSync = async () => {
+    if (!integration || syncing) return;
+
+    setSyncing(true);
+    
+    try {
+      console.log('Manual sync triggered...');
+      
+      // Get user's organization ID from their membership
+      const { data: memberships, error: membershipError } = await supabase
+        .from('members')
+        .select('org_id, role')
+        .eq('user_id', user?.id)
+        .order('role', { ascending: true }); // owner first
+
+      if (membershipError || !memberships || memberships.length === 0) {
+        throw new Error('No organization found for user');
+      }
+
+      const userOrgId = memberships[0].org_id;
+      
+      const { data, error } = await supabase.functions.invoke('meta-sync', {
+        body: {
+          org_id: userOrgId,
+          save_connection: false
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Sync failed');
+      }
+
+      if (data?.success) {
+        toast({
+          title: "Sync successful!",
+          description: `Synced ${data.synced_count} campaigns from Meta`,
+        });
+        fetchCampaigns(); // Refresh the campaigns list
+      } else {
+        throw new Error(data?.error || 'Sync failed');
+      }
+    } catch (error: any) {
+      console.error('Manual sync error:', error);
+      toast({
+        title: "Sync failed",
+        description: error.message || "Failed to sync Meta campaigns",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -135,13 +193,52 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Meta Campaigns</CardTitle>
-          <CardDescription>No Meta campaigns found</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Meta Campaigns</CardTitle>
+              <CardDescription>
+                {isConnected ? 'No Meta campaigns found' : 'No Meta campaigns found'}
+              </CardDescription>
+            </div>
+            {isConnected && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleManualSync}
+                disabled={syncing}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'Syncing...' : 'Sync Now'}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            Connect your Meta Marketing account to see your campaigns here.
-          </p>
+          <div className="text-center py-8">
+            {isConnected ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <LinkIcon className="h-12 w-12 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-muted-foreground mb-2">
+                    Meta account connected but no campaigns found.
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Click "Sync Now" to fetch your latest campaigns, or check if you have active campaigns in your Meta Ads Manager.
+                  </p>
+                  <Button onClick={handleManualSync} disabled={syncing}>
+                    <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                    {syncing ? 'Syncing...' : 'Sync Meta Campaigns'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">
+                Connect your Meta Marketing account to see your campaigns here.
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     );
@@ -160,9 +257,21 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
             size="sm" 
             onClick={fetchCampaigns}
             disabled={loading}
+            className="mr-2"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
+          {isConnected && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleManualSync}
+              disabled={syncing}
+            >
+              <LinkIcon className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Syncing...' : 'Sync Meta'}
+            </Button>
+          )}
         </div>
         <CardDescription>Your Meta Marketing campaigns performance</CardDescription>
       </CardHeader>

@@ -28,28 +28,34 @@ export const useMetaIntegrationStatus = () => {
       setLoading(true);
       setError(null);
 
-      // Get user's organization
+      // Get user's organization - prioritize owner role first for accurate integration detection
       const { data: memberships, error: membershipsError } = await supabase
         .from('members')
         .select('org_id, role')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('role', { ascending: true }); // This will put 'admin' before 'member', 'owner' before both
 
       if (membershipsError) {
         throw new Error('Failed to get user organization');
       }
 
       if (!memberships || memberships.length === 0) {
+        console.log('No organizations found for user');
         setIntegration(null);
         return;
       }
 
-      // Find best organization (owner > admin > member)
-      const primaryOrg = memberships.find((m: any) => m.role === 'owner') ||
-                        memberships.find((m: any) => m.role === 'admin') ||
-                        memberships.find((m: any) => m.role === 'member') ||
-                        memberships[0];
+      console.log('User memberships:', memberships);
 
-      // Check for existing Meta integration
+      // Find the organization with the highest role (owner > admin > member)
+      let primaryOrg = memberships.find((m: any) => m.role === 'owner') ||
+                       memberships.find((m: any) => m.role === 'admin') ||
+                       memberships.find((m: any) => m.role === 'member') ||
+                       memberships[0];
+
+      console.log('Using organization:', primaryOrg.org_id, 'with role:', primaryOrg.role);
+
+      // Check for existing Meta integration in the user's primary organization
       const { data: metaIntegration, error: integrationError } = await supabase
         .from('integrations')
         .select('*')
@@ -59,11 +65,14 @@ export const useMetaIntegrationStatus = () => {
         .maybeSingle();
 
       if (integrationError) {
+        console.error('Integration fetch error:', integrationError);
         throw new Error('Failed to fetch integration status');
       }
 
+      console.log('Meta integration found:', metaIntegration);
       setIntegration(metaIntegration as MetaIntegration);
     } catch (err: any) {
+      console.error('fetchIntegration error:', err);
       setError(err.message);
       setIntegration(null);
     } finally {
