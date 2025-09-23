@@ -156,7 +156,13 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
         throw new Error('No organization found for user');
       }
 
-      const userOrgId = memberships[0].org_id;
+      const primaryOrg =
+        memberships.find((m: any) => m.role === 'owner') ||
+        memberships.find((m: any) => m.role === 'admin') ||
+        memberships.find((m: any) => m.role === 'member') ||
+        memberships[0];
+
+      const userOrgId = primaryOrg.org_id;
       
       const { data, error } = await supabase.functions.invoke('meta-sync', {
         body: {

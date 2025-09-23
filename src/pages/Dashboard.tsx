@@ -84,7 +84,7 @@ const Dashboard = () => {
         .from('members')
         .select('org_id, role')
         .eq('user_id', profile?.user_id)
-        .order('role', { ascending: true }); // owner first, then admin, then member
+        .order('role', { ascending: true }); // alphabetical, we'll select explicitly
 
       if (membershipError) {
         console.error('Error fetching user memberships:', membershipError);
@@ -96,8 +96,13 @@ const Dashboard = () => {
         return;
       }
 
-      // Use the first organization (highest role)
-      const userOrgId = memberships[0].org_id;
+      const primaryOrg =
+        memberships.find((m: any) => m.role === 'owner') ||
+        memberships.find((m: any) => m.role === 'admin') ||
+        memberships.find((m: any) => m.role === 'member') ||
+        memberships[0];
+
+      const userOrgId = primaryOrg.org_id;
       console.log('Using organization ID:', userOrgId);
       
       // Auto-sync using stored credentials for current user's organization
