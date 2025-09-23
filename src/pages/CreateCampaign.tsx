@@ -94,6 +94,7 @@ const CreateCampaign = () => {
       const { data, error } = await supabase
         .from('jobs')
         .select('id, title, company_name, status')
+        .eq('created_by', profile?.user_id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
