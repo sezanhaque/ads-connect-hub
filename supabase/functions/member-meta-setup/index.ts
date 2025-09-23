@@ -32,9 +32,8 @@ serve(async (req) => {
     }
 
     // Service role client, but keep caller Authorization for context/logging parity
-    const supabase = createClient(supabaseUrl, serviceKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    const supabase = createClient(supabaseUrl, serviceKey);
+
 
     // Extract user id from JWT
     const rawToken = authHeader.replace('Bearer ', '').trim();
