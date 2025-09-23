@@ -205,23 +205,146 @@ serve(async (req) => {
           .maybeSingle();
 
         if (!adminIntegrationError && adminIntegration?.access_token) {
-          // Create user-specific integration with their ad_account_id
-          const { error: userIntegrationError } = await admin
-            .from('integrations')
-            .insert({
-              org_id: invite.org_id, // Same organization as admin
-              integration_type: 'meta',
-              access_token: adminIntegration.access_token,
-              ad_account_id: invite.ad_account_id,
-              account_name: `Ad Account ${invite.ad_account_id}`,
-              status: 'active',
-              user_id: userId
-            });
+          const token = adminIntegration.access_token as string;
+          const adId = String(invite.ad_account_id);
 
-          if (userIntegrationError) {
-            console.error('Error creating user Meta integration:', userIntegrationError);
+          // Create or update user-specific integration with their ad_account_id
+          const { data: existingUserIntegration } = await admin
+            .from('integrations')
+            .select('id')
+            .eq('org_id', invite.org_id)
+            .eq('integration_type', 'meta')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (existingUserIntegration) {
+            const { error: userIntegrationUpdateError } = await admin
+              .from('integrations')
+              .update({
+                access_token: token,
+                ad_account_id: adId,
+                account_name: `Ad Account ${adId}`,
+                status: 'active',
+                last_sync_at: null,
+              })
+              .eq('id', existingUserIntegration.id);
+            if (userIntegrationUpdateError) {
+              console.error('Error updating user Meta integration:', userIntegrationUpdateError);
+            }
           } else {
-            console.log(`Created Meta integration for user with AD Account: ${invite.ad_account_id}`);
+            const { error: userIntegrationError } = await admin
+              .from('integrations')
+              .insert({
+                org_id: invite.org_id, // Same organization as admin
+                integration_type: 'meta',
+                access_token: token,
+                ad_account_id: adId,
+                account_name: `Ad Account ${adId}`,
+                status: 'active',
+                user_id: userId
+              });
+            if (userIntegrationError) {
+              console.error('Error creating user Meta integration:', userIntegrationError);
+            } else {
+              console.log(`Created Meta integration for user with AD Account: ${adId}`);
+            }
+          }
+
+          // Immediately sync campaigns and metrics for this member's ad account so they see data on login
+          try {
+            // 1) Fetch campaigns for this ad account
+            const campaignsUrl = `https://graph.facebook.com/v19.0/${adId}/campaigns?access_token=${token}&fields=id,name,status,objective`;
+            const campaignsResp = await fetch(campaignsUrl);
+            const campaignsJson = await campaignsResp.json();
+            if (campaignsJson?.error) {
+              console.error('Meta campaigns fetch error:', campaignsJson.error);
+            } else {
+              const campaigns: Array<{ id: string; name: string; status: string; objective: string }> = campaignsJson?.data || [];
+
+              const mapStatus = (metaStatus: string) => {
+                switch (metaStatus) {
+                  case 'ACTIVE': return 'active';
+                  case 'PAUSED': return 'paused';
+                  case 'DELETED': return 'deleted';
+                  case 'ARCHIVED': return 'archived';
+                  default: return 'draft';
+                }
+              };
+
+              for (const c of campaigns) {
+                // Upsert campaign (by name within org)
+                const { data: existingCampaign } = await admin
+                  .from('campaigns')
+                  .select('id')
+                  .eq('name', c.name)
+                  .eq('org_id', invite.org_id)
+                  .maybeSingle();
+
+                let campaignId: string | undefined = existingCampaign?.id;
+                const statusMapped = mapStatus(c.status);
+                const objective = c.objective || 'OUTCOME_TRAFFIC';
+
+                if (!campaignId) {
+                  const { data: inserted, error: insertCampErr } = await admin
+                    .from('campaigns')
+                    .insert({
+                      name: c.name,
+                      org_id: invite.org_id,
+                      status: statusMapped,
+                      objective,
+                      budget: 0,
+                      created_by: userId,
+                      location_targeting: {},
+                      audience_targeting: {},
+                    })
+                    .select('id')
+                    .single();
+                  if (insertCampErr) {
+                    console.error('Insert campaign error:', insertCampErr);
+                    continue;
+                  }
+                  campaignId = inserted.id;
+                } else {
+                  await admin.from('campaigns')
+                    .update({ status: statusMapped, objective })
+                    .eq('id', campaignId);
+                }
+
+                // 2) Fetch insights last 30 days for this campaign
+                const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${token}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
+                const insightsResp = await fetch(insightsUrl);
+                const insightsJson = await insightsResp.json();
+
+                let impressions = 0, clicks = 0, spend = 0, leads = 0;
+                const rec = (insightsJson?.data?.[0]) || null;
+                if (rec) {
+                  impressions = parseInt(rec.impressions || '0') || 0;
+                  clicks = parseInt(rec.clicks || '0') || 0;
+                  spend = parseFloat(rec.spend || '0') || 0;
+                  const leadAction = Array.isArray(rec.actions) ? rec.actions.find((a: any) => a.action_type === 'lead') : null;
+                  leads = leadAction ? parseInt(leadAction.value || '0') || 0 : 0;
+                }
+
+                // Clear existing metrics and insert fresh one
+                if (campaignId) {
+                  await admin.from('metrics').delete().eq('campaign_id', campaignId);
+                  const { error: metricsInsertErr } = await admin
+                    .from('metrics')
+                    .insert({
+                      campaign_id: campaignId,
+                      impressions,
+                      clicks,
+                      spend,
+                      leads,
+                    });
+                  if (metricsInsertErr) {
+                    console.error('Metrics insert error:', metricsInsertErr);
+                  }
+                }
+              }
+            }
+          } catch (syncErr) {
+            console.error('Immediate sync for invited user failed:', syncErr);
           }
         } else {
           console.error('Could not find admin Meta integration:', adminIntegrationError);

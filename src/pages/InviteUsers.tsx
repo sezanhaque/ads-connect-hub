@@ -172,6 +172,9 @@ const InviteUsers = () => {
 
       // Create user-specific integration if we have admin's access token
       if (adminIntegration?.access_token) {
+        const token = adminIntegration.access_token;
+        const trimmedAd = adAccountId.trim();
+
         // First check if user already has an integration
         const { data: existingIntegration } = await supabase
           .from('integrations')
@@ -186,9 +189,9 @@ const InviteUsers = () => {
           const { error: updateError } = await supabase
             .from('integrations')
             .update({
-              access_token: adminIntegration.access_token,
-              ad_account_id: adAccountId.trim(),
-              account_name: `Ad Account ${adAccountId.trim()}`,
+              access_token: token,
+              ad_account_id: trimmedAd,
+              account_name: `Ad Account ${trimmedAd}`,
               status: 'active'
             })
             .eq('id', existingIntegration.id);
@@ -203,9 +206,9 @@ const InviteUsers = () => {
             .insert({
               org_id: profile.organization_id,
               integration_type: 'meta',
-              access_token: adminIntegration.access_token,
-              ad_account_id: adAccountId.trim(),
-              account_name: `Ad Account ${adAccountId.trim()}`,
+              access_token: token,
+              ad_account_id: trimmedAd,
+              account_name: `Ad Account ${trimmedAd}`,
               status: 'active',
               user_id: userId
             });
@@ -213,6 +216,25 @@ const InviteUsers = () => {
           if (insertError) {
             console.error('Error creating user integration:', insertError);
           }
+        }
+
+        // Immediately sync Meta data for this ad account so member sees data on first login
+        try {
+          const { data: syncRes, error: syncErr } = await supabase.functions.invoke('meta-sync', {
+            body: {
+              access_token: token,
+              ad_account_id: trimmedAd,
+              org_id: profile.organization_id,
+              save_connection: false,
+            },
+          });
+          if (syncErr) {
+            console.error('Immediate sync error:', syncErr);
+          } else if (!syncRes?.success) {
+            console.warn('Immediate sync response not successful:', syncRes);
+          }
+        } catch (e) {
+          console.error('Immediate sync exception:', e);
         }
       }
 
