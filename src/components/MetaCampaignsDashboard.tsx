@@ -29,41 +29,23 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
   const { user } = useAuth();
 
   const fetchCampaigns = async () => {
-    console.log('MetaCampaignsDashboard: Fetching campaigns...');
+    console.log('MetaCampaignsDashboard: Fetching user campaigns...');
     setLoading(true);
     if (!user) return;
 
     try {
-      // Get all user memberships and pick the best one (owner > admin > member)
-      const { data: memberships } = await supabase
-        .from('members')
-        .select('org_id, role')
-        .eq('user_id', user.id);
-
-      const preferred = (() => {
-        if (!memberships || memberships.length === 0) return null;
-        return (
-          memberships.find((m: any) => m.role === 'owner') ||
-          memberships.find((m: any) => m.role === 'admin') ||
-          memberships.find((m: any) => m.role === 'member') ||
-          memberships[0]
-        );
-      })();
-
-      if (!preferred?.org_id) return;
-
-      // Fetch campaigns
+      // Fetch campaigns created by this user only
       const { data: campaignsData, error: campaignsError } = await supabase
         .from('campaigns')
         .select('id, name, status, objective')
-        .eq('org_id', preferred.org_id);
+        .eq('created_by', user.id);
 
       if (campaignsError) {
         console.error('Error fetching campaigns:', campaignsError);
         return;
       }
 
-      // Fetch metrics for all campaigns
+      // Fetch metrics for user's campaigns
       const campaignIds = campaignsData?.map(c => c.id) || [];
       
       if (campaignIds.length === 0) {

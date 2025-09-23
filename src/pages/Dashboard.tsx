@@ -73,31 +73,15 @@ const Dashboard = () => {
   }, []);
 
   const autoSyncMetaCampaigns = async () => {
-    if (!isConnected || !integration) return;
+    if (!isConnected || !integration || !profile?.user_id) return;
 
     try {
-      console.log('Auto-syncing Meta campaigns on dashboard load...');
+      console.log('Auto-syncing Meta campaigns for user...');
       
-      // Get user's organization
-      const { data: memberships, error: membershipsError } = await supabase
-        .from('members')
-        .select('org_id, role')
-        .eq('user_id', profile?.user_id);
-
-      if (membershipsError || !memberships?.length) {
-        console.warn('No organization found for auto-sync');
-        return;
-      }
-
-      const primaryOrg = memberships.find((m: any) => m.role === 'owner') ||
-                        memberships.find((m: any) => m.role === 'admin') ||
-                        memberships.find((m: any) => m.role === 'member') ||
-                        memberships[0];
-
-      // Auto-sync using stored credentials (no access_token needed)
+      // Auto-sync using stored credentials for current user
       const { data, error } = await supabase.functions.invoke('meta-sync', {
         body: {
-          org_id: primaryOrg.org_id,
+          user_id: profile.user_id,
           save_connection: false // Don't overwrite existing connection
         }
       });
@@ -118,54 +102,64 @@ const Dashboard = () => {
   };
 
   const fetchDashboardData = async () => {
+    if (!profile?.user_id) return;
+    
     try {
-      // Fetch recent campaigns for display (limit 5)
+      // Fetch recent campaigns created by this user (limit 5)
       const { data: recentCampaignsData, error: recentCampaignsError } = await supabase
         .from('campaigns')
         .select('*')
+        .eq('created_by', profile.user_id)
         .order('created_at', { ascending: false })
         .limit(5);
 
       if (recentCampaignsError) throw recentCampaignsError;
 
-      // Fetch total campaign count, active campaigns count, and budget totals
+      // Fetch total campaign count, active campaigns count, and budget totals for this user
       const { data: campaignCountData, error: campaignCountError } = await supabase
         .from('campaigns')
-        .select('id, status, budget');
+        .select('id, status, budget')
+        .eq('created_by', profile.user_id);
 
       if (campaignCountError) throw campaignCountError;
 
-      // Fetch recent jobs for display (limit 5)
+      // Fetch recent jobs created by this user (limit 5)
       const { data: recentJobsData, error: recentJobsError } = await supabase
         .from('jobs')
         .select('*')
+        .eq('created_by', profile.user_id)
         .order('created_at', { ascending: false })
         .limit(5);
 
       if (recentJobsError) throw recentJobsError;
 
-      // Fetch total jobs count
+      // Fetch total jobs count for this user
       const { data: jobCountData, error: jobCountError } = await supabase
         .from('jobs')
-        .select('id');
+        .select('id')
+        .eq('created_by', profile.user_id);
 
       if (jobCountError) throw jobCountError;
 
-      // Fetch metrics from both possible tables
-      const { data: metricsData, error: metricsError } = await supabase
-        .from('metrics')
-        .select('spend, impressions, clicks, leads');
+      // Get campaign IDs for this user to filter metrics
+      const userCampaignIds = campaignCountData?.map(c => c.id) || [];
+      
+      // Fetch metrics only for user's campaigns
+      let allMetrics: any[] = [];
+      
+      if (userCampaignIds.length > 0) {
+        const { data: metricsData } = await supabase
+          .from('metrics')
+          .select('spend, impressions, clicks, leads')
+          .in('campaign_id', userCampaignIds);
 
-      const { data: campaignMetricsData, error: campaignMetricsError } = await supabase
-        .from('campaign_metrics')
-        .select('spend, impressions, clicks, leads');
+        const { data: campaignMetricsData } = await supabase
+          .from('campaign_metrics')
+          .select('spend, impressions, clicks, leads')
+          .in('campaign_id', userCampaignIds);
 
-      if (metricsError && campaignMetricsError) {
-        console.warn('Both metrics queries failed:', { metricsError, campaignMetricsError });
+        allMetrics = [...(metricsData || []), ...(campaignMetricsData || [])];
       }
-
-      // Combine metrics from both tables
-      const allMetrics = [...(metricsData || []), ...(campaignMetricsData || [])];
       
       // Calculate performance metrics
       const totalSpend = allMetrics.reduce((sum, metric) => sum + (Number(metric.spend) || 0), 0);
@@ -191,9 +185,6 @@ const Dashboard = () => {
         totalClicks,
         totalLeads,
       });
-
-      setCampaigns(recentCampaignsData || []);
-      setJobs(recentJobsData || []);
 
       setCampaigns(recentCampaignsData || []);
       setJobs(recentJobsData || []);
