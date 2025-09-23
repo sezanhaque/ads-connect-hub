@@ -15,6 +15,9 @@ verify_jwt = false
 [functions.meta-sync]
 verify_jwt = true
 
+[functions.member-meta-setup]
+verify_jwt = true
+
 [functions.send-campaign-email]
 verify_jwt = true
 

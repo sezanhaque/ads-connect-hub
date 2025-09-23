@@ -44,28 +44,41 @@ serve(async (req) => {
     // Auth: ensure requester is authenticated and member of admin_org_id
     const { data: authData, error: authError } = await anonClient.auth.getUser();
     if (authError || !authData?.user) {
+      console.error('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
     const requesterId = authData.user.id;
+    console.log('Authenticated user:', requesterId);
 
-    const { data: membership } = await anonClient
+    const { data: membership, error: membershipError } = await anonClient
       .from('members')
       .select('role')
       .eq('org_id', admin_org_id)
       .eq('user_id', requesterId)
       .maybeSingle();
 
+    if (membershipError) {
+      console.error('Membership check error:', membershipError);
+      return new Response(JSON.stringify({ error: 'Failed to verify membership' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
     if (!membership) {
+      console.error('User not member of admin org:', requesterId, admin_org_id);
       return new Response(JSON.stringify({ error: 'Forbidden: not a member of the admin organization' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
+    console.log('User has valid membership:', membership.role);
 
     // Get admin org Meta integration to copy access token
+    console.log('Fetching admin Meta integration for org:', admin_org_id);
     const { data: adminIntegration, error: adminIntErr } = await admin
       .from('integrations')
       .select('access_token')
@@ -74,28 +87,46 @@ serve(async (req) => {
       .eq('status', 'active')
       .maybeSingle();
 
-    if (adminIntErr || !adminIntegration?.access_token) {
+    if (adminIntErr) {
+      console.error('Admin integration fetch error:', adminIntErr);
+      return new Response(JSON.stringify({ error: 'Failed to fetch admin Meta connection' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    if (!adminIntegration?.access_token) {
+      console.error('No admin Meta integration found');
       return new Response(JSON.stringify({ error: 'Admin Meta connection not found' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
 
+    console.log('Found admin Meta integration');
+
     const token = adminIntegration.access_token as string;
     const adId = String(ad_account_id);
 
     // Find the target user's owner organization, or create one if missing
-    const { data: ownerMembership } = await admin
+    console.log('Looking for target user owner org:', target_user_id);
+    const { data: ownerMembership, error: ownerMemberErr } = await admin
       .from('members')
       .select('org_id')
       .eq('user_id', target_user_id)
       .eq('role', 'owner')
       .maybeSingle();
 
+    if (ownerMemberErr) {
+      console.error('Error fetching owner membership:', ownerMemberErr);
+    }
+
     let targetOrgId: string | null = ownerMembership?.org_id ?? null;
+    console.log('Target user existing owner org:', targetOrgId);
 
     if (!targetOrgId) {
       // Create a new organization and add the user as owner
+      console.log('Creating new organization for target user...');
       const nameFallback = `User ${target_user_id.substring(0, 8)} Organization`;
       const { data: newOrg, error: orgErr } = await admin
         .from('organizations')
@@ -110,12 +141,15 @@ serve(async (req) => {
         });
       }
       targetOrgId = newOrg.id as string;
+      console.log('Created new org:', targetOrgId);
 
       const { error: ownerInsertErr } = await admin
         .from('members')
         .insert({ user_id: target_user_id, org_id: targetOrgId, role: 'owner' });
       if (ownerInsertErr) {
         console.error('Failed adding owner membership for target user:', ownerInsertErr);
+      } else {
+        console.log('Added user as owner of new org');
       }
     }
 
@@ -266,6 +300,7 @@ serve(async (req) => {
       console.error('Immediate sync for member setup failed:', syncErr);
     }
 
+    console.log(`Setup complete: synced ${synced}/${totalCampaigns} campaigns to org ${targetOrgId}`);
     return new Response(JSON.stringify({ success: true, synced_count: synced, total_campaigns: totalCampaigns, org_id: targetOrgId }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
