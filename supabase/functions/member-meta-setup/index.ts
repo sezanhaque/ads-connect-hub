@@ -1,0 +1,280 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface SetupRequest {
+  target_user_id: string;
+  ad_account_id: string;
+  admin_org_id: string;
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Client as caller (uses JWT from request)
+    const anonClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: req.headers.get('Authorization') || '' } },
+    } as any);
+
+    // Admin client with service role (bypasses RLS inside the function)
+    const admin = createClient(supabaseUrl, serviceKey);
+
+    const body: SetupRequest = await req.json();
+    const { target_user_id, ad_account_id, admin_org_id } = body || {};
+
+    console.log('member-meta-setup called with:', body);
+
+    if (!target_user_id || !ad_account_id || !admin_org_id) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // Auth: ensure requester is authenticated and member of admin_org_id
+    const { data: authData, error: authError } = await anonClient.auth.getUser();
+    if (authError || !authData?.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+    const requesterId = authData.user.id;
+
+    const { data: membership } = await anonClient
+      .from('members')
+      .select('role')
+      .eq('org_id', admin_org_id)
+      .eq('user_id', requesterId)
+      .maybeSingle();
+
+    if (!membership) {
+      return new Response(JSON.stringify({ error: 'Forbidden: not a member of the admin organization' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    // Get admin org Meta integration to copy access token
+    const { data: adminIntegration, error: adminIntErr } = await admin
+      .from('integrations')
+      .select('access_token')
+      .eq('org_id', admin_org_id)
+      .eq('integration_type', 'meta')
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (adminIntErr || !adminIntegration?.access_token) {
+      return new Response(JSON.stringify({ error: 'Admin Meta connection not found' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    const token = adminIntegration.access_token as string;
+    const adId = String(ad_account_id);
+
+    // Find the target user's owner organization, or create one if missing
+    const { data: ownerMembership } = await admin
+      .from('members')
+      .select('org_id')
+      .eq('user_id', target_user_id)
+      .eq('role', 'owner')
+      .maybeSingle();
+
+    let targetOrgId: string | null = ownerMembership?.org_id ?? null;
+
+    if (!targetOrgId) {
+      // Create a new organization and add the user as owner
+      const nameFallback = `User ${target_user_id.substring(0, 8)} Organization`;
+      const { data: newOrg, error: orgErr } = await admin
+        .from('organizations')
+        .insert({ name: nameFallback })
+        .select('id')
+        .single();
+      if (orgErr) {
+        console.error('Failed creating organization for target user:', orgErr);
+        return new Response(JSON.stringify({ error: 'Failed to create organization for user' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+      targetOrgId = newOrg.id as string;
+
+      const { error: ownerInsertErr } = await admin
+        .from('members')
+        .insert({ user_id: target_user_id, org_id: targetOrgId, role: 'owner' });
+      if (ownerInsertErr) {
+        console.error('Failed adding owner membership for target user:', ownerInsertErr);
+      }
+    }
+
+    // Upsert integration for the target user's organization
+    const { data: existingIntegration } = await admin
+      .from('integrations')
+      .select('id')
+      .eq('org_id', targetOrgId)
+      .eq('integration_type', 'meta')
+      .eq('user_id', target_user_id)
+      .maybeSingle();
+
+    if (existingIntegration) {
+      const { error: updateErr } = await admin
+        .from('integrations')
+        .update({
+          access_token: token,
+          ad_account_id: adId,
+          account_name: `Ad Account ${adId}`,
+          status: 'active',
+          last_sync_at: null,
+        })
+        .eq('id', existingIntegration.id);
+      if (updateErr) {
+        console.error('Integration update error:', updateErr);
+        return new Response(JSON.stringify({ error: 'Failed to update integration' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    } else {
+      const { error: insertErr } = await admin
+        .from('integrations')
+        .insert({
+          org_id: targetOrgId,
+          integration_type: 'meta',
+          access_token: token,
+          ad_account_id: adId,
+          account_name: `Ad Account ${adId}`,
+          status: 'active',
+          user_id: target_user_id,
+        });
+      if (insertErr) {
+        console.error('Integration insert error:', insertErr);
+        return new Response(JSON.stringify({ error: 'Failed to create integration' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    }
+
+    // Immediate sync of campaigns and metrics into target user's org
+    let synced = 0;
+    let totalCampaigns = 0;
+    try {
+      const campaignsUrl = `https://graph.facebook.com/v19.0/${adId}/campaigns?access_token=${token}&fields=id,name,status,objective`;
+      const campaignsResp = await fetch(campaignsUrl);
+      const campaignsJson = await campaignsResp.json();
+      if (campaignsJson?.error) {
+        console.error('Meta campaigns fetch error:', campaignsJson.error);
+      } else {
+        const campaigns: Array<{ id: string; name: string; status: string; objective: string }> = campaignsJson?.data || [];
+        totalCampaigns = campaigns.length;
+
+        const mapStatus = (metaStatus: string) => {
+          switch (metaStatus) {
+            case 'ACTIVE': return 'active';
+            case 'PAUSED': return 'paused';
+            case 'DELETED': return 'deleted';
+            case 'ARCHIVED': return 'archived';
+            default: return 'draft';
+          }
+        };
+
+        for (const c of campaigns) {
+          // Upsert campaign by name within target org
+          const { data: existingCampaign } = await admin
+            .from('campaigns')
+            .select('id')
+            .eq('name', c.name)
+            .eq('org_id', targetOrgId)
+            .maybeSingle();
+
+          let campaignId: string | undefined = existingCampaign?.id;
+          const statusMapped = mapStatus(c.status);
+          const objective = c.objective || 'OUTCOME_TRAFFIC';
+
+          if (!campaignId) {
+            const { data: inserted, error: insertCampErr } = await admin
+              .from('campaigns')
+              .insert({
+                name: c.name,
+                org_id: targetOrgId,
+                status: statusMapped,
+                objective,
+                budget: 0,
+                created_by: target_user_id,
+                location_targeting: {},
+                audience_targeting: {},
+              })
+              .select('id')
+              .single();
+            if (insertCampErr) {
+              console.error('Insert campaign error:', insertCampErr);
+              continue;
+            }
+            campaignId = inserted.id as string;
+          } else {
+            await admin.from('campaigns')
+              .update({ status: statusMapped, objective })
+              .eq('id', campaignId);
+          }
+
+          // Fetch insights last 30 days for this campaign
+          const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${token}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
+          const insightsResp = await fetch(insightsUrl);
+          const insightsJson = await insightsResp.json();
+
+          let impressions = 0, clicks = 0, spend = 0, leads = 0;
+          const rec = (insightsJson?.data?.[0]) || null;
+          if (rec) {
+            impressions = parseInt(rec.impressions || '0') || 0;
+            clicks = parseInt(rec.clicks || '0') || 0;
+            spend = parseFloat(rec.spend || '0') || 0;
+            const leadAction = Array.isArray(rec.actions) ? rec.actions.find((a: any) => a.action_type === 'lead') : null;
+            leads = leadAction ? parseInt(leadAction.value || '0') || 0 : 0;
+          }
+
+          if (campaignId) {
+            await admin.from('metrics').delete().eq('campaign_id', campaignId);
+            const { error: metricsInsertErr } = await admin
+              .from('metrics')
+              .insert({
+                campaign_id: campaignId,
+                impressions,
+                clicks,
+                spend,
+                leads,
+              });
+            if (metricsInsertErr) {
+              console.error('Metrics insert error:', metricsInsertErr);
+            }
+          }
+          synced += 1;
+        }
+      }
+    } catch (syncErr) {
+      console.error('Immediate sync for member setup failed:', syncErr);
+    }
+
+    return new Response(JSON.stringify({ success: true, synced_count: synced, total_campaigns: totalCampaigns, org_id: targetOrgId }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  } catch (err) {
+    console.error('member-meta-setup error:', err);
+    return new Response(JSON.stringify({ error: 'Unexpected server error.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  }
+});

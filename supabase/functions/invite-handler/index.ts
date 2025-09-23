@@ -193,8 +193,35 @@ serve(async (req) => {
         }
       }
 
-      // Create Meta integration for the user if they have an ad_account_id
+      // Create Meta integration in the invited user's own organization (owner org) if ad_account_id provided
       if (invite.ad_account_id) {
+        // Determine the invited user's owner organization (create if missing)
+        const { data: ownerMembership } = await admin
+          .from('members')
+          .select('org_id')
+          .eq('user_id', userId)
+          .eq('role', 'owner')
+          .maybeSingle();
+
+        let targetOrgId: string | null = ownerMembership?.org_id ?? null;
+        if (!targetOrgId) {
+          const orgNameCandidate = `${first_name || ''} ${last_name || ''}`.trim() || (invite.email.split('@')[0] + ' Organization');
+          const { data: newOrg, error: orgErr } = await admin
+            .from('organizations')
+            .insert({ name: orgNameCandidate })
+            .select('id')
+            .single();
+          if (orgErr) {
+            console.error('Failed to create owner organization for invited user:', orgErr);
+            return new Response(
+              JSON.stringify({ error: 'Failed to prepare invited user organization' }),
+              { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            );
+          }
+          targetOrgId = newOrg.id as string;
+          await admin.from('members').insert({ user_id: userId, org_id: targetOrgId, role: 'owner' });
+        }
+
         // Get the admin's Meta integration to copy the access token
         const { data: adminIntegration, error: adminIntegrationError } = await admin
           .from('integrations')
@@ -208,11 +235,11 @@ serve(async (req) => {
           const token = adminIntegration.access_token as string;
           const adId = String(invite.ad_account_id);
 
-          // Create or update user-specific integration with their ad_account_id
+          // Create or update user-specific integration within their owner org
           const { data: existingUserIntegration } = await admin
             .from('integrations')
             .select('id')
-            .eq('org_id', invite.org_id)
+            .eq('org_id', targetOrgId)
             .eq('integration_type', 'meta')
             .eq('user_id', userId)
             .maybeSingle();
@@ -235,24 +262,23 @@ serve(async (req) => {
             const { error: userIntegrationError } = await admin
               .from('integrations')
               .insert({
-                org_id: invite.org_id, // Same organization as admin
+                org_id: targetOrgId,
                 integration_type: 'meta',
                 access_token: token,
                 ad_account_id: adId,
                 account_name: `Ad Account ${adId}`,
                 status: 'active',
-                user_id: userId
+                user_id: userId,
               });
             if (userIntegrationError) {
               console.error('Error creating user Meta integration:', userIntegrationError);
             } else {
-              console.log(`Created Meta integration for user with AD Account: ${adId}`);
+              console.log(`Created Meta integration for user with AD Account: ${adId} in org ${targetOrgId}`);
             }
           }
 
-          // Immediately sync campaigns and metrics for this member's ad account so they see data on login
+          // Immediately sync campaigns and metrics for this ad account INTO the invited user's org
           try {
-            // 1) Fetch campaigns for this ad account
             const campaignsUrl = `https://graph.facebook.com/v19.0/${adId}/campaigns?access_token=${token}&fields=id,name,status,objective`;
             const campaignsResp = await fetch(campaignsUrl);
             const campaignsJson = await campaignsResp.json();
@@ -272,12 +298,11 @@ serve(async (req) => {
               };
 
               for (const c of campaigns) {
-                // Upsert campaign (by name within org)
                 const { data: existingCampaign } = await admin
                   .from('campaigns')
                   .select('id')
                   .eq('name', c.name)
-                  .eq('org_id', invite.org_id)
+                  .eq('org_id', targetOrgId)
                   .maybeSingle();
 
                 let campaignId: string | undefined = existingCampaign?.id;
@@ -289,7 +314,7 @@ serve(async (req) => {
                     .from('campaigns')
                     .insert({
                       name: c.name,
-                      org_id: invite.org_id,
+                      org_id: targetOrgId,
                       status: statusMapped,
                       objective,
                       budget: 0,
@@ -303,14 +328,13 @@ serve(async (req) => {
                     console.error('Insert campaign error:', insertCampErr);
                     continue;
                   }
-                  campaignId = inserted.id;
+                  campaignId = inserted.id as string;
                 } else {
                   await admin.from('campaigns')
                     .update({ status: statusMapped, objective })
                     .eq('id', campaignId);
                 }
 
-                // 2) Fetch insights last 30 days for this campaign
                 const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${token}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
                 const insightsResp = await fetch(insightsUrl);
                 const insightsJson = await insightsResp.json();
@@ -325,7 +349,6 @@ serve(async (req) => {
                   leads = leadAction ? parseInt(leadAction.value || '0') || 0 : 0;
                 }
 
-                // Clear existing metrics and insert fresh one
                 if (campaignId) {
                   await admin.from('metrics').delete().eq('campaign_id', campaignId);
                   const { error: metricsInsertErr } = await admin

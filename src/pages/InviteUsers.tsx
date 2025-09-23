@@ -149,130 +149,60 @@ const InviteUsers = () => {
     }
 
     setIsLoading(true);
-    
+
     try {
       console.log('Starting user invitation process...');
 
-      // Get the admin's Meta integration to get the access token
-      const { data: adminIntegration, error: integrationError } = await supabase
-        .from('integrations')
-        .select('access_token')
-        .eq('org_id', profile.organization_id)
-        .eq('integration_type', 'meta')
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (integrationError || !adminIntegration?.access_token) {
-        throw new Error('Admin Meta connection not found. Please connect Meta account first.');
-      }
-
-      // Add user to organization as member
+      // 1) Ensure the user is a member of the admin org (ignore duplicates)
       const { error: memberError } = await supabase
         .from('members')
         .insert({
           user_id: selectedUser.user_id,
           org_id: profile.organization_id,
-          role: 'member'
+          role: 'member',
         });
-
       if (memberError && memberError.code !== '23505') {
         throw memberError;
       }
 
-      // Create user-specific integration with the provided AD account ID
-      const token = adminIntegration.access_token;
-      const trimmedAd = adAccountId.trim();
-
-      // Check if user already has an integration
-      const { data: existingIntegration } = await supabase
-        .from('integrations')
-        .select('id')
-        .eq('org_id', profile.organization_id)
-        .eq('integration_type', 'meta')
-        .eq('user_id', selectedUser.user_id)
-        .maybeSingle();
-
-      if (existingIntegration) {
-        // Update existing integration
-        const { error: updateError } = await supabase
-          .from('integrations')
-          .update({
-            access_token: token,
-            ad_account_id: trimmedAd,
-            account_name: `Ad Account ${trimmedAd}`,
-            status: 'active',
-            last_sync_at: new Date().toISOString()
-          })
-          .eq('id', existingIntegration.id);
-
-        if (updateError) {
-          console.error('Error updating user integration:', updateError);
-          throw updateError;
-        }
-      } else {
-        // Insert new integration
-        const { error: insertError } = await supabase
-          .from('integrations')
-          .insert({
-            org_id: profile.organization_id,
-            integration_type: 'meta',
-            access_token: token,
-            ad_account_id: trimmedAd,
-            account_name: `Ad Account ${trimmedAd}`,
-            status: 'active',
-            user_id: selectedUser.user_id
-          });
-
-        if (insertError) {
-          console.error('Error creating user integration:', insertError);
-          throw insertError;
-        }
-      }
-
-      // Sync Meta data for this ad account immediately
-      console.log('Syncing Meta data for user...');
-      const { data: syncRes, error: syncErr } = await supabase.functions.invoke('meta-sync', {
+      // 2) Securely set up the invited user's own organization integration and sync via Edge Function
+      const { data, error } = await supabase.functions.invoke('member-meta-setup', {
         body: {
-          access_token: token,
-          ad_account_id: trimmedAd,
-          org_id: profile.organization_id,
-          save_connection: false,
+          target_user_id: selectedUser.user_id,
+          ad_account_id: adAccountId.trim(),
+          admin_org_id: profile.organization_id,
         },
       });
 
-      if (syncErr) {
-        console.error('Sync error:', syncErr);
-      } else if (syncRes?.success) {
-        console.log('Meta sync successful:', syncRes);
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Failed to set up Meta integration for user');
       }
 
       toast({
-        title: "User invited successfully!",
-        description: `${selectedUser.email} has been added to your organization and can now access the dashboard`,
+        title: 'User invited successfully!',
+        description: `${selectedUser.email} now has a Meta integration in their organization. Data has been synced.`,
       });
 
       // Reset form and close dialog
       setAdAccountId('');
       setSelectedUser(null);
       setDialogOpen(false);
-      
+
       // Refresh users list
       fetchUsers();
     } catch (error: any) {
       console.error('Error inviting user:', error);
-      
-      // Handle duplicate key error (user already in org)
       if (error?.code === '23505') {
         toast({
-          title: "User already in organization",
-          description: "This user is already a member of your organization",
-          variant: "destructive",
+          title: 'User already in organization',
+          description: 'This user is already a member of your organization',
+          variant: 'destructive',
         });
       } else {
         toast({
-          title: "Error",
-          description: error.message || "Failed to invite user. Please try again.",
-          variant: "destructive",
+          title: 'Error',
+          description: error.message || 'Failed to invite user. Please try again.',
+          variant: 'destructive',
         });
       }
     } finally {
