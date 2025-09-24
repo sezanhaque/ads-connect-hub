@@ -40,7 +40,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
   const { toast } = useToast();
 
   const fetchCampaigns = async (dateFilter?: DateRange) => {
-    console.log('MetaCampaignsDashboard: Fetching user campaigns...');
+    console.log('MetaCampaignsDashboard: Fetching live campaigns from Meta API...');
     setLoading(true);
     if (!user) return;
 
@@ -66,72 +66,91 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
         memberships.find((m: any) => m.role === 'member') ||
         memberships[0];
 
-      // Fetch campaigns for the user's organization (not only the ones created by the user)
-      const { data: campaignsData, error: campaignsError } = await supabase
-        .from('campaigns')
-        .select('id, name, status, objective')
-        .eq('org_id', primaryOrg.org_id);
-
-      if (campaignsError) {
-        console.error('Error fetching campaigns:', campaignsError);
-        return;
+      // Convert date range to Meta API format
+      let dateRangeParam = 'last_7d'; // default
+      const daysDiff = Math.ceil((currentDateRange.to.getTime() - currentDateRange.from.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysDiff === 0) {
+        // Same day - check if it's today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const filterDate = new Date(currentDateRange.from);
+        filterDate.setHours(0, 0, 0, 0);
+        
+        if (filterDate.getTime() === today.getTime()) {
+          dateRangeParam = 'today';
+        } else {
+          // Custom single day
+          const dateStr = currentDateRange.from.toISOString().split('T')[0];
+          dateRangeParam = `${dateStr}|${dateStr}`;
+        }
+      } else if (daysDiff === 1) {
+        // Check if it's yesterday
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(0, 0, 0, 0);
+        const filterDate = new Date(currentDateRange.from);
+        filterDate.setHours(0, 0, 0, 0);
+        
+        if (filterDate.getTime() === yesterday.getTime()) {
+          dateRangeParam = 'yesterday';
+        } else {
+          // Custom range
+          const fromStr = currentDateRange.from.toISOString().split('T')[0];
+          const toStr = currentDateRange.to.toISOString().split('T')[0];
+          dateRangeParam = `${fromStr}|${toStr}`;
+        }
+      } else if (daysDiff === 7) {
+        dateRangeParam = 'last_7d';
+      } else if (daysDiff === 14) {
+        dateRangeParam = 'last_14d';
+      } else if (daysDiff === 30) {
+        dateRangeParam = 'last_30d';
+      } else {
+        // Custom range
+        const fromStr = currentDateRange.from.toISOString().split('T')[0];
+        const toStr = currentDateRange.to.toISOString().split('T')[0];
+        dateRangeParam = `${fromStr}|${toStr}`;
       }
 
-      // Fetch metrics for user's campaigns with date filtering
-      const campaignIds = campaignsData?.map(c => c.id) || [];
-      
-      if (campaignIds.length === 0) {
+      console.log('Fetching live data with date range:', dateRangeParam);
+
+      // Fetch live data from Meta API
+      const { data, error } = await supabase.functions.invoke('meta-campaigns-live', {
+        body: {
+          org_id: primaryOrg.org_id,
+          date_range: dateRangeParam
+        }
+      });
+
+      if (error) {
+        console.error('Error fetching live campaigns:', error);
+        toast({
+          title: "Failed to fetch live data",
+          description: "Falling back to cached data...",
+          variant: "destructive",
+        });
+        // Fallback to database data would go here if needed
         setCampaigns([]);
         return;
       }
 
-      // Create date strings for filtering
-      const fromDate = currentDateRange.from.toISOString().split('T')[0];
-      const toDate = currentDateRange.to.toISOString().split('T')[0];
-
-      const { data: metricsData, error: metricsError } = await supabase
-        .from('metrics')
-        .select('campaign_id, impressions, clicks, spend, leads')
-        .in('campaign_id', campaignIds)
-        .gte('date', fromDate)
-        .lte('date', toDate);
-
-      if (metricsError) {
-        console.error('Error fetching metrics:', metricsError);
-        return;
+      if (data?.success && data.campaigns) {
+        setCampaigns(data.campaigns);
+        console.log(`Fetched ${data.campaigns.length} live campaigns from Meta API`);
+      } else {
+        console.error('Invalid response from live campaigns API:', data);
+        setCampaigns([]);
       }
 
-      // Aggregate metrics by campaign
-      const metricsMap = new Map<string, { impressions: number; clicks: number; spend: number; leads: number }>();
-      
-      metricsData?.forEach(metric => {
-        const existing = metricsMap.get(metric.campaign_id) || { impressions: 0, clicks: 0, spend: 0, leads: 0 };
-        metricsMap.set(metric.campaign_id, {
-          impressions: existing.impressions + (metric.impressions || 0),
-          clicks: existing.clicks + (metric.clicks || 0),
-          spend: existing.spend + (metric.spend || 0),
-          leads: existing.leads + (metric.leads || 0),
-        });
-      });
-
-      // Combine campaigns with their metrics
-      const aggregatedCampaigns = campaignsData?.map(campaign => {
-        const metrics = metricsMap.get(campaign.id) || { impressions: 0, clicks: 0, spend: 0, leads: 0 };
-        return {
-          id: campaign.id,
-          name: campaign.name,
-          status: campaign.status,
-          objective: campaign.objective,
-          total_impressions: metrics.impressions,
-          total_clicks: metrics.clicks,
-          total_spend: metrics.spend,
-          total_leads: metrics.leads,
-        };
-      }) || [];
-
-      setCampaigns(aggregatedCampaigns);
     } catch (error) {
       console.error('Error in fetchCampaigns:', error);
+      toast({
+        title: "Error fetching campaigns",
+        description: "Failed to fetch live campaign data",
+        variant: "destructive",
+      });
+      setCampaigns([]);
     } finally {
       setLoading(false);
     }
