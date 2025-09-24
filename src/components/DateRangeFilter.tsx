@@ -133,6 +133,7 @@ export const DateRangeFilter = ({ value, onChange }: DateRangeFilterProps) => {
                 if (range?.to) setCustomToDate(range.to);
               }}
               className="pointer-events-auto"
+              disabled={{ after: new Date() }}
             />
             
             <div className="flex gap-2 pt-2">
