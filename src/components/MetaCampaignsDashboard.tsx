@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { subDays } from 'date-fns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
 import { useToast } from '@/hooks/use-toast';
+import { DateRangeFilter, DateRange } from '@/components/DateRangeFilter';
 import { TrendingUp, Eye, MousePointer, DollarSign, Users, RefreshCw, Link as LinkIcon } from 'lucide-react';
 
 interface MetaCampaign {
@@ -29,14 +31,20 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
   const [campaigns, setCampaigns] = useState<MetaCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: subDays(new Date(), 7),
+    to: new Date()
+  });
   const { user } = useAuth();
   const { integration, isConnected } = useMetaIntegrationStatus();
   const { toast } = useToast();
 
-  const fetchCampaigns = async () => {
+  const fetchCampaigns = async (dateFilter?: DateRange) => {
     console.log('MetaCampaignsDashboard: Fetching user campaigns...');
     setLoading(true);
     if (!user) return;
+
+    const currentDateRange = dateFilter || dateRange;
 
     try {
       // Determine the user's primary organization (owner > admin > member)
@@ -69,7 +77,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
         return;
       }
 
-      // Fetch metrics for user's campaigns
+      // Fetch metrics for user's campaigns with date filtering
       const campaignIds = campaignsData?.map(c => c.id) || [];
       
       if (campaignIds.length === 0) {
@@ -77,10 +85,16 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
         return;
       }
 
+      // Create date strings for filtering
+      const fromDate = currentDateRange.from.toISOString().split('T')[0];
+      const toDate = currentDateRange.to.toISOString().split('T')[0];
+
       const { data: metricsData, error: metricsError } = await supabase
         .from('metrics')
         .select('campaign_id, impressions, clicks, spend, leads')
-        .in('campaign_id', campaignIds);
+        .in('campaign_id', campaignIds)
+        .gte('date', fromDate)
+        .lte('date', toDate);
 
       if (metricsError) {
         console.error('Error fetching metrics:', metricsError);
@@ -125,7 +139,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
 
   useEffect(() => {
     fetchCampaigns();
-  }, [user, refreshTrigger]);
+  }, [user, refreshTrigger, dateRange]);
 
   const calculateCTR = (clicks: number, impressions: number) => {
     if (impressions === 0) return '0.00';
@@ -135,6 +149,10 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
   const calculateCPC = (spend: number, clicks: number) => {
     if (clicks === 0) return '0.00';
     return (spend / clicks).toFixed(2);
+  };
+
+  const handleDateRangeChange = (newRange: DateRange) => {
+    setDateRange(newRange);
   };
 
   const handleManualSync = async () => {
@@ -277,7 +295,11 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
             <TrendingUp className="h-5 w-5" />
             <CardTitle>Meta Campaigns</CardTitle>
           </div>
-          {/* <Button 
+          <DateRangeFilter
+            value={dateRange}
+            onChange={handleDateRangeChange}
+          />
+          {/* <Button
             variant="outline" 
             size="sm" 
             onClick={fetchCampaigns}
