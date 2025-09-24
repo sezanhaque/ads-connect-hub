@@ -81,7 +81,7 @@ export const DateRangeFilter = ({ value, onChange }: DateRangeFilterProps) => {
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[240px] p-0" align="start">
+      <PopoverContent className="w-[320px] p-0" align="start">
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'preset' | 'custom')} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="preset">Preset</TabsTrigger>
