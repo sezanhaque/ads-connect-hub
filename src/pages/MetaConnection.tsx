@@ -249,22 +249,6 @@ const MetaConnection = () => {
             </div>
           )}
 
-          /* {isConnected && (
-            <div className="text-center py-4 space-y-4">
-              <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
-              <p className="text-lg font-medium text-green-600">Successfully Connected!</p>
-              <p className="text-sm text-muted-foreground">Your Meta campaigns are now being synced.</p>
-              
-              <Button 
-                variant="outline" 
-                onClick={handleTryAgain}
-                className="mt-4"
-              >
-                Connect Different Account
-              </Button>
-            </div>
-          )} */
-
           {connectionStatus === 'error' && !isConnected && (
             <div className="text-center py-4 space-y-4">
               <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-2" />
