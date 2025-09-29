@@ -396,7 +396,7 @@ const Dashboard = () => {
               Recent Jobs
             </CardTitle>
             <CardDescription>
-              Latest job synchronization activity
+              Latest job activity
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -422,9 +422,9 @@ const Dashboard = () => {
             ) : (
               <div className="text-center py-8">
                 <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">No jobs synchronized yet</p>
+                <p className="text-muted-foreground mb-4">No job added yet</p>
                 <Button variant="outline" asChild>
-                  <Link to="/settings">Setup Integrations</Link>
+                  <Link to="/jobs">Add a new Job</Link>
                 </Button>
               </div>
             )}
