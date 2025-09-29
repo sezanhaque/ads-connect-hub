@@ -127,7 +127,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
         console.error('Error fetching live campaigns:', error);
         toast({
           title: "Failed to fetch live data",
-          description: "Falling back to cached data...",
+          description: "No account connected...",
           variant: "destructive",
         });
         // Fallback to database data would go here if needed
