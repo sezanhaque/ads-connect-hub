@@ -89,7 +89,6 @@ export const useMetaIntegrationStatus = () => {
         throw new Error('Failed to fetch integration status');
       }
 
-      console.log('Meta integration found:', metaIntegration);
       setIntegration(metaIntegration as MetaIntegration);
     } catch (err: any) {
       console.error('fetchIntegration error:', err);

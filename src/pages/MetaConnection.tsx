@@ -28,14 +28,6 @@ const MetaConnection = () => {
   const { connectMetaAccount, loading } = useMetaIntegration();
   const { integration, loading: statusLoading, isConnected, refetch, disconnect } = useMetaIntegrationStatus();
 
-  // Remove localStorage check since we're using database storage
-  useEffect(() => {
-    // Trigger refetch when component mounts to ensure we have the latest status
-    if (!statusLoading) {
-      refetch();
-    }
-  }, [refetch, statusLoading]);
-
   const form = useForm<MetaConnectionForm>({
     resolver: zodResolver(metaConnectionSchema),
     defaultValues: {
@@ -43,6 +35,15 @@ const MetaConnection = () => {
       adAccountId: '',
     },
   });
+
+  if (statusLoading) {
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-2 text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   const onSubmit = async (data: MetaConnectionForm) => {
     try {
