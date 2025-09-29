@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Zap, ArrowRight, Shield, Zap as ZapIcon, BarChart3 } from "lucide-react";
+import Logo from "@/components/ui/logo";
+import { ArrowRight, Shield, Zap as ZapIcon, BarChart3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
@@ -11,11 +12,8 @@ const Index = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2 text-primary">
-            <Zap className="h-8 w-8 animate-pulse" />
-            <span className="text-2xl font-bold">AdsConnect</span>
-          </div>
-          <p className="text-muted-foreground">Redirecting to dashboard...</p>
+          <Logo />
+          <p className="text-muted-foreground font-now">Redirecting to dashboard...</p>
           <Button asChild>
             <Link to="/dashboard">Go to Dashboard</Link>
           </Button>
@@ -29,11 +27,8 @@ const Index = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary">
-            <Zap className="h-8 w-8" />
-            <span className="text-2xl font-bold">AdsConnect</span>
-          </div>
-          <Button asChild>
+          <Logo />
+          <Button asChild variant="accent">
             <Link to="/auth">Get Started</Link>
           </Button>
         </nav>
@@ -42,12 +37,12 @@ const Index = () => {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-20">
         <div className="text-center space-y-8 max-w-3xl mx-auto">
-          <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Multi-Tenant Marketing Platform
+          <h1 className="text-5xl font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Crystal Clear Marketing Analytics
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed">
-            Connect your Google Sheets and Meta Ads data. Create campaigns with a guided wizard. 
-            Manage everything from one clean, professional dashboard.
+          <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">
+            Connect your Google Sheets and Meta Ads data with perfect vision and clarity. 
+            Create campaigns with guided precision and manage everything from one clean, professional dashboard.
           </p>
           
           <div className="flex gap-4 justify-center">
@@ -57,7 +52,7 @@ const Index = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
+            <Button size="lg" variant="secondary" asChild>
               <Link to="/auth">
                 Sign In
               </Link>
@@ -70,8 +65,8 @@ const Index = () => {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold">Multi-Tenant Security</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-lg font-serif-display font-semibold">Multi-Tenant Security</h3>
+              <p className="text-muted-foreground font-now">
                 Enterprise-grade row-level security ensures your data stays private and secure.
               </p>
             </div>
@@ -80,9 +75,9 @@ const Index = () => {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-accent/10">
                 <ZapIcon className="h-6 w-6 text-accent" />
               </div>
-              <h3 className="text-lg font-semibold">Seamless Integrations</h3>
-              <p className="text-muted-foreground">
-                Connect Google Sheets and Meta Ads with just a few clicks. Sync data automatically.
+              <h3 className="text-lg font-serif-display font-semibold">Seamless Integrations</h3>
+              <p className="text-muted-foreground font-now">
+                Connect Google Sheets and Meta Ads with perfect clarity. Sync data automatically with 20/20 precision.
               </p>
             </div>
             
@@ -90,9 +85,9 @@ const Index = () => {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-success/10">
                 <BarChart3 className="h-6 w-6 text-success" />
               </div>
-              <h3 className="text-lg font-semibold">Powerful Dashboard</h3>
-              <p className="text-muted-foreground">
-                Track campaigns, jobs, and performance metrics in one beautiful interface.
+              <h3 className="text-lg font-serif-display font-semibold">Crystal Clear Analytics</h3>
+              <p className="text-muted-foreground font-now">
+                Track campaigns, jobs, and performance metrics with perfect vision in one beautiful interface.
               </p>
             </div>
           </div>

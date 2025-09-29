@@ -9,39 +9,43 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 353 4% 43%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 353 4% 43%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 353 4% 43%;
 
-    --primary: 238 100% 59%;
+    /* Brand Colors - Deep Blue Primary */
+    --primary: 198 100% 34%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 238 100% 54%;
+    --primary-hover: 198 100% 28%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 9% 46%;
+    /* Pale SaaS Blue Secondary */
+    --secondary: 215 22% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 215 22% 94%;
+    --muted-foreground: 215 22% 40%;
 
-    --accent: 142 76% 36%;
-    --accent-foreground: 0 0% 100%;
+    /* Electric Yellow Accent */
+    --accent: 58 100% 77%;
+    --accent-foreground: 353 4% 43%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning-foreground: 353 4% 43%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 238 100% 59%;
+    /* Charcoal Grey for borders */
+    --border: 353 4% 88%;
+    --input: 353 4% 88%;
+    --ring: 198 100% 34%;
 
     --sidebar-bg: 220 24% 12%;
     --sidebar-fg: 220 9% 55%;
@@ -119,6 +123,18 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-now;
+  }
+  
+  h1, h2 {
+    @apply font-now font-bold;
+  }
+  
+  h3, h4, h5, h6 {
+    @apply font-serif-display;
+  }
+  
+  .subtitle {
+    @apply font-serif-display;
   }
 }

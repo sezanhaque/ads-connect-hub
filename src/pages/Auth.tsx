@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Zap, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 const Auth = () => {
   const { user, loading, signIn, signUp, resetPassword } = useAuth();
@@ -86,15 +87,12 @@ const Auth = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 text-primary">
-            <Zap className="h-8 w-8" />
-            <span className="text-2xl font-bold">AdsConnect</span>
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {showReset ? 'Reset Password' : 'Welcome'}
+          <Logo />
+          <h1 className="text-3xl font-now font-bold tracking-tight">
+            {showReset ? 'Reset Password' : 'Welcome Back'}
           </h1>
-          <p className="text-muted-foreground">
-            {showReset ? 'Enter your email to reset your password' : 'Manage your marketing campaigns with ease'}
+          <p className="text-muted-foreground font-serif-display">
+            {showReset ? 'Enter your email to reset your password' : 'Experience crystal clear marketing analytics'}
           </p>
         </div>
 

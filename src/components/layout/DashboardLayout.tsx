@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   BarChart3, 
@@ -80,9 +81,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-6 border-b border-sidebar-border">
-            <Link to="/dashboard" className="flex items-center gap-2 text-sidebar-foreground">
-              <Zap className="h-6 w-6 text-sidebar-primary" />
-              <span className="text-lg font-bold">AdsConnect</span>
+            <Link to="/dashboard" className="flex items-center">
+              <Logo size="md" showText={false} />
+              <span className="ml-3 text-lg font-now font-bold text-sidebar-foreground">
+                20/20 Solutions
+              </span>
             </Link>
             <Button
               variant="ghost"
@@ -120,7 +123,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                    "group flex items-center px-3 py-2 text-sm font-now font-medium rounded-lg transition-colors",
                     isActive
                       ? "bg-sidebar-primary text-sidebar-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-foreground"
@@ -145,7 +148,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       key={item.name}
                       to={item.href}
                       className={cn(
-                        "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                        "group flex items-center px-3 py-2 text-sm font-now font-medium rounded-lg transition-colors",
                         isActive
                           ? "bg-sidebar-primary text-sidebar-primary-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-foreground"
@@ -164,7 +167,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="px-4 py-4 border-t border-sidebar-border">
             <Button
               variant="ghost"
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-border"
+              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-border font-now"
               onClick={handleSignOut}
             >
               <LogOut className="mr-3 h-5 w-5" />
