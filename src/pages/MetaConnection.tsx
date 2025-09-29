@@ -184,7 +184,7 @@ const MetaConnection = () => {
             </div>
           </div>
           
-          {!isConnected || !loading && (
+          {!isConnected ? (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -241,23 +241,29 @@ const MetaConnection = () => {
                 </Button>
               </form>
             </Form>
+          ) : (
+            <div className="text-center py-4 space-y-4">
+              <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
+              <p className="text-lg font-medium text-green-600">Successfully Connected!</p>
+              <p className="text-sm text-muted-foreground">Your Meta campaigns are now being synced.</p>
+            </div>
           )}
 
-          {isConnected && (
+          /* {isConnected && (
             <div className="text-center py-4 space-y-4">
               <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
               <p className="text-lg font-medium text-green-600">Successfully Connected!</p>
               <p className="text-sm text-muted-foreground">Your Meta campaigns are now being synced.</p>
               
-              {/* <Button 
+              <Button 
                 variant="outline" 
                 onClick={handleTryAgain}
                 className="mt-4"
               >
                 Connect Different Account
-              </Button> */}
+              </Button>
             </div>
-          )}
+          )} */
 
           {connectionStatus === 'error' && !isConnected && (
             <div className="text-center py-4 space-y-4">
