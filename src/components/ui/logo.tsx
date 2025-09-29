@@ -27,7 +27,7 @@ const Logo: React.FC<LogoProps> = ({
         className={cn(sizeClasses[size], "object-contain")}
       />
       {showText && (
-        <span className="font-now font-bold text-xl text-sidebar-foreground">
+        <span className="font-now font-bold text-lg text-sidebar-foreground">
           20/20 Solutions
         </span>
       )}
