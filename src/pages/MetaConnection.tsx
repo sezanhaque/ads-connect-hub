@@ -184,7 +184,7 @@ const MetaConnection = () => {
             </div>
           </div>
           
-          {!isConnected ? (
+          {!isConnected || !statusLoading ? (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
