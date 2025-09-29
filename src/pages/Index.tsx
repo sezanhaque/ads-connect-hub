@@ -37,7 +37,7 @@ const Index = () => {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-20">
         <div className="text-center space-y-8 max-w-3xl mx-auto">
-          <h1 class="text-5xl font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-[1.2]">
+          <h1 className="text-5xl font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-[1.2]">
             Crystal Clear Marketing Analytics
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">
