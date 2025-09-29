@@ -41,7 +41,7 @@ const Index = () => {
             Crystal Clear Marketing Analytics
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">
-            Connect your Google Sheets and Meta Ads data with perfect vision and clarity. 
+            Connect your Meta Ads data with perfect vision and clarity. 
             Create campaigns with guided precision and manage everything from one clean, professional dashboard.
           </p>
           
@@ -77,7 +77,7 @@ const Index = () => {
               </div>
               <h3 className="text-lg font-serif-display font-semibold">Seamless Integrations</h3>
               <p className="text-muted-foreground font-now">
-                Connect Google Sheets and Meta Ads with perfect clarity. Sync data automatically with 20/20 precision.
+                Connect Meta Ads with perfect clarity. Sync data automatically with 20/20 precision.
               </p>
             </div>
             
