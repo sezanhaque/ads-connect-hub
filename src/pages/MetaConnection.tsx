@@ -28,6 +28,13 @@ const MetaConnection = () => {
   const { connectMetaAccount, loading } = useMetaIntegration();
   const { integration, loading: statusLoading, isConnected, refetch, disconnect } = useMetaIntegrationStatus();
 
+  if (statusLoading || isConnected || loading) {
+    return <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-2 text-muted-foreground">Loading users...</p>
+              </div>
+  }
+  
   // Remove localStorage check since we're using database storage
   useEffect(() => {
     // Trigger refetch when component mounts to ensure we have the latest status
