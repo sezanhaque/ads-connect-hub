@@ -695,12 +695,8 @@ const CreateCampaign = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Campaigns
         </Button>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Create Campaign</h1>
-          <p className="text-muted-foreground">
-            Set up your marketing campaign
-          </p>
-        </div>
+        <h1 className="text-2xl font-bold">Create Campaign</h1>
+        <p className="text-muted-foreground">Set up your marketing campaign</p>
       </div>
 
       {/* Progress Steps */}
