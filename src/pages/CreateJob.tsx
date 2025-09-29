@@ -122,7 +122,7 @@ const CreateJob = () => {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="mb-8">
         <Button
           variant="ghost"
           size="sm"
@@ -131,7 +131,7 @@ const CreateJob = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Jobs
         </Button>
-        <div>
+        <div className="text-center">
           <h1 className="text-3xl font-bold">Create New Job</h1>
           <p className="text-muted-foreground">
             Add a new job posting to your organization
