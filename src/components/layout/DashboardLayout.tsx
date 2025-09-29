@@ -82,7 +82,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-6 border-b border-sidebar-border">
             <Link to="/dashboard" className="flex items-center">
-              <Logo size="sm" showText={true} variant="white" />
+              <Logo size="md" showText={true} />
             </Link>
             <Button
               variant="ghost"
