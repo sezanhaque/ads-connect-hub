@@ -87,7 +87,9 @@ const Auth = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-4">
-          <Logo />
+          <Link to="/" className="flex items-center flex-col">
+              <Logo size="md" showText={true} />
+          </Link>
           <h1 className="text-3xl font-now font-bold tracking-tight">
             {showReset ? 'Reset Password' : 'Welcome Back'}
           </h1>

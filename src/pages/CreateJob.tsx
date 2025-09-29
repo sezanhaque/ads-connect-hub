@@ -132,7 +132,7 @@ const CreateJob = () => {
           Back to Jobs
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Create New Job</h1>
+          <h1 className="text-3xl font-bold text-center">Create New Job</h1>
           <p className="text-muted-foreground">
             Add a new job posting to your organization
           </p>
