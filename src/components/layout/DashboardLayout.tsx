@@ -122,7 +122,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   className={cn(
                     "group flex items-center px-3 py-2 text-sm font-now font-medium rounded-lg transition-colors",
                     isActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      ? "bg-sidebar-border text-sidebar-primary font-bold"
                       : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-foreground"
                   )}
                 >
@@ -147,7 +147,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       className={cn(
                         "group flex items-center px-3 py-2 text-sm font-now font-medium rounded-lg transition-colors",
                         isActive
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                          ? "bg-sidebar-border text-sidebar-primary font-bold"
                           : "text-sidebar-foreground hover:bg-sidebar-border hover:text-sidebar-foreground"
                       )}
                     >
