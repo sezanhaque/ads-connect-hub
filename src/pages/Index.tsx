@@ -38,7 +38,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-20">
         <div className="text-center space-y-8 max-w-3xl mx-auto">
           <h1 className="text-5xl font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-[1.2]">
-            Just ads that actually work for your business.
+            Recruitment Advertising Seen Clearly
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">
             With 20/20, you take control of hiring. Connect to Meta Ads, launch campaigns in minutes, and track results in one clear dashboard — faster, smarter, and more affordable than agencies or job boards.
