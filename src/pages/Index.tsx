@@ -57,7 +57,8 @@ const Index = () => {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-lg font-serif-display font-semibold">Multi-Tenant Security</h3>
+              <h3 className="text-lg font-serif-display font-semibold">Hire faster, work smarter
+            </h3>
               <p className="text-muted-foreground font-now">
                 Enterprise-grade row-level security ensures your data stays private and secure.
               </p>
@@ -77,7 +78,7 @@ const Index = () => {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-success/10">
                 <BarChart3 className="h-6 w-6 text-success" />
               </div>
-              <h3 className="text-lg font-serif-display font-semibold">Crystal Clear Analytics</h3>
+              <h3 className="text-lg font-serif-display font-semibold">Full clarity on data and costs</h3>
               <p className="text-muted-foreground font-now">
                 Track campaigns, jobs, and performance metrics with perfect vision in one beautiful interface.
               </p>
