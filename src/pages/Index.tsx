@@ -59,9 +59,7 @@ const Index = () => {
               </div>
               <h3 className="text-lg font-serif-display font-semibold">Hire faster, work smarter
             </h3>
-              <p className="text-muted-foreground font-now">
-                Enterprise-grade row-level security ensures your data stays private and secure.
-              </p>
+              <p className="text-muted-foreground font-now">Agencies and job boards slow you down. 20/20 gives you direct control to hire faster and smarter.</p>
             </div>
             
             <div className="text-center space-y-4">
@@ -69,9 +67,7 @@ const Index = () => {
                 <ZapIcon className="h-6 w-6 text-accent" />
               </div>
               <h3 className="text-lg font-serif-display font-semibold">Campaigns built in minutes</h3>
-              <p className="text-muted-foreground font-now">
-                Connect Meta Ads with perfect clarity. Sync data automatically with 20/20 precision.
-              </p>
+              <p className="text-muted-foreground font-now">Create, optimize, and scale recruitment ads faster than ever with smart automation at your fingertips.</p>
             </div>
             
             <div className="text-center space-y-4">
