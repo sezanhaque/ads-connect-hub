@@ -63,8 +63,8 @@ const Index = () => {
             </div>
             
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-accent/10">
-                <Sparkles className="h-6 w-6 text-accent" />
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-secondary/10">
+                <Sparkles className="h-6 w-6 text-secondary" />
               </div>
               <h3 className="text-lg font-now font-semibold">Campaigns built in minutes</h3>
               <p className="text-muted-foreground font-now">Create, optimize, and scale recruitment ads faster than ever with smart automation at your fingertips.</p>
