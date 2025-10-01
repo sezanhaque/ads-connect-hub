@@ -41,8 +41,7 @@ const Index = () => {
             Just ads that actually work for your business.
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">
-            Connect your Meta Ads data with perfect vision and clarity. 
-            Create campaigns with guided precision and manage everything from one clean, professional dashboard.
+            With 20/20, you take control of hiring. Connect to Meta Ads, launch campaigns in minutes, and track results in one clear dashboard — faster, smarter, and more affordable than agencies or job boards.
           </p>
           
           <div className="flex gap-4 justify-center">
