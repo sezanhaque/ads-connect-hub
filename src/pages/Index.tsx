@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
-import { ArrowRight, Shield, Zap as ZapIcon, BarChart3 } from "lucide-react";
+import { ArrowRight, Rocket, Sparkles, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 const Index = () => {
   const {
@@ -55,26 +55,26 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-8 mt-20">
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
-                <Shield className="h-6 w-6 text-primary" />
+                <Rocket className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-lg font-serif-display font-semibold">Hire faster, work smarter
+              <h3 className="text-lg font-now font-semibold">Hire faster, work smarter
             </h3>
               <p className="text-muted-foreground font-now">Agencies and job boards slow you down. 20/20 gives you direct control to hire faster and smarter.</p>
             </div>
             
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-accent/10">
-                <ZapIcon className="h-6 w-6 text-accent" />
+                <Sparkles className="h-6 w-6 text-accent" />
               </div>
-              <h3 className="text-lg font-serif-display font-semibold">Campaigns built in minutes</h3>
+              <h3 className="text-lg font-now font-semibold">Campaigns built in minutes</h3>
               <p className="text-muted-foreground font-now">Create, optimize, and scale recruitment ads faster than ever with smart automation at your fingertips.</p>
             </div>
             
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-success/10">
-                <BarChart3 className="h-6 w-6 text-success" />
+                <Eye className="h-6 w-6 text-success" />
               </div>
-              <h3 className="text-lg font-serif-display font-semibold">Full clarity on data and costs</h3>
+              <h3 className="text-lg font-now font-semibold">Full clarity on data and costs</h3>
               <p className="text-muted-foreground font-now">Track spend, performance, and results in real time, all from one clear dashboard.</p>
             </div>
           </div>
