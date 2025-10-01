@@ -67,7 +67,7 @@ const Index = () => {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-accent/10">
                 <ZapIcon className="h-6 w-6 text-accent" />
               </div>
-              <h3 className="text-lg font-serif-display font-semibold">Seamless Integrations</h3>
+              <h3 className="text-lg font-serif-display font-semibold">Campaigns built in minutes</h3>
               <p className="text-muted-foreground font-now">
                 Connect Meta Ads with perfect clarity. Sync data automatically with 20/20 precision.
               </p>
