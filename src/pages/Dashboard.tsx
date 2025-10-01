@@ -276,10 +276,10 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+        <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Budget vs Spend</CardTitle>
-            <DollarSign className="h-4 w-4 text-success" />
+            <DollarSign className="h-4 w-4 text-secondary" />
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
@@ -291,7 +291,7 @@ const Dashboard = () => {
               </p>
               <div className="w-full bg-muted rounded-full h-2">
                 <div 
-                  className="bg-success h-2 rounded-full transition-all" 
+                  className="bg-secondary h-2 rounded-full transition-all" 
                   style={{ 
                     width: stats.totalBudget > 0 
                       ? `${Math.min((stats.totalSpend / stats.totalBudget) * 100, 100)}%` 
@@ -303,10 +303,10 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+        <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Impressions</CardTitle>
-            <Eye className="h-4 w-4 text-accent" />
+            <Eye className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
