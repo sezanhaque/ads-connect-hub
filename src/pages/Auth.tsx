@@ -93,8 +93,15 @@ const Auth = () => {
           <h1 className="text-3xl font-now font-bold tracking-tight">
             {showReset ? 'Reset Password' : 'Welcome Back'}
           </h1>
-          <p className="text-muted-foreground font-serif-display">
-            {showReset ? 'Enter your email to reset your password' : 'Every login brings you closer to faster, smarter hiring.'}
+          <p className="text-muted-foreground">
+            {showReset ? (
+              <span className="font-serif-display">Enter your email to reset your password</span>
+            ) : (
+              <>
+                <span className="font-now">Every login brings you closer to </span>
+                <span className="font-serif-display">faster, smarter hiring.</span>
+              </>
+            )}
           </p>
         </div>
 
