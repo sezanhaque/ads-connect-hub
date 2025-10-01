@@ -25,7 +25,7 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <Logo />
-          <Button asChild variant="accent">
+          <Button asChild>
             <Link to="/auth">Get Started</Link>
           </Button>
         </nav>
@@ -38,7 +38,7 @@ const Index = () => {
           <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">Connect your favorite social platforms, launch campaigns in minutes, and track results in one clear dashboard. Strengthen your recruitment strategy with smarter data and sharper insights.</p>
           
           <div className="flex gap-4 justify-center">
-            <Button size="lg" asChild>
+            <Button size="lg" asChild variant="accent" className="text-foreground">
               <Link to="/auth">
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
