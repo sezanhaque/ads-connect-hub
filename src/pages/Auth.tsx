@@ -99,7 +99,8 @@ const Auth = () => {
             ) : (
               <>
                 <span className="font-now">Every login brings you closer to </span>
-                <span className="font-serif-display">faster, smarter hiring.</span>
+                <span className="font-serif-display">faster, smarter </span>
+                <span className="font-now">hiring.</span>
               </>
             )}
           </p>
