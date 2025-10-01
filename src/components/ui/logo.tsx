@@ -12,9 +12,9 @@ const Logo: React.FC<LogoProps> = ({
   size = 'md'
 }) => {
   const sizeClasses = {
-    sm: 'h-8',
-    md: 'h-10',
-    lg: 'h-12'
+    sm: 'h-10',
+    md: 'h-14',
+    lg: 'h-16'
   };
   return <div className={cn("flex items-center gap-3", className)}>
       <img src={logo} alt="20/20 Solutions" className={cn(sizeClasses[size], "object-contain")} />
