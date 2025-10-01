@@ -35,7 +35,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-20">
         <div className="text-center space-y-8 max-w-3xl mx-auto">
           <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-[1.2] text-5xl text-center">Recruitment Advertising Seen Clearly</h1>
-          <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">Connect your favorite social platforms, launch campaigns in minutes, and track results in one clear dashboard. Strengthen your recruitment strategy with smarter data and sharper insights.</p>
+          <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">Connect your favorite social media platforms, launch campaigns in minutes, and track results in one clear dashboard. Strengthen your recruitment strategy with smarter data and sharper insights.</p>
           
           <div className="flex gap-4 justify-center">
             <Button size="lg" asChild variant="accent" className="text-foreground">
