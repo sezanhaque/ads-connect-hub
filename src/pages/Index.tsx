@@ -79,9 +79,7 @@ const Index = () => {
                 <BarChart3 className="h-6 w-6 text-success" />
               </div>
               <h3 className="text-lg font-serif-display font-semibold">Full clarity on data and costs</h3>
-              <p className="text-muted-foreground font-now">
-                Track campaigns, jobs, and performance metrics with perfect vision in one beautiful interface.
-              </p>
+              <p className="text-muted-foreground font-now">Track spend, performance, and results in real time, all from one clear dashboard.</p>
             </div>
           </div>
         </div>
