@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
 import { ArrowRight, Shield, Zap as ZapIcon, BarChart3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-
 const Index = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
 
   // Redirect to dashboard if already authenticated
   if (user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Logo />
           <p className="text-muted-foreground font-now">Redirecting to dashboard...</p>
@@ -18,12 +18,9 @@ const Index = () => {
             <Link to="/dashboard">Go to Dashboard</Link>
           </Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+  return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -37,12 +34,8 @@ const Index = () => {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-20">
         <div className="text-center space-y-8 max-w-3xl mx-auto">
-          <h1 className="text-5xl font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-[1.2]">
-            Recruitment advertising seen clearly
-          </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">
-            With 20/20, you take control of hiring. Connect to Meta Ads, launch campaigns in minutes, and track results in one clear dashboard — faster, smarter, and more affordable than agencies or job boards.
-          </p>
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-[1.2] text-5xl text-center">Recruitment Advertising Seen Clearly</h1>
+          <p className="text-xl text-muted-foreground leading-relaxed font-now subtitle">Connect your favorite social platforms, launch campaigns in minutes, and track results in one clear dashboard. Strengthen your recruitment strategy with smarter data and sharper insights.</p>
           
           <div className="flex gap-4 justify-center">
             <Button size="lg" asChild>
@@ -92,8 +85,6 @@ const Index = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
