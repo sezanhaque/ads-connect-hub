@@ -94,7 +94,7 @@ const Auth = () => {
             {showReset ? 'Reset Password' : 'Welcome Back'}
           </h1>
           <p className="text-muted-foreground font-serif-display">
-            {showReset ? 'Enter your email to reset your password' : 'Experience crystal clear marketing analytics'}
+            {showReset ? 'Enter your email to reset your password' : 'Every login brings you closer to faster, smarter hiring.'}
           </p>
         </div>
 
