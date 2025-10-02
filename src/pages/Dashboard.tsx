@@ -252,10 +252,10 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-1">
               <div className="text-2xl font-bold">
-                ${stats.totalBudget.toLocaleString()}
+                €{stats.totalBudget.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                Budget • ${stats.totalSpend.toFixed(2)} spent
+                Budget • €{stats.totalSpend.toFixed(2)} spent
               </p>
               <div className="w-full bg-muted rounded-full h-2">
                 <div className="bg-secondary h-2 rounded-full transition-all" style={{
@@ -326,7 +326,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">${campaign.budget}</p>
+                      <p className="font-medium">€{campaign.budget}</p>
                       <p className="text-sm text-muted-foreground">
                         {new Date(campaign.created_at).toLocaleDateString()}
                       </p>
