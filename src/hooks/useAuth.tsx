@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string, companyName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = 'https://app.twentytwentysolutions.io/';
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -183,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = 'https://app.twentytwentysolutions.io/';
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
