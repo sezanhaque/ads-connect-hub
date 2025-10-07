@@ -3,10 +3,23 @@ import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
 import { ArrowRight, Rocket, Sparkles, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
 const Index = () => {
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  useEffect(() => {
+    // Load HubSpot form script
+    const script = document.createElement("script");
+    script.src = "https://js-eu1.hsforms.net/forms/embed/147002455.js";
+    script.defer = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   // Redirect to dashboard if already authenticated
   if (user) {
@@ -38,11 +51,14 @@ const Index = () => {
           <p className="text-base md:text-xl text-muted-foreground leading-relaxed font-now subtitle px-2">Connect your favorite social media platforms, launch campaigns in minutes, and track results in one clear dashboard. Strengthen your recruitment strategy with smarter data and sharper insights.</p>
           
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-            <Button size="lg" asChild variant="accent" className="text-foreground w-full sm:w-auto">
-              <a href="https://forms.gle/BaJv43p6e97m2VBj6" target="_blank" rel="noopener noreferrer">
-                Book a Demo
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+            <Button 
+              size="lg" 
+              variant="accent" 
+              className="text-foreground w-full sm:w-auto"
+              onClick={() => setIsFormOpen(true)}
+            >
+              Book a Demo
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button size="lg" variant="accent" asChild className="text-foreground w-full sm:w-auto">
               <Link to="/auth">
@@ -50,6 +66,20 @@ const Index = () => {
               </Link>
             </Button>
           </div>
+
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Book a Demo</DialogTitle>
+              </DialogHeader>
+              <div 
+                className="hs-form-frame" 
+                data-region="eu1" 
+                data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" 
+                data-portal-id="147002455"
+              />
+            </DialogContent>
+          </Dialog>
 
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 mt-12 md:mt-20 px-2">
