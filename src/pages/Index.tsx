@@ -39,10 +39,10 @@ const Index = () => {
           
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
             <Button size="lg" asChild variant="accent" className="text-foreground w-full sm:w-auto">
-              <Link to="/auth">
+              <a href="https://forms.gle/BaJv43p6e97m2VBj6" target="_blank" rel="noopener noreferrer">
                 Book a Demo
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+              </a>
             </Button>
             <Button size="lg" variant="accent" asChild className="text-foreground w-full sm:w-auto">
               <Link to="/auth">
