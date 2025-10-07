@@ -7,17 +7,21 @@ import { SignupConfirmationEmail } from './_templates/signup-confirmation.tsx';
 import { PasswordResetEmail } from './_templates/password-reset.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-// Normalize and validate webhook secret format (Standard Webhooks: "v1,whsec_<base64>")
+// Normalize and validate webhook secret format (Supabase UI provides: "v1,whsec_<base64>")
 const rawHookSecret = (Deno.env.get('SEND_AUTH_EMAIL_HOOK_SECRET') || '').trim();
-// Convert potential base64url to base64 and pad
-let hookSecret = rawHookSecret;
-if (rawHookSecret.startsWith('v1,whsec_')) {
-  const prefix = 'v1,whsec_';
-  const b64 = rawHookSecret.slice(prefix.length).replace(/-/g, '+').replace(/_/g, '/');
-  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
-  hookSecret = prefix + padded;
-}
 
+// Standard Webhooks library expects: "whsec_<standard base64 padded>"
+let hookSecret = rawHookSecret;
+
+// Remove optional version prefix and normalize base64 to standard with padding
+let normalized = rawHookSecret.startsWith('v1,') ? rawHookSecret.slice(3) : rawHookSecret;
+if (normalized.startsWith('whsec_')) {
+  const b64Part = normalized.slice('whsec_'.length).replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64Part + '='.repeat((4 - (b64Part.length % 4)) % 4);
+  hookSecret = 'whsec_' + padded;
+} else {
+  hookSecret = normalized;
+}
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') {
