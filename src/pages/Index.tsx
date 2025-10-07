@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
-import { ArrowRight, Rocket, Sparkles, Eye } from "lucide-react";
+import { ArrowRight, Rocket, Sparkles, Eye, Shield, TrendingUp, BarChart3, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
@@ -118,6 +118,56 @@ const Index = () => {
               <p className="text-sm md:text-base text-muted-foreground font-now">Recruitment spend is often hidden behind unclear reports and agency fees, but with real-time dashboards you see exactly where your budget goes, what results it delivers, and the true cost of every candidate.</p>
             </div>
           </div>
+
+          {/* Built for In-House Recruitment Teams */}
+          <section className="mt-16 md:mt-24">
+            <div className="max-w-4xl mx-auto text-center space-y-8">
+              <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+                Built for In-House Recruitment Teams
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-6 text-left">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-now font-semibold text-foreground mb-2">Take control back from expensive agencies</h3>
+                    <p className="text-sm text-muted-foreground font-now">Own your recruitment strategy without middlemen</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="font-now font-semibold text-foreground mb-2">Scale your hiring without scaling your team</h3>
+                    <p className="text-sm text-muted-foreground font-now">Do more with the resources you already have</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
+                    <BarChart3 className="h-6 w-6 text-success" />
+                  </div>
+                  <div>
+                    <h3 className="font-now font-semibold text-foreground mb-2">Make data-driven decisions with confidence</h3>
+                    <p className="text-sm text-muted-foreground font-now">Real insights, not vague agency reports</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-now font-semibold text-foreground mb-2">Launch campaigns whenever you need</h3>
+                    <p className="text-sm text-muted-foreground font-now">No waiting on agencies or long approval chains</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </div>;
