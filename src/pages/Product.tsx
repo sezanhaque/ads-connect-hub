@@ -27,7 +27,7 @@ const Product = () => {
             <Logo />
           </Link>
           <Button size="lg" onClick={() => setIsFormOpen(true)}>
-            Book a Demo
+            Request demo
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </nav>
@@ -43,7 +43,7 @@ const Product = () => {
 Take control of your hiring and outpace the competition.</p>
           <div className="pt-4">
             <Button size="lg" onClick={() => setIsFormOpen(true)}>
-              Book a Demo
+              Request demo
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
@@ -208,7 +208,7 @@ Take control of your hiring and outpace the competition.</p>
           </p>
           <div className="pt-4">
             <Button size="lg" variant="accent" className="text-foreground" onClick={() => setIsFormOpen(true)}>
-              Book a Demo
+              Request demo
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
@@ -219,7 +219,7 @@ Take control of your hiring and outpace the competition.</p>
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Book a Demo</DialogTitle>
+            <DialogTitle>Request demo</DialogTitle>
           </DialogHeader>
           <div className="hs-form-frame" data-region="eu1" data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" data-portal-id="147002455" />
         </DialogContent>
