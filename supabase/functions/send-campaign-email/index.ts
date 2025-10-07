@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface CampaignEmailData {
@@ -30,27 +30,27 @@ interface CampaignEmailData {
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
     if (!supabaseUrl || !supabaseKey) {
-      console.error('Missing Supabase environment variables');
-      throw new Error('Supabase configuration missing');
+      console.error("Missing Supabase environment variables");
+      throw new Error("Supabase configuration missing");
     }
-    
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get request data
     const campaignData: CampaignEmailData = await req.json();
 
-    console.log('Sending campaign email for:', campaignData.campaign_name);
-    console.log('Recipients:', campaignData.recipients);
+    console.log("Sending campaign email for:", campaignData.campaign_name);
+    console.log("Recipients:", campaignData.recipients);
 
     // In a real implementation, you would integrate with an email service like:
     // - Resend
@@ -117,11 +117,17 @@ const handler = async (req: Request): Promise<Response> => {
         <div class="section">
             <div class="label">Creative Assets</div>
             <div class="value">
-                ${campaignData.creative_assets_count} files uploaded${campaignData.creative_assets && campaignData.creative_assets.length > 0 ? 
-                  '<br><br><strong>Attached Files:</strong><br>' + 
-                  campaignData.creative_assets.map(asset => 
-                    `• ${asset.name} (${asset.type.startsWith('image/') ? 'Image' : 'Video'} - ${(asset.size / 1024 / 1024).toFixed(1)} MB)`
-                  ).join('<br>') : ''}
+                ${campaignData.creative_assets_count} files uploaded${
+                  campaignData.creative_assets && campaignData.creative_assets.length > 0
+                    ? "<br><br><strong>Attached Files:</strong><br>" +
+                      campaignData.creative_assets
+                        .map(
+                          (asset) =>
+                            `• ${asset.name} (${asset.type.startsWith("image/") ? "Image" : "Video"} - ${(asset.size / 1024 / 1024).toFixed(1)} MB)`,
+                        )
+                        .join("<br>")
+                    : ""
+                }
             </div>
         </div>
         
@@ -143,13 +149,14 @@ const handler = async (req: Request): Promise<Response> => {
 </html>
     `;
 
-    console.log('Email content generated:', emailContent.length, 'characters');
-    
+    console.log("Email content generated:", emailContent.length, "characters");
+
     // Send email via Resend
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    // const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    const resendApiKey = "re_bWduTxJp_NtmpjKRGoEBYB1cM2EA6PCNG";
     if (!resendApiKey) {
-      console.error('Missing RESEND_API_KEY secret');
-      throw new Error('Email service not configured. Please set RESEND_API_KEY in Supabase.');
+      console.error("Missing RESEND_API_KEY secret");
+      throw new Error("Email service not configured. Please set RESEND_API_KEY in Supabase.");
     }
 
     // Prepare attachments from uploaded assets
@@ -159,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
         try {
           // Download file from Supabase Storage
           const { data: fileData, error: downloadError } = await supabase.storage
-            .from('campaign-assets')
+            .from("campaign-assets")
             .download(asset.path);
 
           if (downloadError) {
@@ -184,41 +191,40 @@ const handler = async (req: Request): Promise<Response> => {
 
     const resend = new Resend(resendApiKey);
     const emailResponse = await resend.emails.send({
-      from: 'Campaigns <onboarding@resend.dev>',
+      from: "Campaigns <support@twentytwentysolutions.io>",
       // Resend test mode: restrict to verified testing email only
-      to: ['thealaminislam@gmail.com'],
+      to: ["thealaminislam@gmail.com", "moalamin001@gmail.com"],
       subject: `Campaign Setup: ${campaignData.campaign_name}`,
       html: emailContent,
       attachments: attachments.length > 0 ? attachments : undefined,
     });
 
-    console.log('Resend email response:', JSON.stringify(emailResponse));
+    console.log("Resend email response:", JSON.stringify(emailResponse));
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Campaign details email sent successfully',
+        message: "Campaign details email sent successfully",
         recipients: campaignData.recipients,
-        campaign_name: campaignData.campaign_name
+        campaign_name: campaignData.campaign_name,
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      }
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      },
     );
-
   } catch (error: any) {
-    console.error('Error in send-campaign-email function:', error);
+    console.error("Error in send-campaign-email function:", error);
     return new Response(
       JSON.stringify({
         success: false,
         error: error.message,
-        message: 'Failed to send campaign email'
+        message: "Failed to send campaign email",
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      }
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      },
     );
   }
 };
