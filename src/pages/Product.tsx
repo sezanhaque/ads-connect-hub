@@ -116,9 +116,7 @@ Take control of your hiring and outpace the competition.</p>
       {/* Three USPs Deep Dive */}
       <section className="container mx-auto px-4 py-10 md:py-20">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">
-            Why In-House Teams Choose 20/20 Solutions
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">Why Recruitment Teams Choose 20/20 Solutions</h2>
         </div>
         
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
@@ -127,9 +125,7 @@ Take control of your hiring and outpace the competition.</p>
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-primary/10">
               <Rocket className="h-7 w-7 text-primary" />
             </div>
-            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">
-              Hire faster, work smarter
-            </h3>
+            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Work Smarter </h3>
             <p className="text-base text-muted-foreground font-now">
               Traditional recruitment is slow and costly, but with AI-optimized campaigns you cut manual effort, reduce wasted spend, and fill roles faster while keeping full control over process and cost.
             </p>
@@ -140,7 +136,7 @@ Take control of your hiring and outpace the competition.</p>
               </div>
               <div className="flex items-start gap-2">
                 <TrendingUp className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-muted-foreground font-now">Save thousands vs. agency fees</p>
+                <p className="text-sm text-muted-foreground font-now">Save tousands vs. agency fees</p>
               </div>
             </div>
           </div>
@@ -150,9 +146,7 @@ Take control of your hiring and outpace the competition.</p>
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-secondary/10">
               <Sparkles className="h-7 w-7 text-secondary" />
             </div>
-            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">
-              Campaigns built in minutes
-            </h3>
+            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Save time</h3>
             <p className="text-base text-muted-foreground font-now">
               Creating recruitment ads doesn't have to be complex, with our guided flow you can launch complete campaigns in just a few steps, without needing marketing expertise or external agencies.
             </p>
@@ -173,9 +167,7 @@ Take control of your hiring and outpace the competition.</p>
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-success/10">
               <Eye className="h-7 w-7 text-success" />
             </div>
-            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">
-              Full clarity on data and costs
-            </h3>
+            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Full clarity </h3>
             <p className="text-base text-muted-foreground font-now">
               Recruitment spend is often hidden behind unclear reports and agency fees, but with real-time dashboards you see exactly where your budget goes, what results it delivers, and the true cost of every candidate.
             </p>
