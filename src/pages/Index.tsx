@@ -6,16 +6,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 const Index = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
-
   useEffect(() => {
     // Load HubSpot form script
     const script = document.createElement("script");
     script.src = "https://js-eu1.hsforms.net/forms/embed/147002455.js";
     script.defer = true;
     document.body.appendChild(script);
-
     return () => {
       document.body.removeChild(script);
     };
@@ -51,12 +51,7 @@ const Index = () => {
           <p className="text-base md:text-xl text-muted-foreground leading-relaxed font-now subtitle px-2">Connect your favorite social media platforms, launch campaigns in minutes, and track results in one clear dashboard. Strengthen your recruitment strategy with smarter data and sharper insights.</p>
           
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-            <Button 
-              size="lg" 
-              variant="accent" 
-              className="text-foreground w-full sm:w-auto"
-              onClick={() => setIsFormOpen(true)}
-            >
+            <Button size="lg" variant="accent" className="text-foreground w-full sm:w-auto" onClick={() => setIsFormOpen(true)}>
               Book a Demo
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -72,12 +67,7 @@ const Index = () => {
               <DialogHeader>
                 <DialogTitle>Book a Demo</DialogTitle>
               </DialogHeader>
-              <div 
-                className="hs-form-frame" 
-                data-region="eu1" 
-                data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" 
-                data-portal-id="147002455"
-              />
+              <div className="hs-form-frame" data-region="eu1" data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" data-portal-id="147002455" />
             </DialogContent>
           </Dialog>
 
@@ -88,7 +78,7 @@ const Index = () => {
                 <Rocket className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-[clamp(1rem,2.5vw,1.125rem)] font-now font-semibold">Hire faster, work smarter</h3>
-              <p className="text-sm md:text-base text-muted-foreground font-now">Agencies and job boards slow you down. 20/20 gives you direct control to hire faster and smarter.</p>
+              <p className="text-sm md:text-base text-muted-foreground font-now">Traditional recruitment is slow and costly, but with AI-optimized campaigns you cut manual effort, reduce wasted spend, and fill roles faster while keeping full control over process and cost.</p>
             </div>
             
             <div className="text-center space-y-3 md:space-y-4">
@@ -96,7 +86,7 @@ const Index = () => {
                 <Sparkles className="h-6 w-6 text-secondary" />
               </div>
               <h3 className="text-[clamp(1rem,2.5vw,1.125rem)] font-now font-semibold">Campaigns built in minutes</h3>
-              <p className="text-sm md:text-base text-muted-foreground font-now">Create, optimize, and scale recruitment ads faster than ever with smart automation at your fingertips.</p>
+              <p className="text-sm md:text-base text-muted-foreground font-now">Creating recruitment ads doesn’t have to be complex, with our guided flow you can launch complete campaigns in just a few steps, without needing marketing expertise or external agencies.</p>
             </div>
             
             <div className="text-center space-y-3 md:space-y-4">
@@ -104,7 +94,7 @@ const Index = () => {
                 <Eye className="h-6 w-6 text-success" />
               </div>
               <h3 className="text-[clamp(1rem,2.5vw,1.125rem)] font-now font-semibold">Full clarity on data and costs</h3>
-              <p className="text-sm md:text-base text-muted-foreground font-now">Track spend, performance, and results in real time, all from one clear dashboard.</p>
+              <p className="text-sm md:text-base text-muted-foreground font-now">Recruitment spend is often hidden behind unclear reports and agency fees, but with real-time dashboards you see exactly where your budget goes, what results it delivers, and the true cost of every candidate.</p>
             </div>
           </div>
         </div>
