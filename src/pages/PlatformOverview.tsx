@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import campaignPreview from "@/assets/campaign-preview.png";
 import jobsInterface from "@/assets/jobs-interface.png";
 import campaignBuilder from "@/assets/campaign-builder.png";
-const Product = () => {
+const PlatformOverview = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   useEffect(() => {
     // Load HubSpot form script
@@ -298,4 +298,4 @@ Take control of your hiring and outpace the competition.</p>
       </Dialog>
     </div>;
 };
-export default Product;
+export default PlatformOverview;
