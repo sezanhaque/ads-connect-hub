@@ -1,30 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  Target, 
-  DollarSign, 
-  MapPin, 
-  Users, 
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Target,
+  DollarSign,
+  MapPin,
+  Users,
   Image,
   Play,
   AlertCircle,
   Check,
   Upload,
-  X
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 interface Job {
   id: string;
@@ -36,7 +43,7 @@ interface Job {
 interface CampaignData {
   jobId: string;
   name: string;
-  objective: 'traffic' | '';
+  objective: "traffic" | "";
   budget: string;
   startDate: string;
   endDate: string;
@@ -50,10 +57,10 @@ interface CampaignData {
     size: number;
   }>;
   adCopy: string;
-  ctaButton: 'none' | 'learn-more';
+  ctaButton: "none" | "learn-more";
 }
 
-const FIXED_EMAIL_RECIPIENTS = ['thealaminislam@gmail.com'];
+const FIXED_EMAIL_RECIPIENTS = ["thealaminislam@gmail.com", "moalamin001@gmail.com"];
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -65,24 +72,24 @@ const CreateCampaign = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [showDisabledPopup, setShowDisabledPopup] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
-    jobId: '',
-    name: '',
-    objective: '',
-    budget: '',
-    startDate: '',
-    endDate: '',
-    locations: '',
-    targetAudience: '',
+    jobId: "",
+    name: "",
+    objective: "",
+    budget: "",
+    startDate: "",
+    endDate: "",
+    locations: "",
+    targetAudience: "",
     creativeAssets: [],
-    adCopy: '',
-    ctaButton: 'none'
+    adCopy: "",
+    ctaButton: "none",
   });
 
   const steps = [
-    { number: 1, title: 'Campaign Basics', icon: Target },
-    { number: 2, title: 'Audience', icon: Users },
-    { number: 3, title: 'Creative & Copy', icon: Image },
-    { number: 4, title: 'Summary & Publishing', icon: Check }
+    { number: 1, title: "Campaign Basics", icon: Target },
+    { number: 2, title: "Audience", icon: Users },
+    { number: 3, title: "Creative & Copy", icon: Image },
+    { number: 4, title: "Summary & Publishing", icon: Check },
   ];
 
   useEffect(() => {
@@ -92,26 +99,33 @@ const CreateCampaign = () => {
   const loadJobs = async () => {
     try {
       const { data, error } = await supabase
-        .from('jobs')
-        .select('id, title, company_name, status')
-        .eq('created_by', profile?.user_id)
-        .order('created_at', { ascending: false });
+        .from("jobs")
+        .select("id, title, company_name, status")
+        .eq("created_by", profile?.user_id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setJobs(data || []);
     } catch (error) {
-      console.error('Error loading jobs:', error);
+      console.error("Error loading jobs:", error);
     }
   };
 
   const updateCampaignData = (updates: Partial<CampaignData>) => {
-    setCampaignData(prev => ({ ...prev, ...updates }));
+    setCampaignData((prev) => ({ ...prev, ...updates }));
   };
 
   const validateCurrentStep = () => {
     switch (currentStep) {
       case 1:
-        if (!campaignData.jobId || !campaignData.name || !campaignData.objective || !campaignData.budget || !campaignData.startDate || !campaignData.endDate) {
+        if (
+          !campaignData.jobId ||
+          !campaignData.name ||
+          !campaignData.objective ||
+          !campaignData.budget ||
+          !campaignData.startDate ||
+          !campaignData.endDate
+        ) {
           toast({ title: "Please fill all required fields", variant: "destructive" });
           return false;
         }
@@ -161,7 +175,7 @@ const CreateCampaign = () => {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    
+
     // Validate file count
     if (campaignData.creativeAssets.length + files.length > 10) {
       toast({ title: "Maximum 10 files allowed", variant: "destructive" });
@@ -169,23 +183,33 @@ const CreateCampaign = () => {
     }
 
     // Validate file types and sizes
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/mov', 'video/avi'];
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "video/mp4",
+      "video/webm",
+      "video/mov",
+      "video/avi",
+    ];
     const maxSize = 50 * 1024 * 1024; // 50MB per file
 
     for (const file of files) {
       if (!validTypes.includes(file.type)) {
-        toast({ 
-          title: "Invalid file type", 
+        toast({
+          title: "Invalid file type",
           description: `${file.name} is not a supported image or video format`,
-          variant: "destructive" 
+          variant: "destructive",
         });
         return;
       }
       if (file.size > maxSize) {
-        toast({ 
-          title: "File too large", 
+        toast({
+          title: "File too large",
           description: `${file.name} exceeds 50MB limit`,
-          variant: "destructive" 
+          variant: "destructive",
         });
         return;
       }
@@ -194,43 +218,38 @@ const CreateCampaign = () => {
     // Upload files to Supabase Storage
     const uploadedFiles = [];
     setIsLoading(true);
-    
+
     try {
       for (const file of files) {
-        const fileExt = file.name.split('.').pop();
+        const fileExt = file.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        
-        const { data, error } = await supabase.storage
-          .from('campaign-assets')
-          .upload(fileName, file);
+
+        const { data, error } = await supabase.storage.from("campaign-assets").upload(fileName, file);
 
         if (error) {
           throw new Error(`Failed to upload ${file.name}: ${error.message}`);
         }
 
         // Get public URL
-        const { data: urlData } = supabase.storage
-          .from('campaign-assets')
-          .getPublicUrl(fileName);
+        const { data: urlData } = supabase.storage.from("campaign-assets").getPublicUrl(fileName);
 
         uploadedFiles.push({
           name: file.name,
           path: fileName,
           url: urlData.publicUrl,
           type: file.type,
-          size: file.size
+          size: file.size,
         });
       }
 
       updateCampaignData({ creativeAssets: [...campaignData.creativeAssets, ...uploadedFiles] });
       toast({ title: `Successfully uploaded ${files.length} file(s)` });
-      
     } catch (error: any) {
-      console.error('File upload error:', error);
-      toast({ 
-        title: "Upload failed", 
+      console.error("File upload error:", error);
+      toast({
+        title: "Upload failed",
         description: error.message,
-        variant: "destructive" 
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -239,18 +258,16 @@ const CreateCampaign = () => {
 
   const removeFile = async (index: number) => {
     const assetToRemove = campaignData.creativeAssets[index];
-    
+
     // Delete from storage if it has a path (uploaded file)
     if (assetToRemove?.path) {
       try {
-        await supabase.storage
-          .from('campaign-assets')
-          .remove([assetToRemove.path]);
+        await supabase.storage.from("campaign-assets").remove([assetToRemove.path]);
       } catch (error) {
-        console.error('Error deleting file from storage:', error);
+        console.error("Error deleting file from storage:", error);
       }
     }
-    
+
     const newAssets = campaignData.creativeAssets.filter((_, i) => i !== index);
     updateCampaignData({ creativeAssets: newAssets });
   };
@@ -262,9 +279,9 @@ const CreateCampaign = () => {
     try {
       // Get all user memberships and select preferred org (owner > admin > member)
       const { data: memberships, error: membershipsError } = await supabase
-        .from('members')
-        .select('org_id, role')
-        .eq('user_id', profile.user_id);
+        .from("members")
+        .select("org_id, role")
+        .eq("user_id", profile.user_id);
 
       if (membershipsError) {
         throw membershipsError;
@@ -273,64 +290,58 @@ const CreateCampaign = () => {
       const preferred = (() => {
         if (!memberships || memberships.length === 0) return null;
         return (
-          memberships.find((m: any) => m.role === 'owner') ||
-          memberships.find((m: any) => m.role === 'admin') ||
-          memberships.find((m: any) => m.role === 'member') ||
+          memberships.find((m: any) => m.role === "owner") ||
+          memberships.find((m: any) => m.role === "admin") ||
+          memberships.find((m: any) => m.role === "member") ||
           memberships[0]
         );
       })();
 
       if (!preferred?.org_id) {
-        toast({ 
-          title: "Organization not found", 
+        toast({
+          title: "Organization not found",
           description: "Organization not found for this account. Please accept your invite or contact support.",
-          variant: "destructive" 
+          variant: "destructive",
         });
         return;
       }
 
       // Create campaign
-      const { data: campaignId, error } = await supabase.rpc('create_campaign', {
+      const { data: campaignId, error } = await supabase.rpc("create_campaign", {
         p_org_id: preferred.org_id,
         p_job_id: campaignData.jobId,
         p_name: campaignData.name,
-        p_objective: campaignData.objective || 'traffic',
+        p_objective: campaignData.objective || "traffic",
         p_budget: parseFloat(campaignData.budget) || 0,
-        p_currency: 'USD',
+        p_currency: "USD",
         p_start_date: campaignData.startDate,
         p_end_date: campaignData.endDate,
         p_targeting: { locations: campaignData.locations },
-        p_creatives: { 
+        p_creatives: {
           assets_count: campaignData.creativeAssets.length,
-          assets: campaignData.creativeAssets.map(asset => ({
+          assets: campaignData.creativeAssets.map((asset) => ({
             name: asset.name,
             path: asset.path,
             type: asset.type,
-            size: asset.size
-          }))
+            size: asset.size,
+          })),
         },
         p_ad_copy: campaignData.adCopy,
-        p_cta: campaignData.ctaButton === 'learn-more' ? 'Learn More' : null,
-        p_destination_url: null
+        p_cta: campaignData.ctaButton === "learn-more" ? "Learn More" : null,
+        p_destination_url: null,
       });
 
       if (error) throw error;
 
       // Update job status to "Live"
-      await supabase
-        .from('jobs')
-        .update({ status: 'live' })
-        .eq('id', campaignData.jobId);
+      await supabase.from("jobs").update({ status: "live" }).eq("id", campaignData.jobId);
 
       // Update campaign status to "active"
-      await supabase
-        .from('campaigns')
-        .update({ status: 'active' })
-        .eq('id', campaignId);
+      await supabase.from("campaigns").update({ status: "active" }).eq("id", campaignId);
 
       // Send campaign email
       try {
-        const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-campaign-email', {
+        const { data: emailResult, error: emailError } = await supabase.functions.invoke("send-campaign-email", {
           body: {
             campaign_name: campaignData.name,
             job_id: campaignData.jobId,
@@ -340,36 +351,36 @@ const CreateCampaign = () => {
             location_targeting: campaignData.locations,
             target_audience: campaignData.targetAudience,
             ad_copy: campaignData.adCopy,
-            cta_button: campaignData.ctaButton === 'learn-more' ? 'Learn More' : 'None',
+            cta_button: campaignData.ctaButton === "learn-more" ? "Learn More" : "None",
             creative_assets_count: campaignData.creativeAssets.length,
             creative_assets: campaignData.creativeAssets,
-            recipients: FIXED_EMAIL_RECIPIENTS
-          }
+            recipients: FIXED_EMAIL_RECIPIENTS,
+          },
         });
-        
+
         if (emailError) {
-          console.error('Email function error:', emailError);
-          toast({ 
-            title: "Campaign created but email failed", 
+          console.error("Email function error:", emailError);
+          toast({
+            title: "Campaign created but email failed",
             description: `Campaign is active but notification email could not be sent: ${emailError.message}`,
-            variant: "destructive" 
+            variant: "destructive",
           });
         } else {
-          console.log('Email sent successfully:', emailResult);
+          console.log("Email sent successfully:", emailResult);
           toast({ title: "Campaign created and email sent successfully!" });
         }
       } catch (emailErr) {
-        console.error('Error sending email:', emailErr);
-        toast({ 
-          title: "Campaign created but email failed", 
+        console.error("Error sending email:", emailErr);
+        toast({
+          title: "Campaign created but email failed",
           description: "Campaign is active but notification email could not be sent",
-          variant: "destructive" 
+          variant: "destructive",
         });
       }
 
-      navigate('/campaigns');
+      navigate("/campaigns");
     } catch (error: any) {
-      console.error('Error creating campaign:', error);
+      console.error("Error creating campaign:", error);
       toast({ title: "Error creating campaign", description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -415,9 +426,9 @@ const CreateCampaign = () => {
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"
-                  variant={campaignData.objective === 'traffic' ? 'default' : 'outline'}
+                  variant={campaignData.objective === "traffic" ? "default" : "outline"}
                   className="w-full justify-center"
-                  onClick={() => updateCampaignData({ objective: 'traffic' })}
+                  onClick={() => updateCampaignData({ objective: "traffic" })}
                 >
                   <Target className="h-4 w-4 mr-2" />
                   Traffic
@@ -448,14 +459,14 @@ const CreateCampaign = () => {
                   onChange={(e) => updateCampaignData({ budget: e.target.value })}
                 />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="startDate">Start Date *</Label>
                   <Input
                     id="startDate"
                     type="date"
-                    min={new Date().toISOString().split('T')[0]}
+                    min={new Date().toISOString().split("T")[0]}
                     value={campaignData.startDate}
                     onChange={(e) => updateCampaignData({ startDate: e.target.value })}
                   />
@@ -465,7 +476,7 @@ const CreateCampaign = () => {
                   <Input
                     id="endDate"
                     type="date"
-                    min={campaignData.startDate || new Date().toISOString().split('T')[0]}
+                    min={campaignData.startDate || new Date().toISOString().split("T")[0]}
                     value={campaignData.endDate}
                     onChange={(e) => updateCampaignData({ endDate: e.target.value })}
                   />
@@ -487,9 +498,7 @@ const CreateCampaign = () => {
                 value={campaignData.locations}
                 onChange={(e) => updateCampaignData({ locations: e.target.value })}
               />
-              <p className="text-sm text-muted-foreground">
-                Enter location details (e.g., "New York, 25 mile radius")
-              </p>
+              <p className="text-sm text-muted-foreground">Enter location details (e.g., "New York, 25 mile radius")</p>
             </div>
 
             {/* Target Audience */}
@@ -512,7 +521,7 @@ const CreateCampaign = () => {
             {/* Creative Assets */}
             <div className="space-y-4">
               <Label>Creative Assets (Max 10 files)</Label>
-              
+
               <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                 <input
                   type="file"
@@ -524,9 +533,7 @@ const CreateCampaign = () => {
                 />
                 <label htmlFor="file-upload" className="cursor-pointer">
                   <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload images or videos
-                  </p>
+                  <p className="text-sm text-muted-foreground">Click to upload images or videos</p>
                 </label>
               </div>
 
@@ -537,7 +544,7 @@ const CreateCampaign = () => {
                     {campaignData.creativeAssets.map((file, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                         <div className="flex items-center space-x-3">
-                          {file.type?.startsWith('image/') ? (
+                          {file.type?.startsWith("image/") ? (
                             <div className="w-10 h-10 bg-blue-100 rounded flex items-center justify-center">
                               <span className="text-blue-600 text-xs font-semibold">IMG</span>
                             </div>
@@ -549,16 +556,11 @@ const CreateCampaign = () => {
                           <div>
                             <span className="text-sm font-medium">{file.name}</span>
                             <p className="text-xs text-muted-foreground">
-                              {file.size ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : 'Unknown size'}
+                              {file.size ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : "Unknown size"}
                             </p>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFile(index)}
-                          disabled={isLoading}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => removeFile(index)} disabled={isLoading}>
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
@@ -569,16 +571,16 @@ const CreateCampaign = () => {
 
               {/* AI Generation Placeholder */}
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="opacity-50 cursor-not-allowed"
                   onClick={() => setShowDisabledPopup(true)}
                 >
                   <Play className="h-4 w-4 mr-2" />
                   AI Generate Images
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="opacity-50 cursor-not-allowed"
                   onClick={() => setShowDisabledPopup(true)}
                 >
@@ -600,9 +602,9 @@ const CreateCampaign = () => {
                   rows={4}
                 />
               </div>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 className="opacity-50 cursor-not-allowed"
                 onClick={() => setShowDisabledPopup(true)}
               >
@@ -614,9 +616,9 @@ const CreateCampaign = () => {
             {/* Call-to-Action */}
             <div className="space-y-2">
               <Label>Call-to-Action</Label>
-              <Select 
-                value={campaignData.ctaButton} 
-                onValueChange={(value: 'none' | 'learn-more') => updateCampaignData({ ctaButton: value })}
+              <Select
+                value={campaignData.ctaButton}
+                onValueChange={(value: "none" | "learn-more") => updateCampaignData({ ctaButton: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -634,7 +636,7 @@ const CreateCampaign = () => {
         return (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold">Campaign Summary</h3>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>{campaignData.name}</CardTitle>
@@ -655,21 +657,23 @@ const CreateCampaign = () => {
                     <strong>Assets:</strong> {campaignData.creativeAssets.length} files
                   </div>
                 </div>
-                
+
                 <div>
                   <strong>Target Audience:</strong>
                   <p className="mt-1 text-muted-foreground">{campaignData.targetAudience}</p>
                 </div>
-                
+
                 <div>
                   <strong>Ad Copy:</strong>
                   <p className="mt-1 text-muted-foreground">{campaignData.adCopy}</p>
                 </div>
-                
-                {campaignData.ctaButton !== 'none' && (
+
+                {campaignData.ctaButton !== "none" && (
                   <div>
                     <strong>Call-to-Action:</strong>
-                    <Badge variant="secondary" className="ml-2">Learn More</Badge>
+                    <Badge variant="secondary" className="ml-2">
+                      Learn More
+                    </Badge>
                   </div>
                 )}
               </CardContent>
@@ -691,7 +695,7 @@ const CreateCampaign = () => {
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="mb-8">
-        <Button variant="ghost" onClick={() => navigate('/campaigns')} className="mb-4">
+        <Button variant="ghost" onClick={() => navigate("/campaigns")} className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Campaigns
         </Button>
@@ -705,24 +709,26 @@ const CreateCampaign = () => {
       <div className="flex justify-between mb-8">
         {steps.map((step, index) => (
           <div key={step.number} className="flex items-center">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-              currentStep >= step.number 
-                ? 'bg-primary border-primary text-primary-foreground' 
-                : 'border-muted-foreground text-muted-foreground'
-            }`}>
+            <div
+              className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                currentStep >= step.number
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : "border-muted-foreground text-muted-foreground"
+              }`}
+            >
               <step.icon className="h-5 w-5" />
             </div>
             <div className="ml-3 hidden sm:block">
-              <p className={`text-sm font-medium ${
-                currentStep >= step.number ? 'text-foreground' : 'text-muted-foreground'
-              }`}>
+              <p
+                className={`text-sm font-medium ${
+                  currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
                 {step.title}
               </p>
             </div>
             {index < steps.length - 1 && (
-              <div className={`w-12 h-px mx-4 ${
-                currentStep > step.number ? 'bg-primary' : 'bg-muted-foreground'
-              }`} />
+              <div className={`w-12 h-px mx-4 ${currentStep > step.number ? "bg-primary" : "bg-muted-foreground"}`} />
             )}
           </div>
         ))}
@@ -733,22 +739,16 @@ const CreateCampaign = () => {
         <CardHeader>
           <CardTitle>{steps[currentStep - 1]?.title}</CardTitle>
         </CardHeader>
-        <CardContent>
-          {renderStepContent()}
-        </CardContent>
+        <CardContent>{renderStepContent()}</CardContent>
       </Card>
 
       {/* Navigation */}
       <div className="flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={prevStep}
-          disabled={currentStep === 1}
-        >
+        <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Previous
         </Button>
-        
+
         {currentStep < 4 ? (
           <Button onClick={nextStep}>
             Next
@@ -756,7 +756,7 @@ const CreateCampaign = () => {
           </Button>
         ) : (
           <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? 'Publishing...' : 'Publish Campaign'}
+            {isLoading ? "Publishing..." : "Publish Campaign"}
           </Button>
         )}
       </div>
@@ -766,13 +766,9 @@ const CreateCampaign = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Feature Not Available</DialogTitle>
-            <DialogDescription>
-              This feature is not yet ready for the MVP.
-            </DialogDescription>
+            <DialogDescription>This feature is not yet ready for the MVP.</DialogDescription>
           </DialogHeader>
-          <Button onClick={() => setShowDisabledPopup(false)}>
-            Got it
-          </Button>
+          <Button onClick={() => setShowDisabledPopup(false)}>Got it</Button>
         </DialogContent>
       </Dialog>
     </div>
