@@ -65,7 +65,8 @@ export const SignupConfirmationEmail = ({
 
           <Section style={footer}>
             <Text style={footerText}>
-              If you didn't create an account with 20/20 Solutions, you can safely ignore this email.
+              Don't reply to this email. If you didn't create an account with 20/20 Solutions, you can safely ignore
+              this email.
             </Text>
             <Text style={footerText}>© 2025 20/20 Solutions. All rights reserved.</Text>
           </Section>
@@ -100,7 +101,7 @@ const header = {
 };
 
 const logo = {
-  height: "120px",
+  height: "60px",
   width: "auto",
 };
 

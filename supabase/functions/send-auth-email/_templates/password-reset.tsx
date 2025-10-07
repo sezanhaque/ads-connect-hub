@@ -64,8 +64,8 @@ export const PasswordResetEmail = ({
           <Section style={footer}>
             <Text style={footerText}>
               {isMagicLink
-                ? "If you didn't request this magic link, you can safely ignore this email."
-                : "If you didn't request a password reset, please ignore this email or contact support if you have concerns."}
+                ? "Don't reply to this email. If you didn't request this magic link, you can safely ignore this email."
+                : "Don't reply to this email. If you didn't request a password reset, please ignore this email or contact support if you have concerns."}
             </Text>
             <Text style={footerText}>© 2025 20/20 Solutions. All rights reserved.</Text>
           </Section>
