@@ -59,9 +59,14 @@ const Index = () => {
               </NavigationMenuList>
             </NavigationMenu>
           </div>
-          <Button asChild>
-            <Link to="/auth">Get Started</Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild className="font-semibold">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/auth">Get Started</Link>
+            </Button>
+          </div>
         </nav>
       </header>
 
