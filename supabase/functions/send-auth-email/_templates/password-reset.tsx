@@ -1,5 +1,6 @@
 import { Body, Container, Head, Heading, Html, Link, Preview, Text, Section } from "npm:@react-email/components@0.0.22";
 import * as React from "npm:react@18.3.1";
+import logo from "@/assets/logo-new.png";
 
 interface PasswordResetEmailProps {
   supabase_url: string;
@@ -19,18 +20,16 @@ export const PasswordResetEmail = ({
 }: PasswordResetEmailProps) => {
   const resetUrl = `${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
   const isMagicLink = email_action_type === "magiclink";
-  const logoUrl = "https://ctchkdgmlcbuobzqyams.supabase.co/storage/v1/object/public/assets/logo-new.png";
+  // const logoUrl = "https://ctchkdgmlcbuobzqyams.supabase.co/storage/v1/object/public/assets/logo-new.png";
 
   return (
     <Html>
       <Head />
-      <Preview>
-        {isMagicLink ? "Your 20/20 Solutions magic link" : "Reset your 20/20 Solutions password"}
-      </Preview>
+      <Preview>{isMagicLink ? "Your 20/20 Solutions magic link" : "Reset your 20/20 Solutions password"}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <img src={logoUrl} alt="20/20 Solutions" style={logo} />
+            <img src={logo} alt="20/20 Solutions" style={logo} />
           </Section>
 
           <Section style={content}>
@@ -52,9 +51,7 @@ export const PasswordResetEmail = ({
               </Link>
             </div>
 
-            <Text style={smallText}>
-              If the button doesn't work, copy and paste this link into your browser:
-            </Text>
+            <Text style={smallText}>If the button doesn't work, copy and paste this link into your browser:</Text>
             <Text style={linkText}>{resetUrl}</Text>
 
             {!isMagicLink && (
@@ -82,7 +79,8 @@ export default PasswordResetEmail;
 
 const main = {
   backgroundColor: "#f5f5f5",
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
   padding: "40px 0",
 };
 
