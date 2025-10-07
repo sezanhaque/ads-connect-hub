@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import campaignPreview from "@/assets/campaign-preview.png";
 import jobsInterface from "@/assets/jobs-interface.png";
 import campaignBuilder from "@/assets/campaign-builder.png";
-const Product = () => {
+const PlatformOverview = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   useEffect(() => {
     // Load HubSpot form script
@@ -178,7 +178,7 @@ Take control of your hiring and outpace the competition.</p>
               </div>
               <div className="flex items-start gap-2">
                 <TrendingUp className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-muted-foreground font-now">We're currently working on the TikTok integration </p>
+                <p className="text-sm text-muted-foreground font-now">We're currently working on the TikTok intergration.</p>
               </div>
             </div>
           </div>
@@ -298,4 +298,4 @@ Take control of your hiring and outpace the competition.</p>
       </Dialog>
     </div>;
 };
-export default Product;
+export default PlatformOverview;
