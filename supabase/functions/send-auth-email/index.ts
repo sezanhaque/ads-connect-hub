@@ -7,7 +7,17 @@ import { SignupConfirmationEmail } from './_templates/signup-confirmation.tsx';
 import { PasswordResetEmail } from './_templates/password-reset.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-const hookSecret = Deno.env.get('SEND_AUTH_EMAIL_HOOK_SECRET') as string;
+// Normalize and validate webhook secret format (Standard Webhooks: "v1,whsec_<base64>")
+const rawHookSecret = (Deno.env.get('SEND_AUTH_EMAIL_HOOK_SECRET') || '').trim();
+// Convert potential base64url to base64 and pad
+let hookSecret = rawHookSecret;
+if (rawHookSecret.startsWith('v1,whsec_')) {
+  const prefix = 'v1,whsec_';
+  const b64 = rawHookSecret.slice(prefix.length).replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+  hookSecret = prefix + padded;
+}
+
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') {
