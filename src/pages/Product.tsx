@@ -4,10 +4,8 @@ import Logo from "@/components/ui/logo";
 import { ArrowRight, Rocket, Sparkles, Eye, Link2, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
-
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-
   useEffect(() => {
     // Load HubSpot form script
     const script = document.createElement("script");
@@ -18,9 +16,7 @@ const Product = () => {
       document.body.removeChild(script);
     };
   }, []);
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+  return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -40,9 +36,8 @@ const Product = () => {
           <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
             Create Winning Recruitment Campaigns in Minutes
           </h1>
-          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">
-            Purpose-built for in-house recruitment teams who want speed, clarity, and results—without the agency markup
-          </p>
+          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
+Take control of your hiring and outpace the competition.</p>
           <div className="pt-4">
             <Button size="lg" variant="accent" className="text-foreground" onClick={() => setIsFormOpen(true)}>
               Book a Demo
@@ -337,8 +332,6 @@ const Product = () => {
           <div className="hs-form-frame" data-region="eu1" data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" data-portal-id="147002455" />
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default Product;
