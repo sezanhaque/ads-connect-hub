@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
-import { ArrowRight, Rocket, Sparkles, Eye, Link2, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
+import { ArrowRight, Rocket, Sparkles, Eye, Briefcase, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import campaignPreview from "@/assets/campaign-preview.png";
+import jobsInterface from "@/assets/jobs-interface.png";
+import campaignBuilder from "@/assets/campaign-builder.png";
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   useEffect(() => {
@@ -68,18 +70,22 @@ Take control of your hiring and outpace the competition.</p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <div className="order-2 md:order-1 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 h-64 md:h-80 flex items-center justify-center border border-primary/20">
-            <p className="text-muted-foreground font-now">Integration Interface Mockup</p>
+          <div className="order-2 md:order-1">
+            <img 
+              src={jobsInterface} 
+              alt="Jobs Interface - Import and manage your job postings" 
+              className="w-full rounded-lg shadow-lg border border-primary/20"
+            />
           </div>
           <div className="order-1 md:order-2 space-y-4">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10">
-              <Link2 className="h-8 w-8 text-primary" />
+              <Briefcase className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
-              1. Connect Your Platforms
+              1. Import Your Jobs
             </h3>
             <p className="text-lg text-muted-foreground font-now">
-              Link Meta, Google, and LinkedIn in seconds with secure OAuth. No technical setup required—just click and authorize.
+              Add jobs manually or import them directly from Google Sheets. Our flexible system lets you bring in job data your way—no complex setup required.
             </p>
           </div>
         </div>
@@ -91,14 +97,18 @@ Take control of your hiring and outpace the competition.</p>
               <Sparkles className="h-8 w-8 text-secondary" />
             </div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
-              2. Create Your Campaign
+              2. Build Your Campaign
             </h3>
             <p className="text-lg text-muted-foreground font-now">
-              Use our guided builder to craft compelling job ads—no marketing degree required. AI-powered suggestions help you optimize every detail.
+              Use our multi-step campaign builder to create professional recruitment ads. From campaign basics to audience targeting and creative copy—we guide you through every detail.
             </p>
           </div>
-          <div className="rounded-lg bg-gradient-to-br from-secondary/10 to-primary/10 h-64 md:h-80 flex items-center justify-center border border-secondary/20">
-            <p className="text-muted-foreground font-now">Campaign Builder Interface</p>
+          <div>
+            <img 
+              src={campaignBuilder} 
+              alt="Campaign Builder Interface - Multi-step campaign creation" 
+              className="w-full rounded-lg shadow-lg border border-secondary/20"
+            />
           </div>
         </div>
 
