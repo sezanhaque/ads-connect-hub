@@ -38,9 +38,14 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <Logo />
-          <Button asChild>
-            <Link to="/auth">Get Started</Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild>
+              <Link to="/product">Product</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/auth">Get Started</Link>
+            </Button>
+          </div>
         </nav>
       </header>
 
