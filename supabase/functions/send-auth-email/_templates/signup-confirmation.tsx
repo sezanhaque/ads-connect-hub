@@ -18,7 +18,8 @@ export const SignupConfirmationEmail = ({
   userName,
 }: SignupConfirmationEmailProps) => {
   const confirmUrl = `${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
-  const logoUrl = "https://ctchkdgmlcbuobzqyams.supabase.co/storage/v1/object/public/assets/logo-new.png";
+  const logoUrl =
+    "https://raw.githubusercontent.com/sezanhaque/ads-connect-hub/refs/heads/main/src/assets/logo-new.png";
 
   return (
     <Html>
@@ -48,9 +49,7 @@ export const SignupConfirmationEmail = ({
               </Link>
             </div>
 
-            <Text style={smallText}>
-              If the button doesn't work, copy and paste this link into your browser:
-            </Text>
+            <Text style={smallText}>If the button doesn't work, copy and paste this link into your browser:</Text>
             <Text style={linkText}>{confirmUrl}</Text>
 
             <Section style={featuresSection}>
@@ -80,7 +79,8 @@ export default SignupConfirmationEmail;
 
 const main = {
   backgroundColor: "#f5f5f5",
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
   padding: "40px 0",
 };
 

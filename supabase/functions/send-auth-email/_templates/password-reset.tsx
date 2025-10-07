@@ -1,6 +1,5 @@
 import { Body, Container, Head, Heading, Html, Link, Preview, Text, Section } from "npm:@react-email/components@0.0.22";
 import * as React from "npm:react@18.3.1";
-import logo from "@/assets/logo-new.png";
 
 interface PasswordResetEmailProps {
   supabase_url: string;
@@ -20,7 +19,8 @@ export const PasswordResetEmail = ({
 }: PasswordResetEmailProps) => {
   const resetUrl = `${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
   const isMagicLink = email_action_type === "magiclink";
-  // const logoUrl = "https://ctchkdgmlcbuobzqyams.supabase.co/storage/v1/object/public/assets/logo-new.png";
+  const logoUrl =
+    "https://raw.githubusercontent.com/sezanhaque/ads-connect-hub/refs/heads/main/src/assets/logo-new.png";
 
   return (
     <Html>
@@ -29,7 +29,7 @@ export const PasswordResetEmail = ({
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <img src={logo} alt="20/20 Solutions" style={logo} />
+            <img src={logoUrl} alt="20/20 Solutions" style={logo} />
           </Section>
 
           <Section style={content}>
