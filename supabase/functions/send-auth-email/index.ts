@@ -88,7 +88,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "AdsConnect <onboarding@resend.dev>",
+      from: "AdsConnect <support@twentytwentysolutions.io>",
       to: [user.email],
       subject,
       html,
