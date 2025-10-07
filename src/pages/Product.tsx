@@ -7,8 +7,6 @@ import { useState, useEffect } from "react";
 import campaignPreview from "@/assets/campaign-preview.png";
 import jobsInterface from "@/assets/jobs-interface.png";
 import campaignBuilder from "@/assets/campaign-builder.png";
-import metaLogo from "@/assets/meta-logo.png";
-import tiktokLogo from "@/assets/tiktok-logo.png";
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   useEffect(() => {
@@ -115,6 +113,77 @@ Take control of your hiring and outpace the competition.</p>
         </div>
       </section>
 
+      {/* Three USPs Deep Dive */}
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">Why Recruitment Teams Choose 20/20 Solutions</h2>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
+          {/* USP 1 */}
+          <div className="bg-card rounded-lg p-6 md:p-8 space-y-4 border border-border hover:border-primary/50 transition-colors">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-primary/10">
+              <Rocket className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Work Smarter </h3>
+            <p className="text-base text-muted-foreground font-now">
+              Traditional recruitment is slow and costly, but with AI-optimized campaigns you cut manual effort, reduce wasted spend, and fill roles faster while keeping full control over process and cost.
+            </p>
+            <div className="pt-2 space-y-2">
+              <div className="flex items-start gap-2">
+                <Clock className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground font-now">Average 40% reduction in time-to-hire</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <TrendingUp className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground font-now">Save tousands vs. agency fees</p>
+              </div>
+            </div>
+          </div>
+
+          {/* USP 2 */}
+          <div className="bg-card rounded-lg p-6 md:p-8 space-y-4 border border-border hover:border-secondary/50 transition-colors">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-secondary/10">
+              <Sparkles className="h-7 w-7 text-secondary" />
+            </div>
+            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Save time</h3>
+            <p className="text-base text-muted-foreground font-now">
+              Creating recruitment ads doesn't have to be complex, with our guided flow you can launch complete campaigns in just a few steps, without needing marketing expertise or external agencies.
+            </p>
+            <div className="pt-2 space-y-2">
+              <div className="flex items-start gap-2">
+                <Zap className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground font-now">Just 3 steps from blank to live</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <Shield className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground font-now">No technical skills required</p>
+              </div>
+            </div>
+          </div>
+
+          {/* USP 3 */}
+          <div className="bg-card rounded-lg p-6 md:p-8 space-y-4 border border-border hover:border-success/50 transition-colors">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-success/10">
+              <Eye className="h-7 w-7 text-success" />
+            </div>
+            <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Full clarity </h3>
+            <p className="text-base text-muted-foreground font-now">
+              Recruitment spend is often hidden behind unclear reports and agency fees, but with real-time dashboards you see exactly where your budget goes, what results it delivers, and the true cost of every candidate.
+            </p>
+            <div className="pt-2 space-y-2">
+              <div className="flex items-start gap-2">
+                <BarChart3 className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground font-now">Real-time ROI tracking</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <TrendingUp className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground font-now">We're currently working on the TikTok intergration.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Target Audience Benefits */}
       <section className="container mx-auto px-4 py-10 md:py-20 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl">
@@ -174,27 +243,27 @@ Take control of your hiring and outpace the competition.</p>
           </h2>
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
-              <div className="w-16 h-16 mx-auto rounded-lg bg-primary/10 flex items-center justify-center p-2">
-                <img src={metaLogo} alt="Meta logo" className="w-full h-full object-contain" />
+              <div className="w-16 h-16 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
+                <p className="font-now font-bold text-primary text-xl">Meta</p>
               </div>
-              <h3 className="font-now font-semibold text-foreground">Meta</h3>
-              <p className="text-sm text-muted-foreground font-now">Launch targeted recruitment campaigns across Facebook and Instagram</p>
+              <h3 className="font-now font-semibold text-foreground">Meta (Facebook & Instagram)</h3>
+              <p className="text-sm text-muted-foreground font-now">Launch targeted campaigns across the world's largest social networks</p>
             </div>
             
             <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
-              <div className="w-16 h-16 mx-auto rounded-lg bg-secondary/10 flex items-center justify-center p-2">
-                <img src={tiktokLogo} alt="TikTok logo" className="w-full h-full object-contain" />
+              <div className="w-16 h-16 mx-auto rounded-lg bg-secondary/10 flex items-center justify-center">
+                <p className="font-now font-bold text-secondary text-xl">Google</p>
               </div>
-              <h3 className="font-now font-semibold text-foreground">TikTok</h3>
-              <p className="text-sm text-muted-foreground font-now">Coming soon - Reach the next generation of talent</p>
+              <h3 className="font-now font-semibold text-foreground">Google Ads</h3>
+              <p className="text-sm text-muted-foreground font-now">Reach candidates actively searching for opportunities</p>
             </div>
             
             <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
               <div className="w-16 h-16 mx-auto rounded-lg bg-success/10 flex items-center justify-center">
-                <p className="font-now font-bold text-success text-xl">in</p>
+                <p className="font-now font-bold text-success text-xl">More</p>
               </div>
-              <h3 className="font-now font-semibold text-foreground">LinkedIn & Much More...</h3>
-              <p className="text-sm text-muted-foreground font-now">Coming soon - Connect with professional networks</p>
+              <h3 className="font-now font-semibold text-foreground">LinkedIn & More</h3>
+              <p className="text-sm text-muted-foreground font-now">Connect with professional networks and expand your reach</p>
             </div>
           </div>
         </div>
