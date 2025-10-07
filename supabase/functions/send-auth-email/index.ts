@@ -70,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
           userName,
         }),
       );
-      subject = "Welcome to AdsConnect - Confirm your email";
+      subject = "Welcome to Twenty Twenty solutions - Confirm your email";
     } else if (email_action_type === "recovery" || email_action_type === "magiclink") {
       html = await renderAsync(
         React.createElement(PasswordResetEmail, {
@@ -82,13 +82,16 @@ const handler = async (req: Request): Promise<Response> => {
           userName,
         }),
       );
-      subject = email_action_type === "recovery" ? "Reset your AdsConnect password" : "AdsConnect Magic Link";
+      subject =
+        email_action_type === "recovery"
+          ? "Reset your Twenty Twenty solutions password"
+          : "Twenty Twenty solutions Magic Link";
     } else {
       throw new Error(`Unsupported email action type: ${email_action_type}`);
     }
 
     const { data, error } = await resend.emails.send({
-      from: "twentytwentysolutions <support@twentytwentysolutions.io>",
+      from: "TwentyTwentySolutions <support@twentytwentysolutions.io>",
       to: [user.email],
       subject,
       html,
