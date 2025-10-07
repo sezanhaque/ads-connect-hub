@@ -58,12 +58,9 @@ const Index = () => {
                         <NavigationMenuLink asChild>
                           <Link
                             to="/product"
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
-                            <div className="text-sm font-medium leading-none">Recruitment Advertising</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Create and manage recruitment campaigns
-                            </p>
+                            <div className="text-sm font-medium">Recruitment Advertising</div>
                           </Link>
                         </NavigationMenuLink>
                       </li>
