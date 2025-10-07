@@ -49,11 +49,7 @@ Take control of your hiring and outpace the competition.</p>
           </div>
           {/* Campaign Creation Interface Preview */}
           <div className="mt-12">
-            <img 
-              src={campaignPreview} 
-              alt="Campaign Creation Interface Preview" 
-              className="w-full rounded-lg shadow-lg border border-primary/20"
-            />
+            <img src={campaignPreview} alt="Campaign Creation Interface Preview" className="w-full rounded-lg shadow-lg border border-primary/20" />
           </div>
         </div>
       </section>
@@ -71,11 +67,7 @@ Take control of your hiring and outpace the competition.</p>
         
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
           <div className="order-2 md:order-1">
-            <img 
-              src={jobsInterface} 
-              alt="Jobs Interface - Import and manage your job postings" 
-              className="w-full rounded-lg shadow-lg border border-primary/20"
-            />
+            <img src={jobsInterface} alt="Jobs Interface - Import and manage your job postings" className="w-full rounded-lg shadow-lg border border-primary/20" />
           </div>
           <div className="order-1 md:order-2 space-y-4">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10">
@@ -84,9 +76,7 @@ Take control of your hiring and outpace the competition.</p>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
               1. Import Your Jobs
             </h3>
-            <p className="text-lg text-muted-foreground font-now">
-              Add jobs manually or import them directly from Google Sheets. Our flexible system lets you bring in job data your way—no complex setup required.
-            </p>
+            <p className="text-lg text-muted-foreground font-now">Add jobs manually or import them directly with the use of seamless integrations . Our flexible system lets you bring in job data your way and no complex setup required.</p>
           </div>
         </div>
 
@@ -99,16 +89,10 @@ Take control of your hiring and outpace the competition.</p>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
               2. Build Your Campaign
             </h3>
-            <p className="text-lg text-muted-foreground font-now">
-              Use our multi-step campaign builder to create professional recruitment ads. From campaign basics to audience targeting and creative copy—we guide you through every detail.
-            </p>
+            <p className="text-lg text-muted-foreground font-now">Use our advanced multi-step campaign builder to create professional recruitment ads on Meta. From campaign basics to audience targeting and creative copy, we guide you through every detail.</p>
           </div>
           <div>
-            <img 
-              src={campaignBuilder} 
-              alt="Campaign Builder Interface - Multi-step campaign creation" 
-              className="w-full rounded-lg shadow-lg border border-secondary/20"
-            />
+            <img src={campaignBuilder} alt="Campaign Builder Interface - Multi-step campaign creation" className="w-full rounded-lg shadow-lg border border-secondary/20" />
           </div>
         </div>
 
@@ -124,9 +108,7 @@ Take control of your hiring and outpace the competition.</p>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
               3. Launch & Track
             </h3>
-            <p className="text-lg text-muted-foreground font-now">
-              Go live in minutes and monitor real-time performance from one unified dashboard. See exactly what's working and adjust on the fly.
-            </p>
+            <p className="text-lg text-muted-foreground font-now">Go live in minutes and monitor real-time performance data from one unified dashboard. See exactly what's working and adjust on the fly.</p>
           </div>
         </div>
       </section>
