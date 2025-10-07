@@ -98,8 +98,8 @@ Take control of your hiring and outpace the competition.</p>
 
         {/* Step 3 */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
-          <div className="order-2 md:order-1 rounded-lg bg-gradient-to-br from-success/10 to-primary/10 h-64 md:h-80 flex items-center justify-center border border-success/20">
-            <p className="text-muted-foreground font-now">Dashboard Analytics View</p>
+          <div className="order-2 md:order-1">
+            <img src={campaignPreview} alt="Campaign Dashboard - Real-time analytics and performance tracking" className="w-full rounded-lg shadow-lg border border-success/20" />
           </div>
           <div className="order-1 md:order-2 space-y-4">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-success/10">
