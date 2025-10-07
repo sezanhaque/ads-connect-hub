@@ -40,7 +40,7 @@ const Product = () => {
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
           <div className="pt-4">
-            <Button size="lg" variant="accent" className="text-foreground" onClick={() => setIsFormOpen(true)}>
+            <Button size="lg" onClick={() => setIsFormOpen(true)}>
               Book a Demo
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
