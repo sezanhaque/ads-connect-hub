@@ -5,6 +5,15 @@ import { ArrowRight, Rocket, Sparkles, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 const Index = () => {
   const {
     user
@@ -39,9 +48,30 @@ const Index = () => {
         <nav className="flex items-center justify-between">
           <Logo />
           <div className="flex-1 flex justify-center">
-            <Button variant="ghost" asChild>
-              <Link to="/product">Products</Link>
-            </Button>
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="w-[200px] p-2">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/product"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Recruitment Advertising</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Create and manage recruitment campaigns
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
           <Button asChild>
             <Link to="/auth">Get Started</Link>
