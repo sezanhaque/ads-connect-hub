@@ -152,7 +152,7 @@ const Index = () => {
                   </div>
                   <div>
                     <h3 className="font-now font-semibold text-foreground mb-2">Make data-driven decisions with confidence</h3>
-                    <p className="text-sm text-muted-foreground font-now">Real insights, not vague agency reports</p>
+                    <p className="text-sm text-muted-foreground font-now">Real insights, not vague reports</p>
                   </div>
                 </div>
                 
