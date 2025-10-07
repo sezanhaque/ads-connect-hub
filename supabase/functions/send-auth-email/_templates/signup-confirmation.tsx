@@ -18,6 +18,7 @@ export const SignupConfirmationEmail = ({
   userName,
 }: SignupConfirmationEmailProps) => {
   const confirmUrl = `${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
+  const logoUrl = "https://ctchkdgmlcbuobzqyams.supabase.co/storage/v1/object/public/assets/logo-new.png";
 
   return (
     <Html>
@@ -26,7 +27,7 @@ export const SignupConfirmationEmail = ({
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Text style={logoText}>20/20 Solutions</Text>
+            <img src={logoUrl} alt="20/20 Solutions" style={logo} />
           </Section>
 
           <Section style={content}>
@@ -93,17 +94,14 @@ const container = {
 };
 
 const header = {
-  backgroundColor: "#1a1a1a",
+  backgroundColor: "#0091AE",
   padding: "30px 40px",
   textAlign: "center" as const,
 };
 
-const logoText = {
-  color: "#ffffff",
-  fontSize: "32px",
-  fontWeight: "bold" as const,
-  margin: "0",
-  letterSpacing: "1px",
+const logo = {
+  height: "60px",
+  width: "auto",
 };
 
 const content = {
@@ -141,7 +139,7 @@ const buttonContainer = {
 };
 
 const button = {
-  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  backgroundColor: "#0091AE",
   color: "#ffffff",
   padding: "14px 40px",
   textDecoration: "none",
@@ -149,7 +147,6 @@ const button = {
   fontWeight: "600" as const,
   fontSize: "16px",
   display: "inline-block",
-  boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
 };
 
 const smallText = {
@@ -163,7 +160,7 @@ const smallText = {
 
 const linkText = {
   wordBreak: "break-all" as const,
-  color: "#667eea",
+  color: "#0091AE",
   fontSize: "12px",
   textAlign: "center" as const,
   display: "block",
