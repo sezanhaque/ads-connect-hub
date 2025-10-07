@@ -56,31 +56,6 @@ Take control of your hiring and outpace the competition.</p>
         </div>
       </section>
 
-      {/* Problem-Solution Section */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
-          <div className="space-y-4 md:space-y-6">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-              Traditional recruitment advertising is complex, expensive, and opaque
-            </h2>
-            <p className="text-lg text-muted-foreground font-now">
-              Most in-house teams struggle with fragmented tools, unclear ROI, and dependency on expensive agencies.
-            </p>
-            <div className="pt-4 space-y-4">
-              <h3 className="text-2xl md:text-3xl font-now font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                20/20 Solutions gives you the power of professional campaigns with the simplicity of a few clicks
-              </h3>
-              <p className="text-lg text-muted-foreground font-now">
-                One platform. Clear data. Full control. No hidden costs.
-              </p>
-            </div>
-          </div>
-          <div className="rounded-lg bg-gradient-to-br from-secondary/10 to-primary/10 h-64 md:h-96 flex items-center justify-center border border-secondary/20">
-            <p className="text-muted-foreground font-now">Workflow Simplification Visual</p>
-          </div>
-        </div>
-      </section>
-
       {/* How It Works - Step 1 */}
       <section className="container mx-auto px-4 py-10 md:py-16">
         <div className="text-center mb-12">
