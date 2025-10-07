@@ -63,8 +63,8 @@ const Index = () => {
             <Button variant="ghost" asChild className="font-semibold">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button asChild>
-              <Link to="/auth">Request demo</Link>
+            <Button onClick={() => setIsFormOpen(true)}>
+              Request demo
             </Button>
           </div>
         </nav>
