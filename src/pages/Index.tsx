@@ -53,14 +53,14 @@ const Index = () => {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Products</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="w-[200px] p-2">
+                    <ul className="w-[240px] p-2">
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
                             to="/product"
                             className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
-                            <div className="text-sm font-medium">Recruitment Advertising</div>
+                            <div className="text-sm font-medium whitespace-nowrap">Recruitment Advertising</div>
                           </Link>
                         </NavigationMenuLink>
                       </li>
