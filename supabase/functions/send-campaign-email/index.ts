@@ -190,7 +190,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const resend = new Resend(resendApiKey);
     const emailResponse = await resend.emails.send({
-      from: "Campaigns <support@twentytwentysolutions.io>",
+      from: "Campaigns <brian@twentytwentysolutions.io>",
       // Resend test mode: restrict to verified testing email only
       to: ["thealaminislam@gmail.com", "ortv.schyns@gmail.com"],
       subject: `Campaign Setup: ${campaignData.campaign_name}`,
