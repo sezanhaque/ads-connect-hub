@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Index from "./pages/Index";
-import PlatformOverview from "./pages/PlatformOverview";
+import Product from "./pages/Product";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Campaigns from "./pages/Campaigns";
@@ -33,7 +33,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/platform-overview" element={<PlatformOverview />} />
+            <Route path="/product" element={<Product />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
             <Route path="/campaigns" element={<DashboardLayout><Campaigns /></DashboardLayout>} />
