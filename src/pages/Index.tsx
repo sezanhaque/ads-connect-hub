@@ -40,7 +40,7 @@ const Index = () => {
           <Logo />
           <div className="flex-1 flex justify-center">
             <Button variant="ghost" asChild>
-              <Link to="/product">Product</Link>
+              <Link to="/product">Products</Link>
             </Button>
           </div>
           <Button asChild>
