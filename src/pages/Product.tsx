@@ -173,26 +173,34 @@ Take control of your hiring and outpace the competition.</p>
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
               <div className="w-16 h-16 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                <p className="font-now font-bold text-primary text-xl">Meta</p>
+                <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10">
+                  <path d="M20.3 35.6C28.7 34.3 35.3 27.1 35.3 18.4C35.3 9.7 28.7 2.5 20.3 1.2V11.8H24.5L25.3 18.4H20.3V22.5C20.3 24.3 21.2 25.2 23.5 25.2H25.5V31C24.7 31.1 22.9 31.3 20.5 31.3C15.5 31.3 12.8 28.8 12.8 23.6V18.4H7.3V11.8H12.8V1.2C4.4 2.5 -2.2 9.7 -2.2 18.4C-2.2 27.1 4.4 34.3 12.8 35.6H20.3Z" fill="url(#gradient)" transform="translate(2.2, 0)"/>
+                  <defs>
+                    <linearGradient id="gradient" x1="16.5" y1="0" x2="16.5" y2="36" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="hsl(var(--primary))"/>
+                      <stop offset="1" stopColor="hsl(var(--primary))"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
               </div>
-              <h3 className="font-now font-semibold text-foreground">Meta (Facebook & Instagram)</h3>
-              <p className="text-sm text-muted-foreground font-now">Launch targeted campaigns across the world's largest social networks</p>
+              <h3 className="font-now font-semibold text-foreground">Meta</h3>
+              <p className="text-sm text-muted-foreground font-now">Launch targeted recruitment campaigns across Facebook and Instagram</p>
             </div>
             
             <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
               <div className="w-16 h-16 mx-auto rounded-lg bg-secondary/10 flex items-center justify-center">
-                <p className="font-now font-bold text-secondary text-xl">Google</p>
+                <p className="font-now font-bold text-secondary text-xl">TikTok</p>
               </div>
-              <h3 className="font-now font-semibold text-foreground">Google Ads</h3>
-              <p className="text-sm text-muted-foreground font-now">Reach candidates actively searching for opportunities</p>
+              <h3 className="font-now font-semibold text-foreground">TikTok</h3>
+              <p className="text-sm text-muted-foreground font-now">Coming soon - Reach the next generation of talent</p>
             </div>
             
             <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
               <div className="w-16 h-16 mx-auto rounded-lg bg-success/10 flex items-center justify-center">
-                <p className="font-now font-bold text-success text-xl">More</p>
+                <p className="font-now font-bold text-success text-xl">in</p>
               </div>
-              <h3 className="font-now font-semibold text-foreground">LinkedIn & More</h3>
-              <p className="text-sm text-muted-foreground font-now">Connect with professional networks and expand your reach</p>
+              <h3 className="font-now font-semibold text-foreground">LinkedIn</h3>
+              <p className="text-sm text-muted-foreground font-now">Coming soon - Connect with professional networks</p>
             </div>
           </div>
         </div>
