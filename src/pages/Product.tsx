@@ -1,12 +1,9 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
-import { ArrowRight, Rocket, Sparkles, Eye, Briefcase, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
+import { ArrowRight, Rocket, Sparkles, Eye, Link2, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
-import campaignPreview from "@/assets/campaign-preview.png";
-import jobsInterface from "@/assets/jobs-interface.png";
-import campaignBuilder from "@/assets/campaign-builder.png";
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   useEffect(() => {
@@ -42,18 +39,39 @@ const Product = () => {
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
           <div className="pt-4">
-            <Button size="lg" onClick={() => setIsFormOpen(true)}>
+            <Button size="lg" variant="accent" className="text-foreground" onClick={() => setIsFormOpen(true)}>
               Book a Demo
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
-          {/* Campaign Creation Interface Preview */}
-          <div className="mt-12">
-            <img 
-              src={campaignPreview} 
-              alt="Campaign Creation Interface Preview" 
-              className="w-full rounded-lg shadow-lg border border-primary/20"
-            />
+          {/* Placeholder for hero image */}
+          <div className="mt-12 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 h-64 md:h-96 flex items-center justify-center border border-primary/20">
+            <p className="text-muted-foreground font-now">Campaign Creation Interface Preview</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem-Solution Section */}
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
+          <div className="space-y-4 md:space-y-6">
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+              Traditional recruitment advertising is complex, expensive, and opaque
+            </h2>
+            <p className="text-lg text-muted-foreground font-now">
+              Most in-house teams struggle with fragmented tools, unclear ROI, and dependency on expensive agencies.
+            </p>
+            <div className="pt-4 space-y-4">
+              <h3 className="text-2xl md:text-3xl font-now font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                20/20 Solutions gives you the power of professional campaigns with the simplicity of a few clicks
+              </h3>
+              <p className="text-lg text-muted-foreground font-now">
+                One platform. Clear data. Full control. No hidden costs.
+              </p>
+            </div>
+          </div>
+          <div className="rounded-lg bg-gradient-to-br from-secondary/10 to-primary/10 h-64 md:h-96 flex items-center justify-center border border-secondary/20">
+            <p className="text-muted-foreground font-now">Workflow Simplification Visual</p>
           </div>
         </div>
       </section>
@@ -61,31 +79,25 @@ Take control of your hiring and outpace the competition.</p>
       {/* How It Works - Step 1 */}
       <section className="container mx-auto px-4 py-10 md:py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">
-            How It Works
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">Add jobs manually or import them directly with seamlessly integrations. Our flexible system lets you bring in job data your way and o complex setup required.</h2>
           <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
             From connection to conversion in three simple steps
           </p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <div className="order-2 md:order-1">
-            <img 
-              src={jobsInterface} 
-              alt="Jobs Interface - Import and manage your job postings" 
-              className="w-full rounded-lg shadow-lg border border-primary/20"
-            />
+          <div className="order-2 md:order-1 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 h-64 md:h-80 flex items-center justify-center border border-primary/20">
+            <p className="text-muted-foreground font-now">Integration Interface Mockup</p>
           </div>
           <div className="order-1 md:order-2 space-y-4">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10">
-              <Briefcase className="h-8 w-8 text-primary" />
+              <Link2 className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
-              1. Import Your Jobs
+              1. Connect Your Platforms
             </h3>
             <p className="text-lg text-muted-foreground font-now">
-              Add jobs manually or import them directly from Google Sheets. Our flexible system lets you bring in job data your way—no complex setup required.
+              Link Meta, Google, and LinkedIn in seconds with secure OAuth. No technical setup required—just click and authorize.
             </p>
           </div>
         </div>
@@ -97,18 +109,14 @@ Take control of your hiring and outpace the competition.</p>
               <Sparkles className="h-8 w-8 text-secondary" />
             </div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
-              2. Build Your Campaign
+              2. Create Your Campaign
             </h3>
             <p className="text-lg text-muted-foreground font-now">
-              Use our multi-step campaign builder to create professional recruitment ads. From campaign basics to audience targeting and creative copy—we guide you through every detail.
+              Use our guided builder to craft compelling job ads—no marketing degree required. AI-powered suggestions help you optimize every detail.
             </p>
           </div>
-          <div>
-            <img 
-              src={campaignBuilder} 
-              alt="Campaign Builder Interface - Multi-step campaign creation" 
-              className="w-full rounded-lg shadow-lg border border-secondary/20"
-            />
+          <div className="rounded-lg bg-gradient-to-br from-secondary/10 to-primary/10 h-64 md:h-80 flex items-center justify-center border border-secondary/20">
+            <p className="text-muted-foreground font-now">Campaign Builder Interface</p>
           </div>
         </div>
 
