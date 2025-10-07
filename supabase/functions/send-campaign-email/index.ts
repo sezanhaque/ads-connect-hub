@@ -152,8 +152,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Email content generated:", emailContent.length, "characters");
 
     // Send email via Resend
-    // const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    const resendApiKey = "re_bWduTxJp_NtmpjKRGoEBYB1cM2EA6PCNG";
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
       console.error("Missing RESEND_API_KEY secret");
       throw new Error("Email service not configured. Please set RESEND_API_KEY in Supabase.");
@@ -193,7 +192,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Campaigns <support@twentytwentysolutions.io>",
       // Resend test mode: restrict to verified testing email only
-      to: ["thealaminislam@gmail.com", "moalamin001@gmail.com"],
+      to: ["thealaminislam@gmail.com", "brianchristiaanwinkel@gmail.com"],
       subject: `Campaign Setup: ${campaignData.campaign_name}`,
       html: emailContent,
       attachments: attachments.length > 0 ? attachments : undefined,
