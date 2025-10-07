@@ -151,8 +151,8 @@ Take control of your hiring and outpace the competition.</p>
             </div>
             
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-accent" />
+              <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-now font-semibold text-foreground mb-2">Launch campaigns whenever you need</h3>
