@@ -22,20 +22,23 @@ export const SignupConfirmationEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Twenty Twenty solutions - Confirm your email to get started</Preview>
+      <Preview>Welcome to 20/20 Solutions - Confirm your email to get started</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>⚡ Twenty Twenty solutions</Heading>
-          <Heading style={h2}>Welcome to Twenty Twenty solutions!</Heading>
+          <Section style={header}>
+            <Text style={logoText}>20/20 Solutions</Text>
+          </Section>
 
-          <Section style={section}>
+          <Section style={content}>
+            <Heading style={h1}>Welcome to 20/20 Solutions!</Heading>
+
             <Text style={text}>
               Hi <strong>{userName}</strong>,
             </Text>
 
             <Text style={text}>
               Thank you for signing up! We're excited to have you on board. Please confirm your email address to get
-              started with Twenty Twenty solutions.
+              started with 20/20 Solutions.
             </Text>
 
             <div style={buttonContainer}>
@@ -46,24 +49,26 @@ export const SignupConfirmationEmail = ({
 
             <Text style={smallText}>
               If the button doesn't work, copy and paste this link into your browser:
-              <br />
-              <span style={linkText}>{confirmUrl}</span>
             </Text>
+            <Text style={linkText}>{confirmUrl}</Text>
+
+            <Section style={featuresSection}>
+              <Heading style={h3}>What you'll get access to:</Heading>
+              <ul style={list}>
+                <li style={listItem}>📊 Dashboard with campaign insights and metrics</li>
+                <li style={listItem}>🚀 Campaign creation and management tools</li>
+                <li style={listItem}>💼 Job posting and recruitment features</li>
+                <li style={listItem}>📱 Meta Marketing API integration</li>
+              </ul>
+            </Section>
           </Section>
 
-          <Section style={featuresSection}>
-            <Heading style={h3}>What you'll get access to:</Heading>
-            <ul style={list}>
-              <li style={listItem}>Dashboard with campaign insights and metrics</li>
-              <li style={listItem}>Campaign creation and management tools</li>
-              <li style={listItem}>Job posting and recruitment features</li>
-              <li style={listItem}>Meta Marketing API integration</li>
-            </ul>
+          <Section style={footer}>
+            <Text style={footerText}>
+              If you didn't create an account with 20/20 Solutions, you can safely ignore this email.
+            </Text>
+            <Text style={footerText}>© 2025 20/20 Solutions. All rights reserved.</Text>
           </Section>
-
-          <Text style={footer}>
-            If you didn't create an account with Twenty Twenty solutions, you can safely ignore this email.
-          </Text>
         </Container>
       </Body>
     </Html>
@@ -73,102 +78,132 @@ export const SignupConfirmationEmail = ({
 export default SignupConfirmationEmail;
 
 const main = {
-  backgroundColor: "#ffffff",
-  fontFamily: "Arial, sans-serif",
+  backgroundColor: "#f5f5f5",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  padding: "40px 0",
 };
 
 const container = {
   maxWidth: "600px",
   margin: "0 auto",
-  padding: "20px",
+  backgroundColor: "#ffffff",
+  borderRadius: "12px",
+  overflow: "hidden",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+};
+
+const header = {
+  backgroundColor: "#1a1a1a",
+  padding: "30px 40px",
+  textAlign: "center" as const,
+};
+
+const logoText = {
+  color: "#ffffff",
+  fontSize: "32px",
+  fontWeight: "bold" as const,
+  margin: "0",
+  letterSpacing: "1px",
+};
+
+const content = {
+  padding: "40px",
 };
 
 const h1 = {
-  color: "#333",
+  color: "#1a1a1a",
   fontSize: "28px",
-  fontWeight: "bold",
+  fontWeight: "600" as const,
   textAlign: "center" as const,
-  marginBottom: "10px",
-};
-
-const h2 = {
-  color: "#666",
-  fontSize: "20px",
-  fontWeight: "normal" as const,
-  textAlign: "center" as const,
-  marginBottom: "30px",
+  marginBottom: "24px",
+  marginTop: "0",
 };
 
 const h3 = {
-  color: "#333",
-  fontSize: "16px",
-  marginBottom: "10px",
-};
-
-const section = {
-  background: "#f8f9fa",
-  padding: "25px",
-  borderRadius: "8px",
-  marginBottom: "25px",
+  color: "#1a1a1a",
+  fontSize: "18px",
+  fontWeight: "600" as const,
+  marginBottom: "16px",
+  marginTop: "0",
 };
 
 const text = {
   fontSize: "16px",
-  color: "#333",
-  marginBottom: "15px",
-  lineHeight: "1.5",
+  color: "#333333",
+  marginBottom: "16px",
+  lineHeight: "1.6",
 };
 
 const buttonContainer = {
   textAlign: "center" as const,
-  marginTop: "20px",
-  marginBottom: "20px",
+  marginTop: "32px",
+  marginBottom: "32px",
 };
 
 const button = {
-  background: "#007bff",
-  color: "white",
-  padding: "12px 30px",
+  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  color: "#ffffff",
+  padding: "14px 40px",
   textDecoration: "none",
-  borderRadius: "6px",
-  fontWeight: "bold",
+  borderRadius: "8px",
+  fontWeight: "600" as const,
+  fontSize: "16px",
   display: "inline-block",
+  boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
 };
 
 const smallText = {
-  fontSize: "12px",
-  color: "#777",
+  fontSize: "13px",
+  color: "#666666",
   textAlign: "center" as const,
-  marginTop: "10px",
-  lineHeight: "1.4",
+  marginTop: "24px",
+  marginBottom: "8px",
+  lineHeight: "1.5",
 };
 
 const linkText = {
   wordBreak: "break-all" as const,
-  color: "#333",
+  color: "#667eea",
+  fontSize: "12px",
+  textAlign: "center" as const,
+  display: "block",
+  padding: "12px",
+  backgroundColor: "#f8f9fa",
+  borderRadius: "6px",
+  marginTop: "8px",
 };
 
 const featuresSection = {
-  background: "#e9ecef",
-  padding: "20px",
-  borderRadius: "6px",
-  marginBottom: "20px",
+  background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+  padding: "24px",
+  borderRadius: "8px",
+  marginTop: "32px",
+  border: "1px solid #e0e0e0",
 };
 
 const list = {
-  color: "#666",
-  fontSize: "14px",
+  color: "#333333",
+  fontSize: "15px",
   margin: "0",
-  paddingLeft: "20px",
+  paddingLeft: "0",
+  listStyle: "none",
 };
 
 const listItem = {
-  marginBottom: "8px",
+  marginBottom: "12px",
+  padding: "8px 0",
 };
 
 const footer = {
-  fontSize: "12px",
-  color: "#999",
+  backgroundColor: "#f8f9fa",
+  padding: "32px 40px",
   textAlign: "center" as const,
-  marginTop: "30px",
+  borderTop: "1px solid #e0e0e0",
+};
+
+const footerText = {
+  fontSize: "13px",
+  color: "#666666",
+  margin: "8px 0",
+  lineHeight: "1.5",
 };

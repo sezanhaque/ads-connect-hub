@@ -24,35 +24,37 @@ export const PasswordResetEmail = ({
     <Html>
       <Head />
       <Preview>
-        {isMagicLink ? "Your Twenty Twenty solutions magic link" : "Reset your Twenty Twenty solutions password"}
+        {isMagicLink ? "Your 20/20 Solutions magic link" : "Reset your 20/20 Solutions password"}
       </Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>⚡ Twenty Twenty Solutions</Heading>
-          <Heading style={h2}>{isMagicLink ? "Your Magic Link" : "Reset Your Password"}</Heading>
+          <Section style={header}>
+            <Text style={logoText}>20/20 Solutions</Text>
+          </Section>
 
-          <Section style={section}>
+          <Section style={content}>
+            <Heading style={h1}>{isMagicLink ? "Your Magic Link" : "Reset Your Password"}</Heading>
+
             <Text style={text}>
               Hi <strong>{userName}</strong>,
             </Text>
 
             <Text style={text}>
               {isMagicLink
-                ? "Click the button below to sign in to your Twenty Twenty solutions account:"
+                ? "Click the button below to sign in to your 20/20 Solutions account:"
                 : "We received a request to reset your password. Click the button below to create a new password:"}
             </Text>
 
             <div style={buttonContainer}>
               <Link href={resetUrl} style={button}>
-                {isMagicLink ? "Sign In to Twenty Twenty solutions" : "Reset Password"}
+                {isMagicLink ? "Sign In" : "Reset Password"}
               </Link>
             </div>
 
             <Text style={smallText}>
               If the button doesn't work, copy and paste this link into your browser:
-              <br />
-              <span style={linkText}>{resetUrl}</span>
             </Text>
+            <Text style={linkText}>{resetUrl}</Text>
 
             {!isMagicLink && (
               <Section style={warningSection}>
@@ -61,11 +63,14 @@ export const PasswordResetEmail = ({
             )}
           </Section>
 
-          <Text style={footer}>
-            {isMagicLink
-              ? "If you didn't request this magic link, you can safely ignore this email."
-              : "If you didn't request a password reset, please ignore this email or contact support if you have concerns."}
-          </Text>
+          <Section style={footer}>
+            <Text style={footerText}>
+              {isMagicLink
+                ? "If you didn't request this magic link, you can safely ignore this email."
+                : "If you didn't request a password reset, please ignore this email or contact support if you have concerns."}
+            </Text>
+            <Text style={footerText}>© 2025 20/20 Solutions. All rights reserved.</Text>
+          </Section>
         </Container>
       </Body>
     </Html>
@@ -75,92 +80,118 @@ export const PasswordResetEmail = ({
 export default PasswordResetEmail;
 
 const main = {
-  backgroundColor: "#ffffff",
-  fontFamily: "Arial, sans-serif",
+  backgroundColor: "#f5f5f5",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  padding: "40px 0",
 };
 
 const container = {
   maxWidth: "600px",
   margin: "0 auto",
-  padding: "20px",
+  backgroundColor: "#ffffff",
+  borderRadius: "12px",
+  overflow: "hidden",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+};
+
+const header = {
+  backgroundColor: "#1a1a1a",
+  padding: "30px 40px",
+  textAlign: "center" as const,
+};
+
+const logoText = {
+  color: "#ffffff",
+  fontSize: "32px",
+  fontWeight: "bold" as const,
+  margin: "0",
+  letterSpacing: "1px",
+};
+
+const content = {
+  padding: "40px",
 };
 
 const h1 = {
-  color: "#333",
+  color: "#1a1a1a",
   fontSize: "28px",
-  fontWeight: "bold",
+  fontWeight: "600" as const,
   textAlign: "center" as const,
-  marginBottom: "10px",
-};
-
-const h2 = {
-  color: "#666",
-  fontSize: "20px",
-  fontWeight: "normal" as const,
-  textAlign: "center" as const,
-  marginBottom: "30px",
-};
-
-const section = {
-  background: "#f8f9fa",
-  padding: "25px",
-  borderRadius: "8px",
-  marginBottom: "25px",
+  marginBottom: "24px",
+  marginTop: "0",
 };
 
 const text = {
   fontSize: "16px",
-  color: "#333",
-  marginBottom: "15px",
-  lineHeight: "1.5",
+  color: "#333333",
+  marginBottom: "16px",
+  lineHeight: "1.6",
 };
 
 const buttonContainer = {
   textAlign: "center" as const,
-  marginTop: "20px",
-  marginBottom: "20px",
+  marginTop: "32px",
+  marginBottom: "32px",
 };
 
 const button = {
-  background: "#007bff",
-  color: "white",
-  padding: "12px 30px",
+  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  color: "#ffffff",
+  padding: "14px 40px",
   textDecoration: "none",
-  borderRadius: "6px",
-  fontWeight: "bold",
+  borderRadius: "8px",
+  fontWeight: "600" as const,
+  fontSize: "16px",
   display: "inline-block",
+  boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
 };
 
 const smallText = {
-  fontSize: "12px",
-  color: "#777",
+  fontSize: "13px",
+  color: "#666666",
   textAlign: "center" as const,
-  marginTop: "10px",
-  lineHeight: "1.4",
+  marginTop: "24px",
+  marginBottom: "8px",
+  lineHeight: "1.5",
 };
 
 const linkText = {
   wordBreak: "break-all" as const,
-  color: "#333",
+  color: "#667eea",
+  fontSize: "12px",
+  textAlign: "center" as const,
+  display: "block",
+  padding: "12px",
+  backgroundColor: "#f8f9fa",
+  borderRadius: "6px",
+  marginTop: "8px",
 };
 
 const warningSection = {
-  background: "#fff3cd",
-  padding: "15px",
-  borderRadius: "6px",
+  background: "#fff8e1",
+  padding: "16px",
+  borderRadius: "8px",
   borderLeft: "4px solid #ffc107",
-  marginTop: "20px",
+  marginTop: "24px",
 };
 
 const warningText = {
   fontSize: "14px",
-  color: "#856404",
+  color: "#f57c00",
   margin: "0",
+  fontWeight: "500" as const,
 };
 
 const footer = {
-  fontSize: "12px",
-  color: "#999",
+  backgroundColor: "#f8f9fa",
+  padding: "32px 40px",
   textAlign: "center" as const,
-  marginTop: "30px",
+  borderTop: "1px solid #e0e0e0",
+};
+
+const footerText = {
+  fontSize: "13px",
+  color: "#666666",
+  margin: "8px 0",
+  lineHeight: "1.5",
 };
