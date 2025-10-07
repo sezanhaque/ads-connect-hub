@@ -4,6 +4,7 @@ import Logo from "@/components/ui/logo";
 import { ArrowRight, Rocket, Sparkles, Eye, Link2, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import campaignPreview from "@/assets/campaign-preview.png";
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   useEffect(() => {
@@ -44,9 +45,13 @@ Take control of your hiring and outpace the competition.</p>
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
-          {/* Placeholder for hero image */}
-          <div className="mt-12 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 h-64 md:h-96 flex items-center justify-center border border-primary/20">
-            <p className="text-muted-foreground font-now">Campaign Creation Interface Preview</p>
+          {/* Campaign Creation Interface Preview */}
+          <div className="mt-12">
+            <img 
+              src={campaignPreview} 
+              alt="Campaign Creation Interface Preview" 
+              className="w-full rounded-lg shadow-lg border border-primary/20"
+            />
           </div>
         </div>
       </section>
