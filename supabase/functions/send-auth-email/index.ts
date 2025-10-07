@@ -1,31 +1,31 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0';
+import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 import { Resend } from "npm:resend@2.0.0";
-import React from 'npm:react@18.3.1';
-import { renderAsync } from 'npm:@react-email/components@0.0.22';
-import { SignupConfirmationEmail } from './_templates/signup-confirmation.tsx';
-import { PasswordResetEmail } from './_templates/password-reset.tsx';
+import React from "npm:react@18.3.1";
+import { renderAsync } from "npm:@react-email/components@0.0.22";
+import { SignupConfirmationEmail } from "./_templates/signup-confirmation.tsx";
+import { PasswordResetEmail } from "./_templates/password-reset.tsx";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 // Normalize and validate webhook secret format (Supabase UI provides: "v1,whsec_<base64>")
-const rawHookSecret = (Deno.env.get('SEND_AUTH_EMAIL_HOOK_SECRET') || '').trim();
+const rawHookSecret = (Deno.env.get("SEND_AUTH_EMAIL_HOOK_SECRET") || "").trim();
 
 // Standard Webhooks library expects: "whsec_<standard base64 padded>"
 let hookSecret = rawHookSecret;
 
 // Remove optional version prefix and normalize base64 to standard with padding
-let normalized = rawHookSecret.startsWith('v1,') ? rawHookSecret.slice(3) : rawHookSecret;
-if (normalized.startsWith('whsec_')) {
-  const b64Part = normalized.slice('whsec_'.length).replace(/-/g, '+').replace(/_/g, '/');
-  const padded = b64Part + '='.repeat((4 - (b64Part.length % 4)) % 4);
-  hookSecret = 'whsec_' + padded;
+let normalized = rawHookSecret.startsWith("v1,") ? rawHookSecret.slice(3) : rawHookSecret;
+if (normalized.startsWith("whsec_")) {
+  const b64Part = normalized.slice("whsec_".length).replace(/-/g, "+").replace(/_/g, "/");
+  const padded = b64Part + "=".repeat((4 - (b64Part.length % 4)) % 4);
+  hookSecret = "whsec_" + padded;
 } else {
   hookSecret = normalized;
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  if (req.method !== 'POST') {
-    return new Response('not allowed', { status: 400 });
+  if (req.method !== "POST") {
+    return new Response("not allowed", { status: 400 });
   }
 
   const payload = await req.text();
@@ -52,14 +52,14 @@ const handler = async (req: Request): Promise<Response> => {
       };
     };
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const userName = user.user_metadata?.first_name || user.email.split('@')[0];
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const userName = user.user_metadata?.first_name || user.email.split("@")[0];
 
     let html: string;
     let subject: string;
 
     // Handle different email types
-    if (email_action_type === 'signup') {
+    if (email_action_type === "signup") {
       html = await renderAsync(
         React.createElement(SignupConfirmationEmail, {
           supabase_url: supabaseUrl,
@@ -68,10 +68,10 @@ const handler = async (req: Request): Promise<Response> => {
           redirect_to,
           email_action_type,
           userName,
-        })
+        }),
       );
-      subject = 'Welcome to AdsConnect - Confirm your email';
-    } else if (email_action_type === 'recovery' || email_action_type === 'magiclink') {
+      subject = "Welcome to AdsConnect - Confirm your email";
+    } else if (email_action_type === "recovery" || email_action_type === "magiclink") {
       html = await renderAsync(
         React.createElement(PasswordResetEmail, {
           supabase_url: supabaseUrl,
@@ -80,15 +80,15 @@ const handler = async (req: Request): Promise<Response> => {
           redirect_to,
           email_action_type,
           userName,
-        })
+        }),
       );
-      subject = email_action_type === 'recovery' ? 'Reset your AdsConnect password' : 'AdsConnect Magic Link';
+      subject = email_action_type === "recovery" ? "Reset your AdsConnect password" : "AdsConnect Magic Link";
     } else {
       throw new Error(`Unsupported email action type: ${email_action_type}`);
     }
 
     const { data, error } = await resend.emails.send({
-      from: "AdsConnect <support@twentytwentysolutions.io>",
+      from: "twentytwentysolutions <support@twentytwentysolutions.io>",
       to: [user.email],
       subject,
       html,
@@ -103,7 +103,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({ success: true, emailId: data?.id }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error: any) {
     console.error("Error in send-auth-email function:", error);
@@ -116,8 +116,8 @@ const handler = async (req: Request): Promise<Response> => {
       }),
       {
         status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      }
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 };
