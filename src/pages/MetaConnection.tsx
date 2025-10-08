@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMetaIntegration } from '@/hooks/useMetaIntegration';
 import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
 import { Badge } from '@/components/ui/badge';
+import { posthog } from '@/lib/posthog';
 
 const metaConnectionSchema = z.object({
   accessToken: z.string().min(1, 'Access token is required').refine(
@@ -55,7 +56,9 @@ const MetaConnection = () => {
       if (result.success) {
         setConnectionStatus('connected');
         
-        // Remove localStorage storage since we're using database now
+        posthog.capture('meta_account_connected', {
+          synced_campaigns: result.syncedCount,
+        });
         
         toast({
           title: 'Connection successful!',
@@ -87,6 +90,7 @@ const MetaConnection = () => {
   const handleDisconnect = async () => {
     const result = await disconnect();
     if (result?.success) {
+      posthog.capture('meta_account_disconnected');
       toast({
         title: 'Disconnected successfully',
         description: 'Your Meta account has been disconnected.',

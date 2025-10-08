@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { posthog } from '@/lib/posthog';
 
 interface Profile {
   id: string;
@@ -142,6 +143,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         variant: "destructive",
       });
     } else if (data.user) {
+      posthog.capture('user_signed_up', {
+        email: email,
+        company_name: companyName,
+      });
       toast({
         title: "Account created successfully!",
         description: "Please check your email to verify your account.",
@@ -163,12 +168,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: error.message,
         variant: "destructive",
       });
+    } else {
+      posthog.capture('user_signed_in', { email: email });
     }
 
     return { error };
   };
 
   const signOut = async () => {
+    posthog.capture('user_signed_out');
     const { error } = await supabase.auth.signOut();
     
     if (error) {

@@ -18,6 +18,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { posthog } from "@/lib/posthog";
 import {
   ArrowLeft,
   ArrowRight,
@@ -332,6 +333,14 @@ const CreateCampaign = () => {
       });
 
       if (error) throw error;
+
+      // Track campaign creation
+      posthog.capture('campaign_created', {
+        campaign_name: campaignData.name,
+        objective: campaignData.objective,
+        budget: parseFloat(campaignData.budget),
+        creative_assets_count: campaignData.creativeAssets.length,
+      });
 
       // Update job status to "Live"
       await supabase.from("jobs").update({ status: "live" }).eq("id", campaignData.jobId);

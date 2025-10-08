@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
+import { posthog } from '@/lib/posthog';
 import { Plus, Target, Briefcase, TrendingUp, DollarSign, Eye, MousePointer, Users } from 'lucide-react';
 interface DashboardStats {
   totalCampaigns: number;
@@ -59,6 +60,7 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    posthog.capture('dashboard_viewed');
     fetchDashboardData();
     autoSyncMetaCampaigns();
     // Trigger refresh for MetaCampaignsDashboard

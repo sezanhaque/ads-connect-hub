@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { posthog } from '@/lib/posthog';
 import { ArrowLeft } from 'lucide-react';
 
 const CreateJob = () => {
@@ -100,6 +101,12 @@ const CreateJob = () => {
         ]);
 
       if (error) throw error;
+
+      posthog.capture('job_created', {
+        job_title: formData.job_title,
+        status: formData.job_status,
+        location: formData.location_city,
+      });
 
       toast({
         title: "Success",

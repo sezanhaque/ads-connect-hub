@@ -6,11 +6,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import { posthog } from "@/lib/posthog";
 const Index = () => {
   const {
     user
   } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  
+  const handleDemoRequest = () => {
+    posthog.capture('demo_requested');
+    setIsFormOpen(true);
+  };
+  
   useEffect(() => {
     // Load HubSpot form script
     const script = document.createElement("script");
@@ -54,7 +61,7 @@ const Index = () => {
             <Button variant="ghost" asChild className="font-semibold">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button onClick={() => setIsFormOpen(true)}>
+            <Button onClick={handleDemoRequest}>
               Request demo
             </Button>
           </div>
@@ -68,7 +75,7 @@ const Index = () => {
           <p className="text-base md:text-xl text-muted-foreground leading-relaxed font-now subtitle px-2">Connect your favorite social media platforms, launch campaigns in minutes, and track results in one clear dashboard. Strengthen your recruitment strategy with smarter data and sharper insights.</p>
           
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-            <Button size="lg" variant="accent" className="text-foreground w-full sm:w-auto" onClick={() => setIsFormOpen(true)}>
+            <Button size="lg" variant="accent" className="text-foreground w-full sm:w-auto" onClick={handleDemoRequest}>
               Request demo
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
