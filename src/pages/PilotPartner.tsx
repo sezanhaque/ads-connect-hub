@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Logo from "@/components/ui/logo";
 import { ArrowRight, CheckCircle2, Users, TrendingUp, Target, Clock, Shield, Sparkles } from "lucide-react";
 import { usePostHog } from "@/hooks/usePostHog";
@@ -54,47 +53,46 @@ const PilotPartner = () => {
   }, [showForm, posthog]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2">
-            <Logo className="h-8" />
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <Link to="/">
+            <Logo />
           </Link>
-          <div className="flex gap-4">
-            <Button variant="ghost" asChild>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild className="font-semibold">
               <Link to="/">Home</Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="ghost" asChild className="font-semibold">
               <Link to="/auth">Sign In</Link>
             </Button>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
       {/* Section 1: Hero */}
-      <section className="container mx-auto px-4 py-20 md:py-32">
-        <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="max-w-5xl mx-auto text-center space-y-6 md:space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent border border-accent/20">
             <Sparkles className="h-4 w-4" />
-            <span className="text-sm font-medium">Limited Pilot Spots Available</span>
+            <span className="text-sm font-medium font-now">Limited Pilot Spots Available</span>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold font-now tracking-tight">
-            Join the Future of Recruitment Advertising —{" "}
-            <span className="text-primary">Before Everyone Else</span>
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
+            Join the Future of Recruitment Advertising — Before Everyone Else
           </h1>
           
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
             Be among the first 10 companies to shape the next generation of AI-powered recruitment advertising. No costs. Full support. Real impact.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button size="lg" className="text-lg px-8 py-6 h-auto" onClick={handleApplyClick}>
+            <Button size="lg" variant="accent" className="text-foreground" onClick={handleApplyClick}>
               Apply for Pilot Access
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-now">
               <Users className="h-4 w-4" />
               <span>Only {spotsRemaining} spots remaining</span>
             </div>
@@ -103,390 +101,365 @@ const PilotPartner = () => {
       </section>
 
       {/* Section 2: Problem + Vision */}
-      <section className="bg-secondary/30 py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-now">
-                Why Traditional Recruitment Advertising Is Broken
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                According to Josh Bersin's "The Talent Acquisition Revolution" report
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="max-w-4xl mx-auto space-y-12">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+              Why Traditional Recruitment Advertising Is Broken
+            </h2>
+            <p className="text-lg text-muted-foreground font-now">
+              According to Josh Bersin's "The Talent Acquisition Revolution" report
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-now font-semibold text-foreground">Too Slow</h3>
+              <p className="text-sm text-muted-foreground font-now">
+                Traditional campaign setup takes weeks, losing you top candidates to faster competitors
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <Clock className="h-8 w-8 text-primary mb-2" />
-                  <CardTitle>Too Slow</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Traditional campaign setup takes weeks, losing you top candidates to faster competitors
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <TrendingUp className="h-8 w-8 text-primary mb-2" />
-                  <CardTitle>Too Expensive</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Agency fees and unclear ROI drain budgets with little transparency or control
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <Target className="h-8 w-8 text-primary mb-2" />
-                  <CardTitle>No Real Insights</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Without clear metrics, you can't optimize spend or prove hiring marketing effectiveness
-                  </p>
-                </CardContent>
-              </Card>
+            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
+              <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-secondary" />
+              </div>
+              <h3 className="font-now font-semibold text-foreground">Too Expensive</h3>
+              <p className="text-sm text-muted-foreground font-now">
+                Agency fees and unclear ROI drain budgets with little transparency or control
+              </p>
             </div>
 
-            <div className="text-center">
-              <p className="text-xl font-medium">There's a better way...</p>
+            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
+              <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <Target className="h-6 w-6 text-success" />
+              </div>
+              <h3 className="font-now font-semibold text-foreground">No Real Insights</h3>
+              <p className="text-sm text-muted-foreground font-now">
+                Without clear metrics, you can't optimize spend or prove hiring marketing effectiveness
+              </p>
             </div>
+          </div>
+
+          <div className="text-center">
+            <p className="text-xl font-medium font-now">There's a better way...</p>
           </div>
         </div>
       </section>
 
       {/* Section 3: Solution Snapshot */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-now">
-                Meet 20/20 Solutions: Recruitment Advertising, Reimagined
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Transform how you attract talent with AI-powered campaigns that deliver measurable results
-              </p>
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+              Meet 20/20 Solutions: Recruitment Advertising, Reimagined
+            </h2>
+            <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
+              Transform how you attract talent with AI-powered campaigns that deliver measurable results
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-now font-semibold text-foreground mb-2">Launch AI-Powered Campaigns in Minutes</h3>
+                  <p className="text-sm text-muted-foreground font-now">
+                    No agencies, no waiting. Go from job posting to live campaign in under 10 minutes
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-6 w-6 text-secondary" />
+                </div>
+                <div>
+                  <h3 className="font-now font-semibold text-foreground mb-2">Track Every Euro, Measure Every Result</h3>
+                  <p className="text-sm text-muted-foreground font-now">
+                    Real-time dashboards show exactly where your budget goes and which campaigns perform
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-6 w-6 text-success" />
+                </div>
+                <div>
+                  <h3 className="font-now font-semibold text-foreground mb-2">Scale Without Extra Headcount</h3>
+                  <p className="text-sm text-muted-foreground font-now">
+                    Run multiple campaigns across platforms without needing specialized advertising teams
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Launch AI-Powered Campaigns in Minutes</h3>
-                    <p className="text-muted-foreground">
-                      No agencies, no waiting. Go from job posting to live campaign in under 10 minutes
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Track Every Euro, Measure Every Result</h3>
-                    <p className="text-muted-foreground">
-                      Real-time dashboards show exactly where your budget goes and which campaigns perform
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Scale Without Extra Headcount</h3>
-                    <p className="text-muted-foreground">
-                      Run multiple campaigns across platforms without needing specialized advertising teams
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative">
-                <img 
-                  src="/src/assets/campaign-builder.png" 
-                  alt="Campaign Builder Interface" 
-                  className="rounded-lg shadow-2xl border"
-                />
-              </div>
+            <div className="relative">
+              <img 
+                src="/src/assets/campaign-builder.png" 
+                alt="Campaign Builder Interface" 
+                className="rounded-lg shadow-lg border border-primary/20"
+              />
             </div>
           </div>
         </div>
       </section>
 
       {/* Section 4: Pilot Program Details */}
-      <section className="bg-secondary/30 py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-now">
-                What You Get as a Pilot Partner
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Full transparency on benefits and expectations
-              </p>
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="max-w-5xl mx-auto space-y-12">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+              What You Get as a Pilot Partner
+            </h2>
+            <p className="text-lg text-muted-foreground font-now">
+              Full transparency on benefits and expectations
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-card rounded-lg p-6 space-y-4 border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-now font-semibold text-foreground text-lg">Your Benefits</h3>
+              </div>
+              <p className="text-sm text-muted-foreground font-now">What we provide to pilot partners</p>
+              <div className="space-y-3 pt-2">
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Early access to platform before public launch</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">No software costs during 3-month pilot period</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Direct input on product development and features</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Dedicated onboarding and technical support</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Preferred pricing when you transition to full subscription</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Optional case study opportunity (with approval)</span>
+                </div>
+              </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card className="border-primary/20 bg-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    Your Benefits
-                  </CardTitle>
-                  <CardDescription>What we provide to pilot partners</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span>Early access to platform before public launch</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span>No software costs during 3-month pilot period</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span>Direct input on product development and features</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span>Dedicated onboarding and technical support</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span>Preferred pricing when you transition to full subscription</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span>Optional case study opportunity (with approval)</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-muted bg-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-primary" />
-                    Our Expectations
-                  </CardTitle>
-                  <CardDescription>What we ask from pilot partners</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <span>3-month pilot commitment (Q1 2026)</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <span>Active use of platform for recruitment campaigns</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <span>Monthly feedback sessions (1 hour each)</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <span>Willingness to share results (anonymized data)</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <span>Regular communication with product team</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                    <span>Cover your own advertising spend (Meta, TikTok, etc.)</span>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="bg-card rounded-lg p-6 space-y-4 border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-secondary" />
+                </div>
+                <h3 className="font-now font-semibold text-foreground text-lg">Our Expectations</h3>
+              </div>
+              <p className="text-sm text-muted-foreground font-now">What we ask from pilot partners</p>
+              <div className="space-y-3 pt-2">
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">3-month pilot commitment (Q1 2026)</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Active use of platform for recruitment campaigns</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Monthly feedback sessions (1 hour each)</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Willingness to share results (anonymized data)</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Regular communication with product team</span>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                  <span className="text-sm font-now">Cover your own advertising spend (Meta, TikTok, etc.)</span>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 text-center">
-              <p className="text-lg font-medium">
-                <strong>Timeline:</strong> Applications close January 15, 2026 • Pilot begins Q1 2026
-              </p>
-            </div>
+          <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 text-center">
+            <p className="text-lg font-medium font-now">
+              <strong>Timeline:</strong> Applications close January 15, 2026 • Pilot begins Q1 2026
+            </p>
           </div>
         </div>
       </section>
 
       {/* Section 5: Social Proof & Credibility */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-now">
-                Aligned with the Global AI Revolution in Talent Acquisition
-              </h2>
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="max-w-4xl mx-auto text-center space-y-8 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12">
+          <div className="space-y-4">
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+              Aligned with the Global AI Revolution in Talent Acquisition
+            </h2>
+          </div>
+
+          <div className="bg-card rounded-lg p-6 md:p-8 border border-primary/20">
+            <blockquote className="text-lg md:text-xl italic text-muted-foreground mb-4 font-now">
+              "AI is fundamentally transforming talent acquisition... Companies that embrace these technologies early will gain significant competitive advantages in attracting and hiring top talent."
+            </blockquote>
+            <p className="font-medium font-now">
+              — Josh Bersin, "The Talent Acquisition Revolution: AI, Automation, and the Future of Recruiting"
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 pt-8">
+            <div className="space-y-2">
+              <div className="text-4xl font-bold font-now bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">10x</div>
+              <p className="text-muted-foreground font-now">Faster campaign creation vs. traditional methods</p>
             </div>
-
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-              <CardContent className="pt-6">
-                <blockquote className="text-lg md:text-xl italic text-muted-foreground mb-4">
-                  "AI is fundamentally transforming talent acquisition... Companies that embrace these technologies early will gain significant competitive advantages in attracting and hiring top talent."
-                </blockquote>
-                <p className="font-medium">
-                  — Josh Bersin, "The Talent Acquisition Revolution: AI, Automation, and the Future of Recruiting"
-                </p>
-              </CardContent>
-            </Card>
-
-            <div className="grid md:grid-cols-3 gap-6 pt-8">
-              <div className="space-y-2">
-                <div className="text-4xl font-bold text-primary">10x</div>
-                <p className="text-muted-foreground">Faster campaign creation vs. traditional methods</p>
-              </div>
-              <div className="space-y-2">
-                <div className="text-4xl font-bold text-primary">100%</div>
-                <p className="text-muted-foreground">Transparency on spend and performance metrics</p>
-              </div>
-              <div className="space-y-2">
-                <div className="text-4xl font-bold text-primary">24/7</div>
-                <p className="text-muted-foreground">Campaign monitoring and optimization</p>
-              </div>
+            <div className="space-y-2">
+              <div className="text-4xl font-bold font-now bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">100%</div>
+              <p className="text-muted-foreground font-now">Transparency on spend and performance metrics</p>
+            </div>
+            <div className="space-y-2">
+              <div className="text-4xl font-bold font-now bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">24/7</div>
+              <p className="text-muted-foreground font-now">Campaign monitoring and optimization</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Section 6: CTA Repetition + Urgency */}
-      <section className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background border border-primary/20">
-              <Users className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Only {spotsRemaining} of 10 Pilot Spots Remaining</span>
-            </div>
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background border border-primary/20">
+            <Users className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium font-now">Only {spotsRemaining} of 10 Pilot Spots Remaining</span>
+          </div>
 
-            <h2 className="text-3xl md:text-4xl font-bold font-now">
-              Don't Miss Your Chance to Shape the Future
-            </h2>
+          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            Don't Miss Your Chance to Shape the Future
+          </h2>
 
-            <p className="text-lg text-muted-foreground">
-              We're limiting pilot participation to 10 companies to ensure each partner receives dedicated support and has meaningful impact on the product. Applications are reviewed on a first-come, first-served basis.
-            </p>
+          <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
+            We're limiting pilot participation to 10 companies to ensure each partner receives dedicated support and has meaningful impact on the product. Applications are reviewed on a first-come, first-served basis.
+          </p>
 
-            <Button size="lg" className="text-lg px-8 py-6 h-auto" onClick={handleApplyClick}>
+          <div className="pt-4">
+            <Button size="lg" variant="accent" className="text-foreground" onClick={handleApplyClick}>
               Apply for Pilot Access Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-
-            <p className="text-sm text-muted-foreground">
-              Application review takes 2-3 business days
-            </p>
           </div>
+
+          <p className="text-sm text-muted-foreground font-now">
+            Application review takes 2-3 business days
+          </p>
         </div>
       </section>
 
       {/* Section 7: FAQ */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold font-now">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Everything you need to know about the pilot program
-              </p>
-            </div>
-
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="text-left">
-                  What happens after I apply?
-                </AccordionTrigger>
-                <AccordionContent>
-                  After submitting your application, our team will review it within 2-3 business days. If selected, we'll schedule a 30-minute kickoff call to discuss your recruitment needs, timeline, and how 20/20 can best support your goals during the pilot.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-2">
-                <AccordionTrigger className="text-left">
-                  Is there any cost during the pilot?
-                </AccordionTrigger>
-                <AccordionContent>
-                  No. There are no software fees during the 3-month pilot period. You will only need to cover your own advertising spend on platforms like Meta and TikTok (which you control directly). This is the same spend you would have with any recruitment advertising approach.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-3">
-                <AccordionTrigger className="text-left">
-                  What's expected of pilot partners?
-                </AccordionTrigger>
-                <AccordionContent>
-                  We ask for active platform usage, monthly 1-hour feedback sessions, and willingness to share anonymized results. Your input directly shapes product development. There's no obligation to continue after the pilot ends.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-4">
-                <AccordionTrigger className="text-left">
-                  When does the pilot start?
-                </AccordionTrigger>
-                <AccordionContent>
-                  The pilot program begins in Q1 2026. Applications close on January 15, 2026. Selected partners will be notified by late January with onboarding scheduled for February 2026.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-5">
-                <AccordionTrigger className="text-left">
-                  Can I stop participating?
-                </AccordionTrigger>
-                <AccordionContent>
-                  Yes. While we ask for a 3-month commitment, you can exit the pilot at any time if it's not meeting your needs. We simply ask for feedback on why it wasn't a fit to help us improve.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-6">
-                <AccordionTrigger className="text-left">
-                  Will my data be shared?
-                </AccordionTrigger>
-                <AccordionContent>
-                  No. Your company data and campaign information remain confidential. We may ask to share anonymized, aggregated results in case studies, but only with your explicit written approval. You maintain full control over what can be shared publicly.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-7">
-                <AccordionTrigger className="text-left">
-                  What company size are you looking for?
-                </AccordionTrigger>
-                <AccordionContent>
-                  We're open to in-house recruitment teams of all sizes, though we're particularly interested in companies hiring 10+ people per year who want to bring recruitment advertising in-house or reduce agency dependency.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+      <section className="container mx-auto px-4 py-10 md:py-20">
+        <div className="max-w-3xl mx-auto space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-muted-foreground font-now">
+              Everything you need to know about the pilot program
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* Final CTA */}
-      <section className="bg-secondary/30 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h3 className="text-2xl font-bold font-now">Ready to Get Started?</h3>
-            <Button size="lg" className="text-lg px-8 py-6 h-auto" onClick={handleApplyClick}>
-              Apply for Pilot Access
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="text-left font-now">
+                What happens after I apply?
+              </AccordionTrigger>
+              <AccordionContent className="font-now">
+                After submitting your application, our team will review it within 2-3 business days. If selected, we'll schedule a 30-minute kickoff call to discuss your recruitment needs, timeline, and how 20/20 can best support your goals during the pilot.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2">
+              <AccordionTrigger className="text-left font-now">
+                Is there any cost during the pilot?
+              </AccordionTrigger>
+              <AccordionContent className="font-now">
+                No. There are no software fees during the 3-month pilot period. You will only need to cover your own advertising spend on platforms like Meta and TikTok (which you control directly). This is the same spend you would have with any recruitment advertising approach.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3">
+              <AccordionTrigger className="text-left font-now">
+                What's expected of pilot partners?
+              </AccordionTrigger>
+              <AccordionContent className="font-now">
+                We ask for active platform usage, monthly 1-hour feedback sessions, and willingness to share anonymized results. Your input directly shapes product development. There's no obligation to continue after the pilot ends.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4">
+              <AccordionTrigger className="text-left font-now">
+                When does the pilot start?
+              </AccordionTrigger>
+              <AccordionContent className="font-now">
+                The pilot program begins in Q1 2026. Applications close on January 15, 2026. Selected partners will be notified by late January with onboarding scheduled for February 2026.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5">
+              <AccordionTrigger className="text-left font-now">
+                Can I stop participating?
+              </AccordionTrigger>
+              <AccordionContent className="font-now">
+                Yes. While we ask for a 3-month commitment, you can exit the pilot at any time if it's not meeting your needs. We simply ask for feedback on why it wasn't a fit to help us improve.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-6">
+              <AccordionTrigger className="text-left font-now">
+                Will my data be shared?
+              </AccordionTrigger>
+              <AccordionContent className="font-now">
+                No. Your company data and campaign information remain confidential. We may ask to share anonymized, aggregated results in case studies, but only with your explicit written approval. You maintain full control over what can be shared publicly.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-7">
+              <AccordionTrigger className="text-left font-now">
+                What company size are you looking for?
+              </AccordionTrigger>
+              <AccordionContent className="font-now">
+                We're open to in-house recruitment teams of all sizes, though we're particularly interested in companies hiring 10+ people per year who want to bring recruitment advertising in-house or reduce agency dependency.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8">
+      <footer className="border-t py-8 mt-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <Logo className="h-6" />
-              <span className="text-sm text-muted-foreground">
+              <Logo />
+              <span className="text-sm text-muted-foreground font-now">
                 © 2025 20/20 Solutions. All rights reserved.
               </span>
             </div>
-            <div className="flex gap-6 text-sm">
+            <div className="flex gap-6 text-sm font-now">
               <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
                 Home
               </Link>
@@ -502,7 +475,7 @@ const PilotPartner = () => {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Apply for Pilot Partner Program</DialogTitle>
+            <DialogTitle className="font-now">Apply for Pilot Partner Program</DialogTitle>
           </DialogHeader>
           <div id="pilot-form-container" className="py-4"></div>
         </DialogContent>
