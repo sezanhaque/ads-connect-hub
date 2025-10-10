@@ -143,8 +143,8 @@ const PilotPartner = () => {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="space-y-6">
               <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <h3 className="font-now font-semibold text-foreground mb-2">Launch Recruitment Campaigns in Minutes</h3>
