@@ -393,7 +393,7 @@ const PilotPartner = () => {
                 What company size are you looking for?
               </AccordionTrigger>
               <AccordionContent className="font-now">
-                We're open to in-house recruitment teams of all sizes, though we're particularly interested in companies hiring 10+ people per year who want to bring recruitment advertising in-house or reduce agency dependency.
+                We're looking for in-house recruitment teams of all sizes, especially those hiring 10+ people per year for recurring or volume roles. These teams want to manage their recruitment advertising directly and rely less on agencies or ineffective processes.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
