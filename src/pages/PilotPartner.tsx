@@ -174,7 +174,7 @@ const PilotPartner = () => {
             </div>
 
             <div className="relative">
-              <img src="/src/assets/campaign-builder.png" alt="Campaign Builder Interface" className="rounded-lg shadow-lg border border-primary/20" />
+              <img src="/src/assets/campaign-builder-new.png" alt="Campaign Builder Interface" className="rounded-lg shadow-lg border border-primary/20" />
             </div>
           </div>
         </div>
