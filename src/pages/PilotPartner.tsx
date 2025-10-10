@@ -348,7 +348,7 @@ const PilotPartner = () => {
                 What happens after I apply?
               </AccordionTrigger>
               <AccordionContent className="font-now">
-                After submitting your application, our team will review it within 2-3 business days. If selected, we'll schedule a 30-minute kickoff call to discuss your recruitment needs, timeline, and how 20/20 can best support your goals during the pilot.
+                After submitting your application, our team will review it within 1–2 business days. If selected, we'll schedule a 30-minute kickoff call to discuss your recruitment needs, timeline, and how 20/20 can best support your goals during the pilot.
               </AccordionContent>
             </AccordionItem>
 
