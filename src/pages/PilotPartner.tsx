@@ -310,7 +310,7 @@ const PilotPartner = () => {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-            Don't Miss Your Chance to Shape the Future
+            Don't miss your chance to be a part of this program.
           </h2>
 
           <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
