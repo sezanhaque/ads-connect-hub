@@ -89,9 +89,7 @@ const PilotPartner = () => {
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               Why Recruitment Advertising Needs More Clarity
             </h2>
-            <p className="text-lg text-muted-foreground font-now">
-              According to Josh Bersin's "The Talent Acquisition Revolution" report
-            </p>
+            
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -136,12 +134,8 @@ const PilotPartner = () => {
       <section className="container mx-auto px-4 py-10 md:py-20">
         <div className="max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-              Meet 20/20 Solutions: Recruitment Advertising, Reimagined
-            </h2>
-            <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
-              Transform how you attract talent with AI-powered campaigns that deliver measurable results
-            </p>
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">Meet 20/20: Recruitment Advertising Seen Clearly</h2>
+            <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">Transform your recruitment advertising with smart automation that changes how your organisation attracts talent.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -151,10 +145,8 @@ const PilotPartner = () => {
                   <CheckCircle2 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-now font-semibold text-foreground mb-2">Launch AI-Powered Campaigns in Minutes</h3>
-                  <p className="text-sm text-muted-foreground font-now">
-                    No agencies, no waiting. Go from job posting to live campaign in under 10 minutes
-                  </p>
+                  <h3 className="font-now font-semibold text-foreground mb-2">Launch Recruitment Campaigns in Minutes</h3>
+                  <p className="text-sm text-muted-foreground font-now">No agencies, no waiting. Go from job posting to live campaign in under 10 minutes.</p>
                 </div>
               </div>
 
@@ -163,10 +155,8 @@ const PilotPartner = () => {
                   <CheckCircle2 className="h-6 w-6 text-secondary" />
                 </div>
                 <div>
-                  <h3 className="font-now font-semibold text-foreground mb-2">Track Every Euro, Measure Every Result</h3>
-                  <p className="text-sm text-muted-foreground font-now">
-                    Real-time dashboards show exactly where your budget goes and which campaigns perform
-                  </p>
+                  <h3 className="font-now font-semibold text-foreground mb-2">Track Every Euro with full Transparency </h3>
+                  <p className="text-sm text-muted-foreground font-now">Your ad budget runs directly, with no markups, no prepayments, and complete transparency.</p>
                 </div>
               </div>
 
@@ -176,9 +166,7 @@ const PilotPartner = () => {
                 </div>
                 <div>
                   <h3 className="font-now font-semibold text-foreground mb-2">Scale Without Extra Headcount</h3>
-                  <p className="text-sm text-muted-foreground font-now">
-                    Run multiple campaigns across platforms without needing specialized advertising teams
-                  </p>
+                  <p className="text-sm text-muted-foreground font-now">Run multiple campaigns across platforms and business units, all managed  without specialized advertising teams.</p>
                 </div>
               </div>
             </div>
@@ -218,7 +206,7 @@ const PilotPartner = () => {
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm font-now">No software costs during 3-month pilot period</span>
+                  <span className="text-sm font-now">No software costs during pilot period</span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -250,7 +238,7 @@ const PilotPartner = () => {
               <div className="space-y-3 pt-2">
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                  <span className="text-sm font-now">3-month pilot commitment (Q1 2026)</span>
+                  <span className="text-sm font-now">1-month pilot commitment </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
@@ -258,11 +246,11 @@ const PilotPartner = () => {
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                  <span className="text-sm font-now">Monthly feedback sessions (1 hour each)</span>
+                  <span className="text-sm font-now">Feedback sessions during this period</span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                  <span className="text-sm font-now">Willingness to share results (anonymized data)</span>
+                  <span className="text-sm font-now">Willingness to share web analytic results</span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
@@ -270,54 +258,18 @@ const PilotPartner = () => {
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                  <span className="text-sm font-now">Cover your own advertising spend (Meta, TikTok, etc.)</span>
+                  <span className="text-sm font-now">Covering own advertising spend, min €500,- </span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-6 text-center">
-            <p className="text-lg font-medium font-now">
-              <strong>Timeline:</strong> Applications close January 15, 2026 • Pilot begins Q1 2026
-            </p>
-          </div>
+          
         </div>
       </section>
 
       {/* Section 5: Social Proof & Credibility */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12">
-          <div className="space-y-4">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-              Aligned with the Global AI Revolution in Talent Acquisition
-            </h2>
-          </div>
-
-          <div className="bg-card rounded-lg p-6 md:p-8 border border-primary/20">
-            <blockquote className="text-lg md:text-xl italic text-muted-foreground mb-4 font-now">
-              "AI is fundamentally transforming talent acquisition... Companies that embrace these technologies early will gain significant competitive advantages in attracting and hiring top talent."
-            </blockquote>
-            <p className="font-medium font-now">
-              — Josh Bersin, "The Talent Acquisition Revolution: AI, Automation, and the Future of Recruiting"
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 pt-8">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold font-now bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">10x</div>
-              <p className="text-muted-foreground font-now">Faster campaign creation vs. traditional methods</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold font-now bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">100%</div>
-              <p className="text-muted-foreground font-now">Transparency on spend and performance metrics</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold font-now bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">24/7</div>
-              <p className="text-muted-foreground font-now">Campaign monitoring and optimization</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
       {/* Section 6: CTA Repetition + Urgency */}
       <section className="container mx-auto px-4 py-10 md:py-20">
@@ -342,9 +294,7 @@ const PilotPartner = () => {
             </Button>
           </div>
 
-          <p className="text-sm text-muted-foreground font-now">
-            Application review takes 2-3 business days
-          </p>
+          <p className="text-sm text-muted-foreground font-now">Application review takes 1-2 business days</p>
         </div>
       </section>
 
