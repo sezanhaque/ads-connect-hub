@@ -153,8 +153,8 @@ const PilotPartner = () => {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-6 w-6 text-secondary" />
+                <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <h3 className="font-now font-semibold text-foreground mb-2">Track Every Euro with full Transparency </h3>
