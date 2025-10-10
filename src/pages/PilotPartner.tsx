@@ -370,15 +370,6 @@ const PilotPartner = () => {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4">
-              <AccordionTrigger className="text-left font-now">
-                When does the pilot start?
-              </AccordionTrigger>
-              <AccordionContent className="font-now">
-                The pilot program begins in Q1 2026. Applications close on January 15, 2026. Selected partners will be notified by late January with onboarding scheduled for February 2026.
-              </AccordionContent>
-            </AccordionItem>
-
             <AccordionItem value="item-5">
               <AccordionTrigger className="text-left font-now">
                 Can I stop participating?
