@@ -68,7 +68,7 @@ const PilotPartner = () => {
         <div className="max-w-5xl mx-auto text-center space-y-6 md:space-y-8">
           
           
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">Let’s improve recruitment.</h1>
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">Let's improve recruitment.</h1>
           
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">Be among the first 10 companies to Test, Rethink and Evolve recruitment advertising. No costs. Full support. Real impact.</p>
           
@@ -157,7 +157,7 @@ const PilotPartner = () => {
                   <CheckCircle2 className="h-6 w-6 text-success" />
                 </div>
                 <div>
-                  <h3 className="font-now font-semibold text-foreground mb-2">Track Every Euro with full Transparency </h3>
+                  <h3 className="font-now font-semibold text-foreground mb-2">Track Every Euro with full Transparency </h3>
                   <p className="text-sm text-muted-foreground font-now">Your ad budget runs directly, with no markups, no prepayments, and complete transparency.</p>
                 </div>
               </div>
@@ -168,7 +168,7 @@ const PilotPartner = () => {
                 </div>
                 <div>
                   <h3 className="font-now font-semibold text-foreground mb-2">Scale Without Extra Headcount</h3>
-                  <p className="text-sm text-muted-foreground font-now">Run multiple campaigns across platforms and business units, all managed  without specialized advertising teams.</p>
+                  <p className="text-sm text-muted-foreground font-now">Run multiple campaigns across platforms and business units, all managed  without specialized advertising teams.</p>
                 </div>
               </div>
             </div>
@@ -240,7 +240,7 @@ const PilotPartner = () => {
               <div className="space-y-3 pt-2">
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                  <span className="text-sm font-now">1-month pilot commitment </span>
+                  <span className="text-sm font-now">1 to 2 months pilot commitment</span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
@@ -260,7 +260,7 @@ const PilotPartner = () => {
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                  <span className="text-sm font-now">Covering own advertising spend, min €500,- </span>
+                  <span className="text-sm font-now">Covering own advertising spend, min €500,- </span>
                 </div>
               </div>
             </div>
