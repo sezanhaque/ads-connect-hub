@@ -4,46 +4,40 @@ import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
 import { ArrowRight, CheckCircle2, Users, TrendingUp, Target, Clock, Shield, Sparkles } from "lucide-react";
 import { usePostHog } from "@/hooks/usePostHog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
 const PilotPartner = () => {
-  const { posthog } = usePostHog();
+  const {
+    posthog
+  } = usePostHog();
   const [showForm, setShowForm] = useState(false);
   const [spotsRemaining] = useState(7); // Update this as needed
 
   useEffect(() => {
     posthog.capture('pilot_page_viewed');
   }, [posthog]);
-
   useEffect(() => {
     // Load HubSpot form script
     const script = document.createElement('script');
     script.src = '//js.hsforms.net/forms/embed/v2.js';
     script.async = true;
     document.body.appendChild(script);
-
     return () => {
       document.body.removeChild(script);
     };
   }, []);
-
   const handleApplyClick = () => {
     posthog.capture('pilot_application_started');
     setShowForm(true);
   };
-
   useEffect(() => {
     if (showForm && (window as any).hbspt) {
       (window as any).hbspt.forms.create({
         region: "na1",
-        portalId: "YOUR_PORTAL_ID", // Replace with your HubSpot portal ID
-        formId: "YOUR_PILOT_FORM_ID", // Replace with your pilot form ID
+        portalId: "YOUR_PORTAL_ID",
+        // Replace with your HubSpot portal ID
+        formId: "YOUR_PILOT_FORM_ID",
+        // Replace with your pilot form ID
         target: "#pilot-form-container",
         onFormSubmit: () => {
           posthog.capture('pilot_application_submitted');
@@ -51,9 +45,7 @@ const PilotPartner = () => {
       });
     }
   }, [showForm, posthog]);
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+  return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Navigation */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -74,18 +66,11 @@ const PilotPartner = () => {
       {/* Section 1: Hero */}
       <section className="container mx-auto px-4 py-10 md:py-20">
         <div className="max-w-5xl mx-auto text-center space-y-6 md:space-y-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent border border-accent/20">
-            <Sparkles className="h-4 w-4" />
-            <span className="text-sm font-medium font-now">Limited Pilot Spots Available</span>
-          </div>
           
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
-            Join the Future of Recruitment Advertising — Before Everyone Else
-          </h1>
           
-          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
-            Be among the first 10 companies to shape the next generation of AI-powered recruitment advertising. No costs. Full support. Real impact.
-          </p>
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">Let’s improve recruitment.</h1>
+          
+          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">Be among the first 10 companies to Test, Rethink and Evolve recruitment advertising. No costs. Full support. Real impact.</p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Button size="lg" variant="accent" className="text-foreground" onClick={handleApplyClick}>
@@ -202,11 +187,7 @@ const PilotPartner = () => {
             </div>
 
             <div className="relative">
-              <img 
-                src="/src/assets/campaign-builder.png" 
-                alt="Campaign Builder Interface" 
-                className="rounded-lg shadow-lg border border-primary/20"
-              />
+              <img src="/src/assets/campaign-builder.png" alt="Campaign Builder Interface" className="rounded-lg shadow-lg border border-primary/20" />
             </div>
           </div>
         </div>
@@ -480,8 +461,6 @@ const PilotPartner = () => {
           <div id="pilot-form-container" className="py-4"></div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default PilotPartner;
