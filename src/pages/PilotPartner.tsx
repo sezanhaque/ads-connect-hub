@@ -75,7 +75,7 @@ const PilotPartner = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Button size="lg" variant="accent" className="text-foreground" asChild>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
-                Apply for Pilot Access
+                Apply to Pilot Program
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
             </Button>
@@ -285,7 +285,7 @@ const PilotPartner = () => {
             <div className="pt-6">
               <Button size="lg" variant="secondary" className="text-lg px-8 py-6 h-auto font-semibold shadow-lg hover:shadow-xl transition-all" asChild>
                 <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
-                  Apply for Pilot Access Now
+                  Apply to Pilot Program Now
                   <ArrowRight className="ml-2 h-6 w-6" />
                 </a>
               </Button>
@@ -320,7 +320,7 @@ const PilotPartner = () => {
           <div className="pt-4">
             <Button size="lg" variant="accent" className="text-foreground" asChild>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
-                Apply for Pilot Access Now
+                Apply to Pilot Program Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
             </Button>
