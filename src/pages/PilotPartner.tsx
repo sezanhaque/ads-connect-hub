@@ -73,9 +73,11 @@ const PilotPartner = () => {
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">Be among the first 10 companies to Test, Rethink and Evolve recruitment advertising. No costs. Full support. Real impact.</p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button size="lg" variant="accent" className="text-foreground" onClick={handleApplyClick}>
-              Apply for Pilot Access
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button size="lg" variant="accent" className="text-foreground" asChild>
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
+                Apply for Pilot Access
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
             </Button>
             
           </div>
@@ -288,9 +290,11 @@ const PilotPartner = () => {
           </p>
 
           <div className="pt-4">
-            <Button size="lg" variant="accent" className="text-foreground" onClick={handleApplyClick}>
-              Apply for Pilot Access Now
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button size="lg" variant="accent" className="text-foreground" asChild>
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
+                Apply for Pilot Access Now
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
             </Button>
           </div>
 
