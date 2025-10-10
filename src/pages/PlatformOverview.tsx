@@ -224,6 +224,28 @@ Take control of your hiring and outpace the competition.</p>
           <div className="hs-form-frame" data-region="eu1" data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" data-portal-id="147002455" />
         </DialogContent>
       </Dialog>
+
+      {/* Footer */}
+      <footer className="border-t py-8 mt-10">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Logo />
+              <span className="text-sm text-muted-foreground font-now">
+                © 2025 20/20 Solutions. All rights reserved.
+              </span>
+            </div>
+            <div className="flex gap-6 text-sm font-now">
+              <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                Home
+              </Link>
+              <Link to="/auth" className="text-muted-foreground hover:text-foreground transition-colors">
+                Sign In
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>;
 };
 export default Product;
