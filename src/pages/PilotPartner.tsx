@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle2, Users, TrendingUp, Target, Clock, Shield, Spa
 import { usePostHog } from "@/hooks/usePostHog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import campaignBuilderImage from "@/assets/campaign-builder-new.png";
 const PilotPartner = () => {
   const {
     posthog
@@ -174,7 +175,7 @@ const PilotPartner = () => {
             </div>
 
             <div className="relative">
-              <img src="/src/assets/campaign-builder-new.png" alt="Campaign Builder Interface" className="rounded-lg shadow-lg border border-primary/20" />
+              <img src={campaignBuilderImage} alt="Campaign Builder Interface" className="rounded-lg shadow-lg border border-primary/20" />
             </div>
           </div>
         </div>
