@@ -109,7 +109,7 @@ const PilotPartner = () => {
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="font-now font-semibold text-foreground">Take back control</h3>
+              <h3 className="font-now font-semibold text-foreground">No control</h3>
               <p className="text-sm text-muted-foreground font-now">
                 Agency markups and hidden fees make it hard to see where your money goes.
               </p>
