@@ -10,6 +10,7 @@ import { initPostHog } from "@/lib/posthog";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Index from "./pages/Index";
 import PlatformOverview from "./pages/PlatformOverview";
+import PilotPartner from "./pages/PilotPartner";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Campaigns from "./pages/Campaigns";
@@ -43,6 +44,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/platform-overview" element={<PlatformOverview />} />
+            <Route path="/pilot-partner" element={<PilotPartner />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
             <Route path="/campaigns" element={<DashboardLayout><Campaigns /></DashboardLayout>} />

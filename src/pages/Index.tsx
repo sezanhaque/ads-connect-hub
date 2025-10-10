@@ -80,9 +80,10 @@ const Index = () => {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button size="lg" variant="accent" asChild className="text-foreground w-full sm:w-auto">
-              <a href="/TwentyTwentySolutions_One-pager.pdf" download>
-                Download One-Pager
-              </a>
+              <Link to="/pilot-partner">
+                Become a Pilot Partner
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
           </div>
 
