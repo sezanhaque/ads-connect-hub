@@ -77,10 +77,7 @@ const PilotPartner = () => {
               Apply for Pilot Access
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground font-now">
-              <Users className="h-4 w-4" />
-              <span>Only {spotsRemaining} spots remaining</span>
-            </div>
+            
           </div>
         </div>
       </section>
@@ -90,7 +87,7 @@ const PilotPartner = () => {
         <div className="max-w-4xl mx-auto space-y-12">
           <div className="text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-              Why Recruitment Advertising Needs More Clarity
+              Why Traditional Recruitment Advertising Is Broken
             </h2>
             <p className="text-lg text-muted-foreground font-now">
               According to Josh Bersin's "The Talent Acquisition Revolution" report
