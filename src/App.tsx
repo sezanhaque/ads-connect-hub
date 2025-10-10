@@ -44,7 +44,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/platform-overview" element={<PlatformOverview />} />
-            <Route path="/pilot-partner" element={<PilotPartner />} />
+            <Route path="/pilot-program" element={<PilotPartner />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
             <Route path="/campaigns" element={<DashboardLayout><Campaigns /></DashboardLayout>} />

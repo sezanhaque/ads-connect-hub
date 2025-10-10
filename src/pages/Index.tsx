@@ -80,7 +80,7 @@ const Index = () => {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button size="lg" variant="accent" asChild className="text-foreground w-full sm:w-auto">
-              <Link to="/pilot-partner">
+              <Link to="/pilot-program">
                 Become a Pilot Partner
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
