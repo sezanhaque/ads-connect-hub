@@ -137,7 +137,7 @@ const PilotPartner = () => {
         <div className="max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12">
           <div className="text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">Meet 20/20: Recruitment Advertising Seen Clearly</h2>
-            <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">Transform your recruitment advertising with smart automation that changes how your organisation attracts talent.</p>
+            <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">Transform your advertising process with smart automation that changes how your organisation attracts talent.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 items-center">
