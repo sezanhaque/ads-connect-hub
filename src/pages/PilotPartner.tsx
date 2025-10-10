@@ -357,7 +357,7 @@ const PilotPartner = () => {
                 Is there any cost during the pilot?
               </AccordionTrigger>
               <AccordionContent className="font-now">
-                No. There are no software fees during the 3-month pilot period. You will only need to cover your own advertising spend on platforms like Meta and TikTok (which you control directly). This is the same spend you would have with any recruitment advertising approach.
+                No. There are no software fees during the pilot period. You will only need to cover your own advertising spend on Meta, which you control directly. This is the same spend you would have with any recruitment advertising approach.
               </AccordionContent>
             </AccordionItem>
 
