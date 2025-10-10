@@ -111,7 +111,7 @@ const PilotPartner = () => {
               </div>
               <h3 className="font-now font-semibold text-foreground">Too Expensive</h3>
               <p className="text-sm text-muted-foreground font-now">
-                Agency fees and unclear ROI drain budgets with little transparency or control
+                Say goodbye to agency markups and unclear budgets. 20/20 lets you manage your own ad spend directly, with full visibility at every step.
               </p>
             </div>
 
