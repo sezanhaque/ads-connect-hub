@@ -375,7 +375,7 @@ const PilotPartner = () => {
                 Can I stop participating?
               </AccordionTrigger>
               <AccordionContent className="font-now">
-                Yes. While we ask for a 3-month commitment, you can exit the pilot at any time if it's not meeting your needs. We simply ask for feedback on why it wasn't a fit to help us improve.
+                Yes. While we ask for a 1–2 month commitment, you can exit the pilot at any time if it's not meeting your needs. We simply ask for feedback on why it wasn't a fit so we can continue to improve.
               </AccordionContent>
             </AccordionItem>
 
