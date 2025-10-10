@@ -87,7 +87,7 @@ const PilotPartner = () => {
         <div className="max-w-4xl mx-auto space-y-12">
           <div className="text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-              Why Traditional Recruitment Advertising Is Broken
+              Why Recruitment Advertising Needs More Clarity
             </h2>
             <p className="text-lg text-muted-foreground font-now">
               According to Josh Bersin's "The Talent Acquisition Revolution" report
