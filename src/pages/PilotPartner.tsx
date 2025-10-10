@@ -272,7 +272,7 @@ const PilotPartner = () => {
 
       {/* Section 5: Strong CTA - Apply Now */}
       <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8 bg-gradient-to-br from-primary via-primary/90 to-accent rounded-2xl p-12 md:p-16 shadow-xl">
+        <div className="max-w-4xl mx-auto text-center space-y-8 bg-gradient-to-br from-[#4A90B5] via-[#5FA89E] to-[#C4D68E] rounded-2xl p-12 md:p-16 shadow-xl">
           <div className="space-y-6">
             <h2 className="text-4xl md:text-5xl font-now font-bold text-white leading-tight">
               Ready to Transform Your Recruitment Process?
@@ -283,7 +283,7 @@ const PilotPartner = () => {
             </p>
 
             <div className="pt-6">
-              <Button size="lg" variant="secondary" className="text-lg px-8 py-6 h-auto font-semibold shadow-lg hover:shadow-xl transition-all" asChild>
+              <Button size="lg" className="text-lg px-8 py-6 h-auto font-semibold shadow-lg hover:shadow-xl transition-all bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm" asChild>
                 <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
                   Apply to Pilot Program Now
                   <ArrowRight className="ml-2 h-6 w-6" />
