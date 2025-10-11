@@ -87,7 +87,7 @@ const PilotPartner = () => {
           
           
           <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
-            {isEnglish ? "Let's improve recruitment." : "Laten we recruitment verbeteren."}
+            {isEnglish ? "Let's improve recruitment." : "Samen maken we recruitment advertising slimmer."}
           </h1>
           
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
