@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface MetaIntegration {
   id: string;
   org_id: string;
   ad_account_id: string;
   account_name: string;
-  status: 'active' | 'expired' | 'error';
+  status: "active" | "expired" | "error";
   last_sync_at: string;
   created_at: string;
 }
@@ -30,68 +30,67 @@ export const useMetaIntegrationStatus = () => {
 
       // Get user's organization - prioritize owner role first for accurate integration detection
       const { data: memberships, error: membershipsError } = await supabase
-        .from('members')
-        .select('org_id, role')
-        .eq('user_id', user.id)
-        .order('role', { ascending: true }); // This will put 'admin' before 'member', 'owner' before both
+        .from("members")
+        .select("org_id, role")
+        .eq("user_id", user.id)
+        .order("role", { ascending: true }); // This will put 'admin' before 'member', 'owner' before both
 
       if (membershipsError) {
-        throw new Error('Failed to get user organization');
+        throw new Error("Failed to get user organization");
       }
 
       if (!memberships || memberships.length === 0) {
-        console.log('No organizations found for user');
+        console.log("No organizations found for user");
         setIntegration(null);
         return;
       }
 
-      console.log('User memberships:', memberships);
-
       // Find the organization with the highest role (owner > admin > member)
-      let primaryOrg = memberships.find((m: any) => m.role === 'owner') ||
-                       memberships.find((m: any) => m.role === 'admin') ||
-                       memberships.find((m: any) => m.role === 'member') ||
-                       memberships[0];
+      let primaryOrg =
+        memberships.find((m: any) => m.role === "owner") ||
+        memberships.find((m: any) => m.role === "admin") ||
+        memberships.find((m: any) => m.role === "member") ||
+        memberships[0];
 
-      console.log('Using organization:', primaryOrg.org_id, 'with role:', primaryOrg.role);
+      console.log("Using organization:", primaryOrg.org_id, "with role:", primaryOrg.role);
 
       // Check for user-specific Meta integration first, then org-level
       let { data: metaIntegration, error: integrationError } = await supabase
-        .from('integrations')
-        .select('*')
-        .eq('org_id', primaryOrg.org_id)
-        .eq('integration_type', 'meta')
-        .eq('status', 'active')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+        .from("integrations")
+        .select("*")
+        .eq("org_id", primaryOrg.org_id)
+        .eq("integration_type", "meta")
+        .eq("status", "active")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
       // If no user-specific integration, check for org-level integration
       if (!metaIntegration && !integrationError) {
         const { data: orgIntegration, error: orgError } = await supabase
-          .from('integrations')
-          .select('*')
-          .eq('org_id', primaryOrg.org_id)
-          .eq('integration_type', 'meta')
-          .eq('status', 'active')
-          .is('user_id', null)
-          .order('created_at', { ascending: false })
+          .from("integrations")
+          .select("*")
+          .eq("org_id", primaryOrg.org_id)
+          .eq("integration_type", "meta")
+          .eq("status", "active")
+          .is("user_id", null)
+          .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-        
+
         metaIntegration = orgIntegration;
         integrationError = orgError;
       }
 
       if (integrationError) {
-        console.error('Integration fetch error:', integrationError);
-        throw new Error('Failed to fetch integration status');
+        console.error("Integration fetch error:", integrationError);
+        throw new Error("Failed to fetch integration status");
       }
 
       setIntegration(metaIntegration as MetaIntegration);
     } catch (err: any) {
-      console.error('fetchIntegration error:', err);
+      console.error("fetchIntegration error:", err);
       setError(err.message);
       setIntegration(null);
     } finally {
@@ -103,13 +102,10 @@ export const useMetaIntegrationStatus = () => {
     if (!integration) return;
 
     try {
-      const { error } = await supabase
-        .from('integrations')
-        .update({ status: 'error' })
-        .eq('id', integration.id);
+      const { error } = await supabase.from("integrations").update({ status: "error" }).eq("id", integration.id);
 
       if (error) {
-        throw new Error('Failed to disconnect integration');
+        throw new Error("Failed to disconnect integration");
       }
 
       setIntegration(null);
@@ -129,6 +125,6 @@ export const useMetaIntegrationStatus = () => {
     error,
     isConnected: !!integration,
     refetch: fetchIntegration,
-    disconnect
+    disconnect,
   };
 };
