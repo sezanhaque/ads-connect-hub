@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { subDays } from 'date-fns';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
-import { useToast } from '@/hooks/use-toast';
-import { DateRangeFilter, DateRange } from '@/components/DateRangeFilter';
-import { TrendingUp, Eye, MousePointer, DollarSign, Users, RefreshCw, Link as LinkIcon } from 'lucide-react';
+import { useEffect, useState, useCallback } from "react";
+import { subDays } from "date-fns";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
+import { useToast } from "@/hooks/use-toast";
+import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
+import { TrendingUp, Eye, MousePointer, DollarSign, Users, RefreshCw, Link as LinkIcon } from "lucide-react";
 
 interface MetaCampaign {
   id: string;
@@ -33,140 +33,151 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
   const [syncing, setSyncing] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: subDays(new Date(), 7),
-    to: new Date()
+    to: new Date(),
   });
   const { user } = useAuth();
   const { integration, isConnected } = useMetaIntegrationStatus();
   const { toast } = useToast();
 
-  const fetchCampaigns = async (dateFilter?: DateRange) => {
-    console.log('MetaCampaignsDashboard: Fetching live campaigns from Meta API...');
-    setLoading(true);
-    if (!user) return;
+  const fetchCampaigns = useCallback(
+    async (dateFilter?: DateRange) => {
+      console.log("MetaCampaignsDashboard: Fetching campaigns...");
+      setLoading(true);
+      if (!user) return;
 
-    const currentDateRange = dateFilter || dateRange;
-
-    try {
-      // Determine the user's primary organization (owner > admin > member)
-      const { data: memberships, error: membershipError } = await supabase
-        .from('members')
-        .select('org_id, role')
-        .eq('user_id', user.id)
-        .order('role', { ascending: true });
-
-      if (membershipError || !memberships || memberships.length === 0) {
-        console.log('No organizations found for user');
+      // Only fetch live data if Meta account is connected
+      if (!isConnected) {
+        console.log("No Meta account connected, skipping live data fetch");
         setCampaigns([]);
+        setLoading(false);
         return;
       }
 
-      const primaryOrg =
-        memberships.find((m: any) => m.role === 'owner') ||
-        memberships.find((m: any) => m.role === 'admin') ||
-        memberships.find((m: any) => m.role === 'member') ||
-        memberships[0];
+      const currentDateRange = dateFilter || dateRange;
 
-      // Convert date range to Meta API format
-      let dateRangeParam = 'last_7d'; // default
-      const daysDiff = Math.ceil((currentDateRange.to.getTime() - currentDateRange.from.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysDiff === 0) {
-        // Same day - check if it's today
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const filterDate = new Date(currentDateRange.from);
-        filterDate.setHours(0, 0, 0, 0);
-        
-        if (filterDate.getTime() === today.getTime()) {
-          dateRangeParam = 'today';
-        } else {
-          // Custom single day
-          const dateStr = currentDateRange.from.toISOString().split('T')[0];
-          dateRangeParam = `${dateStr}|${dateStr}`;
+      try {
+        // Determine the user's primary organization (owner > admin > member)
+        const { data: memberships, error: membershipError } = await supabase
+          .from("members")
+          .select("org_id, role")
+          .eq("user_id", user.id)
+          .order("role", { ascending: true });
+
+        if (membershipError || !memberships || memberships.length === 0) {
+          console.log("No organizations found for user");
+          setCampaigns([]);
+          return;
         }
-      } else if (daysDiff === 1) {
-        // Check if it's yesterday
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        yesterday.setHours(0, 0, 0, 0);
-        const filterDate = new Date(currentDateRange.from);
-        filterDate.setHours(0, 0, 0, 0);
-        
-        if (filterDate.getTime() === yesterday.getTime()) {
-          dateRangeParam = 'yesterday';
+
+        const primaryOrg =
+          memberships.find((m: { role: string }) => m.role === "owner") ||
+          memberships.find((m: { role: string }) => m.role === "admin") ||
+          memberships.find((m: { role: string }) => m.role === "member") ||
+          memberships[0];
+
+        // Convert date range to Meta API format
+        let dateRangeParam = "last_7d"; // default
+        const daysDiff = Math.ceil(
+          (currentDateRange.to.getTime() - currentDateRange.from.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
+        if (daysDiff === 0) {
+          // Same day - check if it's today
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const filterDate = new Date(currentDateRange.from);
+          filterDate.setHours(0, 0, 0, 0);
+
+          if (filterDate.getTime() === today.getTime()) {
+            dateRangeParam = "today";
+          } else {
+            // Custom single day
+            const dateStr = currentDateRange.from.toISOString().split("T")[0];
+            dateRangeParam = `${dateStr}|${dateStr}`;
+          }
+        } else if (daysDiff === 1) {
+          // Check if it's yesterday
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          yesterday.setHours(0, 0, 0, 0);
+          const filterDate = new Date(currentDateRange.from);
+          filterDate.setHours(0, 0, 0, 0);
+
+          if (filterDate.getTime() === yesterday.getTime()) {
+            dateRangeParam = "yesterday";
+          } else {
+            // Custom range
+            const fromStr = currentDateRange.from.toISOString().split("T")[0];
+            const toStr = currentDateRange.to.toISOString().split("T")[0];
+            dateRangeParam = `${fromStr}|${toStr}`;
+          }
+        } else if (daysDiff === 7) {
+          dateRangeParam = "last_7d";
+        } else if (daysDiff === 14) {
+          dateRangeParam = "last_14d";
+        } else if (daysDiff === 30) {
+          dateRangeParam = "last_30d";
         } else {
           // Custom range
-          const fromStr = currentDateRange.from.toISOString().split('T')[0];
-          const toStr = currentDateRange.to.toISOString().split('T')[0];
+          const fromStr = currentDateRange.from.toISOString().split("T")[0];
+          const toStr = currentDateRange.to.toISOString().split("T")[0];
           dateRangeParam = `${fromStr}|${toStr}`;
         }
-      } else if (daysDiff === 7) {
-        dateRangeParam = 'last_7d';
-      } else if (daysDiff === 14) {
-        dateRangeParam = 'last_14d';
-      } else if (daysDiff === 30) {
-        dateRangeParam = 'last_30d';
-      } else {
-        // Custom range
-        const fromStr = currentDateRange.from.toISOString().split('T')[0];
-        const toStr = currentDateRange.to.toISOString().split('T')[0];
-        dateRangeParam = `${fromStr}|${toStr}`;
-      }
 
-      console.log('Fetching live data with date range:', dateRangeParam);
+        console.log("Fetching live data with date range:", dateRangeParam);
 
-      // Fetch live data from Meta API
-      const { data, error } = await supabase.functions.invoke('meta-campaigns-live', {
-        body: {
-          org_id: primaryOrg.org_id,
-          date_range: dateRangeParam
+        // Fetch live data from Meta API
+        const { data, error } = await supabase.functions.invoke("meta-campaigns-live", {
+          body: {
+            org_id: primaryOrg.org_id,
+            date_range: dateRangeParam,
+          },
+        });
+
+        if (error) {
+          console.error("Error fetching live campaigns:", error);
+          toast({
+            title: "Failed to fetch live data",
+            description: "Unable to fetch campaigns from Meta API",
+            variant: "destructive",
+          });
+          setCampaigns([]);
+          return;
         }
-      });
 
-      if (error) {
-        console.error('Error fetching live campaigns:', error);
+        if (data?.success && data.campaigns) {
+          setCampaigns(data.campaigns);
+          console.log(`Fetched ${data.campaigns.length} live campaigns from Meta API`);
+        } else {
+          console.error("Invalid response from live campaigns API:", data);
+          setCampaigns([]);
+        }
+      } catch (error) {
+        console.error("Error in fetchCampaigns:", error);
         toast({
-          title: "Failed to fetch live data",
-          description: "No account connected...",
+          title: "Error fetching campaigns",
+          description: "Failed to fetch live campaign data",
           variant: "destructive",
         });
-        // Fallback to database data would go here if needed
         setCampaigns([]);
-        return;
+      } finally {
+        setLoading(false);
       }
-
-      if (data?.success && data.campaigns) {
-        setCampaigns(data.campaigns);
-        console.log(`Fetched ${data.campaigns.length} live campaigns from Meta API`);
-      } else {
-        console.error('Invalid response from live campaigns API:', data);
-        setCampaigns([]);
-      }
-
-    } catch (error) {
-      console.error('Error in fetchCampaigns:', error);
-      toast({
-        title: "Error fetching campaigns",
-        description: "Failed to fetch live campaign data",
-        variant: "destructive",
-      });
-      setCampaigns([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [user, isConnected, dateRange, toast],
+  );
 
   useEffect(() => {
     fetchCampaigns();
-  }, [user, refreshTrigger, dateRange]);
+  }, [fetchCampaigns, refreshTrigger]);
 
   const calculateCTR = (clicks: number, impressions: number) => {
-    if (impressions === 0) return '0.00';
+    if (impressions === 0) return "0.00";
     return ((clicks / impressions) * 100).toFixed(2);
   };
 
   const calculateCPC = (spend: number, clicks: number) => {
-    if (clicks === 0) return '0.00';
+    if (clicks === 0) return "0.00";
     return (spend / clicks).toFixed(2);
   };
 
@@ -178,38 +189,38 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
     if (!integration || syncing) return;
 
     setSyncing(true);
-    
+
     try {
-      console.log('Manual sync triggered...');
-      
+      console.log("Manual sync triggered...");
+
       // Get user's organization ID from their membership
       const { data: memberships, error: membershipError } = await supabase
-        .from('members')
-        .select('org_id, role')
-        .eq('user_id', user?.id)
-        .order('role', { ascending: true }); // owner first
+        .from("members")
+        .select("org_id, role")
+        .eq("user_id", user?.id)
+        .order("role", { ascending: true }); // owner first
 
       if (membershipError || !memberships || memberships.length === 0) {
-        throw new Error('No organization found for user');
+        throw new Error("No organization found for user");
       }
 
       const primaryOrg =
-        memberships.find((m: any) => m.role === 'owner') ||
-        memberships.find((m: any) => m.role === 'admin') ||
-        memberships.find((m: any) => m.role === 'member') ||
+        memberships.find((m: { role: string }) => m.role === "owner") ||
+        memberships.find((m: { role: string }) => m.role === "admin") ||
+        memberships.find((m: { role: string }) => m.role === "member") ||
         memberships[0];
 
       const userOrgId = primaryOrg.org_id;
-      
-      const { data, error } = await supabase.functions.invoke('meta-sync', {
+
+      const { data, error } = await supabase.functions.invoke("meta-sync", {
         body: {
           org_id: userOrgId,
-          save_connection: false
-        }
+          save_connection: false,
+        },
       });
 
       if (error) {
-        throw new Error(error.message || 'Sync failed');
+        throw new Error(error.message || "Sync failed");
       }
 
       if (data?.success) {
@@ -219,13 +230,14 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
         });
         fetchCampaigns(); // Refresh the campaigns list
       } else {
-        throw new Error(data?.error || 'Sync failed');
+        throw new Error(data?.error || "Sync failed");
       }
-    } catch (error: any) {
-      console.error('Manual sync error:', error);
+    } catch (error: unknown) {
+      console.error("Manual sync error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to sync Meta campaigns";
       toast({
         title: "Sync failed",
-        description: error.message || "Failed to sync Meta campaigns",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -242,7 +254,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-12 w-full" />
             ))}
           </div>
@@ -258,19 +270,12 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Meta Campaigns</CardTitle>
-              <CardDescription>
-                {isConnected ? 'No Meta campaigns found' : 'No Meta campaigns found'}
-              </CardDescription>
+              <CardDescription>{isConnected ? "No Meta campaigns found" : "No Meta campaigns found"}</CardDescription>
             </div>
             {isConnected && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleManualSync}
-                disabled={syncing}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-                {syncing ? 'Syncing...' : 'Sync Now'}
+              <Button variant="outline" size="sm" onClick={handleManualSync} disabled={syncing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                {syncing ? "Syncing..." : "Sync Now"}
               </Button>
             )}
           </div>
@@ -283,22 +288,19 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
                   <LinkIcon className="h-12 w-12 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-muted-foreground mb-2">
-                    Meta account connected but no campaigns found.
-                  </p>
+                  <p className="text-muted-foreground mb-2">Meta account connected but no campaigns found.</p>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Click "Sync Now" to fetch your latest campaigns, or check if you have active campaigns in your Meta Ads Manager.
+                    Click "Sync Now" to fetch your latest campaigns, or check if you have active campaigns in your Meta
+                    Ads Manager.
                   </p>
                   <Button onClick={handleManualSync} disabled={syncing}>
-                    <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-                    {syncing ? 'Syncing...' : 'Sync Meta Campaigns'}
+                    <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                    {syncing ? "Syncing..." : "Sync Meta Campaigns"}
                   </Button>
                 </div>
               </div>
             ) : (
-              <p className="text-muted-foreground">
-                Connect your Meta Marketing account to see your campaigns here.
-              </p>
+              <p className="text-muted-foreground">Connect your Meta Marketing account to see your campaigns here.</p>
             )}
           </div>
         </CardContent>
@@ -314,10 +316,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
             <TrendingUp className="h-5 w-5" />
             <CardTitle>Meta Campaigns</CardTitle>
           </div>
-          <DateRangeFilter
-            value={dateRange}
-            onChange={handleDateRangeChange}
-          />
+          <DateRangeFilter value={dateRange} onChange={handleDateRangeChange} />
           {/* <Button
             variant="outline" 
             size="sm" 
@@ -382,12 +381,15 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
                 <TableRow key={campaign.id}>
                   <TableCell className="font-medium">{campaign.name}</TableCell>
                   <TableCell>
-                    <Badge 
+                    <Badge
                       variant={
-                        campaign.status === 'active' ? 'default' : 
-                        campaign.status === 'paused' ? 'secondary' : 
-                        campaign.status === 'deleted' ? 'destructive' :
-                        'outline'
+                        campaign.status === "active"
+                          ? "default"
+                          : campaign.status === "paused"
+                            ? "secondary"
+                            : campaign.status === "deleted"
+                              ? "destructive"
+                              : "outline"
                       }
                     >
                       {campaign.status.toUpperCase()}
@@ -395,27 +397,19 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground">
-                      {campaign.objective.replace('OUTCOME_', '').toLowerCase()}
+                      {campaign.objective.replace("OUTCOME_", "").toLowerCase()}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    {campaign.total_impressions.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {campaign.total_clicks.toLocaleString()}
-                  </TableCell>
+                  <TableCell className="text-right">{campaign.total_impressions.toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{campaign.total_clicks.toLocaleString()}</TableCell>
                   <TableCell className="text-right">
                     {calculateCTR(campaign.total_clicks, campaign.total_impressions)}%
                   </TableCell>
-                  <TableCell className="text-right">
-                    ${campaign.total_spend.toFixed(2)}
-                  </TableCell>
+                  <TableCell className="text-right">${campaign.total_spend.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     ${calculateCPC(campaign.total_spend, campaign.total_clicks)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    {campaign.total_leads}
-                  </TableCell>
+                  <TableCell className="text-right">{campaign.total_leads}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
