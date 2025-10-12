@@ -42,31 +42,105 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/platform-overview" element={<PlatformOverview />} />
-            <Route path="/pilot-program" element={<PilotPartner />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
-            <Route path="/campaigns" element={<DashboardLayout><Campaigns /></DashboardLayout>} />
-            <Route path="/campaigns/create" element={<DashboardLayout><CreateCampaign /></DashboardLayout>} />
-            <Route path="/campaigns/:id" element={<DashboardLayout><CampaignDetails /></DashboardLayout>} />
-            <Route path="/jobs" element={<DashboardLayout><Jobs /></DashboardLayout>} />
-            <Route path="/jobs/create" element={<DashboardLayout><CreateJob /></DashboardLayout>} />
-            <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
-            <Route path="/settings/organization" element={<DashboardLayout><OrganizationSettings /></DashboardLayout>} />
-            <Route path="/meta-connection" element={<AdminRoute><DashboardLayout><MetaConnection /></DashboardLayout></AdminRoute>} />
-            <Route path="/invite-users" element={<AdminRoute><DashboardLayout><InviteUsers /></DashboardLayout></AdminRoute>} />
-            <Route path="/accept-invite" element={<AcceptInvite />} />
-            <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/platform-overview" element={<PlatformOverview />} />
+                <Route path="/pilot-program" element={<PilotPartner />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <DashboardLayout>
+                      <Dashboard />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/campaigns"
+                  element={
+                    <DashboardLayout>
+                      <Campaigns />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/campaigns/create"
+                  element={
+                    <DashboardLayout>
+                      <CreateCampaign />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/campaigns/:id"
+                  element={
+                    <DashboardLayout>
+                      <CampaignDetails />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/jobs"
+                  element={
+                    <DashboardLayout>
+                      <Jobs />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/jobs/create"
+                  element={
+                    <DashboardLayout>
+                      <CreateJob />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <DashboardLayout>
+                      <Settings />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/settings/organization"
+                  element={
+                    <DashboardLayout>
+                      <OrganizationSettings />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/meta-connection"
+                  element={
+                    <DashboardLayout>
+                      <AdminRoute>
+                        <MetaConnection />
+                      </AdminRoute>
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/invite-users"
+                  element={
+                    <DashboardLayout>
+                      <AdminRoute>
+                        <InviteUsers />
+                      </AdminRoute>
+                    </DashboardLayout>
+                  }
+                />
+                <Route path="/accept-invite" element={<AcceptInvite />} />
+                <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
           </PostHogProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 
