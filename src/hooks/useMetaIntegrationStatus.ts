@@ -52,8 +52,6 @@ export const useMetaIntegrationStatus = () => {
         memberships.find((m: any) => m.role === "member") ||
         memberships[0];
 
-      console.log("Using organization:", primaryOrg.org_id, "with role:", primaryOrg.role);
-
       // Check for user-specific Meta integration first, then org-level
       let { data: metaIntegration, error: integrationError } = await supabase
         .from("integrations")
