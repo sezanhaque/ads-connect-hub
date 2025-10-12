@@ -8,6 +8,7 @@ import { PostHogProvider } from "@/hooks/usePostHog";
 import { useEffect } from "react";
 import { initPostHog } from "@/lib/posthog";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import AdminRoute from "@/components/AdminRoute";
 import Index from "./pages/Index";
 import PlatformOverview from "./pages/PlatformOverview";
 import PilotPartner from "./pages/PilotPartner";
@@ -54,8 +55,8 @@ const App = () => {
             <Route path="/jobs/create" element={<DashboardLayout><CreateJob /></DashboardLayout>} />
             <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
             <Route path="/settings/organization" element={<DashboardLayout><OrganizationSettings /></DashboardLayout>} />
-            <Route path="/meta-connection" element={<DashboardLayout><MetaConnection /></DashboardLayout>} />
-            <Route path="/invite-users" element={<DashboardLayout><InviteUsers /></DashboardLayout>} />
+            <Route path="/meta-connection" element={<AdminRoute><DashboardLayout><MetaConnection /></DashboardLayout></AdminRoute>} />
+            <Route path="/invite-users" element={<AdminRoute><DashboardLayout><InviteUsers /></DashboardLayout></AdminRoute>} />
             <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
