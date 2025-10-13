@@ -419,8 +419,8 @@ const PilotPartner = () => {
             <Users className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium font-now">
               {isEnglish 
-                ? `Only ${spotsRemaining} of 10 Pilot Spots Remaining`
-                : `Nog maar ${spotsRemaining} van de 10 pilotplekken beschikbaar`}
+                ? `Only ${spotsRemaining} of 10 Spots Remaining`
+                : `Nog maar ${spotsRemaining} van de 10 plekken beschikbaar`}
             </span>
           </div>
 
