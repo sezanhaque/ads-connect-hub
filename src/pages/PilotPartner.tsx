@@ -140,7 +140,7 @@ const PilotPartner = () => {
                 <TrendingUp className="h-6 w-6 text-secondary" />
               </div>
               <h3 className="font-now font-semibold text-foreground">
-                {isEnglish ? "No control" : "Geen controle"}
+                {isEnglish ? "No control" : "Weinig controle"}
               </h3>
               <p className="text-sm text-muted-foreground font-now">
                 {isEnglish 
