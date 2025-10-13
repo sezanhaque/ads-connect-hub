@@ -433,7 +433,7 @@ const PilotPartner = () => {
           <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
             {isEnglish 
               ? "We're limiting pilot participation to 10 companies to ensure each partner receives dedicated support and has meaningful impact on the product. Applications are reviewed on a first-come, first-served basis."
-              : "We beperken de pilotdeelname tot 10 bedrijven om ervoor te zorgen dat elke partner toegewijde ondersteuning krijgt en betekenisvolle impact heeft op het product. Aanmeldingen worden beoordeeld op basis van wie het eerst komt, het eerst maalt."}
+              : "Help mee de toekomst van recruitment advertising vorm te geven. We kiezen bewust voor een kleine groep, zodat elke partner echte invloed heeft. Eerste aanmeldingen krijgen voorrang."}
           </p>
 
           <div className="pt-4">
