@@ -126,7 +126,7 @@ const PilotPartner = () => {
                 <Clock className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-now font-semibold text-foreground">
-                {isEnglish ? "Too Slow" : "Te traag"}
+                {isEnglish ? "Too Slow" : "Erg traag"}
               </h3>
               <p className="text-sm text-muted-foreground font-now">
                 {isEnglish 
