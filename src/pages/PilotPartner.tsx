@@ -203,7 +203,7 @@ const PilotPartner = () => {
                   <p className="text-sm text-muted-foreground font-now">
                     {isEnglish 
                       ? "No agencies, no waiting. Go from job posting to live campaign in under 10 minutes."
-                      : "Geen bureaus, geen wachten. Van vacature naar live campagne in minder dan 10 minuten."}
+                      : "Geen bureaus, geen wachttijd. Van vacature naar live campagne in minder dan 10 minuten."}
                   </p>
                 </div>
               </div>
