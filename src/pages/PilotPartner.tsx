@@ -239,7 +239,7 @@ const PilotPartner = () => {
                   <p className="text-sm text-muted-foreground font-now">
                     {isEnglish 
                       ? "Run multiple campaigns across platforms and business units, all managed without specialized advertising teams."
-                      : "Voer meerdere campagnes uit over platforms en business units, allemaal beheerd zonder gespecialiseerde advertentieteams."}
+                      : "Voer meerdere campagnes uit over teams en locaties, allemaal vanuit één overzichtelijk platform."}
                   </p>
                 </div>
               </div>
