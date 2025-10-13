@@ -221,7 +221,7 @@ const PilotPartner = () => {
                   <p className="text-sm text-muted-foreground font-now">
                     {isEnglish 
                       ? "Your ad budget runs directly, with no markups, no prepayments, and complete transparency."
-                      : "Je advertentiebudget wordt direct uitgegeven, zonder opslagen, zonder vooruitbetalingen en met volledige transparantie."}
+                      : "Je advertentiebudget wordt direct besteed, zonder verborgen kosten of risicovolle vooruitbetalingen."}
                   </p>
                 </div>
               </div>
