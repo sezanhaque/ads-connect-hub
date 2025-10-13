@@ -271,7 +271,9 @@ const PilotPartner = () => {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-card rounded-lg p-6 space-y-4 border border-primary/20">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">🟢</span>
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
                 <h3 className="font-now font-semibold text-foreground text-lg">
                   {isEnglish ? "Your Benefits" : "Jouw voordelen"}
                 </h3>
@@ -335,7 +337,9 @@ const PilotPartner = () => {
 
             <div className="bg-card rounded-lg p-6 space-y-4 border border-border">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">⚪</span>
+                <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-secondary" />
+                </div>
                 <h3 className="font-now font-semibold text-foreground text-lg">
                   {isEnglish ? "Our Expectations" : "Onze verwachtingen"}
                 </h3>
