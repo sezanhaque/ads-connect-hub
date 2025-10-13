@@ -145,7 +145,7 @@ const PilotPartner = () => {
               <p className="text-sm text-muted-foreground font-now">
                 {isEnglish 
                   ? "Agency markups and hidden fees make it hard to see where your money goes."
-                  : "Bureau-opslagen en verborgen kosten maken het moeilijk om te zien waar je geld naartoe gaat."}
+                  : "Verborgen bureaukosten en ondoorzichtige rapportages maken het lastig te zien waar je budget écht naartoe gaat."}
               </p>
             </div>
 
