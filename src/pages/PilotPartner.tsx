@@ -131,7 +131,7 @@ const PilotPartner = () => {
               <p className="text-sm text-muted-foreground font-now">
                 {isEnglish 
                   ? "Traditional campaign setup takes weeks, losing you top candidates to faster competitors"
-                  : "Traditionele campagne-opzet duurt weken, waardoor je topkandidaten verliest aan snellere concurrenten"}
+                  : "Werving campagnes opzetten kost vaak veel tijd. Tegen de tijd dat je live bent, heeft de concurrent de beste kandidaten al bereikt."}
               </p>
             </div>
 
