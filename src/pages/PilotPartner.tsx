@@ -115,7 +115,7 @@ const PilotPartner = () => {
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               {isEnglish 
                 ? "Why Recruitment Advertising Needs More Clarity"
-                : "Waarom recruitment advertising meer duidelijkheid nodig heeft"}
+                : "Waarom recruitment advertising meer duidelijkheid verdient"}
             </h2>
             
           </div>
