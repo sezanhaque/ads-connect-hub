@@ -159,7 +159,7 @@ const PilotPartner = () => {
               <p className="text-sm text-muted-foreground font-now">
                 {isEnglish 
                   ? "Without clear metrics, you can't optimize spend or prove hiring marketing effectiveness"
-                  : "Zonder duidelijke metrics kun je uitgaven niet optimaliseren of de effectiviteit van wervingsmarketing bewijzen"}
+                  : "Zonder inzicht in performance blijft recruitment marketing gissen in plaats van sturen."}
               </p>
             </div>
           </div>
