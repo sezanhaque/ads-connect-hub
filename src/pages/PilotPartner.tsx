@@ -179,7 +179,7 @@ const PilotPartner = () => {
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               {isEnglish 
                 ? "Meet 20/20: Recruitment Advertising Seen Clearly"
-                : "Maak kennis met 20/20: Recruitment advertising helder in beeld"}
+                : "Maak kennis met 20/20 Solutions"}
             </h2>
             <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
               {isEnglish 
