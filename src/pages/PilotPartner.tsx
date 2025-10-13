@@ -184,7 +184,7 @@ const PilotPartner = () => {
             <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
               {isEnglish 
                 ? "Transform your advertising process with smart automation that changes how your organisation attracts talent."
-                : "Transformeer je advertentieproces met slimme automatisering die verandert hoe jouw organisatie talent aantrekt."}
+                : "Transformeer je advertentieproces met slimme automatisering die werven eenvoudiger, sneller en transparanter maakt."}
             </p>
           </div>
 
