@@ -271,25 +271,23 @@ const PilotPartner = () => {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-card rounded-lg p-6 space-y-4 border border-primary/20">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                </div>
+                <span className="text-2xl">🟢</span>
                 <h3 className="font-now font-semibold text-foreground text-lg">
                   {isEnglish ? "Your Benefits" : "Jouw voordelen"}
                 </h3>
               </div>
               <p className="text-sm text-muted-foreground font-now">
                 {isEnglish 
-                  ? "What we provide to pilot partners"
-                  : "Wat wij bieden aan pilotpartners"}
+                  ? "What you receive as a pilot partner:"
+                  : "Wat je ontvangt als pilotpartner:"}
               </p>
               <div className="space-y-3 pt-2">
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Early access to platform before public launch"
-                      : "Vroege toegang tot platform voor publieke lancering"}
+                      ? "Access to the platform before public launch"
+                      : "Toegang tot het platform vóór de publieke lancering"}
                   </span>
                 </div>
                 <div className="flex gap-3">
@@ -297,39 +295,39 @@ const PilotPartner = () => {
                   <span className="text-sm font-now">
                     {isEnglish 
                       ? "No software costs during pilot period"
-                      : "Geen softwarekosten tijdens pilotperiode"}
+                      : "Geen softwarekosten tijdens de pilotperiode"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Direct input on product development and features"
-                      : "Directe input op productontwikkeling en features"}
+                      ? "Direct influence on product development and features"
+                      : "Directe invloed op productontwikkeling en features"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Dedicated onboarding and technical support"
-                      : "Toegewijde onboarding en technische ondersteuning"}
+                      ? "Personal onboarding and technical support"
+                      : "Persoonlijke onboarding en technische ondersteuning"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Preferred pricing when you transition to full subscription"
-                      : "Voorkeurskorting bij overgang naar volledig abonnement"}
+                      ? "Preferred discount when transitioning to full subscription"
+                      : "Voorkeurskorting bij overstap naar een volledig abonnement"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Optional case study opportunity (with approval)"
-                      : "Optionele case study mogelijkheid (met goedkeuring)"}
+                      ? "Opportunity for joint case study (after approval)"
+                      : "Mogelijkheid tot gezamenlijke case study (na goedkeuring)"}
                   </span>
                 </div>
               </div>
@@ -337,65 +335,63 @@ const PilotPartner = () => {
 
             <div className="bg-card rounded-lg p-6 space-y-4 border border-border">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-                  <Shield className="h-5 w-5 text-secondary" />
-                </div>
+                <span className="text-2xl">⚪</span>
                 <h3 className="font-now font-semibold text-foreground text-lg">
                   {isEnglish ? "Our Expectations" : "Onze verwachtingen"}
                 </h3>
               </div>
               <p className="text-sm text-muted-foreground font-now">
                 {isEnglish 
-                  ? "What we ask from pilot partners"
-                  : "Wat wij vragen van pilotpartners"}
+                  ? "What we ask in return for your participation:"
+                  : "Wat we vragen in ruil voor jouw deelname:"}
               </p>
               <div className="space-y-3 pt-2">
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "1 to 2 months pilot commitment"
-                      : "1 tot 2 maanden pilot commitment"}
+                      ? "1 to 2 months active pilot participation"
+                      : "1 tot 2 maanden actieve pilotdeelname"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Active use of platform for recruitment campaigns"
-                      : "Actief gebruik van platform voor recruitment campagnes"}
+                      ? "Use of the platform for recruitment campaigns"
+                      : "Gebruik van het platform voor recruitmentcampagnes"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Feedback sessions during this period"
-                      : "Feedbacksessies tijdens deze periode"}
+                      ? "Sharing feedback and insights during the pilot"
+                      : "Delen van feedback en inzichten gedurende de pilot"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Willingness to share web analytic results"
-                      : "Bereidheid om webanalyse resultaten te delen"}
+                      ? "Open communication with our product team"
+                      : "Open communicatie met ons productteam"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Regular communication with product team"
-                      : "Regelmatige communicatie met productteam"}
+                      ? "Willingness to share web analytics results"
+                      : "Bereidheid om webanalyse-resultaten te delen"}
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
                   <span className="text-sm font-now">
                     {isEnglish 
-                      ? "Covering own advertising spend, min €500,-"
-                      : "Eigen advertentiekosten dekken, min. €500,-"}
+                      ? "Own advertising budget (minimum €500)"
+                      : "Eigen advertentiebudget (minimaal €500)"}
                   </span>
                 </div>
               </div>
