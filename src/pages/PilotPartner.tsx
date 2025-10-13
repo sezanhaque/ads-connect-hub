@@ -198,7 +198,7 @@ const PilotPartner = () => {
                   <h3 className="font-now font-semibold text-foreground mb-2">
                     {isEnglish 
                       ? "Launch Recruitment Campaigns in Minutes"
-                      : "Start recruitment campagnes in minuten"}
+                      : "Start campagnes op in minuten"}
                   </h3>
                   <p className="text-sm text-muted-foreground font-now">
                     {isEnglish 
