@@ -568,6 +568,9 @@ const PilotPartner = () => {
               <Link to="/auth" className="text-muted-foreground hover:text-foreground transition-colors">
                 {isEnglish ? "Sign In" : "Inloggen"}
               </Link>
+              <a href="/Privacyverklaring_TwentyTwentySolutions.io.pdf" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Statement
+              </a>
             </div>
           </div>
         </div>

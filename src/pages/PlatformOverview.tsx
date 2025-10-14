@@ -242,6 +242,9 @@ Take control of your hiring and outpace the competition.</p>
               <Link to="/auth" className="text-muted-foreground hover:text-foreground transition-colors">
                 Sign In
               </Link>
+              <a href="/Privacyverklaring_TwentyTwentySolutions.io.pdf" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Statement
+              </a>
             </div>
           </div>
         </div>
