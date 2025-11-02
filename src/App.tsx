@@ -27,6 +27,7 @@ import InviteUsers from "./pages/InviteUsers";
 import AcceptInvite from "./pages/AcceptInvite";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import NotFound from "./pages/NotFound";
+import AuthRecoveryListener from "@/components/AuthRecoveryListener";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <AuthRecoveryListener />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/platform-overview" element={<PlatformOverview />} />
