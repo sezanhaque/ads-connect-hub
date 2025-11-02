@@ -51,7 +51,13 @@ const MetaConnection = () => {
       setConnectionStatus('connecting');
       console.log('Starting Meta connection...');
       
-      const result = await connectMetaAccount(data.accessToken, data.adAccountId);
+      // Automatically add "act_" prefix if user entered just the numeric ID
+      let adAccountId = data.adAccountId;
+      if (adAccountId && !adAccountId.startsWith('act_')) {
+        adAccountId = `act_${adAccountId}`;
+      }
+      
+      const result = await connectMetaAccount(data.accessToken, adAccountId);
       
       if (result.success) {
         setConnectionStatus('connected');
@@ -182,7 +188,7 @@ const MetaConnection = () => {
                   <li>Create an app and add the Marketing API product</li>
                   <li>Generate a <strong>long-lived access token</strong> with ads_read permissions</li>
                   <li>Token must start with "EAA" or "EAAG" to be valid</li>
-                  <li>Find your Ad Account ID in Business Manager (format: act_1234567890)</li>
+                  <li>Find your Ad Account ID in Business Manager (just the numbers, e.g., 1234567890)</li>
                 </ol>
                 <p className="font-medium text-yellow-800 mt-2">⚠️ Note: Only real Meta tokens will sync actual campaign data. Demo tokens show no data.</p>
               </div>
@@ -218,12 +224,12 @@ const MetaConnection = () => {
                       <FormLabel>Ad Account ID (Optional)</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="act_1234567890 (leave empty to use first account)"
+                          placeholder="971311827719449 (leave empty to use first account)"
                           {...field} 
                         />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
-                        If left empty, we'll use your first available ad account
+                        Enter just the numbers - the "act_" prefix will be added automatically
                       </p>
                       <FormMessage />
                     </FormItem>
