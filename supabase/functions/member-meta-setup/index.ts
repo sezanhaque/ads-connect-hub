@@ -10,6 +10,7 @@ interface SetupRequest {
   target_user_id: string;
   ad_account_ids: string[];
   admin_org_id: string;
+  append?: boolean; // If true, append to existing ad_account_ids instead of replacing
 }
 
 serve(async (req) => {
@@ -51,8 +52,8 @@ serve(async (req) => {
       });
     }
 
-    const { target_user_id, ad_account_ids, admin_org_id } = await req.json() as SetupRequest;
-    console.log('member-meta-setup called with:', { target_user_id, ad_account_ids, admin_org_id });
+    const { target_user_id, ad_account_ids, admin_org_id, append = false } = await req.json() as SetupRequest;
+    console.log('member-meta-setup called with:', { target_user_id, ad_account_ids, admin_org_id, append });
 
     if (!target_user_id || !ad_account_ids || ad_account_ids.length === 0 || !admin_org_id) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -141,19 +142,28 @@ serve(async (req) => {
     // Upsert integration for target user/org
     const { data: existingIntegration } = await supabase
       .from('integrations')
-      .select('id')
+      .select('id, ad_account_id')
       .eq('org_id', targetOrgId)
       .eq('integration_type', 'meta')
       .eq('user_id', target_user_id)
       .maybeSingle();
+
+    // Determine final ad account IDs (append or replace)
+    let finalAdAccountIds = ad_account_ids;
+    if (append && existingIntegration?.ad_account_id) {
+      const existing = existingIntegration.ad_account_id as string[];
+      // Merge and remove duplicates
+      finalAdAccountIds = Array.from(new Set([...existing, ...ad_account_ids]));
+      console.log('member-meta-setup: appending ad accounts, merged:', finalAdAccountIds);
+    }
 
     if (existingIntegration) {
       const { error: updateErr } = await supabase
         .from('integrations')
         .update({
           access_token: token,
-          ad_account_id: ad_account_ids,
-          account_name: `Ad Accounts (${ad_account_ids.length})`,
+          ad_account_id: finalAdAccountIds,
+          account_name: `Ad Accounts (${finalAdAccountIds.length})`,
           status: 'active',
           last_sync_at: null,
         })
@@ -172,8 +182,8 @@ serve(async (req) => {
           org_id: targetOrgId,
           integration_type: 'meta',
           access_token: token,
-          ad_account_id: ad_account_ids,
-          account_name: `Ad Accounts (${ad_account_ids.length})`,
+          ad_account_id: finalAdAccountIds,
+          account_name: `Ad Accounts (${finalAdAccountIds.length})`,
           status: 'active',
           user_id: target_user_id,
         });
@@ -190,7 +200,7 @@ serve(async (req) => {
     let synced = 0;
     let totalCampaigns = 0;
     
-    for (const adId of ad_account_ids) {
+    for (const adId of finalAdAccountIds) {
       console.log('member-meta-setup: syncing campaigns for ad account:', adId);
       try {
         const campaignsUrl = `https://graph.facebook.com/v19.0/${adId}/campaigns?access_token=${token}&fields=id,name,status,objective`;
@@ -294,7 +304,7 @@ serve(async (req) => {
       synced_count: synced, 
       total_campaigns: totalCampaigns, 
       org_id: targetOrgId,
-      ad_accounts_count: ad_account_ids.length 
+      ad_accounts_count: finalAdAccountIds.length 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },

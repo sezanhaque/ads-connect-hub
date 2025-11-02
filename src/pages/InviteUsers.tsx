@@ -178,6 +178,7 @@ const InviteUsers = () => {
           target_user_id: selectedUser.user_id,
           ad_account_ids: finalAdAccountIds,
           admin_org_id: profile.organization_id,
+          append: true, // Tell edge function to append, not replace
         },
       });
 
@@ -186,8 +187,8 @@ const InviteUsers = () => {
       }
 
       toast({
-        title: 'User invited successfully!',
-        description: `${selectedUser.email} now has a Meta integration in their organization. Data has been synced.`,
+        title: 'Ad Accounts added successfully!',
+        description: `${selectedUser.email} now has access to ${finalAdAccountIds.length} new ad account(s). Data has been synced.`,
       });
 
       // Reset form and close dialog
@@ -209,7 +210,7 @@ const InviteUsers = () => {
       } else {
         toast({
           title: 'Error',
-          description: error.message || 'Failed to invite user. Please try again.',
+          description: error.message || 'Failed to add ad accounts. Please try again.',
           variant: 'destructive',
         });
       }
@@ -411,36 +412,62 @@ const InviteUsers = () => {
                                  <CheckCircle className="h-3 w-3" />
                                  In Organization
                                </Badge>
-                            ) : (
-                               <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
-                                 setDialogOpen(open);
-                                  if (!open) {
-                                    setSelectedUser(null);
-                                    setAdAccountIds([]);
-                                    setCurrentAdAccountId('');
-                                  }
-                               }}>
-                                 <DialogTrigger asChild>
-                                   <Button
-                                     size="sm"
-                                     variant="outline"
-                                     onClick={() => {
-                                       setSelectedUser(user);
-                                       setDialogOpen(true);
-                                     }}
-                                     className="flex items-center gap-1"
-                                   >
-                                     <UserPlus className="h-3 w-3" />
-                                     Invite User
-                                   </Button>
-                                 </DialogTrigger>
-                                 <DialogContent>
-                                   <DialogHeader>
-                                     <DialogTitle>Invite User to Organization</DialogTitle>
-                                     <DialogDescription>
-                                       Invite {user.email} to join your organization with Meta integration access.
-                                     </DialogDescription>
-                                   </DialogHeader>
+                             ) : (
+                                <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
+                                  setDialogOpen(open);
+                                   if (!open) {
+                                     setSelectedUser(null);
+                                     setAdAccountIds([]);
+                                     setCurrentAdAccountId('');
+                                   }
+                                }}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={async () => {
+                                        setSelectedUser(user);
+                                        
+                                        // Fetch existing ad account IDs for this user
+                                        const { data: ownerMembership } = await supabase
+                                          .from('members')
+                                          .select('org_id')
+                                          .eq('user_id', user.user_id)
+                                          .eq('role', 'owner')
+                                          .maybeSingle();
+
+                                        if (ownerMembership?.org_id) {
+                                          const { data: integration } = await supabase
+                                            .from('integrations')
+                                            .select('ad_account_id')
+                                            .eq('org_id', ownerMembership.org_id)
+                                            .eq('integration_type', 'meta')
+                                            .eq('user_id', user.user_id)
+                                            .maybeSingle();
+
+                                          if (integration?.ad_account_id) {
+                                            // Pre-populate with existing IDs (without act_ prefix for display)
+                                            const existingIds = (integration.ad_account_id as string[])
+                                              .map(id => id.replace(/^act_/, ''));
+                                            setAdAccountIds(existingIds);
+                                          }
+                                        }
+                                        
+                                        setDialogOpen(true);
+                                      }}
+                                      className="flex items-center gap-1"
+                                    >
+                                      <UserPlus className="h-3 w-3" />
+                                      Add Ad Accounts
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Add Ad Accounts to User</DialogTitle>
+                                      <DialogDescription>
+                                        Add or update Meta Ad Account access for {user.email}. Existing accounts will be preserved.
+                                      </DialogDescription>
+                                    </DialogHeader>
                                    <div className="space-y-4">
                                       <div>
                                         <Label htmlFor="ad-account-id">AD Account IDs</Label>
