@@ -142,7 +142,11 @@ serve(async (req) => {
 
       if (integration) {
         actualAccessToken = integration.access_token;
-        actualAdAccountId = integration.ad_account_id;
+        // Handle ad_account_id as array - take first element for sync
+        const adAccountArray = Array.isArray(integration.ad_account_id) 
+          ? integration.ad_account_id 
+          : [integration.ad_account_id];
+        actualAdAccountId = adAccountArray[0];
         accountName = integration.account_name || '';
         console.log('Using stored credentials for account:', accountName);
       } else {
@@ -245,7 +249,7 @@ serve(async (req) => {
             .from('integrations')
             .update({
               access_token: actualAccessToken,
-              ad_account_id: targetAdAccountId,
+              ad_account_id: [targetAdAccountId],
               account_name: accountName,
               status: 'active',
               last_sync_at: new Date().toISOString(),
@@ -265,7 +269,7 @@ serve(async (req) => {
               org_id: org_id,
               integration_type: 'meta',
               access_token: actualAccessToken,
-              ad_account_id: targetAdAccountId,
+              ad_account_id: [targetAdAccountId],
               account_name: accountName,
               status: 'active',
               last_sync_at: new Date().toISOString(),
