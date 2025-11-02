@@ -151,9 +151,16 @@ serve(async (req) => {
     }
 
     const accessToken = integration.access_token;
-    const adAccountId = integration.ad_account_id;
+    let adAccountIds = integration.ad_account_id;
 
-    console.log('Using stored credentials for account:', integration.account_name);
+    // Handle ad_account_id as array and remove duplicates
+    if (Array.isArray(adAccountIds)) {
+      adAccountIds = [...new Set(adAccountIds)]; // Remove duplicates
+    } else {
+      adAccountIds = [adAccountIds]; // Convert single value to array
+    }
+
+    console.log('Using stored credentials for accounts:', adAccountIds);
 
     // Map date range to Meta API format
     let metaDateParam = '';
@@ -177,26 +184,32 @@ serve(async (req) => {
 
     console.log('Meta date parameter:', metaDateParam);
 
-    // Step 1: Get campaigns from the ad account
-    console.log('Fetching campaigns...');
-    const campaignsUrl = `https://graph.facebook.com/v19.0/${adAccountId}/campaigns?access_token=${accessToken}&fields=id,name,status,objective,start_time,stop_time`;
-    const campaignsResponse = await fetch(campaignsUrl);
-    const campaignsData = await campaignsResponse.json();
+    // Step 1: Get campaigns from all ad accounts
+    console.log('Fetching campaigns from', adAccountIds.length, 'ad account(s)...');
+    const allCampaigns: MetaCampaignData[] = [];
 
-    if (campaignsData.error) {
-      console.error('Campaigns error:', campaignsData.error);
-      return new Response(JSON.stringify({ 
-        success: false, 
-        error: `Meta API Error: ${campaignsData.error.message}`,
-        details: campaignsData.error
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      });
+    for (const adAccountId of adAccountIds) {
+      try {
+        const campaignsUrl = `https://graph.facebook.com/v19.0/${adAccountId}/campaigns?access_token=${accessToken}&fields=id,name,status,objective,start_time,stop_time`;
+        const campaignsResponse = await fetch(campaignsUrl);
+        const campaignsData = await campaignsResponse.json();
+
+        if (campaignsData.error) {
+          console.error(`Error fetching campaigns from ${adAccountId}:`, campaignsData.error);
+          continue; // Skip this account and try the next one
+        }
+
+        const campaigns: MetaCampaignData[] = campaignsData.data || [];
+        console.log(`Found ${campaigns.length} campaigns in ${adAccountId}`);
+        allCampaigns.push(...campaigns);
+      } catch (error) {
+        console.error(`Failed to fetch campaigns from ${adAccountId}:`, error);
+        continue;
+      }
     }
 
-    const campaigns: MetaCampaignData[] = campaignsData.data || [];
-    console.log(`Found ${campaigns.length} campaigns`);
+    const campaigns = allCampaigns;
+    console.log(`Total: ${campaigns.length} campaigns across all accounts`);
 
     if (campaigns.length === 0) {
       return new Response(JSON.stringify({ 

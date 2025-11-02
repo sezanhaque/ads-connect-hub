@@ -53,9 +53,12 @@ serve(async (req) => {
     }
 
     const { target_user_id, ad_account_ids, admin_org_id, append = false } = await req.json() as SetupRequest;
-    console.log('member-meta-setup called with:', { target_user_id, ad_account_ids, admin_org_id, append });
+    
+    // Remove duplicates from input ad_account_ids
+    const uniqueAdAccountIds = Array.from(new Set(ad_account_ids));
+    console.log('member-meta-setup called with:', { target_user_id, ad_account_ids: uniqueAdAccountIds, admin_org_id, append });
 
-    if (!target_user_id || !ad_account_ids || ad_account_ids.length === 0 || !admin_org_id) {
+    if (!target_user_id || !uniqueAdAccountIds || uniqueAdAccountIds.length === 0 || !admin_org_id) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -149,11 +152,11 @@ serve(async (req) => {
       .maybeSingle();
 
     // Determine final ad account IDs (append or replace)
-    let finalAdAccountIds = ad_account_ids;
+    let finalAdAccountIds = uniqueAdAccountIds;
     if (append && existingIntegration?.ad_account_id) {
       const existing = existingIntegration.ad_account_id as string[];
       // Merge and remove duplicates
-      finalAdAccountIds = Array.from(new Set([...existing, ...ad_account_ids]));
+      finalAdAccountIds = Array.from(new Set([...existing, ...uniqueAdAccountIds]));
       console.log('member-meta-setup: appending ad accounts, merged:', finalAdAccountIds);
     }
 
