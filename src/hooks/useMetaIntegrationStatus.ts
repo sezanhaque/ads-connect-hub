@@ -5,10 +5,10 @@ import { useAuth } from "@/hooks/useAuth";
 interface MetaIntegration {
   id: string;
   org_id: string;
-  ad_account_id: string;
-  account_name: string;
+  ad_account_id: string[] | null;
+  account_name: string | null;
   status: "active" | "expired" | "error";
-  last_sync_at: string;
+  last_sync_at: string | null;
   created_at: string;
 }
 

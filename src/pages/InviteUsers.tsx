@@ -26,7 +26,8 @@ interface User {
 const InviteUsers = () => {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('member');
-  const [adAccountId, setAdAccountId] = useState('');
+  const [adAccountIds, setAdAccountIds] = useState<string[]>([]);
+  const [currentAdAccountId, setCurrentAdAccountId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -139,10 +140,10 @@ const InviteUsers = () => {
       return;
     }
 
-    if (!adAccountId.trim()) {
+    if (adAccountIds.length === 0) {
       toast({
         title: "Error",
-        description: "Please provide an AD Account ID",
+        description: "Please provide at least one AD Account ID",
         variant: "destructive",
       });
       return;
@@ -153,11 +154,11 @@ const InviteUsers = () => {
     try {
       console.log('Starting user invitation process...');
 
-      // Automatically add "act_" prefix if user entered just the numeric ID
-      let finalAdAccountId = adAccountId.trim();
-      if (finalAdAccountId && !finalAdAccountId.startsWith('act_')) {
-        finalAdAccountId = `act_${finalAdAccountId}`;
-      }
+      // Automatically add "act_" prefix to all IDs
+      const finalAdAccountIds = adAccountIds.map(id => {
+        const trimmed = id.trim();
+        return trimmed.startsWith('act_') ? trimmed : `act_${trimmed}`;
+      });
 
       // 1) Ensure the user is a member of the admin org (ignore duplicates)
       const { error: memberError } = await supabase
@@ -175,7 +176,7 @@ const InviteUsers = () => {
       const { data, error } = await supabase.functions.invoke('member-meta-setup', {
         body: {
           target_user_id: selectedUser.user_id,
-          ad_account_id: finalAdAccountId,
+          ad_account_ids: finalAdAccountIds,
           admin_org_id: profile.organization_id,
         },
       });
@@ -190,7 +191,8 @@ const InviteUsers = () => {
       });
 
       // Reset form and close dialog
-      setAdAccountId('');
+      setAdAccountIds([]);
+      setCurrentAdAccountId('');
       setSelectedUser(null);
       setDialogOpen(false);
 
@@ -228,10 +230,10 @@ const InviteUsers = () => {
       return;
     }
 
-    if (!adAccountId.trim()) {
+    if (adAccountIds.length === 0) {
       toast({
         title: "Error",
-        description: "Please provide an AD Account ID",
+        description: "Please provide at least one AD Account ID",
         variant: "destructive",
       });
       return;
@@ -240,11 +242,11 @@ const InviteUsers = () => {
     setIsLoading(true);
     
     try {
-      // Automatically add "act_" prefix if user entered just the numeric ID
-      let finalAdAccountId = adAccountId.trim();
-      if (finalAdAccountId && !finalAdAccountId.startsWith('act_')) {
-        finalAdAccountId = `act_${finalAdAccountId}`;
-      }
+      // Automatically add "act_" prefix to all IDs
+      const finalAdAccountIds = adAccountIds.map(id => {
+        const trimmed = id.trim();
+        return trimmed.startsWith('act_') ? trimmed : `act_${trimmed}`;
+      });
 
       // Generate a unique token
       const token = crypto.randomUUID();
@@ -257,7 +259,7 @@ const InviteUsers = () => {
           role,
           org_id: profile.organization_id,
           token,
-          ad_account_id: finalAdAccountId,
+          ad_account_id: finalAdAccountIds,
         });
 
       if (inviteError) throw inviteError;
@@ -296,7 +298,8 @@ const InviteUsers = () => {
       
       setEmail('');
       setRole('member');
-      setAdAccountId('');
+      setAdAccountIds([]);
+      setCurrentAdAccountId('');
     } catch (error: any) {
       console.error('Error sending invite:', error);
       
@@ -411,10 +414,11 @@ const InviteUsers = () => {
                             ) : (
                                <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
                                  setDialogOpen(open);
-                                 if (!open) {
-                                   setSelectedUser(null);
-                                   setAdAccountId('');
-                                 }
+                                  if (!open) {
+                                    setSelectedUser(null);
+                                    setAdAccountIds([]);
+                                    setCurrentAdAccountId('');
+                                  }
                                }}>
                                  <DialogTrigger asChild>
                                    <Button
@@ -439,35 +443,75 @@ const InviteUsers = () => {
                                    </DialogHeader>
                                    <div className="space-y-4">
                                       <div>
-                                        <Label htmlFor="ad-account-id">AD Account ID</Label>
-                                        <Input
-                                          id="ad-account-id"
-                                          placeholder="971311827719449"
-                                          value={adAccountId}
-                                          onChange={(e) => setAdAccountId(e.target.value)}
-                                        />
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                          Enter just the numbers - the "act_" prefix will be added automatically
-                                        </p>
+                                        <Label htmlFor="ad-account-id">AD Account IDs</Label>
+                                        <div className="space-y-2">
+                                          <div className="flex gap-2">
+                                            <Input
+                                              id="ad-account-id"
+                                              placeholder="971311827719449"
+                                              value={currentAdAccountId}
+                                              onChange={(e) => setCurrentAdAccountId(e.target.value)}
+                                              onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && currentAdAccountId.trim()) {
+                                                  e.preventDefault();
+                                                  setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
+                                                  setCurrentAdAccountId('');
+                                                }
+                                              }}
+                                            />
+                                            <Button
+                                              type="button"
+                                              variant="outline"
+                                              onClick={() => {
+                                                if (currentAdAccountId.trim()) {
+                                                  setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
+                                                  setCurrentAdAccountId('');
+                                                }
+                                              }}
+                                            >
+                                              Add
+                                            </Button>
+                                          </div>
+                                          {adAccountIds.length > 0 && (
+                                            <div className="flex flex-wrap gap-2">
+                                              {adAccountIds.map((id, index) => (
+                                                <div key={index} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm">
+                                                  <span>{id.startsWith('act_') ? id : `act_${id}`}</span>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => setAdAccountIds(adAccountIds.filter((_, i) => i !== index))}
+                                                    className="hover:text-destructive"
+                                                  >
+                                                    ×
+                                                  </button>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                          <p className="text-xs text-muted-foreground">
+                                            Enter numbers only - the "act_" prefix will be added automatically. Press Enter or click Add.
+                                          </p>
+                                        </div>
                                       </div>
                                    </div>
                                    <DialogFooter>
-                                     <Button
-                                       variant="outline"
-                                       onClick={() => {
-                                         setDialogOpen(false);
-                                         setSelectedUser(null);
-                                         setAdAccountId('');
-                                       }}
-                                     >
-                                       Cancel
-                                     </Button>
-                                     <Button
-                                       onClick={handleInviteUser}
-                                       disabled={!adAccountId.trim() || isLoading}
-                                     >
-                                       {isLoading ? 'Inviting...' : 'Invite User'}
-                                     </Button>
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                          setDialogOpen(false);
+                                          setSelectedUser(null);
+                                          setAdAccountIds([]);
+                                          setCurrentAdAccountId('');
+                                        }}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        onClick={handleInviteUser}
+                                        disabled={adAccountIds.length === 0 || isLoading}
+                                      >
+                                        {isLoading ? 'Inviting...' : 'Invite User'}
+                                      </Button>
                                    </DialogFooter>
                                  </DialogContent>
                                </Dialog>

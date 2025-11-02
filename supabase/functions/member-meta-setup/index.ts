@@ -8,7 +8,7 @@ const corsHeaders = {
 
 interface SetupRequest {
   target_user_id: string;
-  ad_account_id: string;
+  ad_account_ids: string[];
   admin_org_id: string;
 }
 
@@ -51,10 +51,10 @@ serve(async (req) => {
       });
     }
 
-    const { target_user_id, ad_account_id, admin_org_id }: SetupRequest = await req.json();
-    console.log('member-meta-setup called with:', { target_user_id, ad_account_id, admin_org_id });
+    const { target_user_id, ad_account_ids, admin_org_id } = await req.json() as SetupRequest;
+    console.log('member-meta-setup called with:', { target_user_id, ad_account_ids, admin_org_id });
 
-    if (!target_user_id || !ad_account_id || !admin_org_id) {
+    if (!target_user_id || !ad_account_ids || ad_account_ids.length === 0 || !admin_org_id) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -110,7 +110,6 @@ serve(async (req) => {
     }
 
     const token = adminIntegration.access_token as string;
-    const adId = String(ad_account_id);
 
     // Find or create target user's owner org
     const { data: ownerMembership } = await supabase
@@ -153,8 +152,8 @@ serve(async (req) => {
         .from('integrations')
         .update({
           access_token: token,
-          ad_account_id: adId,
-          account_name: `Ad Account ${adId}`,
+          ad_account_id: ad_account_ids,
+          account_name: `Ad Accounts (${ad_account_ids.length})`,
           status: 'active',
           last_sync_at: null,
         })
@@ -173,8 +172,8 @@ serve(async (req) => {
           org_id: targetOrgId,
           integration_type: 'meta',
           access_token: token,
-          ad_account_id: adId,
-          account_name: `Ad Account ${adId}`,
+          ad_account_id: ad_account_ids,
+          account_name: `Ad Accounts (${ad_account_ids.length})`,
           status: 'active',
           user_id: target_user_id,
         });
@@ -187,19 +186,24 @@ serve(async (req) => {
       }
     }
 
-    // Sync campaigns + metrics into target org
+    // Sync campaigns + metrics from ALL ad accounts into target org
     let synced = 0;
     let totalCampaigns = 0;
-    try {
-      const campaignsUrl = `https://graph.facebook.com/v19.0/${adId}/campaigns?access_token=${token}&fields=id,name,status,objective`;
-      const campaignsResp = await fetch(campaignsUrl);
-      const campaignsJson = await campaignsResp.json();
+    
+    for (const adId of ad_account_ids) {
+      console.log('member-meta-setup: syncing campaigns for ad account:', adId);
+      try {
+        const campaignsUrl = `https://graph.facebook.com/v19.0/${adId}/campaigns?access_token=${token}&fields=id,name,status,objective`;
+        const campaignsResp = await fetch(campaignsUrl);
+        const campaignsJson = await campaignsResp.json();
 
-      if (campaignsJson?.error) {
-        console.error('member-meta-setup: campaigns error', campaignsJson.error);
-      } else {
+        if (campaignsJson?.error) {
+          console.error('member-meta-setup: campaigns error for', adId, campaignsJson.error);
+          continue;
+        }
+        
         const campaigns: Array<{ id: string; name: string; status: string; objective: string }> = campaignsJson?.data || [];
-        totalCampaigns = campaigns.length;
+        totalCampaigns += campaigns.length;
 
         const mapStatus = (metaStatus: string) => {
           switch (metaStatus) {
@@ -280,12 +284,18 @@ serve(async (req) => {
           }
           synced += 1;
         }
+      } catch (e) {
+        console.error('member-meta-setup: sync block error for', adId, e);
       }
-    } catch (e) {
-      console.error('member-meta-setup: sync block error', e);
     }
 
-    return new Response(JSON.stringify({ success: true, synced_count: synced, total_campaigns: totalCampaigns, org_id: targetOrgId }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      synced_count: synced, 
+      total_campaigns: totalCampaigns, 
+      org_id: targetOrgId,
+      ad_accounts_count: ad_account_ids.length 
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
     });

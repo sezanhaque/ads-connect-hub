@@ -161,7 +161,7 @@ export type Database = {
         Row: {
           access_token: string
           account_name: string | null
-          ad_account_id: string | null
+          ad_account_id: string[] | null
           created_at: string
           expires_at: string | null
           id: string
@@ -175,7 +175,7 @@ export type Database = {
         Insert: {
           access_token: string
           account_name?: string | null
-          ad_account_id?: string | null
+          ad_account_id?: string[] | null
           created_at?: string
           expires_at?: string | null
           id?: string
@@ -189,7 +189,7 @@ export type Database = {
         Update: {
           access_token?: string
           account_name?: string | null
-          ad_account_id?: string | null
+          ad_account_id?: string[] | null
           created_at?: string
           expires_at?: string | null
           id?: string
@@ -205,7 +205,7 @@ export type Database = {
       invites: {
         Row: {
           accepted: boolean | null
-          ad_account_id: string | null
+          ad_account_id: string[] | null
           created_at: string | null
           email: string
           id: string
@@ -215,7 +215,7 @@ export type Database = {
         }
         Insert: {
           accepted?: boolean | null
-          ad_account_id?: string | null
+          ad_account_id?: string[] | null
           created_at?: string | null
           email: string
           id?: string
@@ -225,7 +225,7 @@ export type Database = {
         }
         Update: {
           accepted?: boolean | null
-          ad_account_id?: string | null
+          ad_account_id?: string[] | null
           created_at?: string | null
           email?: string
           id?: string
@@ -461,10 +461,7 @@ export type Database = {
         Args: { p_campaign_id: string; p_requester: string }
         Returns: boolean
       }
-      sync_profile_data: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      sync_profile_data: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
