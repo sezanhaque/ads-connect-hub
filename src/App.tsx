@@ -13,6 +13,7 @@ import Index from "./pages/Index";
 import PlatformOverview from "./pages/PlatformOverview";
 import PilotPartner from "./pages/PilotPartner";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Campaigns from "./pages/Campaigns";
 import CreateCampaign from "./pages/CreateCampaign";
@@ -47,6 +48,7 @@ const App = () => {
                 <Route path="/platform-overview" element={<PlatformOverview />} />
                 <Route path="/pilot-program" element={<PilotPartner />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                   path="/dashboard"
                   element={
