@@ -407,67 +407,71 @@ const InviteUsers = () => {
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                            <TableCell>
-                             {user.is_member ? (
-                               <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                                 <CheckCircle className="h-3 w-3" />
-                                 In Organization
-                               </Badge>
-                             ) : (
-                                <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
-                                  setDialogOpen(open);
-                                   if (!open) {
-                                     setSelectedUser(null);
+                             <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
+                               setDialogOpen(open);
+                               if (!open) {
+                                 setSelectedUser(null);
+                                 setAdAccountIds([]);
+                                 setCurrentAdAccountId('');
+                               }
+                             }}>
+                               <DialogTrigger asChild>
+                                 <Button
+                                   size="sm"
+                                   variant={user.is_member ? "secondary" : "outline"}
+                                   onClick={async () => {
+                                     setSelectedUser(user);
                                      setAdAccountIds([]);
-                                     setCurrentAdAccountId('');
-                                   }
-                                }}>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={async () => {
-                                        setSelectedUser(user);
-                                        
-                                        // Fetch existing ad account IDs for this user
-                                        const { data: ownerMembership } = await supabase
-                                          .from('members')
-                                          .select('org_id')
-                                          .eq('user_id', user.user_id)
-                                          .eq('role', 'owner')
-                                          .maybeSingle();
+                                     
+                                     // For existing members, fetch their current ad account IDs
+                                     if (user.is_member) {
+                                       try {
+                                         const { data: ownerMembership } = await supabase
+                                           .from('members')
+                                           .select('org_id')
+                                           .eq('user_id', user.user_id)
+                                           .eq('role', 'owner')
+                                           .maybeSingle();
 
-                                        if (ownerMembership?.org_id) {
-                                          const { data: integration } = await supabase
-                                            .from('integrations')
-                                            .select('ad_account_id')
-                                            .eq('org_id', ownerMembership.org_id)
-                                            .eq('integration_type', 'meta')
-                                            .eq('user_id', user.user_id)
-                                            .maybeSingle();
+                                         if (ownerMembership?.org_id) {
+                                           const { data: integration } = await supabase
+                                             .from('integrations')
+                                             .select('ad_account_id')
+                                             .eq('org_id', ownerMembership.org_id)
+                                             .eq('integration_type', 'meta')
+                                             .eq('user_id', user.user_id)
+                                             .maybeSingle();
 
-                                          if (integration?.ad_account_id) {
-                                            // Pre-populate with existing IDs (without act_ prefix for display)
-                                            const existingIds = (integration.ad_account_id as string[])
-                                              .map(id => id.replace(/^act_/, ''));
-                                            setAdAccountIds(existingIds);
-                                          }
-                                        }
-                                        
-                                        setDialogOpen(true);
-                                      }}
-                                      className="flex items-center gap-1"
-                                    >
-                                      <UserPlus className="h-3 w-3" />
-                                      Add Ad Accounts
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogHeader>
-                                      <DialogTitle>Add Ad Accounts to User</DialogTitle>
-                                      <DialogDescription>
-                                        Add or update Meta Ad Account access for {user.email}. Existing accounts will be preserved.
-                                      </DialogDescription>
-                                    </DialogHeader>
+                                           if (integration?.ad_account_id) {
+                                             // Pre-populate with existing IDs (without act_ prefix for display)
+                                             const existingIds = (integration.ad_account_id as string[])
+                                               .map(id => id.replace(/^act_/, ''));
+                                             setAdAccountIds(existingIds);
+                                           }
+                                         }
+                                       } catch (error) {
+                                         console.error('Error fetching existing ad accounts:', error);
+                                       }
+                                     }
+                                     
+                                     setDialogOpen(true);
+                                   }}
+                                   className="flex items-center gap-1"
+                                 >
+                                   <UserPlus className="h-3 w-3" />
+                                   {user.is_member ? 'Manage Ad Accounts' : 'Invite User'}
+                                 </Button>
+                               </DialogTrigger>
+                               <DialogContent>
+                                 <DialogHeader>
+                                   <DialogTitle>{user.is_member ? 'Manage Ad Accounts' : 'Invite User to Organization'}</DialogTitle>
+                                   <DialogDescription>
+                                     {user.is_member 
+                                       ? `Add or update Meta Ad Account access for ${user.email}.`
+                                       : `Invite ${user.email} to join your organization with Meta integration access.`
+                                     }
+                                   </DialogDescription>
+                                 </DialogHeader>
                                    <div className="space-y-4">
                                       <div>
                                         <Label htmlFor="ad-account-id">AD Account IDs</Label>
@@ -533,17 +537,16 @@ const InviteUsers = () => {
                                       >
                                         Cancel
                                       </Button>
-                                      <Button
-                                        onClick={handleInviteUser}
-                                        disabled={adAccountIds.length === 0 || isLoading}
-                                      >
-                                        {isLoading ? 'Inviting...' : 'Invite User'}
-                                      </Button>
+                                       <Button
+                                         onClick={handleInviteUser}
+                                         disabled={adAccountIds.length === 0 || isLoading}
+                                       >
+                                         {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Ad Accounts' : 'Invite User')}
+                                       </Button>
                                    </DialogFooter>
-                                 </DialogContent>
-                               </Dialog>
-                             )}
-                           </TableCell>
+                                  </DialogContent>
+                                </Dialog>
+                            </TableCell>
                         </TableRow>
                       ))
                     )}
