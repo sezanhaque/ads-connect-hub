@@ -153,6 +153,12 @@ const InviteUsers = () => {
     try {
       console.log('Starting user invitation process...');
 
+      // Automatically add "act_" prefix if user entered just the numeric ID
+      let finalAdAccountId = adAccountId.trim();
+      if (finalAdAccountId && !finalAdAccountId.startsWith('act_')) {
+        finalAdAccountId = `act_${finalAdAccountId}`;
+      }
+
       // 1) Ensure the user is a member of the admin org (ignore duplicates)
       const { error: memberError } = await supabase
         .from('members')
@@ -169,7 +175,7 @@ const InviteUsers = () => {
       const { data, error } = await supabase.functions.invoke('member-meta-setup', {
         body: {
           target_user_id: selectedUser.user_id,
-          ad_account_id: adAccountId.trim(),
+          ad_account_id: finalAdAccountId,
           admin_org_id: profile.organization_id,
         },
       });
@@ -234,6 +240,12 @@ const InviteUsers = () => {
     setIsLoading(true);
     
     try {
+      // Automatically add "act_" prefix if user entered just the numeric ID
+      let finalAdAccountId = adAccountId.trim();
+      if (finalAdAccountId && !finalAdAccountId.startsWith('act_')) {
+        finalAdAccountId = `act_${finalAdAccountId}`;
+      }
+
       // Generate a unique token
       const token = crypto.randomUUID();
       
@@ -245,7 +257,7 @@ const InviteUsers = () => {
           role,
           org_id: profile.organization_id,
           token,
-          ad_account_id: adAccountId.trim(),
+          ad_account_id: finalAdAccountId,
         });
 
       if (inviteError) throw inviteError;
@@ -426,18 +438,18 @@ const InviteUsers = () => {
                                      </DialogDescription>
                                    </DialogHeader>
                                    <div className="space-y-4">
-                                     <div>
-                                       <Label htmlFor="ad-account-id">AD Account ID</Label>
-                                       <Input
-                                         id="ad-account-id"
-                                         placeholder="act_1234567890"
-                                         value={adAccountId}
-                                         onChange={(e) => setAdAccountId(e.target.value)}
-                                       />
-                                       <p className="text-xs text-muted-foreground mt-1">
-                                         The Meta AD Account ID this user will have access to
-                                       </p>
-                                     </div>
+                                      <div>
+                                        <Label htmlFor="ad-account-id">AD Account ID</Label>
+                                        <Input
+                                          id="ad-account-id"
+                                          placeholder="971311827719449"
+                                          value={adAccountId}
+                                          onChange={(e) => setAdAccountId(e.target.value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          Enter just the numbers - the "act_" prefix will be added automatically
+                                        </p>
+                                      </div>
                                    </div>
                                    <DialogFooter>
                                      <Button
