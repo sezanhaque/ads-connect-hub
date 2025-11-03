@@ -179,15 +179,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     posthog.capture('user_signed_out');
     const { error } = await supabase.auth.signOut();
     
-    if (error) {
+    // If session doesn't exist, treat it as successful logout
+    if (error && error.message !== "Session from session_id claim in JWT does not exist") {
       toast({
         title: "Sign out failed",
         description: error.message,
         variant: "destructive",
       });
+      return { error };
     }
+    
+    // Clear local state on successful logout or expired session
+    setSession(null);
+    setUser(null);
+    setProfile(null);
 
-    return { error };
+    return { error: null };
   };
 
   const resetPassword = async (email: string) => {
