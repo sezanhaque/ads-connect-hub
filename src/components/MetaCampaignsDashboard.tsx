@@ -377,8 +377,7 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
               </TableRow>
             </TableHeader>
             <TableBody>
-              {/* TEMPORARY: Filter campaigns starting with "IGA" */}
-              {campaigns.filter(campaign => campaign.name.startsWith("IGA")).map((campaign) => (
+              {campaigns.map((campaign) => (
                 <TableRow key={campaign.id}>
                   <TableCell className="font-medium">{campaign.name}</TableCell>
                   <TableCell>
