@@ -214,7 +214,7 @@ const CampaignDetails = () => {
               <DollarSign className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-medium">Budget</p>
-                <p className="text-2xl font-bold">${campaign.budget}</p>
+                <p className="text-2xl font-bold">€{campaign.budget}</p>
               </div>
             </div>
           </CardContent>

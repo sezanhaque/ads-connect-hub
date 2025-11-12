@@ -239,7 +239,7 @@ const Campaigns = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-4 w-4" />
-                        <span>${campaign.budget}</span>
+                        <span>€{campaign.budget}</span>
                       </div>
                       {campaign.start_date && (
                         <div className="flex items-center gap-1">
