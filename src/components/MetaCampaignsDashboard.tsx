@@ -405,9 +405,9 @@ export const MetaCampaignsDashboard = ({ refreshTrigger }: MetaCampaignsDashboar
                   <TableCell className="text-right">
                     {calculateCTR(campaign.total_clicks, campaign.total_impressions)}%
                   </TableCell>
-                  <TableCell className="text-right">${campaign.total_spend.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">€{campaign.total_spend.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
-                    ${calculateCPC(campaign.total_spend, campaign.total_clicks)}
+                    €{calculateCPC(campaign.total_spend, campaign.total_clicks)}
                   </TableCell>
                   <TableCell className="text-right">{campaign.total_leads}</TableCell>
                 </TableRow>
