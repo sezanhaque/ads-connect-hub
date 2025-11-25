@@ -87,6 +87,7 @@ export type Database = {
           objective: string
           org_id: string | null
           organization_id: string | null
+          platform: string | null
           start_date: string | null
           status: string
           targeting: Json | null
@@ -111,6 +112,7 @@ export type Database = {
           objective: string
           org_id?: string | null
           organization_id?: string | null
+          platform?: string | null
           start_date?: string | null
           status?: string
           targeting?: Json | null
@@ -135,6 +137,7 @@ export type Database = {
           objective?: string
           org_id?: string | null
           organization_id?: string | null
+          platform?: string | null
           start_date?: string | null
           status?: string
           targeting?: Json | null
