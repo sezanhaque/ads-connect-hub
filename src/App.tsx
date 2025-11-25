@@ -23,6 +23,7 @@ import CreateJob from "./pages/CreateJob";
 import Settings from "./pages/Settings";
 import OrganizationSettings from "./pages/OrganizationSettings";
 import MetaConnection from "./pages/MetaConnection";
+import TikTokConnection from "./pages/TikTokConnection";
 import InviteUsers from "./pages/InviteUsers";
 import AcceptInvite from "./pages/AcceptInvite";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
@@ -121,6 +122,16 @@ const App = () => {
                     <DashboardLayout>
                       <AdminRoute>
                         <MetaConnection />
+                      </AdminRoute>
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/tiktok-connection"
+                  element={
+                    <DashboardLayout>
+                      <AdminRoute>
+                        <TikTokConnection />
                       </AdminRoute>
                     </DashboardLayout>
                   }

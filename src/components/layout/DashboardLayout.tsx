@@ -31,6 +31,7 @@ const navigation = [
 
 const adminNavigation = [
   { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
+  { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
   { name: 'Invite Users', href: '/invite-users', icon: UserPlus },
 ];
 

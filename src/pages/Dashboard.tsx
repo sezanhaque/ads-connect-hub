@@ -4,10 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MetaCampaignsDashboard } from '@/components/MetaCampaignsDashboard';
+import { TikTokCampaignsDashboard } from '@/components/TikTokCampaignsDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
+import { useTikTokIntegrationStatus } from '@/hooks/useTikTokIntegrationStatus';
 import { posthog } from '@/lib/posthog';
 import { Plus, Target, Briefcase, TrendingUp, DollarSign, Eye, MousePointer, Users } from 'lucide-react';
 interface DashboardStats {
@@ -45,6 +47,10 @@ const Dashboard = () => {
     integration,
     isConnected
   } = useMetaIntegrationStatus();
+  const {
+    integration: tiktokIntegration,
+    isConnected: isTikTokConnected
+  } = useTikTokIntegrationStatus();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [stats, setStats] = useState<DashboardStats>({
     totalCampaigns: 0,
@@ -63,7 +69,8 @@ const Dashboard = () => {
     posthog.capture('dashboard_viewed');
     fetchDashboardData();
     autoSyncMetaCampaigns();
-    // Trigger refresh for MetaCampaignsDashboard
+    autoSyncTikTokCampaigns();
+    // Trigger refresh for campaign dashboards
     setRefreshTrigger(prev => prev + 1);
   }, []);
   const autoSyncMetaCampaigns = async () => {
@@ -114,6 +121,55 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Auto-sync failed:', error);
+    }
+  };
+  const autoSyncTikTokCampaigns = async () => {
+    if (!isTikTokConnected || !tiktokIntegration) return;
+    try {
+      console.log('Auto-syncing TikTok campaigns for user...');
+      console.log('Using integration:', tiktokIntegration);
+
+      // Get user's organization ID from their membership
+      const {
+        data: memberships,
+        error: membershipError
+      } = await supabase.from('members').select('org_id, role').eq('user_id', profile?.user_id).order('role', {
+        ascending: true
+      });
+
+      if (membershipError) {
+        console.error('Error fetching user memberships:', membershipError);
+        return;
+      }
+      if (!memberships || memberships.length === 0) {
+        console.error('No organization found for user');
+        return;
+      }
+      const primaryOrg = memberships.find((m: any) => m.role === 'owner') || memberships.find((m: any) => m.role === 'admin') || memberships.find((m: any) => m.role === 'member') || memberships[0];
+      const userOrgId = primaryOrg.org_id;
+      console.log('Using organization ID:', userOrgId);
+
+      // Auto-sync using stored credentials
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('tiktok-sync', {
+        body: {
+          org_id: userOrgId,
+          save_connection: false
+        }
+      });
+      if (error) {
+        console.error('TikTok auto-sync error:', error);
+        return;
+      }
+      if (data?.success) {
+        console.log('TikTok auto-sync successful:', data.synced_count, 'campaigns updated');
+        setRefreshTrigger(prev => prev + 1);
+        fetchDashboardData();
+      }
+    } catch (error) {
+      console.error('TikTok auto-sync failed:', error);
     }
   };
   const fetchDashboardData = async () => {
@@ -299,6 +355,9 @@ const Dashboard = () => {
 
       {/* Meta Campaigns Dashboard */}
       <MetaCampaignsDashboard refreshTrigger={refreshTrigger} />
+
+      {/* TikTok Campaigns Dashboard */}
+      <TikTokCampaignsDashboard refreshTrigger={refreshTrigger} />
 
       {/* Recent Activity */}
       <div className="grid gap-8 lg:grid-cols-2">
