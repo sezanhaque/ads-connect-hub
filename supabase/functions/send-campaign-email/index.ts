@@ -8,13 +8,13 @@ const corsHeaders = {
 };
 
 interface CampaignEmailData {
+  platform: string;
   campaign_name: string;
   job_id: string;
   budget: number;
   start_date: string;
   end_date: string;
   location_targeting: string;
-  target_audience: string;
   ad_copy: string;
   cta_button: string;
   creative_assets_count: number;
@@ -26,6 +26,15 @@ interface CampaignEmailData {
     size: number;
   }>;
   recipients: string[];
+  // Meta-specific
+  target_audience?: string;
+  // TikTok-specific
+  age_ranges?: string[];
+  interests?: string;
+  keywords?: string;
+  profiling?: string;
+  headline?: string;
+  description?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -58,6 +67,9 @@ const handler = async (req: Request): Promise<Response> => {
     // - Amazon SES
     // For now, we'll simulate the email sending
 
+    const platformName = campaignData.platform === 'meta' ? 'Meta' : 'TikTok';
+    const platformManager = campaignData.platform === 'meta' ? 'Meta Ads Manager' : 'TikTok Ads Manager';
+
     const emailContent = `
 <!DOCTYPE html>
 <html>
@@ -72,20 +84,22 @@ const handler = async (req: Request): Promise<Response> => {
         .label { font-weight: bold; color: #374151; }
         .value { color: #6b7280; margin-top: 5px; }
         .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px; }
+        .badge { display: inline-block; padding: 4px 8px; background: #e5e7eb; border-radius: 4px; margin: 2px; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>New Campaign Setup Request</h1>
-        <p>Ready for Meta Ads Manager</p>
+        <h1>New ${platformName} Campaign Setup Request</h1>
+        <p>Ready for ${platformManager}</p>
     </div>
     
     <div class="content">
-        <p>A new campaign "${campaignData.campaign_name}" has been created and is ready for setup in Meta Ads Manager.</p>
+        <p>A new ${platformName} campaign "${campaignData.campaign_name}" has been created and is ready for setup in ${platformManager}.</p>
         
         <div class="section">
             <div class="label">Campaign Details</div>
             <div class="value">
+                Platform: <strong>${platformName}</strong><br>
                 Campaign Name: ${campaignData.campaign_name}<br>
                 Job ID: ${campaignData.job_id}<br>
                 Total Budget: $${campaignData.budget}<br>
@@ -99,13 +113,59 @@ const handler = async (req: Request): Promise<Response> => {
             <div class="value">${campaignData.location_targeting}</div>
         </div>
         
+        ${campaignData.target_audience ? `
         <div class="section">
-            <div class="label">Target Audience</div>
+            <div class="label">Target Audience (Meta)</div>
             <div class="value">${campaignData.target_audience}</div>
         </div>
+        ` : ''}
+
+        ${campaignData.age_ranges && campaignData.age_ranges.length > 0 ? `
+        <div class="section">
+            <div class="label">Age Brackets (TikTok)</div>
+            <div class="value">
+                ${campaignData.age_ranges.map(range => `<span class="badge">${range}</span>`).join('')}
+            </div>
+        </div>
+        ` : ''}
+
+        ${campaignData.interests ? `
+        <div class="section">
+            <div class="label">Interests (TikTok)</div>
+            <div class="value">${campaignData.interests}</div>
+        </div>
+        ` : ''}
+
+        ${campaignData.keywords ? `
+        <div class="section">
+            <div class="label">Keywords (TikTok)</div>
+            <div class="value">${campaignData.keywords}</div>
+        </div>
+        ` : ''}
+
+        ${campaignData.profiling ? `
+        <div class="section">
+            <div class="label">Audience Profiling (TikTok)</div>
+            <div class="value">${campaignData.profiling}</div>
+        </div>
+        ` : ''}
+
+        ${campaignData.headline ? `
+        <div class="section">
+            <div class="label">Headline (TikTok)</div>
+            <div class="value">${campaignData.headline}</div>
+        </div>
+        ` : ''}
+
+        ${campaignData.description ? `
+        <div class="section">
+            <div class="label">Description (TikTok)</div>
+            <div class="value">${campaignData.description}</div>
+        </div>
+        ` : ''}
         
         <div class="section">
-            <div class="label">Ad Copy</div>
+            <div class="label">${campaignData.platform === 'tiktok' ? 'Main Ad Text' : 'Ad Copy'}</div>
             <div class="value">${campaignData.ad_copy}</div>
         </div>
         
@@ -134,7 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div class="section">
             <div class="label">Next Steps</div>
             <div class="value">
-                1. Log into Meta Ads Manager<br>
+                1. Log into ${platformManager}<br>
                 2. Create a new campaign with the above settings<br>
                 3. Upload the creative assets<br>
                 4. Review and publish the campaign
@@ -142,7 +202,7 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         
         <div class="footer">
-            <p>This campaign request was generated automatically from the campaign creation system.</p>
+            <p>This ${platformName} campaign request was generated automatically from the campaign creation system.</p>
         </div>
     </div>
 </body>

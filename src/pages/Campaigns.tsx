@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Plus, Search, Target, DollarSign, Calendar, Filter } from 'lucide-react';
+import metaLogo from "@/assets/meta-logo.png";
+import tiktokLogo from "@/assets/tiktok-logo.png";
 
 interface Campaign {
   id: string;
@@ -19,6 +21,7 @@ interface Campaign {
   start_date: string | null;
   end_date: string | null;
   created_at: string;
+  platform: string | null;
 }
 
 const Campaigns = () => {
@@ -28,6 +31,7 @@ const Campaigns = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [platformFilter, setPlatformFilter] = useState('all');
   useEffect(() => {
     if (profile?.user_id) {
       fetchCampaigns();
@@ -143,7 +147,8 @@ const Campaigns = () => {
   const filteredCampaigns = campaigns.filter(campaign => {
     const matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || campaign.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesPlatform = platformFilter === 'all' || campaign.platform === platformFilter;
+    return matchesSearch && matchesStatus && matchesPlatform;
   });
 
   if (loading) {
@@ -202,8 +207,18 @@ const Campaigns = () => {
                 />
               </div>
             </div>
+            <Select value={platformFilter} onValueChange={setPlatformFilter}>
+              <SelectTrigger className="w-36">
+                <SelectValue placeholder="Platform" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Platforms</SelectItem>
+                <SelectItem value="meta">Meta</SelectItem>
+                <SelectItem value="tiktok">TikTok</SelectItem>
+              </SelectContent>
+            </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-36">
                 <Filter className="mr-2 h-4 w-4" />
                 <SelectValue />
               </SelectTrigger>
@@ -227,10 +242,22 @@ const Campaigns = () => {
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
+                      {campaign.platform && (
+                        <img 
+                          src={campaign.platform === 'meta' ? metaLogo : tiktokLogo} 
+                          alt={campaign.platform} 
+                          className="h-6 w-6 object-contain"
+                        />
+                      )}
                       <h3 className="text-lg font-semibold">{campaign.name}</h3>
                       <Badge className={getStatusColor(campaign.status)}>
                         {campaign.status}
                       </Badge>
+                      {campaign.platform && (
+                        <Badge variant="outline">
+                          {campaign.platform === 'meta' ? 'Meta' : 'TikTok'}
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
