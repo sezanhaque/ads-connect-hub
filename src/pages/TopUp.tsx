@@ -89,10 +89,14 @@ export default function TopUp() {
         },
       });
 
+      console.log("Checkout response:", data, error);
+
       if (error) throw error;
 
-      if (data.url) {
-        window.location.href = data.url;
+      const checkoutUrl = data?.url;
+      if (checkoutUrl) {
+        // Use window.open as fallback if location.href doesn't work
+        window.location.assign(checkoutUrl);
       } else {
         throw new Error("No checkout URL returned");
       }
