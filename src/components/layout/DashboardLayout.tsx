@@ -14,7 +14,8 @@ import {
   Briefcase,
   Users,
   Share2,
-  UserPlus
+  UserPlus,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
   { name: 'Campaigns', href: '/campaigns', icon: Target },
   { name: 'Jobs', href: '/jobs', icon: Briefcase },
+  { name: 'Top Up', href: '/top-up', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

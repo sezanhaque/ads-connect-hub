@@ -27,6 +27,8 @@ import TikTokConnection from "./pages/TikTokConnection";
 import InviteUsers from "./pages/InviteUsers";
 import AcceptInvite from "./pages/AcceptInvite";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
+import TopUp from "./pages/TopUp";
+import TopUpSuccess from "./pages/TopUpSuccess";
 import NotFound from "./pages/NotFound";
 import AuthRecoveryListener from "@/components/AuthRecoveryListener";
 
@@ -148,6 +150,8 @@ const App = () => {
                 />
                 <Route path="/accept-invite" element={<AcceptInvite />} />
                 <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+                <Route path="/top-up" element={<TopUp />} />
+                <Route path="/top-up/success" element={<TopUpSuccess />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
