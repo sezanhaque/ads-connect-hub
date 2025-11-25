@@ -87,7 +87,7 @@ const CreateCampaign = () => {
   const { id } = useParams<{ id: string }>();
   const { profile } = useAuth();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [showDisabledPopup, setShowDisabledPopup] = useState(false);
