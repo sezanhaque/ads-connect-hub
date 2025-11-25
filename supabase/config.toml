@@ -18,6 +18,18 @@ verify_jwt = true
 [functions.member-meta-setup]
 verify_jwt = true
 
+[functions.meta-campaigns-live]
+verify_jwt = true
+
+[functions.tiktok-sync]
+verify_jwt = true
+
+[functions.tiktok-campaigns-live]
+verify_jwt = true
+
+[functions.member-tiktok-setup]
+verify_jwt = true
+
 [functions.send-campaign-email]
 verify_jwt = true
 
