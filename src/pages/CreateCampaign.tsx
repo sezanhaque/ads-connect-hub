@@ -32,7 +32,10 @@ import {
   Check,
   Upload,
   X,
+  Layers,
 } from "lucide-react";
+import metaLogo from "@/assets/meta-logo.png";
+import tiktokLogo from "@/assets/tiktok-logo.png";
 
 interface Job {
   id: string;
@@ -42,14 +45,28 @@ interface Job {
 }
 
 interface CampaignData {
+  // Platform selection
+  platform: 'meta' | 'tiktok' | '';
+  
+  // Shared fields
   jobId: string;
   name: string;
-  objective: "traffic" | "";
+  objective: "traffic" | "leads" | "";
   budget: string;
   startDate: string;
   endDate: string;
   locations: string;
+  
+  // Meta-specific
   targetAudience: string;
+  
+  // TikTok-specific
+  ageRanges: string[];
+  interests: string;
+  keywords: string;
+  freeTextProfiling: string;
+  
+  // Creative fields
   creativeAssets: Array<{
     name: string;
     path: string;
@@ -58,7 +75,9 @@ interface CampaignData {
     size: number;
   }>;
   adCopy: string;
-  ctaButton: "none" | "learn-more";
+  headline: string;
+  description: string;
+  ctaButton: "none" | "learn-more" | "sign-up" | "shop-now" | "download";
 }
 
 const FIXED_EMAIL_RECIPIENTS = ["thealaminislam@gmail.com", "moalamin001@gmail.com"];
@@ -73,6 +92,7 @@ const CreateCampaign = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [showDisabledPopup, setShowDisabledPopup] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
+    platform: "",
     jobId: "",
     name: "",
     objective: "",
@@ -81,16 +101,23 @@ const CreateCampaign = () => {
     endDate: "",
     locations: "",
     targetAudience: "",
+    ageRanges: [],
+    interests: "",
+    keywords: "",
+    freeTextProfiling: "",
     creativeAssets: [],
     adCopy: "",
+    headline: "",
+    description: "",
     ctaButton: "none",
   });
 
   const steps = [
+    { number: 0, title: "Select Platform", icon: Layers },
     { number: 1, title: "Campaign Basics", icon: Target },
-    { number: 2, title: "Audience", icon: Users },
+    { number: 2, title: campaignData.platform === 'tiktok' ? "Location & Targeting" : "Audience", icon: Users },
     { number: 3, title: "Creative & Copy", icon: Image },
-    { number: 4, title: "Summary & Publishing", icon: Check },
+    { number: 4, title: campaignData.platform === 'tiktok' ? "Review & Publish" : "Summary & Publishing", icon: Check },
   ];
 
   useEffect(() => {
@@ -118,6 +145,12 @@ const CreateCampaign = () => {
 
   const validateCurrentStep = () => {
     switch (currentStep) {
+      case 0:
+        if (!campaignData.platform) {
+          toast({ title: "Please select a platform", variant: "destructive" });
+          return false;
+        }
+        break;
       case 1:
         if (
           !campaignData.jobId ||
@@ -147,10 +180,16 @@ const CreateCampaign = () => {
         }
         break;
       case 2:
-        if (!campaignData.locations || !campaignData.targetAudience) {
-          toast({ title: "Please fill all required fields", variant: "destructive" });
+        if (!campaignData.locations) {
+          toast({ title: "Please fill location targeting", variant: "destructive" });
           return false;
         }
+        // Meta-specific validation
+        if (campaignData.platform === 'meta' && !campaignData.targetAudience) {
+          toast({ title: "Please describe target audience", variant: "destructive" });
+          return false;
+        }
+        // TikTok-specific validation (optional fields, so no strict validation)
         break;
       case 3:
         if (!campaignData.adCopy) {
@@ -169,7 +208,7 @@ const CreateCampaign = () => {
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
+    if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
@@ -307,6 +346,20 @@ const CreateCampaign = () => {
         return;
       }
 
+      // Prepare targeting data based on platform
+      const targeting = campaignData.platform === 'tiktok' 
+        ? {
+            locations: campaignData.locations,
+            age_ranges: campaignData.ageRanges,
+            interests: campaignData.interests,
+            keywords: campaignData.keywords,
+            profiling: campaignData.freeTextProfiling,
+          }
+        : { 
+            locations: campaignData.locations,
+            target_audience: campaignData.targetAudience,
+          };
+
       // Create campaign
       const { data: campaignId, error } = await supabase.rpc("create_campaign", {
         p_org_id: preferred.org_id,
@@ -317,7 +370,7 @@ const CreateCampaign = () => {
         p_currency: "USD",
         p_start_date: campaignData.startDate,
         p_end_date: campaignData.endDate,
-        p_targeting: { locations: campaignData.locations },
+        p_targeting: targeting,
         p_creatives: {
           assets_count: campaignData.creativeAssets.length,
           assets: campaignData.creativeAssets.map((asset) => ({
@@ -326,11 +379,16 @@ const CreateCampaign = () => {
             type: asset.type,
             size: asset.size,
           })),
+          headline: campaignData.headline || null,
+          description: campaignData.description || null,
         },
         p_ad_copy: campaignData.adCopy,
-        p_cta: campaignData.ctaButton === "learn-more" ? "Learn More" : null,
+        p_cta: campaignData.ctaButton !== 'none' ? campaignData.ctaButton.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : null,
         p_destination_url: null,
       });
+
+      // Update campaign platform
+      await supabase.from("campaigns").update({ platform: campaignData.platform }).eq("id", campaignId);
 
       if (error) throw error;
 
@@ -350,21 +408,36 @@ const CreateCampaign = () => {
 
       // Send campaign email
       try {
-        const { data: emailResult, error: emailError } = await supabase.functions.invoke("send-campaign-email", {
-          body: {
-            campaign_name: campaignData.name,
-            job_id: campaignData.jobId,
-            budget: parseFloat(campaignData.budget) || 0,
-            start_date: campaignData.startDate,
-            end_date: campaignData.endDate,
-            location_targeting: campaignData.locations,
+        const emailBody = {
+          platform: campaignData.platform,
+          campaign_name: campaignData.name,
+          job_id: campaignData.jobId,
+          budget: parseFloat(campaignData.budget) || 0,
+          start_date: campaignData.startDate,
+          end_date: campaignData.endDate,
+          location_targeting: campaignData.locations,
+          ad_copy: campaignData.adCopy,
+          cta_button: campaignData.ctaButton !== 'none' ? campaignData.ctaButton.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "None",
+          creative_assets_count: campaignData.creativeAssets.length,
+          creative_assets: campaignData.creativeAssets,
+          recipients: FIXED_EMAIL_RECIPIENTS,
+          // Meta-specific
+          ...(campaignData.platform === 'meta' && {
             target_audience: campaignData.targetAudience,
-            ad_copy: campaignData.adCopy,
-            cta_button: campaignData.ctaButton === "learn-more" ? "Learn More" : "None",
-            creative_assets_count: campaignData.creativeAssets.length,
-            creative_assets: campaignData.creativeAssets,
-            recipients: FIXED_EMAIL_RECIPIENTS,
-          },
+          }),
+          // TikTok-specific
+          ...(campaignData.platform === 'tiktok' && {
+            age_ranges: campaignData.ageRanges,
+            interests: campaignData.interests,
+            keywords: campaignData.keywords,
+            profiling: campaignData.freeTextProfiling,
+            headline: campaignData.headline,
+            description: campaignData.description,
+          }),
+        };
+
+        const { data: emailResult, error: emailError } = await supabase.functions.invoke("send-campaign-email", {
+          body: emailBody,
         });
 
         if (emailError) {
@@ -398,6 +471,59 @@ const CreateCampaign = () => {
 
   const renderStepContent = () => {
     switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-semibold mb-2">Choose Your Campaign Platform</h3>
+              <p className="text-muted-foreground">Select the platform where you want to run your campaign</p>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <button
+                type="button"
+                onClick={() => updateCampaignData({ platform: 'meta' })}
+                className={`p-8 border-2 rounded-lg transition-all hover:shadow-md ${
+                  campaignData.platform === 'meta'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="flex flex-col items-center space-y-4">
+                  <img src={metaLogo} alt="Meta" className="h-16 w-16 object-contain" />
+                  <div className="text-center">
+                    <h4 className="font-semibold text-lg">Meta</h4>
+                    <p className="text-sm text-muted-foreground mt-1">Facebook & Instagram</p>
+                  </div>
+                  {campaignData.platform === 'meta' && (
+                    <Badge className="bg-primary text-primary-foreground">Selected</Badge>
+                  )}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => updateCampaignData({ platform: 'tiktok' })}
+                className={`p-8 border-2 rounded-lg transition-all hover:shadow-md ${
+                  campaignData.platform === 'tiktok'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="flex flex-col items-center space-y-4">
+                  <img src={tiktokLogo} alt="TikTok" className="h-16 w-16 object-contain" />
+                  <div className="text-center">
+                    <h4 className="font-semibold text-lg">TikTok</h4>
+                    <p className="text-sm text-muted-foreground mt-1">TikTok Ads</p>
+                  </div>
+                  {campaignData.platform === 'tiktok' && (
+                    <Badge className="bg-primary text-primary-foreground">Selected</Badge>
+                  )}
+                </div>
+              </button>
+            </div>
+          </div>
+        );
+
       case 1:
         return (
           <div className="space-y-6">
@@ -444,12 +570,18 @@ const CreateCampaign = () => {
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
-                  className="w-full justify-center opacity-60"
-                  onClick={() => setShowDisabledPopup(true)}
+                  variant={campaignData.objective === "leads" ? "default" : "outline"}
+                  className={`w-full justify-center ${campaignData.platform === 'meta' ? 'opacity-60' : ''}`}
+                  onClick={() => {
+                    if (campaignData.platform === 'meta') {
+                      setShowDisabledPopup(true);
+                    } else {
+                      updateCampaignData({ objective: "leads" });
+                    }
+                  }}
                 >
                   <Users className="h-4 w-4 mr-2" />
-                  Leads
+                  Leads {campaignData.platform === 'tiktok' && <Badge variant="secondary" className="ml-2">TikTok</Badge>}
                 </Button>
               </div>
             </div>
@@ -503,24 +635,91 @@ const CreateCampaign = () => {
               <Label htmlFor="locations">Location Targeting *</Label>
               <Input
                 id="locations"
-                placeholder="Country, region, city, radius"
+                placeholder="Country, region, city, or custom radius"
                 value={campaignData.locations}
                 onChange={(e) => updateCampaignData({ locations: e.target.value })}
               />
               <p className="text-sm text-muted-foreground">Enter location details (e.g., "New York, 25 mile radius")</p>
             </div>
 
-            {/* Target Audience */}
-            <div className="space-y-2">
-              <Label htmlFor="audience">Target Audience *</Label>
-              <Textarea
-                id="audience"
-                placeholder="Describe your target audience..."
-                value={campaignData.targetAudience}
-                onChange={(e) => updateCampaignData({ targetAudience: e.target.value })}
-                rows={4}
-              />
-            </div>
+            {/* Meta-specific: Target Audience */}
+            {campaignData.platform === 'meta' && (
+              <div className="space-y-2">
+                <Label htmlFor="audience">Target Audience *</Label>
+                <Textarea
+                  id="audience"
+                  placeholder="Describe your target audience..."
+                  value={campaignData.targetAudience}
+                  onChange={(e) => updateCampaignData({ targetAudience: e.target.value })}
+                  rows={4}
+                />
+              </div>
+            )}
+
+            {/* TikTok-specific: Enhanced Targeting */}
+            {campaignData.platform === 'tiktok' && (
+              <>
+                <div className="space-y-2">
+                  <Label>Age Brackets (Select multiple)</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['18-24', '25-34', '35-44', '45-54', '55+'].map((range) => (
+                      <button
+                        key={range}
+                        type="button"
+                        onClick={() => {
+                          const newRanges = campaignData.ageRanges.includes(range)
+                            ? campaignData.ageRanges.filter(r => r !== range)
+                            : [...campaignData.ageRanges, range];
+                          updateCampaignData({ ageRanges: newRanges });
+                        }}
+                        className={`p-3 border rounded-lg text-sm transition-all ${
+                          campaignData.ageRanges.includes(range)
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background border-border hover:border-primary/50'
+                        }`}
+                      >
+                        {range}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground">Optional - Select one or more age groups</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="interests">Interests (Optional)</Label>
+                  <Input
+                    id="interests"
+                    placeholder="e.g., Sports, Technology, Fashion"
+                    value={campaignData.interests}
+                    onChange={(e) => updateCampaignData({ interests: e.target.value })}
+                  />
+                  <p className="text-sm text-muted-foreground">Enter interests separated by commas</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="keywords">Keywords (Optional)</Label>
+                  <Input
+                    id="keywords"
+                    placeholder="e.g., running shoes, fitness, workout"
+                    value={campaignData.keywords}
+                    onChange={(e) => updateCampaignData({ keywords: e.target.value })}
+                  />
+                  <p className="text-sm text-muted-foreground">Enter keywords related to your campaign</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="profiling">Target Audience Description (Optional)</Label>
+                  <Textarea
+                    id="profiling"
+                    placeholder="Describe your ideal audience in detail..."
+                    value={campaignData.freeTextProfiling}
+                    onChange={(e) => updateCampaignData({ freeTextProfiling: e.target.value })}
+                    rows={4}
+                  />
+                  <p className="text-sm text-muted-foreground">Free-form description of your target audience</p>
+                </div>
+              </>
+            )}
           </div>
         );
 
@@ -601,8 +800,33 @@ const CreateCampaign = () => {
 
             {/* Ad Copy */}
             <div className="space-y-4">
+              {/* TikTok-specific: Headline and Description */}
+              {campaignData.platform === 'tiktok' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="headline">Headline</Label>
+                    <Input
+                      id="headline"
+                      placeholder="Enter your headline (optional)"
+                      value={campaignData.headline}
+                      onChange={(e) => updateCampaignData({ headline: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Input
+                      id="description"
+                      placeholder="Enter your description (optional)"
+                      value={campaignData.description}
+                      onChange={(e) => updateCampaignData({ description: e.target.value })}
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="adCopy">Ad Copy *</Label>
+                <Label htmlFor="adCopy">{campaignData.platform === 'tiktok' ? 'Main Ad Text *' : 'Ad Copy *'}</Label>
                 <Textarea
                   id="adCopy"
                   placeholder="Write your ad copy here..."
@@ -627,7 +851,7 @@ const CreateCampaign = () => {
               <Label>Call-to-Action</Label>
               <Select
                 value={campaignData.ctaButton}
-                onValueChange={(value: "none" | "learn-more") => updateCampaignData({ ctaButton: value })}
+                onValueChange={(value: any) => updateCampaignData({ ctaButton: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -635,6 +859,13 @@ const CreateCampaign = () => {
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
                   <SelectItem value="learn-more">Learn More</SelectItem>
+                  {campaignData.platform === 'tiktok' && (
+                    <>
+                      <SelectItem value="sign-up">Sign Up</SelectItem>
+                      <SelectItem value="shop-now">Shop Now</SelectItem>
+                      <SelectItem value="download">Download</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -644,15 +875,30 @@ const CreateCampaign = () => {
       case 4:
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Campaign Summary</h3>
+            <h3 className="text-lg font-semibold">{campaignData.platform === 'tiktok' ? 'Review & Publish' : 'Campaign Summary'}</h3>
 
             <Card>
               <CardHeader>
-                <CardTitle>{campaignData.name}</CardTitle>
-                <CardDescription>Campaign Preview</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{campaignData.name}</CardTitle>
+                    <CardDescription>Campaign Preview</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={campaignData.platform === 'meta' ? metaLogo : tiktokLogo} 
+                      alt={campaignData.platform} 
+                      className="h-8 w-8 object-contain"
+                    />
+                    <Badge variant="secondary">{campaignData.platform === 'meta' ? 'Meta' : 'TikTok'}</Badge>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Objective:</strong> {campaignData.objective === 'traffic' ? 'Traffic' : 'Leads'}
+                  </div>
                   <div>
                     <strong>Budget:</strong> ${campaignData.budget}
                   </div>
@@ -667,13 +913,65 @@ const CreateCampaign = () => {
                   </div>
                 </div>
 
-                <div>
-                  <strong>Target Audience:</strong>
-                  <p className="mt-1 text-muted-foreground">{campaignData.targetAudience}</p>
-                </div>
+                {campaignData.platform === 'meta' && campaignData.targetAudience && (
+                  <div>
+                    <strong>Target Audience:</strong>
+                    <p className="mt-1 text-muted-foreground">{campaignData.targetAudience}</p>
+                  </div>
+                )}
+
+                {campaignData.platform === 'tiktok' && (
+                  <div className="space-y-3">
+                    {campaignData.ageRanges.length > 0 && (
+                      <div>
+                        <strong>Age Brackets:</strong>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {campaignData.ageRanges.map(range => (
+                            <Badge key={range} variant="outline">{range}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {campaignData.interests && (
+                      <div>
+                        <strong>Interests:</strong>
+                        <p className="mt-1 text-muted-foreground">{campaignData.interests}</p>
+                      </div>
+                    )}
+                    {campaignData.keywords && (
+                      <div>
+                        <strong>Keywords:</strong>
+                        <p className="mt-1 text-muted-foreground">{campaignData.keywords}</p>
+                      </div>
+                    )}
+                    {campaignData.freeTextProfiling && (
+                      <div>
+                        <strong>Audience Profiling:</strong>
+                        <p className="mt-1 text-muted-foreground">{campaignData.freeTextProfiling}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {campaignData.platform === 'tiktok' && (
+                  <>
+                    {campaignData.headline && (
+                      <div>
+                        <strong>Headline:</strong>
+                        <p className="mt-1 text-muted-foreground">{campaignData.headline}</p>
+                      </div>
+                    )}
+                    {campaignData.description && (
+                      <div>
+                        <strong>Description:</strong>
+                        <p className="mt-1 text-muted-foreground">{campaignData.description}</p>
+                      </div>
+                    )}
+                  </>
+                )}
 
                 <div>
-                  <strong>Ad Copy:</strong>
+                  <strong>{campaignData.platform === 'tiktok' ? 'Main Ad Text:' : 'Ad Copy:'}</strong>
                   <p className="mt-1 text-muted-foreground">{campaignData.adCopy}</p>
                 </div>
 
@@ -681,18 +979,12 @@ const CreateCampaign = () => {
                   <div>
                     <strong>Call-to-Action:</strong>
                     <Badge variant="secondary" className="ml-2">
-                      Learn More
+                      {campaignData.ctaButton.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                     </Badge>
                   </div>
                 )}
               </CardContent>
             </Card>
-
-            {/* <div className="bg-muted p-4 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                This campaign will be emailed to: <strong>{FIXED_EMAIL_RECIPIENTS.join(', ')}</strong>
-              </p>
-            </div> */}
           </div>
         );
 
@@ -715,7 +1007,7 @@ const CreateCampaign = () => {
       </div>
 
       {/* Progress Steps */}
-      <div className="flex justify-between mb-8">
+      <div className="flex justify-between mb-8 overflow-x-auto">
         {steps.map((step, index) => (
           <div key={step.number} className="flex items-center">
             <div
@@ -729,7 +1021,7 @@ const CreateCampaign = () => {
             </div>
             <div className="ml-3 hidden sm:block">
               <p
-                className={`text-sm font-medium ${
+                className={`text-sm font-medium whitespace-nowrap ${
                   currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
                 }`}
               >
@@ -753,7 +1045,7 @@ const CreateCampaign = () => {
 
       {/* Navigation */}
       <div className="flex justify-between">
-        <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+        <Button variant="outline" onClick={prevStep} disabled={currentStep === 0}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Previous
         </Button>
