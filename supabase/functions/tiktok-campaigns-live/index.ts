@@ -110,7 +110,20 @@ serve(async (req) => {
         }
       );
 
-      const campaignsData = await campaignsResponse.json();
+      // Check response status before parsing
+      if (!campaignsResponse.ok) {
+        console.error('TikTok campaigns API error:', campaignsResponse.status);
+        continue;
+      }
+
+      let campaignsData;
+      try {
+        const responseText = await campaignsResponse.text();
+        campaignsData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse campaigns response');
+        continue;
+      }
 
       if (campaignsData.code !== 0) {
         console.error('TikTok campaigns fetch error:', campaignsData.message);
@@ -123,8 +136,9 @@ serve(async (req) => {
       if (campaigns.length > 0) {
         const campaignIds = campaigns.map((c: TikTokCampaignData) => c.campaign_id);
 
+        // Use correct endpoint: report (not reports)
         const insightsResponse = await fetch(
-          'https://business-api.tiktok.com/open_api/v1.3/reports/integrated/get/',
+          'https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/',
           {
             method: 'POST',
             headers: {
@@ -144,7 +158,18 @@ serve(async (req) => {
           }
         );
 
-        const insightsData = await insightsResponse.json();
+        let insightsData = { code: -1, data: { list: [] } };
+        
+        if (insightsResponse.ok) {
+          try {
+            const insightsText = await insightsResponse.text();
+            insightsData = JSON.parse(insightsText);
+          } catch (parseError) {
+            console.error('Failed to parse insights response');
+          }
+        } else {
+          console.error('TikTok insights API error:', insightsResponse.status);
+        }
 
         // Merge campaign data with insights
         for (const campaign of campaigns) {
