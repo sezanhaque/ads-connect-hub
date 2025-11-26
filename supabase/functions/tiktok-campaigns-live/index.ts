@@ -136,25 +136,26 @@ serve(async (req) => {
       if (campaigns.length > 0) {
         const campaignIds = campaigns.map((c: TikTokCampaignData) => c.campaign_id);
 
-        // Use correct endpoint: report (not reports)
+        // Use GET method with query parameters for TikTok reporting API
+        const reportParams = new URLSearchParams({
+          advertiser_id: advertiserId,
+          service_type: 'AUCTION',
+          report_type: 'BASIC',
+          data_level: 'AUCTION_CAMPAIGN',
+          dimensions: JSON.stringify(['campaign_id']),
+          metrics: JSON.stringify(['spend', 'impressions', 'clicks', 'conversion', 'ctr', 'cpc']),
+          start_date: startDate,
+          end_date: endDate,
+        });
+
         const insightsResponse = await fetch(
-          'https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/',
+          `https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?${reportParams.toString()}`,
           {
-            method: 'POST',
+            method: 'GET',
             headers: {
               'Access-Token': accessToken,
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              advertiser_id: advertiserId,
-              service_type: 'AUCTION',
-              report_type: 'BASIC',
-              data_level: 'AUCTION_CAMPAIGN',
-              dimensions: ['campaign_id'],
-              metrics: ['spend', 'impressions', 'clicks', 'conversion', 'ctr', 'cpc'],
-              start_date: startDate,
-              end_date: endDate,
-            }),
           }
         );
 
