@@ -110,10 +110,15 @@ serve(async (req) => {
       console.log('Using first advertiser:', finalAdvertiserId);
     }
 
-    // Save or update integration if requested (using check-then-insert/update pattern)
+    // Save or update integration if requested
+    console.log('Save connection check - access_token provided:', !!access_token, 'save_connection:', save_connection);
+    
     if (access_token && save_connection !== false) {
+      console.log('Attempting to save TikTok integration for org:', org_id, 'user:', user.id);
+      console.log('Advertiser ID to save:', finalAdvertiserId);
+      
       // Check for existing integration
-      const { data: existingIntegration } = await supabase
+      const { data: existingIntegration, error: checkError } = await supabase
         .from('integrations')
         .select('id')
         .eq('org_id', org_id)
@@ -121,9 +126,15 @@ serve(async (req) => {
         .eq('user_id', user.id)
         .maybeSingle();
 
+      if (checkError) {
+        console.error('Error checking existing integration:', checkError);
+      }
+
+      console.log('Existing integration found:', existingIntegration?.id || 'none');
+
       if (existingIntegration) {
         // Update existing integration
-        const { error: updateError } = await supabase
+        const { data: updateData, error: updateError } = await supabase
           .from('integrations')
           .update({
             access_token: finalAccessToken,
@@ -132,33 +143,44 @@ serve(async (req) => {
             last_sync_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
-          .eq('id', existingIntegration.id);
+          .eq('id', existingIntegration.id)
+          .select();
 
         if (updateError) {
-          console.error('Failed to update integration:', updateError);
+          console.error('Failed to update integration:', JSON.stringify(updateError));
         } else {
-          console.log('Updated existing integration:', existingIntegration.id);
+          console.log('Successfully updated integration:', existingIntegration.id);
         }
       } else {
         // Insert new integration
-        const { error: insertError } = await supabase
+        const integrationData = {
+          org_id,
+          user_id: user.id,
+          integration_type: 'tiktok',
+          access_token: finalAccessToken,
+          ad_account_id: [finalAdvertiserId],
+          status: 'active',
+          last_sync_at: new Date().toISOString(),
+        };
+        
+        console.log('Inserting new integration with data:', JSON.stringify({
+          ...integrationData,
+          access_token: '[REDACTED]'
+        }));
+        
+        const { data: insertData, error: insertError } = await supabase
           .from('integrations')
-          .insert({
-            org_id,
-            user_id: user.id,
-            integration_type: 'tiktok',
-            access_token: finalAccessToken,
-            ad_account_id: [finalAdvertiserId],
-            status: 'active',
-            last_sync_at: new Date().toISOString(),
-          });
+          .insert(integrationData)
+          .select();
 
         if (insertError) {
-          console.error('Failed to save integration:', insertError);
+          console.error('Failed to save integration:', JSON.stringify(insertError));
         } else {
-          console.log('Created new integration for org:', org_id);
+          console.log('Successfully created new integration:', insertData?.[0]?.id);
         }
       }
+    } else {
+      console.log('Skipping integration save - access_token:', !!access_token, 'save_connection:', save_connection);
     }
 
     // Fetch campaigns from TikTok
@@ -342,11 +364,23 @@ serve(async (req) => {
       .eq('integration_type', 'tiktok')
       .eq('status', 'active');
 
+    // Verify integration was saved
+    const { data: verifyIntegration } = await supabase
+      .from('integrations')
+      .select('id')
+      .eq('org_id', org_id)
+      .eq('integration_type', 'tiktok')
+      .eq('status', 'active')
+      .maybeSingle();
+
+    console.log('Final verification - integration saved:', !!verifyIntegration);
+
     return new Response(
       JSON.stringify({
         success: true,
         synced_count: syncedCount,
         total_campaigns: campaigns.length,
+        integration_saved: !!verifyIntegration,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
