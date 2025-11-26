@@ -67,15 +67,26 @@ export const useTikTokIntegration = () => {
 
       console.log('TikTok sync successful:', data);
 
-      toast({
-        title: "Connection successful!",
-        description: `Successfully connected and synced ${data.synced_count} campaigns`,
-      });
+      // Check if integration was actually saved
+      if (data.integration_saved === false) {
+        console.warn('TikTok sync succeeded but integration was not saved to database');
+        toast({
+          title: "Warning",
+          description: "Campaigns synced but connection may not persist. Please try reconnecting.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Connection successful!",
+          description: `Successfully connected and synced ${data.synced_count} campaigns`,
+        });
+      }
 
       return { 
         success: true, 
         syncedCount: data.synced_count,
-        totalCampaigns: data.total_campaigns 
+        totalCampaigns: data.total_campaigns,
+        integrationSaved: data.integration_saved
       };
 
     } catch (error: any) {
