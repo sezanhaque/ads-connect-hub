@@ -94,34 +94,70 @@ serve(async (req) => {
         }
       );
 
+      if (!advertiserResponse.ok) {
+        const errorText = await advertiserResponse.text();
+        console.error('Advertiser API error:', advertiserResponse.status, errorText);
+        throw new Error(`Failed to fetch advertisers: ${advertiserResponse.status}`);
+      }
+
       const advertiserData = await advertiserResponse.json();
       
       if (advertiserData.code !== 0 || !advertiserData.data?.list?.length) {
-        throw new Error('Failed to fetch advertisers or no advertisers found');
+        throw new Error(advertiserData.message || 'Failed to fetch advertisers or no advertisers found');
       }
 
       finalAdvertiserId = advertiserData.data.list[0].advertiser_id;
       console.log('Using first advertiser:', finalAdvertiserId);
     }
 
-    // Save or update integration if requested
+    // Save or update integration if requested (using check-then-insert/update pattern)
     if (access_token && save_connection !== false) {
-      const { error: upsertError } = await supabase
+      // Check for existing integration
+      const { data: existingIntegration } = await supabase
         .from('integrations')
-        .upsert({
-          org_id,
-          user_id: user.id,
-          integration_type: 'tiktok',
-          access_token: finalAccessToken,
-          ad_account_id: [finalAdvertiserId],
-          status: 'active',
-          last_sync_at: new Date().toISOString(),
-        }, {
-          onConflict: 'org_id,integration_type,user_id',
-        });
+        .select('id')
+        .eq('org_id', org_id)
+        .eq('integration_type', 'tiktok')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (upsertError) {
-        console.error('Failed to save integration:', upsertError);
+      if (existingIntegration) {
+        // Update existing integration
+        const { error: updateError } = await supabase
+          .from('integrations')
+          .update({
+            access_token: finalAccessToken,
+            ad_account_id: [finalAdvertiserId],
+            status: 'active',
+            last_sync_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingIntegration.id);
+
+        if (updateError) {
+          console.error('Failed to update integration:', updateError);
+        } else {
+          console.log('Updated existing integration:', existingIntegration.id);
+        }
+      } else {
+        // Insert new integration
+        const { error: insertError } = await supabase
+          .from('integrations')
+          .insert({
+            org_id,
+            user_id: user.id,
+            integration_type: 'tiktok',
+            access_token: finalAccessToken,
+            ad_account_id: [finalAdvertiserId],
+            status: 'active',
+            last_sync_at: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('Failed to save integration:', insertError);
+        } else {
+          console.log('Created new integration for org:', org_id);
+        }
       }
     }
 
@@ -136,6 +172,12 @@ serve(async (req) => {
         },
       }
     );
+
+    if (!campaignsResponse.ok) {
+      const errorText = await campaignsResponse.text();
+      console.error('Campaigns API error:', campaignsResponse.status, errorText);
+      throw new Error(`Failed to fetch campaigns: ${campaignsResponse.status}`);
+    }
 
     const campaignsData = await campaignsResponse.json();
 
@@ -203,68 +245,90 @@ serve(async (req) => {
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      const insightsResponse = await fetch(
-        'https://business-api.tiktok.com/open_api/v1.3/reports/integrated/get/',
-        {
-          method: 'POST',
-          headers: {
-            'Access-Token': finalAccessToken,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            advertiser_id: finalAdvertiserId,
-            service_type: 'AUCTION',
-            report_type: 'BASIC',
-            data_level: 'AUCTION_CAMPAIGN',
-            dimensions: ['campaign_id', 'stat_time_day'],
-            metrics: ['spend', 'impressions', 'clicks', 'conversion'],
-            start_date: startDate,
-            end_date: endDate,
-            filters: [{
-              field: 'campaign_id',
-              operator: 'EQUAL',
-              values: [campaignData.campaign_id],
-            }],
-          }),
+      try {
+        const insightsResponse = await fetch(
+          'https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/',
+          {
+            method: 'POST',
+            headers: {
+              'Access-Token': finalAccessToken,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              advertiser_id: finalAdvertiserId,
+              service_type: 'AUCTION',
+              report_type: 'BASIC',
+              data_level: 'AUCTION_CAMPAIGN',
+              dimensions: ['campaign_id', 'stat_time_day'],
+              metrics: ['spend', 'impressions', 'clicks', 'conversion'],
+              start_date: startDate,
+              end_date: endDate,
+              filters: [{
+                field_name: 'campaign_ids',
+                filter_type: 'IN',
+                filter_value: JSON.stringify([campaignData.campaign_id]),
+              }],
+            }),
+          }
+        );
+
+        if (!insightsResponse.ok) {
+          console.error('Insights API returned non-OK status:', insightsResponse.status);
+          syncedCount++;
+          continue;
         }
-      );
 
-      const insightsData = await insightsResponse.json();
+        const insightsText = await insightsResponse.text();
+        
+        // Only parse if we got valid JSON
+        let insightsData;
+        try {
+          insightsData = JSON.parse(insightsText);
+        } catch (parseError) {
+          console.error('Failed to parse insights response:', insightsText.substring(0, 100));
+          syncedCount++;
+          continue;
+        }
 
-      if (insightsData.code === 0 && insightsData.data?.list) {
-        // Get campaign ID for metrics
-        const { data: campaignRecord } = await supabase
-          .from('campaigns')
-          .select('id')
-          .eq('name', campaignData.campaign_name)
-          .eq('org_id', org_id)
-          .eq('platform', 'tiktok')
-          .single();
+        if (insightsData.code === 0 && insightsData.data?.list) {
+          // Get campaign ID for metrics
+          const { data: campaignRecord } = await supabase
+            .from('campaigns')
+            .select('id')
+            .eq('name', campaignData.campaign_name)
+            .eq('org_id', org_id)
+            .eq('platform', 'tiktok')
+            .single();
 
-        if (campaignRecord) {
-          // Delete existing metrics
-          await supabase
-            .from('metrics')
-            .delete()
-            .eq('campaign_id', campaignRecord.id);
-
-          // Insert new metrics
-          for (const insight of insightsData.data.list) {
-            const metricData: TikTokInsight = insight.dimensions;
-            const metrics = insight.metrics;
-
+          if (campaignRecord) {
+            // Delete existing metrics
             await supabase
               .from('metrics')
-              .insert({
-                campaign_id: campaignRecord.id,
-                date: metricData.stat_time_day,
-                impressions: parseInt(metrics.impressions || '0'),
-                clicks: parseInt(metrics.clicks || '0'),
-                spend: parseFloat(metrics.spend || '0') / 100, // TikTok returns spend in cents
-                leads: parseInt(metrics.conversion || '0'),
-              });
+              .delete()
+              .eq('campaign_id', campaignRecord.id);
+
+            // Insert new metrics
+            for (const insight of insightsData.data.list) {
+              const metricData: TikTokInsight = insight.dimensions;
+              const metrics = insight.metrics;
+
+              await supabase
+                .from('metrics')
+                .insert({
+                  campaign_id: campaignRecord.id,
+                  date: metricData.stat_time_day,
+                  impressions: parseInt(metrics.impressions || '0'),
+                  clicks: parseInt(metrics.clicks || '0'),
+                  spend: parseFloat(metrics.spend || '0') / 100, // TikTok returns spend in cents
+                  leads: parseInt(metrics.conversion || '0'),
+                });
+            }
           }
+        } else {
+          console.log('No insights data for campaign:', campaignData.campaign_name, insightsData.message);
         }
+      } catch (insightError) {
+        console.error('Error fetching insights for campaign:', campaignData.campaign_name, insightError);
       }
 
       syncedCount++;
