@@ -10,7 +10,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { UserPlus, Mail, Search, Users, Shield, CheckCircle, UserX } from 'lucide-react';
+import { UserPlus, Search, Users, Shield, UserX, ArrowLeft } from 'lucide-react';
+
+type Platform = 'meta' | 'tiktok' | null;
+
+interface UserPlatforms {
+  meta: boolean;
+  tiktok: boolean;
+}
 
 interface User {
   id: string;
@@ -21,11 +28,10 @@ interface User {
   created_at: string;
   user_id: string;
   is_member: boolean;
+  connected_platforms: UserPlatforms;
 }
 
 const InviteUsers = () => {
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('member');
   const [adAccountIds, setAdAccountIds] = useState<string[]>([]);
   const [currentAdAccountId, setCurrentAdAccountId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +41,7 @@ const InviteUsers = () => {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform>(null);
   const { toast } = useToast();
   const { profile } = useAuth();
 
@@ -101,9 +108,50 @@ const InviteUsers = () => {
 
       console.log('Found members:', membersData?.length || 0);
 
-      // Transform the data to include membership status
+      // Fetch all integrations to determine connected platforms per user
+      // Get the user's own organization (where they are owner) to check their integrations
+      const { data: ownerMemberships, error: ownerError } = await supabase
+        .from('members')
+        .select('user_id, org_id')
+        .eq('role', 'owner')
+        .in('user_id', userIds);
+
+      if (ownerError) {
+        console.error('Error fetching owner memberships:', ownerError);
+      }
+
+      // Fetch integrations for all relevant orgs
+      const orgIds = ownerMemberships?.map(m => m.org_id) || [];
+      let integrationsData: any[] = [];
+      
+      if (orgIds.length > 0) {
+        const { data: integrations, error: intError } = await supabase
+          .from('integrations')
+          .select('org_id, integration_type, user_id, status')
+          .in('org_id', orgIds)
+          .eq('status', 'active');
+        
+        if (!intError && integrations) {
+          integrationsData = integrations;
+        }
+      }
+
+      // Transform the data to include membership status and connected platforms
       const transformedUsers = profilesData.map(userProfile => {
         const membership = membersData?.find(m => m.user_id === userProfile.user_id);
+        const ownerMembership = ownerMemberships?.find(m => m.user_id === userProfile.user_id);
+        
+        // Check platform connections
+        const userIntegrations = integrationsData.filter(
+          i => i.org_id === ownerMembership?.org_id && 
+               (i.user_id === userProfile.user_id || i.user_id === null)
+        );
+        
+        const connected_platforms: UserPlatforms = {
+          meta: userIntegrations.some(i => i.integration_type === 'meta'),
+          tiktok: userIntegrations.some(i => i.integration_type === 'tiktok'),
+        };
+
         return {
           id: userProfile.user_id,
           user_id: userProfile.user_id,
@@ -113,6 +161,7 @@ const InviteUsers = () => {
           role: membership ? membership.role : null,
           created_at: userProfile.created_at,
           is_member: !!membership,
+          connected_platforms,
         };
       });
       
@@ -131,10 +180,10 @@ const InviteUsers = () => {
   };
 
   const handleInviteUser = async () => {
-    if (!selectedUser || !profile?.organization_id) {
+    if (!selectedUser || !profile?.organization_id || !selectedPlatform) {
       toast({
         title: "Error",
-        description: "Invalid user or organization",
+        description: "Invalid user, organization, or platform",
         variant: "destructive",
       });
       return;
@@ -143,7 +192,7 @@ const InviteUsers = () => {
     if (adAccountIds.length === 0) {
       toast({
         title: "Error",
-        description: "Please provide at least one AD Account ID",
+        description: `Please provide at least one ${selectedPlatform === 'meta' ? 'AD Account ID' : 'Advertiser ID'}`,
         variant: "destructive",
       });
       return;
@@ -152,50 +201,83 @@ const InviteUsers = () => {
     setIsLoading(true);
 
     try {
-      console.log('Starting user invitation process...');
+      console.log(`Starting user invitation process for ${selectedPlatform}...`);
 
-      // Automatically add "act_" prefix to all IDs
-      const finalAdAccountIds = adAccountIds.map(id => {
-        const trimmed = id.trim();
-        return trimmed.startsWith('act_') ? trimmed : `act_${trimmed}`;
-      });
-
-      // 1) Ensure the user is a member of the admin org (ignore duplicates)
-      const { error: memberError } = await supabase
-        .from('members')
-        .insert({
-          user_id: selectedUser.user_id,
-          org_id: profile.organization_id,
-          role: 'member',
+      if (selectedPlatform === 'meta') {
+        // Automatically add "act_" prefix to all IDs for Meta
+        const finalAdAccountIds = adAccountIds.map(id => {
+          const trimmed = id.trim();
+          return trimmed.startsWith('act_') ? trimmed : `act_${trimmed}`;
         });
-      if (memberError && memberError.code !== '23505') {
-        throw memberError;
+
+        // 1) Ensure the user is a member of the admin org (ignore duplicates)
+        const { error: memberError } = await supabase
+          .from('members')
+          .insert({
+            user_id: selectedUser.user_id,
+            org_id: profile.organization_id,
+            role: 'member',
+          });
+        if (memberError && memberError.code !== '23505') {
+          throw memberError;
+        }
+
+        // 2) Securely set up the invited user's own organization integration and sync via Edge Function
+        const { data, error } = await supabase.functions.invoke('member-meta-setup', {
+          body: {
+            target_user_id: selectedUser.user_id,
+            ad_account_ids: finalAdAccountIds,
+            admin_org_id: profile.organization_id,
+            append: true,
+          },
+        });
+
+        if (error || !data?.success) {
+          throw new Error(error?.message || data?.error || 'Failed to set up Meta integration for user');
+        }
+
+        toast({
+          title: 'Meta Ad Accounts added successfully!',
+          description: `${selectedUser.email} now has access to ${finalAdAccountIds.length} new ad account(s). Data has been synced.`,
+        });
+      } else {
+        // TikTok integration
+        const finalAdvertiserIds = adAccountIds.map(id => id.trim());
+
+        // 1) Ensure the user is a member of the admin org (ignore duplicates)
+        const { error: memberError } = await supabase
+          .from('members')
+          .insert({
+            user_id: selectedUser.user_id,
+            org_id: profile.organization_id,
+            role: 'member',
+          });
+        if (memberError && memberError.code !== '23505') {
+          throw memberError;
+        }
+
+        // 2) Set up TikTok integration via Edge Function
+        const { data, error } = await supabase.functions.invoke('member-tiktok-setup', {
+          body: {
+            target_user_id: selectedUser.user_id,
+            advertiser_ids: finalAdvertiserIds,
+            admin_org_id: profile.organization_id,
+            append: true,
+          },
+        });
+
+        if (error || !data?.success) {
+          throw new Error(error?.message || data?.error || 'Failed to set up TikTok integration for user');
+        }
+
+        toast({
+          title: 'TikTok Advertiser IDs added successfully!',
+          description: `${selectedUser.email} now has access to ${finalAdvertiserIds.length} new advertiser(s). Data has been synced.`,
+        });
       }
-
-      // 2) Securely set up the invited user's own organization integration and sync via Edge Function
-      const { data, error } = await supabase.functions.invoke('member-meta-setup', {
-        body: {
-          target_user_id: selectedUser.user_id,
-          ad_account_ids: finalAdAccountIds,
-          admin_org_id: profile.organization_id,
-          append: true, // Tell edge function to append, not replace
-        },
-      });
-
-      if (error || !data?.success) {
-        throw new Error(error?.message || data?.error || 'Failed to set up Meta integration for user');
-      }
-
-      toast({
-        title: 'Ad Accounts added successfully!',
-        description: `${selectedUser.email} now has access to ${finalAdAccountIds.length} new ad account(s). Data has been synced.`,
-      });
 
       // Reset form and close dialog
-      setAdAccountIds([]);
-      setCurrentAdAccountId('');
-      setSelectedUser(null);
-      setDialogOpen(false);
+      resetDialog();
 
       // Refresh users list
       fetchUsers();
@@ -210,7 +292,7 @@ const InviteUsers = () => {
       } else {
         toast({
           title: 'Error',
-          description: error.message || 'Failed to add ad accounts. Please try again.',
+          description: error.message || 'Failed to add accounts. Please try again.',
           variant: 'destructive',
         });
       }
@@ -219,108 +301,190 @@ const InviteUsers = () => {
     }
   };
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const resetDialog = () => {
+    setDialogOpen(false);
+    setSelectedUser(null);
+    setSelectedPlatform(null);
+    setAdAccountIds([]);
+    setCurrentAdAccountId('');
+  };
+
+  const handleOpenDialog = async (user: User) => {
+    setSelectedUser(user);
+    setSelectedPlatform(null);
+    setAdAccountIds([]);
+    setCurrentAdAccountId('');
+    setDialogOpen(true);
+  };
+
+  const handleSelectPlatform = async (platform: Platform) => {
+    if (!selectedUser || !platform) return;
     
-    if (!email || !profile?.organization_id) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (adAccountIds.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please provide at least one AD Account ID",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
+    setSelectedPlatform(platform);
+    setAdAccountIds([]);
     
-    try {
-      // Automatically add "act_" prefix to all IDs
-      const finalAdAccountIds = adAccountIds.map(id => {
-        const trimmed = id.trim();
-        return trimmed.startsWith('act_') ? trimmed : `act_${trimmed}`;
-      });
+    // For existing members, fetch their current account IDs for the selected platform
+    if (selectedUser.is_member) {
+      try {
+        const { data: ownerMembership } = await supabase
+          .from('members')
+          .select('org_id')
+          .eq('user_id', selectedUser.user_id)
+          .eq('role', 'owner')
+          .maybeSingle();
 
-      // Generate a unique token
-      const token = crypto.randomUUID();
-      
-      // Create invite record
-      const { error: inviteError } = await supabase
-        .from('invites')
-        .insert({
-          email,
-          role,
-          org_id: profile.organization_id,
-          token,
-          ad_account_id: finalAdAccountIds,
-        });
+        if (ownerMembership?.org_id) {
+          const { data: integration } = await supabase
+            .from('integrations')
+            .select('ad_account_id')
+            .eq('org_id', ownerMembership.org_id)
+            .eq('integration_type', platform)
+            .eq('user_id', selectedUser.user_id)
+            .maybeSingle();
 
-      if (inviteError) throw inviteError;
-
-      // Get organization name for the email
-      const { data: orgData } = await supabase
-        .from('organizations')
-        .select('name')
-        .eq('id', profile.organization_id)
-        .single();
-
-      // Send invitation email
-      const { error: emailError } = await supabase.functions.invoke('send-invite-email', {
-        body: {
-          email,
-          role,
-          token,
-          inviterName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Admin',
-          organizationName: orgData?.name || 'Your Organization'
+          if (integration?.ad_account_id) {
+            // Pre-populate with existing IDs (without act_ prefix for Meta display)
+            const existingIds = (integration.ad_account_id as string[])
+              .map(id => platform === 'meta' ? id.replace(/^act_/, '') : id);
+            setAdAccountIds(existingIds);
+          }
         }
-      });
-
-      if (emailError) {
-        console.error('Error sending invitation email:', emailError);
-        toast({
-          title: "Invitation created but email failed",
-          description: "The invitation was saved but the email could not be sent. Please check the logs.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Invitation sent!",
-          description: `An invitation email has been sent to ${email}`,
-        });
+      } catch (error) {
+        console.error('Error fetching existing accounts:', error);
       }
-      
-      setEmail('');
-      setRole('member');
-      setAdAccountIds([]);
-      setCurrentAdAccountId('');
-    } catch (error: any) {
-      console.error('Error sending invite:', error);
-      
-      // Handle duplicate invite error
-      if (error?.code === '23505') {
-        toast({
-          title: "Invitation already sent",
-          description: "An invitation has already been sent to this email address",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to send invitation. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  const renderPlatformSelection = () => (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Select which platform integration you want to set up for this user.
+      </p>
+      <div className="grid grid-cols-2 gap-4">
+        <Button
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5"
+          onClick={() => handleSelectPlatform('meta')}
+        >
+          <img src="/meta-logo.png" alt="Meta" className="h-8 w-8 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <span className="font-medium">Meta</span>
+          <span className="text-xs text-muted-foreground">Facebook & Instagram</span>
+        </Button>
+        <Button
+          variant="outline"
+          className="h-24 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5"
+          onClick={() => handleSelectPlatform('tiktok')}
+        >
+          <img src="/tiktok-logo.png" alt="TikTok" className="h-8 w-8 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <span className="font-medium">TikTok</span>
+          <span className="text-xs text-muted-foreground">TikTok Ads</span>
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderAccountInput = () => {
+    const isMeta = selectedPlatform === 'meta';
+    const labelText = isMeta ? 'AD Account IDs' : 'Advertiser IDs';
+    const placeholder = isMeta ? '971311827719449' : '7123456789012345678';
+    const helpText = isMeta 
+      ? 'Enter numbers only - the "act_" prefix will be added automatically. Press Enter or click Add.'
+      : 'Enter your TikTok Advertiser IDs. Press Enter or click Add.';
+
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-1 -ml-2"
+          onClick={() => setSelectedPlatform(null)}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to platform selection
+        </Button>
+        
+        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+          <img 
+            src={isMeta ? "/meta-logo.png" : "/tiktok-logo.png"} 
+            alt={isMeta ? "Meta" : "TikTok"} 
+            className="h-6 w-6 object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+          <span className="font-medium">{isMeta ? 'Meta' : 'TikTok'} Integration</span>
+        </div>
+
+        <div>
+          <Label htmlFor="ad-account-id">{labelText}</Label>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Input
+                id="ad-account-id"
+                placeholder={placeholder}
+                value={currentAdAccountId}
+                onChange={(e) => setCurrentAdAccountId(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && currentAdAccountId.trim()) {
+                    e.preventDefault();
+                    setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
+                    setCurrentAdAccountId('');
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (currentAdAccountId.trim()) {
+                    setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
+                    setCurrentAdAccountId('');
+                  }
+                }}
+              >
+                Add
+              </Button>
+            </div>
+            {adAccountIds.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {adAccountIds.map((id, index) => (
+                  <div key={index} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm">
+                    <span>{isMeta ? (id.startsWith('act_') ? id : `act_${id}`) : id}</span>
+                    <button
+                      type="button"
+                      onClick={() => setAdAccountIds(adAccountIds.filter((_, i) => i !== index))}
+                      className="hover:text-destructive"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">{helpText}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderConnectedPlatforms = (platforms: UserPlatforms) => {
+    if (!platforms.meta && !platforms.tiktok) {
+      return <span className="text-muted-foreground text-sm">None</span>;
+    }
+    
+    return (
+      <div className="flex gap-1">
+        {platforms.meta && (
+          <Badge variant="outline" className="text-xs">
+            Meta
+          </Badge>
+        )}
+        {platforms.tiktok && (
+          <Badge variant="outline" className="text-xs">
+            TikTok
+          </Badge>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -368,6 +532,7 @@ const InviteUsers = () => {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Connected Platforms</TableHead>
                       <TableHead>Joined</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -375,7 +540,7 @@ const InviteUsers = () => {
                   <TableBody>
                     {filteredUsers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                           <UserX className="h-8 w-8 mx-auto mb-2 opacity-50" />
                           No users found
                         </TableCell>
@@ -404,149 +569,69 @@ const InviteUsers = () => {
                             )}
                           </TableCell>
                           <TableCell>
+                            {renderConnectedPlatforms(user.connected_platforms)}
+                          </TableCell>
+                          <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
-                           <TableCell>
-                             <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
-                               setDialogOpen(open);
-                               if (!open) {
-                                 setSelectedUser(null);
-                                 setAdAccountIds([]);
-                                 setCurrentAdAccountId('');
-                               }
-                             }}>
-                               <DialogTrigger asChild>
-                                 <Button
-                                   size="sm"
-                                   variant={user.is_member ? "secondary" : "outline"}
-                                   onClick={async () => {
-                                     setSelectedUser(user);
-                                     setAdAccountIds([]);
-                                     
-                                     // For existing members, fetch their current ad account IDs
-                                     if (user.is_member) {
-                                       try {
-                                         const { data: ownerMembership } = await supabase
-                                           .from('members')
-                                           .select('org_id')
-                                           .eq('user_id', user.user_id)
-                                           .eq('role', 'owner')
-                                           .maybeSingle();
-
-                                         if (ownerMembership?.org_id) {
-                                           const { data: integration } = await supabase
-                                             .from('integrations')
-                                             .select('ad_account_id')
-                                             .eq('org_id', ownerMembership.org_id)
-                                             .eq('integration_type', 'meta')
-                                             .eq('user_id', user.user_id)
-                                             .maybeSingle();
-
-                                           if (integration?.ad_account_id) {
-                                             // Pre-populate with existing IDs (without act_ prefix for display)
-                                             const existingIds = (integration.ad_account_id as string[])
-                                               .map(id => id.replace(/^act_/, ''));
-                                             setAdAccountIds(existingIds);
-                                           }
-                                         }
-                                       } catch (error) {
-                                         console.error('Error fetching existing ad accounts:', error);
-                                       }
-                                     }
-                                     
-                                     setDialogOpen(true);
-                                   }}
-                                   className="flex items-center gap-1"
-                                 >
-                                   <UserPlus className="h-3 w-3" />
-                                   {user.is_member ? 'Manage Ad Accounts' : 'Invite User'}
-                                 </Button>
-                               </DialogTrigger>
-                               <DialogContent>
-                                 <DialogHeader>
-                                   <DialogTitle>{user.is_member ? 'Manage Ad Accounts' : 'Invite User to Organization'}</DialogTitle>
-                                   <DialogDescription>
-                                     {user.is_member 
-                                       ? `Add or update Meta Ad Account access for ${user.email}.`
-                                       : `Invite ${user.email} to join your organization with Meta integration access.`
-                                     }
-                                   </DialogDescription>
-                                 </DialogHeader>
-                                   <div className="space-y-4">
-                                      <div>
-                                        <Label htmlFor="ad-account-id">AD Account IDs</Label>
-                                        <div className="space-y-2">
-                                          <div className="flex gap-2">
-                                            <Input
-                                              id="ad-account-id"
-                                              placeholder="971311827719449"
-                                              value={currentAdAccountId}
-                                              onChange={(e) => setCurrentAdAccountId(e.target.value)}
-                                              onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && currentAdAccountId.trim()) {
-                                                  e.preventDefault();
-                                                  setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
-                                                  setCurrentAdAccountId('');
-                                                }
-                                              }}
-                                            />
-                                            <Button
-                                              type="button"
-                                              variant="outline"
-                                              onClick={() => {
-                                                if (currentAdAccountId.trim()) {
-                                                  setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
-                                                  setCurrentAdAccountId('');
-                                                }
-                                              }}
-                                            >
-                                              Add
-                                            </Button>
-                                          </div>
-                                          {adAccountIds.length > 0 && (
-                                            <div className="flex flex-wrap gap-2">
-                                              {adAccountIds.map((id, index) => (
-                                                <div key={index} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm">
-                                                  <span>{id.startsWith('act_') ? id : `act_${id}`}</span>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => setAdAccountIds(adAccountIds.filter((_, i) => i !== index))}
-                                                    className="hover:text-destructive"
-                                                  >
-                                                    ×
-                                                  </button>
-                                                </div>
-                                              ))}
-                                            </div>
-                                          )}
-                                          <p className="text-xs text-muted-foreground">
-                                            Enter numbers only - the "act_" prefix will be added automatically. Press Enter or click Add.
-                                          </p>
-                                        </div>
-                                      </div>
-                                   </div>
-                                   <DialogFooter>
-                                      <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                          setDialogOpen(false);
-                                          setSelectedUser(null);
-                                          setAdAccountIds([]);
-                                          setCurrentAdAccountId('');
-                                        }}
-                                      >
-                                        Cancel
-                                      </Button>
-                                       <Button
-                                         onClick={handleInviteUser}
-                                         disabled={adAccountIds.length === 0 || isLoading}
-                                       >
-                                         {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Ad Accounts' : 'Invite User')}
-                                       </Button>
-                                   </DialogFooter>
-                                  </DialogContent>
-                                </Dialog>
-                            </TableCell>
+                          <TableCell>
+                            <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
+                              if (!open) {
+                                resetDialog();
+                              }
+                            }}>
+                              <DialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant={user.is_member ? "secondary" : "outline"}
+                                  onClick={() => handleOpenDialog(user)}
+                                  className="flex items-center gap-1"
+                                >
+                                  <UserPlus className="h-3 w-3" />
+                                  {user.is_member ? 'Manage Integrations' : 'Invite User'}
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>
+                                    {!selectedPlatform 
+                                      ? 'Select Platform'
+                                      : user.is_member 
+                                        ? `Manage ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Accounts` 
+                                        : `Set Up ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Integration`
+                                    }
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    {!selectedPlatform 
+                                      ? `Choose which platform to configure for ${user.email}.`
+                                      : user.is_member 
+                                        ? `Add or update ${selectedPlatform === 'meta' ? 'Meta Ad Account' : 'TikTok Advertiser'} access for ${user.email}.`
+                                        : `Invite ${user.email} to join your organization with ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} integration access.`
+                                    }
+                                  </DialogDescription>
+                                </DialogHeader>
+                                
+                                {!selectedPlatform ? renderPlatformSelection() : renderAccountInput()}
+                                
+                                {selectedPlatform && (
+                                  <DialogFooter>
+                                    <Button
+                                      variant="outline"
+                                      onClick={resetDialog}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      onClick={handleInviteUser}
+                                      disabled={adAccountIds.length === 0 || isLoading}
+                                    >
+                                      {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Accounts' : 'Invite User')}
+                                    </Button>
+                                  </DialogFooter>
+                                )}
+                              </DialogContent>
+                            </Dialog>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
@@ -556,105 +641,6 @@ const InviteUsers = () => {
             )}
           </CardContent>
         </Card>
-
-        {/* Invite Form & Role Info */}
-        {/* <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Send Email Invitation
-              </CardTitle>
-              <CardDescription>
-                Send an invitation email to someone not yet registered in the system.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleInvite} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="colleague@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="member">Member</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Admin roles can only be assigned from the backend
-                  </p>
-                </div>
-                
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Sending...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Send Invitation
-                    </div>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Role Permissions
-              </CardTitle>
-              <CardDescription>
-                Understand what each role can do in your organization.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 bg-muted/50 rounded-lg border">
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4" />
-                  <h4 className="font-medium">Member</h4>
-                </div>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• View and create campaigns</li>
-                  <li>• Manage jobs and applications</li>
-                  <li>• Access dashboard and reports</li>
-                  <li>• Update their own profile</li>
-                </ul>
-              </div>
-              
-              <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <Shield className="h-4 w-4" />
-                  <h4 className="font-medium">Admin/Owner</h4>
-                </div>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• All member permissions</li>
-                  <li>• Invite and manage users</li>
-                  <li>• Connect Meta accounts</li>
-                  <li>• Organization settings</li>
-                  <li>• Full administrative access</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </div> */}
       </div>
     </div>
   );
