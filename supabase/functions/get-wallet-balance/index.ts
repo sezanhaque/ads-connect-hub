@@ -98,6 +98,49 @@ serve(async (req) => {
         console.error('Error fetching Stripe card data:', stripeError);
         // Continue with local data if Stripe fetch fails
       }
+    } else if (wallet?.stripe_cardholder_id) {
+      // If no card ID but we have cardholder ID, fetch cards from cardholder
+      try {
+        const cards = await stripe.issuing.cards.list({
+          cardholder: wallet.stripe_cardholder_id,
+          limit: 1,
+        });
+        
+        if (cards.data.length > 0) {
+          const card = cards.data[0];
+          
+          // Get the all_time spending limit (in cents)
+          const spendingLimit = card.spending_controls?.spending_limits?.find(
+            (limit) => limit.interval === 'all_time'
+          )?.amount || 0;
+
+          stripeCardData = {
+            id: card.id,
+            last4: card.last4,
+            exp_month: card.exp_month,
+            exp_year: card.exp_year,
+            status: card.status,
+            spending_limit_cents: spendingLimit,
+            spending_limit_eur: spendingLimit / 100,
+          };
+
+          // Update wallet with the card ID and fresh data
+          await supabase
+            .from('wallets')
+            .update({
+              stripe_card_id: card.id,
+              balance: spendingLimit / 100,
+              card_status: card.status,
+              card_last4: card.last4,
+              card_exp_month: card.exp_month,
+              card_exp_year: card.exp_year,
+            })
+            .eq('id', wallet.id);
+        }
+      } catch (stripeError) {
+        console.error('Error fetching cards from cardholder:', stripeError);
+        // Continue with local data if Stripe fetch fails
+      }
     }
 
     return new Response(
