@@ -31,6 +31,7 @@ interface Wallet {
   card_exp_month?: number;
   card_exp_year?: number;
   stripe_card_id?: string;
+  stripe_cardholder_id?: string;
 }
 
 interface StripeCard {
@@ -217,7 +218,7 @@ export default function TopUp() {
           </Card>
 
           {/* Virtual Card Details */}
-          {wallet?.stripe_card_id && stripeCard && (
+          {(wallet?.stripe_card_id || wallet?.stripe_cardholder_id) && stripeCard && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Virtual Card</CardTitle>
@@ -243,7 +244,7 @@ export default function TopUp() {
           )}
         </div>
 
-        {!wallet?.stripe_card_id ? (
+        {!wallet?.stripe_card_id && !wallet?.stripe_cardholder_id ? (
           <Card>
             <CardHeader>
               <CardTitle>Create Virtual Card</CardTitle>
