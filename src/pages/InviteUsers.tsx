@@ -108,43 +108,28 @@ const InviteUsers = () => {
 
       console.log('Found members:', membersData?.length || 0);
 
-      // Fetch all integrations to determine connected platforms per user
-      // Get the user's own organization (where they are owner) to check their integrations
-      const { data: ownerMemberships, error: ownerError } = await supabase
-        .from('members')
-        .select('user_id, org_id')
-        .eq('role', 'owner')
-        .in('user_id', userIds);
-
-      if (ownerError) {
-        console.error('Error fetching owner memberships:', ownerError);
-      }
-
-      // Fetch integrations for all relevant orgs
-      const orgIds = ownerMemberships?.map(m => m.org_id) || [];
+      // Fetch integrations for this admin's org to check user-specific integrations
       let integrationsData: any[] = [];
       
-      if (orgIds.length > 0) {
-        const { data: integrations, error: intError } = await supabase
-          .from('integrations')
-          .select('org_id, integration_type, user_id, status')
-          .in('org_id', orgIds)
-          .eq('status', 'active');
-        
-        if (!intError && integrations) {
-          integrationsData = integrations;
-        }
+      const { data: integrations, error: intError } = await supabase
+        .from('integrations')
+        .select('org_id, integration_type, user_id, status')
+        .eq('org_id', profile.organization_id)
+        .eq('status', 'active');
+      
+      if (!intError && integrations) {
+        integrationsData = integrations;
       }
+
+      console.log('Found integrations:', integrationsData.length);
 
       // Transform the data to include membership status and connected platforms
       const transformedUsers = profilesData.map(userProfile => {
         const membership = membersData?.find(m => m.user_id === userProfile.user_id);
-        const ownerMembership = ownerMemberships?.find(m => m.user_id === userProfile.user_id);
         
-        // Check platform connections
+        // Check platform connections - look for integrations with this user_id in the admin's org
         const userIntegrations = integrationsData.filter(
-          i => i.org_id === ownerMembership?.org_id && 
-               (i.user_id === userProfile.user_id || i.user_id === null)
+          i => i.user_id === userProfile.user_id
         );
         
         const connected_platforms: UserPlatforms = {
