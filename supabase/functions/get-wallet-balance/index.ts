@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,7 +15,12 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')!;
+    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2023-10-16',
+    });
 
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -28,23 +34,17 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    // Get user's organization
-    const { data: member, error: memberError } = await supabase
-      .from('members')
-      .select('org_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (memberError || !member) {
-      throw new Error('User not in any organization');
-    }
-
-    // Get wallet
+    // Get user's wallet
     const { data: wallet, error: walletError } = await supabase
       .from('wallets')
       .select('*')
-      .eq('org_id', member.org_id)
+      .eq('user_id', user.id)
       .maybeSingle();
+
+    if (walletError) {
+      console.error('Error fetching wallet:', walletError);
+      throw new Error('Failed to fetch wallet');
+    }
 
     // Get recent transactions
     let transactions = [];
@@ -61,9 +61,49 @@ serve(async (req) => {
       }
     }
 
+    // If wallet exists and has a Stripe card, fetch real-time data from Stripe
+    let stripeCardData = null;
+    if (wallet?.stripe_card_id) {
+      try {
+        const card = await stripe.issuing.cards.retrieve(wallet.stripe_card_id);
+        
+        // Get the all_time spending limit (in cents)
+        const spendingLimit = card.spending_controls?.spending_limits?.find(
+          (limit) => limit.interval === 'all_time'
+        )?.amount || 0;
+
+        stripeCardData = {
+          id: card.id,
+          last4: card.last4,
+          exp_month: card.exp_month,
+          exp_year: card.exp_year,
+          status: card.status,
+          spending_limit_cents: spendingLimit,
+          spending_limit_eur: spendingLimit / 100,
+        };
+
+        // Update local wallet with fresh Stripe data
+        await supabase
+          .from('wallets')
+          .update({
+            balance: spendingLimit / 100,
+            card_status: card.status,
+            card_last4: card.last4,
+            card_exp_month: card.exp_month,
+            card_exp_year: card.exp_year,
+          })
+          .eq('id', wallet.id);
+
+      } catch (stripeError) {
+        console.error('Error fetching Stripe card data:', stripeError);
+        // Continue with local data if Stripe fetch fails
+      }
+    }
+
     return new Response(
       JSON.stringify({
-        wallet: wallet || { balance: 0, currency: 'EUR' },
+        wallet: wallet || { balance: 0, currency: 'EUR', card_status: 'pending' },
+        stripeCard: stripeCardData,
         transactions,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

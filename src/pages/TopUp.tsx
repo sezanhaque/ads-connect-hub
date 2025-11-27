@@ -4,9 +4,10 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditCard, Euro, History, Loader2, Plus, Minus } from "lucide-react";
+import { CreditCard, Euro, History, Loader2, Plus } from "lucide-react";
 import { format } from "date-fns";
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000];
@@ -25,15 +26,31 @@ interface Wallet {
   id?: string;
   balance: number;
   currency: string;
+  card_status?: string;
+  card_last4?: string;
+  card_exp_month?: number;
+  card_exp_year?: number;
+  stripe_card_id?: string;
+}
+
+interface StripeCard {
+  id: string;
+  last4: string;
+  exp_month: number;
+  exp_year: number;
+  status: string;
+  spending_limit_eur: number;
 }
 
 export default function TopUp() {
   const [amount, setAmount] = useState<number>(100);
   const [customAmount, setCustomAmount] = useState<string>("");
-  const [wallet, setWallet] = useState<Wallet>({ balance: 0, currency: "EUR" });
+  const [wallet, setWallet] = useState<Wallet | null>(null);
+  const [stripeCard, setStripeCard] = useState<StripeCard | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [creatingCard, setCreatingCard] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -54,6 +71,7 @@ export default function TopUp() {
       if (error) throw error;
       
       setWallet(data.wallet);
+      setStripeCard(data.stripeCard);
       setTransactions(data.transactions || []);
     } catch (error: any) {
       console.error("Error fetching wallet:", error);
@@ -64,6 +82,32 @@ export default function TopUp() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreateCard = async () => {
+    setCreatingCard(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-virtual-card');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Virtual card created successfully!",
+      });
+      
+      // Refresh wallet data
+      await fetchWalletData();
+    } catch (error: any) {
+      console.error('Error creating card:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create virtual card",
+        variant: "destructive",
+      });
+    } finally {
+      setCreatingCard(false);
     }
   };
 
@@ -95,7 +139,6 @@ export default function TopUp() {
 
       const checkoutUrl = data?.url;
       if (checkoutUrl) {
-        // Use window.open as fallback if location.href doesn't work
         window.location.assign(checkoutUrl);
       } else {
         throw new Error("No checkout URL returned");
@@ -165,15 +208,71 @@ export default function TopUp() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                €{wallet.balance.toFixed(2)}
+                €{stripeCard?.spending_limit_eur.toFixed(2) || wallet?.balance.toFixed(2) || '0.00'}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Available spending limit
+                {stripeCard ? 'Available spending limit' : 'Available funds'}
               </p>
             </CardContent>
           </Card>
 
-          {/* Top Up Card */}
+          {/* Virtual Card Details */}
+          {wallet?.stripe_card_id && stripeCard && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Virtual Card</CardTitle>
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Card Number</span>
+                  <span className="font-mono text-sm">•••• {stripeCard.last4}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Expires</span>
+                  <span className="text-sm">{stripeCard.exp_month}/{stripeCard.exp_year}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <Badge variant={stripeCard.status === 'active' ? 'default' : 'secondary'}>
+                    {stripeCard.status}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {!wallet?.stripe_card_id ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Create Virtual Card</CardTitle>
+              <CardDescription>
+                You need to create a virtual card before you can add funds
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={handleCreateCard} 
+                disabled={creatingCard}
+                size="lg"
+                className="w-full"
+              >
+                {creatingCard ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Card...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Create Virtual Card
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -241,7 +340,7 @@ export default function TopUp() {
               </p>
             </CardContent>
           </Card>
-        </div>
+        )}
 
         {/* Transaction History */}
         <Card>
