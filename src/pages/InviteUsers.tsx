@@ -108,50 +108,24 @@ const InviteUsers = () => {
 
       console.log('Found members:', membersData?.length || 0);
 
-      // Get owner memberships to find each user's own org
-      const { data: ownerMemberships, error: ownerError } = await supabase
-        .from('members')
-        .select('user_id, org_id')
-        .eq('role', 'owner')
-        .in('user_id', userIds);
+      // Use RPC function to get platform connections (bypasses RLS)
+      const { data: platformConnections, error: platformError } = await supabase
+        .rpc('get_user_platform_connections', { p_user_ids: userIds });
 
-      if (ownerError) {
-        console.error('Error fetching owner memberships:', ownerError);
+      if (platformError) {
+        console.error('Error fetching platform connections:', platformError);
       }
 
-      // Fetch integrations from admin's org AND all user-owned orgs
-      const userOrgIds = ownerMemberships?.map(m => m.org_id) || [];
-      const allOrgIds = [...new Set([profile.organization_id, ...userOrgIds])];
-      
-      let integrationsData: any[] = [];
-      
-      const { data: integrations, error: intError } = await supabase
-        .from('integrations')
-        .select('org_id, integration_type, user_id, status')
-        .in('org_id', allOrgIds)
-        .eq('status', 'active');
-      
-      if (!intError && integrations) {
-        integrationsData = integrations;
-      }
-
-      console.log('Found integrations:', integrationsData.length);
+      console.log('Platform connections:', platformConnections?.length || 0);
 
       // Transform the data to include membership status and connected platforms
       const transformedUsers = profilesData.map(userProfile => {
         const membership = membersData?.find(m => m.user_id === userProfile.user_id);
-        const userOwnOrg = ownerMemberships?.find(m => m.user_id === userProfile.user_id);
-        
-        // Check platform connections - look for integrations in admin's org with this user_id
-        // OR integrations in the user's own org (where user_id matches or is null)
-        const userIntegrations = integrationsData.filter(i => 
-          (i.org_id === profile.organization_id && i.user_id === userProfile.user_id) ||
-          (i.org_id === userOwnOrg?.org_id && (i.user_id === userProfile.user_id || i.user_id === null))
-        );
+        const platformData = platformConnections?.find((p: any) => p.user_id === userProfile.user_id);
         
         const connected_platforms: UserPlatforms = {
-          meta: userIntegrations.some(i => i.integration_type === 'meta'),
-          tiktok: userIntegrations.some(i => i.integration_type === 'tiktok'),
+          meta: platformData?.has_meta || false,
+          tiktok: platformData?.has_tiktok || false,
         };
 
         return {
