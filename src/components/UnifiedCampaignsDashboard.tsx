@@ -37,21 +37,29 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
   const [campaigns, setCampaigns] = useState<UnifiedCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [platformFilter, setPlatformFilter] = useState<Platform>("all");
   const [dateRange, setDateRange] = useState<DateRange>({
     from: subDays(new Date(), 7),
     to: new Date(),
   });
   const { user } = useAuth();
-  const { integration: metaIntegration, isConnected: isMetaConnected } = useMetaIntegrationStatus();
-  const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
+  const { integration: metaIntegration, isConnected: isMetaConnected, loading: metaLoading } = useMetaIntegrationStatus();
+  const { integration: tiktokIntegration, isConnected: isTikTokConnected, loading: tiktokLoading } = useTikTokIntegrationStatus();
   const { toast } = useToast();
+
+  // Wait for integration status to be determined before fetching campaigns
+  const integrationsLoading = metaLoading || tiktokLoading;
 
   const fetchCampaigns = useCallback(
     async (dateFilter?: DateRange) => {
+      // Don't fetch if integrations are still loading or no user
+      if (integrationsLoading || !user) {
+        return;
+      }
+      
       console.log("UnifiedCampaignsDashboard: Fetching campaigns...");
       setLoading(true);
-      if (!user) return;
 
       const currentDateRange = dateFilter || dateRange;
       const allCampaigns: UnifiedCampaign[] = [];
@@ -200,14 +208,18 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
         setCampaigns([]);
       } finally {
         setLoading(false);
+        setInitialLoadComplete(true);
       }
     },
-    [user, isMetaConnected, isTikTokConnected, dateRange, toast],
+    [user, isMetaConnected, isTikTokConnected, dateRange, toast, integrationsLoading],
   );
 
   useEffect(() => {
-    fetchCampaigns();
-  }, [fetchCampaigns, refreshTrigger]);
+    // Only fetch when integrations have finished loading
+    if (!integrationsLoading) {
+      fetchCampaigns();
+    }
+  }, [fetchCampaigns, refreshTrigger, integrationsLoading]);
 
   const handleDateRangeChange = (newRange: DateRange) => {
     setDateRange(newRange);
@@ -295,12 +307,15 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
     );
   };
 
-  if (loading) {
+  // Show loading state while integrations are loading OR while fetching campaigns (but only before initial load completes)
+  const showLoading = integrationsLoading || loading || !initialLoadComplete;
+  
+  if (showLoading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>All Campaigns</CardTitle>
-          <CardDescription>Your Meta and TikTok campaigns performance</CardDescription>
+          <CardDescription>Loading your campaigns...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
