@@ -159,10 +159,22 @@ serve(async (req) => {
         }
       );
 
-      const campaignsData = await campaignsResponse.json();
+      if (!campaignsResponse.ok) {
+        console.error(`TikTok API error for advertiser ${advertiserId}: ${campaignsResponse.status} ${campaignsResponse.statusText}`);
+        continue;
+      }
+
+      const campaignsText = await campaignsResponse.text();
+      let campaignsData;
+      try {
+        campaignsData = JSON.parse(campaignsText);
+      } catch (e) {
+        console.error(`Invalid JSON response for advertiser ${advertiserId}: ${campaignsText.substring(0, 100)}`);
+        continue;
+      }
 
       if (campaignsData.code !== 0) {
-        console.error(`Failed to fetch campaigns for advertiser ${advertiserId}`);
+        console.error(`Failed to fetch campaigns for advertiser ${advertiserId}: ${campaignsData.message || 'Unknown error'}`);
         continue;
       }
 
@@ -250,7 +262,19 @@ serve(async (req) => {
           }
         );
 
-        const insightsData = await insightsResponse.json();
+        if (!insightsResponse.ok) {
+          console.error(`TikTok insights API error: ${insightsResponse.status}`);
+          continue;
+        }
+
+        const insightsText = await insightsResponse.text();
+        let insightsData;
+        try {
+          insightsData = JSON.parse(insightsText);
+        } catch (e) {
+          console.error(`Invalid insights JSON response: ${insightsText.substring(0, 100)}`);
+          continue;
+        }
 
         if (insightsData.code === 0 && insightsData.data?.list) {
           const { data: campaignRecord } = await supabase
