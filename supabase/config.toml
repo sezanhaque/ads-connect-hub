@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.get-wallet-balance]
 verify_jwt = true
+
+[functions.create-virtual-card]
+verify_jwt = true

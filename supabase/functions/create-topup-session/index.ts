@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,14 +13,16 @@ serve(async (req) => {
   }
 
   try {
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeSecretKey) {
-      throw new Error('STRIPE_SECRET_KEY not configured');
-    }
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')!;
+    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2023-10-16',
+    });
+
+    const { amount, successUrl, cancelUrl } = await req.json();
 
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -33,90 +36,98 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    // Get user's organization
-    const { data: member, error: memberError } = await supabase
-      .from('members')
-      .select('org_id')
+    console.log('Creating top-up session for user:', user.id, 'amount:', amount);
+
+    // Get user's wallet (or create one)
+    let { data: wallet, error: walletError } = await supabase
+      .from('wallets')
+      .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (memberError || !member) {
-      throw new Error('User not in any organization');
+    if (walletError) {
+      console.error('Error fetching wallet:', walletError);
+      throw new Error('Failed to fetch wallet');
     }
 
-    const { amount, successUrl, cancelUrl } = await req.json();
-    
-    if (!amount || amount < 10) {
-      throw new Error('Minimum top-up amount is €10');
-    }
+    // If no wallet exists or no card, we need to create a virtual card first
+    if (!wallet || !wallet.stripe_card_id) {
+      console.log('No virtual card found, creating one...');
+      
+      // Call create-virtual-card function
+      const createCardResponse = await supabase.functions.invoke('create-virtual-card', {
+        headers: {
+          Authorization: authHeader,
+        },
+      });
 
-    // Get or create wallet for organization
-    let { data: wallet, error: walletError } = await supabase
-      .from('wallets')
-      .select('id, stripe_card_id')
-      .eq('org_id', member.org_id)
-      .maybeSingle();
+      if (createCardResponse.error) {
+        console.error('Error creating virtual card:', createCardResponse.error);
+        throw new Error('Failed to create virtual card');
+      }
+
+      wallet = createCardResponse.data.wallet;
+      console.log('Virtual card created:', wallet.stripe_card_id);
+    }
 
     if (!wallet) {
-      const { data: newWallet, error: createError } = await supabase
-        .from('wallets')
-        .insert({ org_id: member.org_id })
-        .select()
-        .single();
-      
-      if (createError) throw createError;
-      wallet = newWallet;
+      throw new Error('Failed to get or create wallet');
     }
 
     // Create Stripe Checkout Session with iDEAL
-    const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${stripeSecretKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['ideal'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'Virtual Card Top Up',
+              description: `Add €${(amount / 100).toFixed(2)} to your virtual card`,
+            },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: {
+        wallet_id: wallet.id,
+        user_id: user.id,
+        stripe_card_id: wallet.stripe_card_id,
       },
-      body: new URLSearchParams({
-        'mode': 'payment',
-        'payment_method_types[0]': 'ideal',
-        'line_items[0][price_data][currency]': 'eur',
-        'line_items[0][price_data][product_data][name]': 'Virtual Card Top-Up',
-        'line_items[0][price_data][unit_amount]': String(Math.round(amount * 100)),
-        'line_items[0][quantity]': '1',
-        'success_url': successUrl || `${req.headers.get('origin')}/top-up/success?session_id={CHECKOUT_SESSION_ID}`,
-        'cancel_url': cancelUrl || `${req.headers.get('origin')}/top-up`,
-        'metadata[wallet_id]': wallet.id,
-        'metadata[org_id]': member.org_id,
-        'metadata[user_id]': user.id,
-      }),
     });
 
-    const session = await stripeResponse.json();
-    
-    if (session.error) {
-      console.error('Stripe error:', session.error);
-      throw new Error(session.error.message);
-    }
+    console.log('Checkout session created:', session.id);
 
     // Create pending transaction
-    await supabase
+    const { error: txError } = await supabase
       .from('wallet_transactions')
       .insert({
         wallet_id: wallet.id,
-        stripe_session_id: session.id,
         amount: amount,
         currency: 'EUR',
         status: 'pending',
         payment_method: 'ideal',
+        stripe_session_id: session.id,
       });
 
-    console.log('Created checkout session:', session.id);
+    if (txError) {
+      console.error('Error creating transaction:', txError);
+      throw new Error('Failed to create transaction record');
+    }
 
     return new Response(
-      JSON.stringify({ sessionId: session.id, url: session.url }),
+      JSON.stringify({
+        sessionId: session.id,
+        url: session.url,
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error creating top-up session:', error);
+    console.error('Error in create-topup-session:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

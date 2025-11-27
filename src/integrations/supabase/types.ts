@@ -471,36 +471,54 @@ export type Database = {
       wallets: {
         Row: {
           balance: number
+          card_exp_month: number | null
+          card_exp_year: number | null
+          card_last4: string | null
+          card_status: string | null
           created_at: string
           currency: string
           id: string
           org_id: string
           stripe_card_id: string | null
+          stripe_cardholder_id: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           balance?: number
+          card_exp_month?: number | null
+          card_exp_year?: number | null
+          card_last4?: string | null
+          card_status?: string | null
           created_at?: string
           currency?: string
           id?: string
           org_id: string
           stripe_card_id?: string | null
+          stripe_cardholder_id?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           balance?: number
+          card_exp_month?: number | null
+          card_exp_year?: number | null
+          card_last4?: string | null
+          card_status?: string | null
           created_at?: string
           currency?: string
           id?: string
           org_id?: string
           stripe_card_id?: string | null
+          stripe_cardholder_id?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "wallets_org_id_fkey"
             columns: ["org_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
