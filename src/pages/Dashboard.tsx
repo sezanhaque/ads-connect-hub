@@ -3,15 +3,14 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MetaCampaignsDashboard } from '@/components/MetaCampaignsDashboard';
-import { TikTokCampaignsDashboard } from '@/components/TikTokCampaignsDashboard';
+import { UnifiedCampaignsDashboard } from '@/components/UnifiedCampaignsDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
 import { useTikTokIntegrationStatus } from '@/hooks/useTikTokIntegrationStatus';
 import { posthog } from '@/lib/posthog';
-import { Plus, Target, Briefcase, TrendingUp, DollarSign, Eye, MousePointer, Users } from 'lucide-react';
+import { Plus, Target, Briefcase, DollarSign, Eye, Users } from 'lucide-react';
 interface DashboardStats {
   totalCampaigns: number;
   activeCampaigns: number;
@@ -353,11 +352,8 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Meta Campaigns Dashboard */}
-      <MetaCampaignsDashboard refreshTrigger={refreshTrigger} />
-
-      {/* TikTok Campaigns Dashboard */}
-      <TikTokCampaignsDashboard refreshTrigger={refreshTrigger} />
+      {/* Unified Campaigns Dashboard */}
+      <UnifiedCampaignsDashboard refreshTrigger={refreshTrigger} />
 
       {/* Recent Activity */}
       <div className="grid gap-8 lg:grid-cols-2">
