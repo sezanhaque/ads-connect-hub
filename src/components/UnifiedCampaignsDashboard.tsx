@@ -12,7 +12,7 @@ import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
 import { useToast } from "@/hooks/use-toast";
 import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
-import { TrendingUp, Eye, MousePointer, DollarSign, Users, RefreshCw, Link as LinkIcon } from "lucide-react";
+import { TrendingUp, Eye, MousePointer, DollarSign, RefreshCw, Link as LinkIcon } from "lucide-react";
 
 type Platform = "all" | "meta" | "tiktok";
 
@@ -26,7 +26,6 @@ interface UnifiedCampaign {
   ctr: number;
   spend: number;
   cpc: number;
-  conversions: number;
   platform: "meta" | "tiktok";
 }
 
@@ -141,7 +140,6 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
                 ctr: c.total_impressions > 0 ? (c.total_clicks / c.total_impressions) * 100 : 0,
                 spend: c.total_spend || 0,
                 cpc: c.total_clicks > 0 ? c.total_spend / c.total_clicks : 0,
-                conversions: c.total_leads || 0,
                 platform: "meta" as const,
               }));
               allCampaigns.push(...metaCampaigns);
@@ -181,7 +179,6 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
                 ctr: c.ctr || 0,
                 spend: c.spend || 0,
                 cpc: c.cpc || 0,
-                conversions: c.conversions || 0,
                 platform: "tiktok" as const,
               }));
               allCampaigns.push(...tiktokCampaigns);
@@ -425,12 +422,6 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
                   </div>
                 </TableHead>
                 <TableHead className="text-right">CPC</TableHead>
-                <TableHead className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Users className="h-4 w-4" />
-                    Conversions
-                  </div>
-                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -461,7 +452,6 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
                   <TableCell className="text-right">{campaign.ctr.toFixed(2)}%</TableCell>
                   <TableCell className="text-right">€{campaign.spend.toFixed(2)}</TableCell>
                   <TableCell className="text-right">€{campaign.cpc.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{campaign.conversions}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
