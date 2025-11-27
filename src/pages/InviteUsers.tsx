@@ -108,13 +108,27 @@ const InviteUsers = () => {
 
       console.log('Found members:', membersData?.length || 0);
 
-      // Fetch integrations for this admin's org to check user-specific integrations
+      // Get owner memberships to find each user's own org
+      const { data: ownerMemberships, error: ownerError } = await supabase
+        .from('members')
+        .select('user_id, org_id')
+        .eq('role', 'owner')
+        .in('user_id', userIds);
+
+      if (ownerError) {
+        console.error('Error fetching owner memberships:', ownerError);
+      }
+
+      // Fetch integrations from admin's org AND all user-owned orgs
+      const userOrgIds = ownerMemberships?.map(m => m.org_id) || [];
+      const allOrgIds = [...new Set([profile.organization_id, ...userOrgIds])];
+      
       let integrationsData: any[] = [];
       
       const { data: integrations, error: intError } = await supabase
         .from('integrations')
         .select('org_id, integration_type, user_id, status')
-        .eq('org_id', profile.organization_id)
+        .in('org_id', allOrgIds)
         .eq('status', 'active');
       
       if (!intError && integrations) {
@@ -126,10 +140,13 @@ const InviteUsers = () => {
       // Transform the data to include membership status and connected platforms
       const transformedUsers = profilesData.map(userProfile => {
         const membership = membersData?.find(m => m.user_id === userProfile.user_id);
+        const userOwnOrg = ownerMemberships?.find(m => m.user_id === userProfile.user_id);
         
-        // Check platform connections - look for integrations with this user_id in the admin's org
-        const userIntegrations = integrationsData.filter(
-          i => i.user_id === userProfile.user_id
+        // Check platform connections - look for integrations in admin's org with this user_id
+        // OR integrations in the user's own org (where user_id matches or is null)
+        const userIntegrations = integrationsData.filter(i => 
+          (i.org_id === profile.organization_id && i.user_id === userProfile.user_id) ||
+          (i.org_id === userOwnOrg?.org_id && (i.user_id === userProfile.user_id || i.user_id === null))
         );
         
         const connected_platforms: UserPlatforms = {
