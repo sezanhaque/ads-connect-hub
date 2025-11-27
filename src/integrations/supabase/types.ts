@@ -537,6 +537,14 @@ export type Database = {
         Args: { p_org_id: string; p_user_id?: string }
         Returns: string
       }
+      get_user_platform_connections: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          has_meta: boolean
+          has_tiktok: boolean
+          user_id: string
+        }[]
+      }
       is_org_member: {
         Args: { p_org_id: string; p_user_id?: string }
         Returns: boolean
