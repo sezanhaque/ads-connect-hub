@@ -68,9 +68,11 @@ serve(async (req) => {
         const card = await stripe.issuing.cards.retrieve(wallet.stripe_card_id);
         
         // Get the all_time spending limit (in cents)
-        const spendingLimit = card.spending_controls?.spending_limits?.find(
+        const spendingLimitData = card.spending_controls?.spending_limits?.find(
           (limit) => limit.interval === 'all_time'
-        )?.amount || 0;
+        );
+        const spendingLimit = spendingLimitData?.amount || 0;
+        const spentAmount = spendingLimitData?.spent || 0;
 
         stripeCardData = {
           id: card.id,
@@ -80,6 +82,8 @@ serve(async (req) => {
           status: card.status,
           spending_limit_cents: spendingLimit,
           spending_limit_eur: spendingLimit / 100,
+          spent_cents: spentAmount,
+          spent_eur: spentAmount / 100,
         };
 
         // Update local wallet with fresh Stripe data
@@ -110,9 +114,11 @@ serve(async (req) => {
           const card = cards.data[0];
           
           // Get the all_time spending limit (in cents)
-          const spendingLimit = card.spending_controls?.spending_limits?.find(
+          const spendingLimitData = card.spending_controls?.spending_limits?.find(
             (limit) => limit.interval === 'all_time'
-          )?.amount || 0;
+          );
+          const spendingLimit = spendingLimitData?.amount || 0;
+          const spentAmount = spendingLimitData?.spent || 0;
 
           stripeCardData = {
             id: card.id,
@@ -122,6 +128,8 @@ serve(async (req) => {
             status: card.status,
             spending_limit_cents: spendingLimit,
             spending_limit_eur: spendingLimit / 100,
+            spent_cents: spentAmount,
+            spent_eur: spentAmount / 100,
           };
 
           // Update wallet with the card ID and fresh data

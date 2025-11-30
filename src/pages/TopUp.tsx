@@ -41,6 +41,7 @@ interface StripeCard {
   exp_year: number;
   status: string;
   spending_limit_eur: number;
+  spent_eur: number;
 }
 
 export default function TopUp() {
@@ -214,6 +215,18 @@ export default function TopUp() {
               <p className="text-xs text-muted-foreground mt-1">
                 {stripeCard ? 'Available spending limit' : 'Available funds'}
               </p>
+              {stripeCard && (
+                <div className="mt-3 pt-3 border-t">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Spent</span>
+                    <span className="font-medium">€{stripeCard.spent_eur.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm mt-1">
+                    <span className="text-muted-foreground">Allowed in total</span>
+                    <span className="font-medium">€{stripeCard.spending_limit_eur.toFixed(2)}</span>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
