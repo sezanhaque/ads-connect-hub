@@ -160,6 +160,44 @@ export type Database = {
           },
         ]
       }
+      daily_campaign_spend: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          spend_date: string
+          updated_at: string
+          wallet_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          spend_date?: string
+          updated_at?: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          spend_date?: string
+          updated_at?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_campaign_spend_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       integrations: {
         Row: {
           access_token: string
