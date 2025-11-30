@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditCard, Euro, History, Loader2, Plus } from "lucide-react";
+import { CreditCard, Euro, History, Loader2, Plus, PlayCircle } from "lucide-react";
 import { format } from "date-fns";
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000];
@@ -53,6 +53,7 @@ export default function TopUp() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [creatingCard, setCreatingCard] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -110,6 +111,34 @@ export default function TopUp() {
       });
     } finally {
       setCreatingCard(false);
+    }
+  };
+
+  const handleTestSync = async () => {
+    setIsTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-campaign-spend');
+      
+      if (error) throw error;
+      
+      console.log('Sync test results:', data);
+      
+      toast({
+        title: "Test Complete",
+        description: `Processed ${data.processed} wallets. Check console and email for details.`,
+      });
+      
+      // Refresh wallet data to see updated balances
+      setTimeout(() => fetchWalletData(), 2000);
+    } catch (error: any) {
+      console.error('Error testing sync:', error);
+      toast({
+        title: "Error",
+        description: "Failed to test sync: " + error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -256,6 +285,45 @@ export default function TopUp() {
             </Card>
           )}
         </div>
+
+        {/* Test Daily Sync */}
+        {(wallet?.stripe_card_id || wallet?.stripe_cardholder_id) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PlayCircle className="h-5 w-5" />
+                Test Daily Spend Sync
+              </CardTitle>
+              <CardDescription>
+                Manually trigger the daily sync to test if campaign spend tracking is working. 
+                This simulates the automatic daily check that runs at 2 AM UTC.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={handleTestSync} 
+                disabled={isTesting}
+                variant="outline"
+                className="w-full"
+              >
+                {isTesting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Testing Sync...
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle className="mr-2 h-4 w-4" />
+                    Run Test Sync Now
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                This will check your balance against €10 hardcoded spend and send an email if insufficient.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {!wallet?.stripe_card_id && !wallet?.stripe_cardholder_id ? (
           <Card>
