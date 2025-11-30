@@ -42,6 +42,7 @@ serve(async (req) => {
     console.log(`Found ${wallets?.length || 0} active wallets to process`);
 
     const results = [];
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
     for (const wallet of wallets || []) {
       try {
@@ -52,21 +53,37 @@ serve(async (req) => {
 
         console.log(`Processing wallet ${wallet.id}, adding €${dailySpend} spend`);
 
-        // Fetch current card from Stripe
+        // Fetch current card from Stripe to get spending limit
         const card = await stripe.issuing.cards.retrieve(wallet.stripe_card_id);
         
         const spendingLimitData = card.spending_controls?.spending_limits?.find(
           (limit) => limit.interval === 'all_time'
         );
         
-        const currentLimit = spendingLimitData?.amount || 0;
-        const currentSpent = spendingLimitData?.spent || 0;
-        const availableBalance = currentLimit - currentSpent;
+        const spendingLimitCents = spendingLimitData?.amount || 0;
+        const spendingLimitEur = spendingLimitCents / 100;
 
-        console.log(`Card ${card.id}: Limit=${currentLimit/100}, Spent=${currentSpent/100}, Available=${availableBalance/100}`);
+        console.log(`Card ${card.id}: Spending Limit=${spendingLimitEur}`);
+
+        // Get total accumulated spend from our tracking table
+        const { data: spendRecords, error: spendError } = await supabase
+          .from('daily_campaign_spend')
+          .select('amount')
+          .eq('wallet_id', wallet.id);
+
+        if (spendError) {
+          console.error('Error fetching spend records:', spendError);
+          throw spendError;
+        }
+
+        const totalAccumulatedSpend = (spendRecords || []).reduce((sum, record) => sum + parseFloat(record.amount), 0);
+        const newTotalSpend = totalAccumulatedSpend + dailySpend;
+        const availableBalance = spendingLimitEur - totalAccumulatedSpend;
+
+        console.log(`Wallet ${wallet.id}: Total spent so far=€${totalAccumulatedSpend}, New total=€${newTotalSpend}, Available=€${availableBalance}`);
 
         // Check if new spend would exceed limit
-        if (dailySpendCents > availableBalance) {
+        if (dailySpend > availableBalance) {
           console.log(`Insufficient balance for wallet ${wallet.id}, sending notification email`);
 
           // Get user email
@@ -85,10 +102,12 @@ serve(async (req) => {
                 <h1>Insufficient Balance Alert</h1>
                 <p>Hello ${profile.first_name || 'there'},</p>
                 <p>Your virtual card doesn't have enough balance to cover today's campaign spend of €${dailySpend.toFixed(2)}.</p>
-                <p><strong>Current available balance:</strong> €${(availableBalance / 100).toFixed(2)}</p>
-                <p><strong>Required amount:</strong> €${dailySpend.toFixed(2)}</p>
+                <p><strong>Current available balance:</strong> €${availableBalance.toFixed(2)}</p>
+                <p><strong>Total spent so far:</strong> €${totalAccumulatedSpend.toFixed(2)}</p>
+                <p><strong>Spending limit:</strong> €${spendingLimitEur.toFixed(2)}</p>
+                <p><strong>Required for today:</strong> €${dailySpend.toFixed(2)}</p>
                 <p>Please top up your account to ensure your campaigns continue running without interruption.</p>
-                <p><a href="${supabaseUrl.replace('supabase.co', 'supabase.co')}/top-up" style="background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Top Up Now</a></p>
+                <p><a href="${supabaseUrl.replace('.supabase.co', '.lovableproject.com')}/top-up" style="background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Top Up Now</a></p>
                 <p>Best regards,<br>TwentyTwenty Solutions Team</p>
               `,
             });
@@ -99,19 +118,35 @@ serve(async (req) => {
             wallet_id: wallet.id,
             status: 'insufficient_balance',
             email_sent: !!profile?.email,
+            total_spent: totalAccumulatedSpend,
+            available: availableBalance,
           });
         } else {
-          // Sufficient balance - update the spent amount in Stripe
-          // Note: Stripe Issuing doesn't allow direct manipulation of spent amounts
-          // This is tracked automatically by Stripe based on actual card transactions
-          // For now, we log this and in production you'd integrate with actual transactions
-          console.log(`Balance sufficient for wallet ${wallet.id}`);
+          // Sufficient balance - record the spend in our database
+          const { error: insertError } = await supabase
+            .from('daily_campaign_spend')
+            .upsert({
+              wallet_id: wallet.id,
+              spend_date: today,
+              amount: dailySpend,
+              currency: 'EUR',
+            }, {
+              onConflict: 'wallet_id,spend_date',
+            });
+
+          if (insertError) {
+            console.error('Error recording daily spend:', insertError);
+            throw insertError;
+          }
+
+          console.log(`Balance sufficient for wallet ${wallet.id}, recorded €${dailySpend} spend`);
           
           results.push({
             wallet_id: wallet.id,
             status: 'processed',
             daily_spend: dailySpend,
-            available_balance: availableBalance / 100,
+            total_spent: newTotalSpend,
+            available_balance: spendingLimitEur - newTotalSpend,
           });
         }
 

@@ -61,6 +61,17 @@ serve(async (req) => {
       }
     }
 
+    // Get accumulated spend from our tracking table
+    let accumulatedSpend = 0;
+    if (wallet) {
+      const { data: spendRecords } = await supabase
+        .from('daily_campaign_spend')
+        .select('amount')
+        .eq('wallet_id', wallet.id);
+      
+      accumulatedSpend = (spendRecords || []).reduce((sum, record) => sum + parseFloat(record.amount), 0);
+    }
+
     // If wallet exists and has a Stripe card, fetch real-time data from Stripe
     let stripeCardData = null;
     if (wallet?.stripe_card_id) {
@@ -72,7 +83,9 @@ serve(async (req) => {
           (limit) => limit.interval === 'all_time'
         );
         const spendingLimit = spendingLimitData?.amount || 0;
-        const spentAmount = spendingLimitData?.spent || 0;
+        
+        // Use our tracked spend instead of Stripe's spent amount
+        const spentAmountCents = Math.round(accumulatedSpend * 100);
 
         stripeCardData = {
           id: card.id,
@@ -82,8 +95,8 @@ serve(async (req) => {
           status: card.status,
           spending_limit_cents: spendingLimit,
           spending_limit_eur: spendingLimit / 100,
-          spent_cents: spentAmount,
-          spent_eur: spentAmount / 100,
+          spent_cents: spentAmountCents,
+          spent_eur: accumulatedSpend,
         };
 
         // Update local wallet with fresh Stripe data
@@ -118,7 +131,9 @@ serve(async (req) => {
             (limit) => limit.interval === 'all_time'
           );
           const spendingLimit = spendingLimitData?.amount || 0;
-          const spentAmount = spendingLimitData?.spent || 0;
+          
+          // Use our tracked spend instead of Stripe's spent amount
+          const spentAmountCents = Math.round(accumulatedSpend * 100);
 
           stripeCardData = {
             id: card.id,
@@ -128,8 +143,8 @@ serve(async (req) => {
             status: card.status,
             spending_limit_cents: spendingLimit,
             spending_limit_eur: spendingLimit / 100,
-            spent_cents: spentAmount,
-            spent_eur: spentAmount / 100,
+            spent_cents: spentAmountCents,
+            spent_eur: accumulatedSpend,
           };
 
           // Update wallet with the card ID and fresh data
