@@ -82,7 +82,7 @@ const Campaigns = () => {
             {
               body: { 
                 org_id: primaryOrg.org_id,
-                date_range: 'last_30d'
+                date_range: 'maximum'
               }
             }
           );
@@ -103,8 +103,7 @@ const Campaigns = () => {
             {
               body: { 
                 org_id: primaryOrg.org_id,
-                start_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                end_date: new Date().toISOString().split('T')[0]
+                date_range: 'maximum'
               }
             }
           );
