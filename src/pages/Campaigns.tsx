@@ -98,18 +98,25 @@ const Campaigns = () => {
       // Fetch from TikTok API if connected
       if (isTikTokConnected) {
         try {
+          console.log('Fetching TikTok campaigns...');
           const { data: tiktokData, error: tiktokError } = await supabase.functions.invoke(
             'tiktok-campaigns-live',
             {
               body: { 
                 org_id: primaryOrg.org_id,
-                date_range: 'maximum'
+                start_date: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                end_date: new Date().toISOString().split('T')[0]
               }
             }
           );
 
+          console.log('TikTok API response:', { tiktokData, tiktokError });
+
           if (!tiktokError && tiktokData?.campaigns) {
+            console.log('Adding TikTok campaigns:', tiktokData.campaigns);
             allCampaigns.push(...tiktokData.campaigns);
+          } else {
+            console.error('TikTok error or no campaigns:', tiktokError);
           }
         } catch (error) {
           console.error('Error fetching TikTok campaigns:', error);
@@ -125,6 +132,8 @@ const Campaigns = () => {
 
       if (error) throw error;
 
+      console.log('All campaigns before merge:', allCampaigns.length, 'Supabase campaigns:', supabaseCampaigns?.length);
+
       // Merge: Add Supabase campaigns that don't exist in API results
       if (supabaseCampaigns) {
         supabaseCampaigns.forEach((dbCampaign) => {
@@ -137,6 +146,7 @@ const Campaigns = () => {
         });
       }
 
+      console.log('Final merged campaigns:', allCampaigns.length);
       setCampaigns(allCampaigns);
     } catch (error: any) {
       console.error('Error fetching campaigns:', error);
