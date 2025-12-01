@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
 import { useTikTokIntegrationStatus } from '@/hooks/useTikTokIntegrationStatus';
-import { Plus, Search, Target, DollarSign, Calendar, Filter } from 'lucide-react';
+import { Plus, Search, Target, DollarSign, Calendar, Filter, RefreshCw } from 'lucide-react';
 import metaLogo from "@/assets/meta-logo.png";
 import tiktokLogo from "@/assets/tiktok-logo.png";
 
@@ -31,6 +31,7 @@ const Campaigns = () => {
   const { toast } = useToast();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
@@ -150,6 +151,13 @@ const Campaigns = () => {
     }
   };
 
+  const handleManualSync = async () => {
+    setSyncing(true);
+    await fetchCampaigns();
+    setSyncing(false);
+    toast({ title: "Campaigns synced successfully" });
+  };
+
 
   const handlePauseCampaign = async (campaignId: string) => {
     try {
@@ -249,12 +257,24 @@ const Campaigns = () => {
             Manage your marketing campaigns and track performance
           </p>
         </div>
-        <Button asChild>
-          <Link to="/campaigns/create">
-            <Plus className="mr-2 h-4 w-4" />
-            New Campaign
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {(isMetaConnected || isTikTokConnected) && (
+            <Button 
+              variant="outline" 
+              onClick={handleManualSync}
+              disabled={syncing}
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              Sync
+            </Button>
+          )}
+          <Button asChild>
+            <Link to="/campaigns/create">
+              <Plus className="mr-2 h-4 w-4" />
+              New Campaign
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
