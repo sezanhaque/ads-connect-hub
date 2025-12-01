@@ -39,10 +39,9 @@ const Campaigns = () => {
   const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
   useEffect(() => {
     if (profile?.user_id) {
-      setLoading(true);
       fetchCampaigns();
     }
-  }, [profile?.user_id, isMetaConnected, isTikTokConnected]);
+  }, [profile?.user_id]);
 
   const fetchCampaigns = async () => {
     if (!profile?.user_id) return;
@@ -193,6 +192,9 @@ const Campaigns = () => {
       });
     }
   };
+
+  const isUUID = (value: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -345,15 +347,17 @@ const Campaigns = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      asChild
-                    >
-                      <Link to={`/campaigns/${campaign.id}`}>
-                        View Details
-                      </Link>
-                    </Button>
+                    {isUUID(campaign.id) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        asChild
+                      >
+                        <Link to={`/campaigns/${campaign.id}`}>
+                          View Details
+                        </Link>
+                      </Button>
+                    )}
                     {campaign.status === 'active' && (
                       <Button 
                         variant="ghost" 
