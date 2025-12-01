@@ -39,9 +39,10 @@ const Campaigns = () => {
   const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
   useEffect(() => {
     if (profile?.user_id) {
+      setLoading(true);
       fetchCampaigns();
     }
-  }, [profile?.user_id]);
+  }, [profile?.user_id, isMetaConnected, isTikTokConnected]);
 
   const fetchCampaigns = async () => {
     if (!profile?.user_id) return;
