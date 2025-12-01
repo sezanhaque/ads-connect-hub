@@ -8,7 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Plus, Search, Target, DollarSign, Calendar, Filter } from 'lucide-react';
+import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
+import { useTikTokIntegrationStatus } from '@/hooks/useTikTokIntegrationStatus';
+import { Plus, Search, Target, DollarSign, Calendar, Filter, RefreshCw } from 'lucide-react';
 import metaLogo from "@/assets/meta-logo.png";
 import tiktokLogo from "@/assets/tiktok-logo.png";
 
@@ -29,9 +31,13 @@ const Campaigns = () => {
   const { toast } = useToast();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
+  
+  const { integration: metaIntegration, isConnected: isMetaConnected } = useMetaIntegrationStatus();
+  const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
   useEffect(() => {
     if (profile?.user_id) {
       fetchCampaigns();
@@ -67,8 +73,53 @@ const Campaigns = () => {
         return;
       }
 
-      // Fetch campaigns only from user's primary organization
-      const { data, error } = await supabase
+      const allCampaigns: Campaign[] = [];
+
+      // Fetch from Meta API if connected
+      if (isMetaConnected) {
+        try {
+          const { data: metaData, error: metaError } = await supabase.functions.invoke(
+            'meta-campaigns-live',
+            {
+              body: { 
+                org_id: primaryOrg.org_id,
+                date_range: 'last_30d'
+              }
+            }
+          );
+
+          if (!metaError && metaData?.campaigns) {
+            allCampaigns.push(...metaData.campaigns);
+          }
+        } catch (error) {
+          console.error('Error fetching Meta campaigns:', error);
+        }
+      }
+
+      // Fetch from TikTok API if connected
+      if (isTikTokConnected) {
+        try {
+          const { data: tiktokData, error: tiktokError } = await supabase.functions.invoke(
+            'tiktok-campaigns-live',
+            {
+              body: { 
+                org_id: primaryOrg.org_id,
+                start_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                end_date: new Date().toISOString().split('T')[0]
+              }
+            }
+          );
+
+          if (!tiktokError && tiktokData?.campaigns) {
+            allCampaigns.push(...tiktokData.campaigns);
+          }
+        } catch (error) {
+          console.error('Error fetching TikTok campaigns:', error);
+        }
+      }
+
+      // Fetch campaigns from Supabase
+      const { data: supabaseCampaigns, error } = await supabase
         .from('campaigns')
         .select('*')
         .eq('org_id', primaryOrg.org_id)
@@ -76,7 +127,19 @@ const Campaigns = () => {
 
       if (error) throw error;
 
-      setCampaigns(data || []);
+      // Merge: Add Supabase campaigns that don't exist in API results
+      if (supabaseCampaigns) {
+        supabaseCampaigns.forEach((dbCampaign) => {
+          const existsInApi = allCampaigns.some(
+            (apiCampaign) => apiCampaign.name === dbCampaign.name
+          );
+          if (!existsInApi) {
+            allCampaigns.push(dbCampaign);
+          }
+        });
+      }
+
+      setCampaigns(allCampaigns);
     } catch (error: any) {
       console.error('Error fetching campaigns:', error);
       toast({
@@ -87,6 +150,13 @@ const Campaigns = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleManualSync = async () => {
+    setSyncing(true);
+    await fetchCampaigns();
+    setSyncing(false);
+    toast({ title: "Campaigns synced successfully" });
   };
 
   const handlePauseCampaign = async (campaignId: string) => {
@@ -184,12 +254,24 @@ const Campaigns = () => {
             Manage your marketing campaigns and track performance
           </p>
         </div>
-        <Button asChild>
-          <Link to="/campaigns/create">
-            <Plus className="mr-2 h-4 w-4" />
-            New Campaign
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {(isMetaConnected || isTikTokConnected) && (
+            <Button 
+              variant="outline" 
+              onClick={handleManualSync}
+              disabled={syncing}
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              Sync
+            </Button>
+          )}
+          <Button asChild>
+            <Link to="/campaigns/create">
+              <Plus className="mr-2 h-4 w-4" />
+              New Campaign
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
