@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Target, DollarSign, Calendar, MapPin, Users, Type, MousePointer } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Campaign {
   id: string;
@@ -27,8 +28,10 @@ const CampaignDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isApiCampaign, setIsApiCampaign] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -38,15 +41,38 @@ const CampaignDetails = () => {
 
   const fetchCampaign = async () => {
     try {
-      const { data, error } = await supabase
-        .from('campaigns')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Check if ID is a UUID (Supabase campaign) or numeric (API campaign)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '');
+      
+      if (isUUID) {
+        // Fetch from Supabase
+        const { data, error } = await supabase
+          .from('campaigns')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) throw error;
+        if (!data) throw new Error('Campaign not found');
 
-      setCampaign(data);
+        setCampaign(data);
+        setIsApiCampaign(false);
+      } else {
+        // Fetch from API - need to determine if it's Meta or TikTok
+        // Try to find in Supabase by name first to get platform info
+        const { data: supabaseCampaigns } = await supabase
+          .from('campaigns')
+          .select('*')
+          .eq('org_id', profile?.user_id);
+
+        // For now, just show a message that API campaign details are view-only
+        toast({
+          title: "API Campaign",
+          description: "This campaign is synced from Meta/TikTok. Detailed view coming soon.",
+          variant: "default",
+        });
+        navigate('/campaigns');
+      }
     } catch (error: any) {
       console.error('Error fetching campaign:', error);
       toast({
