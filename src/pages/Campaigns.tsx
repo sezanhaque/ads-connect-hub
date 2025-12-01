@@ -39,9 +39,10 @@ const Campaigns = () => {
   const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
   useEffect(() => {
     if (profile?.user_id) {
+      setLoading(true);
       fetchCampaigns();
     }
-  }, [profile?.user_id]);
+  }, [profile?.user_id, isMetaConnected, isTikTokConnected]);
 
   const fetchCampaigns = async () => {
     if (!profile?.user_id) return;
@@ -104,8 +105,7 @@ const Campaigns = () => {
             {
               body: { 
                 org_id: primaryOrg.org_id,
-                start_date: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                end_date: new Date().toISOString().split('T')[0]
+                date_range: 'last_7d'
               }
             }
           );
