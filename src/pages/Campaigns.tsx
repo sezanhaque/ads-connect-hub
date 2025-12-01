@@ -19,7 +19,8 @@ interface Campaign {
   name: string;
   status: string;
   objective: string;
-  budget: number;
+  budget?: number;
+  spend?: number;
   start_date: string | null;
   end_date: string | null;
   created_at: string;
@@ -345,7 +346,7 @@ const Campaigns = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-4 w-4" />
-                        <span>{campaign.currency === 'USD' ? '$' : '€'}{campaign.budget}</span>
+                        <span>{campaign.currency === 'USD' ? '$' : '€'}{campaign.spend || campaign.budget || 0}</span>
                       </div>
                       {campaign.start_date && (
                         <div className="flex items-center gap-1">
