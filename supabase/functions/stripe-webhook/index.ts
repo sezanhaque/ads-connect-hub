@@ -24,9 +24,29 @@ serve(async (req) => {
 
     const body = await req.text();
     const signature = req.headers.get('stripe-signature');
+    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
     
-    // For MVP, basic verification
-    const event = JSON.parse(body);
+    console.log('Webhook called, signature present:', !!signature);
+    
+    let event;
+    
+    // Verify webhook signature if secret is configured
+    if (webhookSecret && signature) {
+      try {
+        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+        console.log('Webhook signature verified successfully');
+      } catch (err) {
+        console.error('Webhook signature verification failed:', err.message);
+        return new Response(
+          JSON.stringify({ error: 'Webhook signature verification failed' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      // Fallback for testing without signature verification
+      event = JSON.parse(body);
+      console.log('Processing webhook without signature verification');
+    }
     
     console.log('Received Stripe webhook event:', event.type);
 
