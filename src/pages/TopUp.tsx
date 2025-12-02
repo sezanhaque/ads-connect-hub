@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditCard, Euro, History, Loader2, Plus, PlayCircle } from "lucide-react";
+import { CreditCard, Euro, History, Loader2, Plus, PlayCircle, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000];
@@ -55,6 +55,7 @@ export default function TopUp() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [creatingCard, setCreatingCard] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -62,7 +63,7 @@ export default function TopUp() {
     fetchWalletData();
   }, []);
 
-  const fetchWalletData = async () => {
+  const fetchWalletData = async (showRefreshToast = false) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -77,6 +78,13 @@ export default function TopUp() {
       setWallet(data.wallet);
       setStripeCard(data.stripeCard);
       setTransactions(data.transactions || []);
+      
+      if (showRefreshToast) {
+        toast({
+          title: "Refreshed",
+          description: "Wallet data updated from Stripe",
+        });
+      }
     } catch (error: any) {
       console.error("Error fetching wallet:", error);
       toast({
@@ -86,7 +94,13 @@ export default function TopUp() {
       });
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
+  };
+  
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchWalletData(true);
   };
 
   const handleCreateCard = async () => {
@@ -236,7 +250,18 @@ export default function TopUp() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </Button>
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+              </div>
             </CardHeader>
             <CardContent>
               {stripeCard ? (
