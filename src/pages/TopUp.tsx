@@ -11,6 +11,7 @@ import { CreditCard, Euro, History, Loader2, Plus, PlayCircle } from "lucide-rea
 import { format } from "date-fns";
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000];
+const LOW_BALANCE_THRESHOLD = 10; // EUR
 
 interface Transaction {
   id: string;
@@ -238,23 +239,39 @@ export default function TopUp() {
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">
-                €{stripeCard?.spending_limit_eur.toFixed(2) || wallet?.balance.toFixed(2) || '0.00'}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stripeCard ? 'Available spending limit' : 'Available funds'}
-              </p>
-              {stripeCard && (
-                <div className="mt-3 pt-3 border-t">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Spent</span>
-                    <span className="font-medium">€{stripeCard.spent_eur.toFixed(2)}</span>
+              {stripeCard ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <div className="text-3xl font-bold">
+                      €{(stripeCard.spending_limit_eur - stripeCard.spent_eur).toFixed(2)}
+                    </div>
+                    {(stripeCard.spending_limit_eur - stripeCard.spent_eur) < LOW_BALANCE_THRESHOLD && (
+                      <Badge variant="destructive" className="text-xs">Low Balance</Badge>
+                    )}
                   </div>
-                  <div className="flex justify-between text-sm mt-1">
-                    <span className="text-muted-foreground">Allowed in total</span>
-                    <span className="font-medium">€{stripeCard.spending_limit_eur.toFixed(2)}</span>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Available balance
+                  </p>
+                  <div className="mt-3 pt-3 border-t">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Spent</span>
+                      <span className="font-medium">€{stripeCard.spent_eur.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm mt-1">
+                      <span className="text-muted-foreground">Allowed in total</span>
+                      <span className="font-medium">€{stripeCard.spending_limit_eur.toFixed(2)}</span>
+                    </div>
                   </div>
-                </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-3xl font-bold">
+                    €{wallet?.balance.toFixed(2) || '0.00'}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Available funds
+                  </p>
+                </>
               )}
             </CardContent>
           </Card>
