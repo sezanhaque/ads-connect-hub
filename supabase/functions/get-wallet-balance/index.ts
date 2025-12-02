@@ -88,14 +88,21 @@ serve(async (req) => {
           spendingLimit = chosenLimit?.amount || 0;
         }
         
+        // Get Stripe's spent amount from the card
+        const stripeSpentCents = card.spending_controls?.spending_limits?.[0]?.spent || 0;
+        const stripeSpentEur = stripeSpentCents / 100;
+        
+        // Compare database spend with Stripe spend and use the higher value
+        const actualSpentEur = Math.max(accumulatedSpend, stripeSpentEur);
+        const spentAmountCents = Math.round(actualSpentEur * 100);
+        
         console.log('Fetched fresh Stripe card data:', {
           cardId: card.id,
           spendingLimit: spendingLimit / 100,
-          accumulatedSpend,
+          dbSpend: accumulatedSpend,
+          stripeSpend: stripeSpentEur,
+          actualSpend: actualSpentEur,
         });
-        
-        // Use our tracked spend instead of Stripe's spent amount
-        const spentAmountCents = Math.round(accumulatedSpend * 100);
 
         stripeCardData = {
           id: card.id,
@@ -106,7 +113,7 @@ serve(async (req) => {
           spending_limit_cents: spendingLimit,
           spending_limit_eur: spendingLimit / 100,
           spent_cents: spentAmountCents,
-          spent_eur: accumulatedSpend,
+          spent_eur: actualSpentEur,
         };
 
         // Update local wallet with fresh Stripe data
@@ -142,18 +149,25 @@ serve(async (req) => {
           if (limits.length > 0) {
             const allTimeLimit = limits.find((limit) => limit.interval === 'all_time');
             const perAuthLimit = limits.find((limit) => limit.interval === 'per_authorization');
-            const chosenLimit = allTimeLimit || perAuthLimit || limits[0];
-            spendingLimit = chosenLimit?.amount || 0;
-          }
-          
-          console.log('Fetched fresh Stripe card data from cardholder:', {
-            cardId: card.id,
-            spendingLimit: spendingLimit / 100,
-            accumulatedSpend,
-          });
-          
-          // Use our tracked spend instead of Stripe's spent amount
-          const spentAmountCents = Math.round(accumulatedSpend * 100);
+          const chosenLimit = allTimeLimit || perAuthLimit || limits[0];
+          spendingLimit = chosenLimit?.amount || 0;
+        }
+        
+        // Get Stripe's spent amount from the card
+        const stripeSpentCents = card.spending_controls?.spending_limits?.[0]?.spent || 0;
+        const stripeSpentEur = stripeSpentCents / 100;
+        
+        // Compare database spend with Stripe spend and use the higher value
+        const actualSpentEur = Math.max(accumulatedSpend, stripeSpentEur);
+        const spentAmountCents = Math.round(actualSpentEur * 100);
+        
+        console.log('Fetched fresh Stripe card data from cardholder:', {
+          cardId: card.id,
+          spendingLimit: spendingLimit / 100,
+          dbSpend: accumulatedSpend,
+          stripeSpend: stripeSpentEur,
+          actualSpend: actualSpentEur,
+        });
 
           stripeCardData = {
             id: card.id,
@@ -163,9 +177,9 @@ serve(async (req) => {
             status: card.status,
             spending_limit_cents: spendingLimit,
             spending_limit_eur: spendingLimit / 100,
-            spent_cents: spentAmountCents,
-            spent_eur: accumulatedSpend,
-          };
+          spent_cents: spentAmountCents,
+          spent_eur: actualSpentEur,
+        };
 
           // Update wallet with the card ID and fresh data
           await supabase
