@@ -45,12 +45,21 @@ interface StripeCard {
   spent_eur: number;
 }
 
+interface DailyCharge {
+  id: string;
+  spend_date: string;
+  amount: number;
+  currency: string;
+  created_at: string;
+}
+
 export default function TopUp() {
   const [amount, setAmount] = useState<number>(100);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [stripeCard, setStripeCard] = useState<StripeCard | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [dailyCharges, setDailyCharges] = useState<DailyCharge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [creatingCard, setCreatingCard] = useState(false);
@@ -77,7 +86,17 @@ export default function TopUp() {
       setWallet(data.wallet);
       setStripeCard(data.stripeCard);
       setTransactions(data.transactions || []);
-      setTransactions(data.transactions || []);
+      
+      // Fetch daily charges
+      if (data.wallet?.id) {
+        const { data: charges } = await supabase
+          .from('daily_campaign_spend')
+          .select('*')
+          .eq('wallet_id', data.wallet.id)
+          .order('spend_date', { ascending: false });
+        
+        setDailyCharges(charges || []);
+      }
     } catch (error: any) {
       console.error("Error fetching wallet:", error);
       toast({
@@ -442,12 +461,60 @@ export default function TopUp() {
           </Card>
         )}
 
+        {/* Daily Charge History */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Daily Campaign Charges
+            </CardTitle>
+            <CardDescription>
+              Daily campaign spend charged from your card
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {dailyCharges.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No charges yet</p>
+                <p className="text-sm">Daily campaign charges will appear here</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {dailyCharges.map((charge) => (
+                  <div
+                    key={charge.id}
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-destructive/10">
+                        <Euro className="h-4 w-4 text-destructive" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Campaign Spend</p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(charge.spend_date), "MMM d, yyyy")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-destructive">
+                        -€{charge.amount.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Transaction History */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
-              Recent Transactions
+              Top-Up Transactions
             </CardTitle>
             <CardDescription>
               Your recent top-up history
