@@ -8,6 +8,108 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Fetch Meta spend for a specific date
+async function fetchMetaSpend(integration: any, date: string): Promise<number> {
+  const accessToken = integration.access_token;
+  const adAccountIds = integration.ad_account_id || [];
+  
+  let totalSpend = 0;
+
+  for (const accountId of adAccountIds) {
+    try {
+      // Fetch campaigns for this ad account
+      const campaignsUrl = `https://graph.facebook.com/v18.0/${accountId}/campaigns?fields=id&access_token=${accessToken}`;
+      const campaignsResponse = await fetch(campaignsUrl);
+      const campaignsData = await campaignsResponse.json();
+
+      if (campaignsData.data) {
+        // Fetch insights for each campaign for the specific date
+        for (const campaign of campaignsData.data) {
+          const insightsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/insights?fields=spend&time_range={"since":"${date}","until":"${date}"}&access_token=${accessToken}`;
+          const insightsResponse = await fetch(insightsUrl);
+          const insightsData = await insightsResponse.json();
+
+          if (insightsData.data && insightsData.data.length > 0) {
+            const spend = parseFloat(insightsData.data[0].spend || '0');
+            totalSpend += spend;
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching Meta data for account ${accountId}:`, error);
+    }
+  }
+
+  return totalSpend;
+}
+
+// Fetch TikTok spend for a specific date
+async function fetchTikTokSpend(integration: any, date: string): Promise<number> {
+  const accessToken = integration.access_token;
+  const advertiserIds = integration.ad_account_id || [];
+  
+  let totalSpend = 0;
+
+  for (const advertiserId of advertiserIds) {
+    try {
+      // Fetch campaigns for this advertiser
+      const campaignsUrl = `https://business-api.tiktok.com/open_api/v1.3/campaign/get/`;
+      const campaignsResponse = await fetch(campaignsUrl, {
+        method: 'GET',
+        headers: {
+          'Access-Token': accessToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          advertiser_id: advertiserId,
+          page_size: 1000,
+        }),
+      });
+      const campaignsData = await campaignsResponse.json();
+
+      if (campaignsData.data?.list) {
+        const campaignIds = campaignsData.data.list.map((c: any) => c.campaign_id);
+
+        // Fetch insights for all campaigns for the specific date
+        const insightsUrl = `https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/`;
+        const insightsResponse = await fetch(insightsUrl, {
+          method: 'GET',
+          headers: {
+            'Access-Token': accessToken,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            advertiser_id: advertiserId,
+            report_type: 'BASIC',
+            data_level: 'AUCTION_CAMPAIGN',
+            dimensions: ['campaign_id'],
+            metrics: ['spend'],
+            start_date: date,
+            end_date: date,
+            filtering: [{
+              field_name: 'campaign_id',
+              filter_type: 'IN',
+              filter_value: campaignIds,
+            }],
+          }),
+        });
+        const insightsData = await insightsResponse.json();
+
+        if (insightsData.data?.list) {
+          for (const insight of insightsData.data.list) {
+            const spend = parseFloat(insight.metrics?.spend || '0');
+            totalSpend += spend;
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching TikTok data for advertiser ${advertiserId}:`, error);
+    }
+  }
+
+  return totalSpend;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -51,30 +153,35 @@ serve(async (req) => {
 
     for (const wallet of wallets || []) {
       try {
-        // Calculate actual campaign spend from campaign_metrics for yesterday
-        const { data: campaigns } = await supabase
-          .from('campaigns')
-          .select('id')
-          .eq('org_id', wallet.org_id);
+        // Fetch integrations for the organization to get spend from APIs
+        const { data: integrations } = await supabase
+          .from('integrations')
+          .select('*')
+          .eq('org_id', wallet.org_id)
+          .eq('status', 'active');
 
-        const campaignIds = (campaigns || []).map(c => c.id);
-        
         let dailySpend = 0;
-        if (campaignIds.length > 0) {
-          const { data: metrics, error: metricsError } = await supabase
-            .from('campaign_metrics')
-            .select('spend')
-            .in('campaign_id', campaignIds)
-            .eq('day', yesterdayStr);
 
-          if (metricsError) {
-            console.error('Error fetching metrics:', metricsError);
-          } else {
-            dailySpend = (metrics || []).reduce((sum, m) => sum + (parseFloat(m.spend?.toString() || '0')), 0);
+        // Fetch spend from each platform's API
+        for (const integration of integrations || []) {
+          try {
+            if (integration.integration_type === 'meta') {
+              // Fetch Meta spend for yesterday
+              const metaSpend = await fetchMetaSpend(integration, yesterdayStr);
+              dailySpend += metaSpend;
+              console.log(`Meta spend for ${yesterdayStr}: €${metaSpend.toFixed(2)}`);
+            } else if (integration.integration_type === 'tiktok') {
+              // Fetch TikTok spend for yesterday
+              const tiktokSpend = await fetchTikTokSpend(integration, yesterdayStr);
+              dailySpend += tiktokSpend;
+              console.log(`TikTok spend for ${yesterdayStr}: €${tiktokSpend.toFixed(2)}`);
+            }
+          } catch (apiError) {
+            console.error(`Error fetching ${integration.integration_type} spend:`, apiError);
           }
         }
 
-        console.log(`Processing wallet ${wallet.id}, calculated spend for ${yesterdayStr}: €${dailySpend.toFixed(2)}`);
+        console.log(`Processing wallet ${wallet.id}, total API spend for ${yesterdayStr}: €${dailySpend.toFixed(2)}`);
         
         // Skip if no spend
         if (dailySpend === 0) {
