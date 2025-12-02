@@ -78,11 +78,15 @@ serve(async (req) => {
       try {
         const card = await stripe.issuing.cards.retrieve(wallet.stripe_card_id);
         
-        // Get the all_time spending limit (in cents)
-        const spendingLimitData = card.spending_controls?.spending_limits?.find(
-          (limit) => limit.interval === 'all_time'
-        );
-        const spendingLimit = spendingLimitData?.amount || 0;
+        // Determine spending limit (in cents), preferring all_time but falling back to other intervals
+        const limits = card.spending_controls?.spending_limits || [];
+        let spendingLimit = 0;
+        if (limits.length > 0) {
+          const allTimeLimit = limits.find((limit) => limit.interval === 'all_time');
+          const perAuthLimit = limits.find((limit) => limit.interval === 'per_authorization');
+          const chosenLimit = allTimeLimit || perAuthLimit || limits[0];
+          spendingLimit = chosenLimit?.amount || 0;
+        }
         
         console.log('Fetched fresh Stripe card data:', {
           cardId: card.id,
@@ -132,11 +136,15 @@ serve(async (req) => {
         if (cards.data.length > 0) {
           const card = cards.data[0];
           
-          // Get the all_time spending limit (in cents)
-          const spendingLimitData = card.spending_controls?.spending_limits?.find(
-            (limit) => limit.interval === 'all_time'
-          );
-          const spendingLimit = spendingLimitData?.amount || 0;
+          // Determine spending limit (in cents), preferring all_time but falling back to other intervals
+          const limits = card.spending_controls?.spending_limits || [];
+          let spendingLimit = 0;
+          if (limits.length > 0) {
+            const allTimeLimit = limits.find((limit) => limit.interval === 'all_time');
+            const perAuthLimit = limits.find((limit) => limit.interval === 'per_authorization');
+            const chosenLimit = allTimeLimit || perAuthLimit || limits[0];
+            spendingLimit = chosenLimit?.amount || 0;
+          }
           
           console.log('Fetched fresh Stripe card data from cardholder:', {
             cardId: card.id,
