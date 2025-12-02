@@ -356,7 +356,7 @@ export default function TopUp() {
                 )}
               </Button>
               <p className="text-xs text-muted-foreground mt-2">
-                This will check your balance against €10 hardcoded spend and send an email if insufficient.
+                This will fetch yesterday's spend from Meta/TikTok APIs and deduct it from your balance. You'll receive an email if balance is insufficient.
               </p>
             </CardContent>
           </Card>
