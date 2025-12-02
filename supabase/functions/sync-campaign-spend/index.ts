@@ -12,26 +12,27 @@ const corsHeaders = {
 async function fetchMetaSpend(integration: any, date: string): Promise<number> {
   const accessToken = integration.access_token;
   const adAccountIds = integration.ad_account_id || [];
-  
   let totalSpend = 0;
 
   for (const accountId of adAccountIds) {
     try {
       // Fetch campaigns for this ad account
-      const campaignsUrl = `https://graph.facebook.com/v18.0/${accountId}/campaigns?fields=id&access_token=${accessToken}`;
+      const campaignsUrl = `https://graph.facebook.com/v19.0/${accountId}/campaigns?fields=id&access_token=${accessToken}`;
       const campaignsResponse = await fetch(campaignsUrl);
       const campaignsData = await campaignsResponse.json();
 
       if (campaignsData.data) {
+        const timeRange = encodeURIComponent(JSON.stringify({ since: date, until: date }));
+
         // Fetch insights for each campaign for the specific date
         for (const campaign of campaignsData.data) {
-          const insightsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/insights?fields=spend&time_range={"since":"${date}","until":"${date}"}&access_token=${accessToken}`;
+          const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?fields=spend&time_range=${timeRange}&access_token=${accessToken}`;
           const insightsResponse = await fetch(insightsUrl);
           const insightsData = await insightsResponse.json();
 
           if (insightsData.data && insightsData.data.length > 0) {
-            const spend = parseFloat(insightsData.data[0].spend || '0');
-            totalSpend += spend;
+            const spend = parseFloat(insightsData.data[0].spend || "0");
+            totalSpend += isNaN(spend) ? 0 : spend;
           }
         }
       }
@@ -47,60 +48,72 @@ async function fetchMetaSpend(integration: any, date: string): Promise<number> {
 async function fetchTikTokSpend(integration: any, date: string): Promise<number> {
   const accessToken = integration.access_token;
   const advertiserIds = integration.ad_account_id || [];
-  
   let totalSpend = 0;
 
   for (const advertiserId of advertiserIds) {
     try {
-      // Fetch campaigns for this advertiser
-      const campaignsUrl = `https://business-api.tiktok.com/open_api/v1.3/campaign/get/`;
-      const campaignsResponse = await fetch(campaignsUrl, {
-        method: 'POST',
-        headers: {
-          'Access-Token': accessToken,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          advertiser_id: advertiserId,
-          page_size: 1000,
-        }),
-      });
-      const campaignsData = await campaignsResponse.json();
-
-      if (campaignsData.data?.list) {
-        const campaignIds = campaignsData.data.list.map((c: any) => c.campaign_id);
-
-        // Fetch insights for all campaigns for the specific date
-        const insightsUrl = `https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/`;
-        const insightsResponse = await fetch(insightsUrl, {
-          method: 'POST',
+      // Fetch campaigns list using the same pattern as other TikTok functions
+      const campaignsResponse = await fetch(
+        `https://business-api.tiktok.com/open_api/v1.3/campaign/get/?advertiser_id=${advertiserId}`,
+        {
+          method: "GET",
           headers: {
-            'Access-Token': accessToken,
-            'Content-Type': 'application/json',
+            "Access-Token": accessToken,
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            advertiser_id: advertiserId,
-            report_type: 'BASIC',
-            data_level: 'AUCTION_CAMPAIGN',
-            dimensions: ['campaign_id'],
-            metrics: ['spend'],
-            start_date: date,
-            end_date: date,
-            filtering: [{
-              field_name: 'campaign_id',
-              filter_type: 'IN',
-              filter_value: campaignIds,
-            }],
-          }),
-        });
-        const insightsData = await insightsResponse.json();
+        },
+      );
 
-        if (insightsData.data?.list) {
-          for (const insight of insightsData.data.list) {
-            const spend = parseFloat(insight.metrics?.spend || '0');
-            totalSpend += spend;
-          }
-        }
+      if (!campaignsResponse.ok) {
+        console.error("TikTok campaigns API error:", campaignsResponse.status);
+        continue;
+      }
+
+      const campaignsData = await campaignsResponse.json();
+      if (campaignsData.code !== 0) {
+        console.error("TikTok campaigns fetch error:", campaignsData.message);
+        continue;
+      }
+
+      const campaigns = campaignsData.data?.list || [];
+      if (campaigns.length === 0) continue;
+
+      const campaignIds = campaigns.map((c: any) => c.campaign_id);
+
+      // Build reporting query for the specific date
+      const reportParams = new URLSearchParams({
+        advertiser_id: advertiserId,
+        service_type: "AUCTION",
+        report_type: "BASIC",
+        data_level: "AUCTION_CAMPAIGN",
+        dimensions: JSON.stringify(["campaign_id"]),
+        metrics: JSON.stringify(["spend"]),
+        start_date: date,
+        end_date: date,
+      });
+
+      const insightsResponse = await fetch(
+        `https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?${reportParams.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Access-Token": accessToken,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!insightsResponse.ok) {
+        console.error("TikTok insights API error:", insightsResponse.status);
+        continue;
+      }
+
+      const insightsData = await insightsResponse.json();
+      if (insightsData.code !== 0 || !insightsData.data?.list) continue;
+
+      for (const insight of insightsData.data.list) {
+        const spend = parseFloat(insight.metrics?.spend || "0");
+        totalSpend += isNaN(spend) ? 0 : spend;
       }
     } catch (error) {
       console.error(`Error fetching TikTok data for advertiser ${advertiserId}:`, error);
