@@ -84,6 +84,12 @@ serve(async (req) => {
         );
         const spendingLimit = spendingLimitData?.amount || 0;
         
+        console.log('Fetched fresh Stripe card data:', {
+          cardId: card.id,
+          spendingLimit: spendingLimit / 100,
+          accumulatedSpend,
+        });
+        
         // Use our tracked spend instead of Stripe's spent amount
         const spentAmountCents = Math.round(accumulatedSpend * 100);
 
@@ -113,7 +119,7 @@ serve(async (req) => {
 
       } catch (stripeError) {
         console.error('Error fetching Stripe card data:', stripeError);
-        // Continue with local data if Stripe fetch fails
+        throw new Error(`Failed to fetch card data from Stripe: ${stripeError.message}`);
       }
     } else if (wallet?.stripe_cardholder_id) {
       // If no card ID but we have cardholder ID, fetch cards from cardholder
@@ -131,6 +137,12 @@ serve(async (req) => {
             (limit) => limit.interval === 'all_time'
           );
           const spendingLimit = spendingLimitData?.amount || 0;
+          
+          console.log('Fetched fresh Stripe card data from cardholder:', {
+            cardId: card.id,
+            spendingLimit: spendingLimit / 100,
+            accumulatedSpend,
+          });
           
           // Use our tracked spend instead of Stripe's spent amount
           const spentAmountCents = Math.round(accumulatedSpend * 100);
@@ -162,7 +174,7 @@ serve(async (req) => {
         }
       } catch (stripeError) {
         console.error('Error fetching cards from cardholder:', stripeError);
-        // Continue with local data if Stripe fetch fails
+        throw new Error(`Failed to fetch card data from Stripe: ${stripeError.message}`);
       }
     }
 
