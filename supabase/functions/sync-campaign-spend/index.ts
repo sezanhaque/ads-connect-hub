@@ -43,13 +43,49 @@ serve(async (req) => {
 
     const results = [];
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Calculate yesterday's date
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
 
     for (const wallet of wallets || []) {
       try {
-        // TODO: Calculate actual campaign spend from campaign_metrics table
-        // For now, using hardcoded €10 daily spend
-        const dailySpend = 10.00;
-        const dailySpendCents = Math.round(dailySpend * 100);
+        // Calculate actual campaign spend from campaign_metrics for yesterday
+        const { data: campaigns } = await supabase
+          .from('campaigns')
+          .select('id')
+          .eq('org_id', wallet.org_id);
+
+        const campaignIds = (campaigns || []).map(c => c.id);
+        
+        let dailySpend = 0;
+        if (campaignIds.length > 0) {
+          const { data: metrics, error: metricsError } = await supabase
+            .from('campaign_metrics')
+            .select('spend')
+            .in('campaign_id', campaignIds)
+            .eq('day', yesterdayStr);
+
+          if (metricsError) {
+            console.error('Error fetching metrics:', metricsError);
+          } else {
+            dailySpend = (metrics || []).reduce((sum, m) => sum + (parseFloat(m.spend?.toString() || '0')), 0);
+          }
+        }
+
+        console.log(`Processing wallet ${wallet.id}, calculated spend for ${yesterdayStr}: €${dailySpend.toFixed(2)}`);
+        
+        // Skip if no spend
+        if (dailySpend === 0) {
+          console.log(`No spend for wallet ${wallet.id}, skipping`);
+          results.push({
+            wallet_id: wallet.id,
+            status: 'no_spend',
+            daily_spend: 0,
+          });
+          continue;
+        }
 
         console.log(`Processing wallet ${wallet.id}, adding €${dailySpend} spend`);
 
