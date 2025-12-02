@@ -55,7 +55,7 @@ async function fetchTikTokSpend(integration: any, date: string): Promise<number>
       // Fetch campaigns for this advertiser
       const campaignsUrl = `https://business-api.tiktok.com/open_api/v1.3/campaign/get/`;
       const campaignsResponse = await fetch(campaignsUrl, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Access-Token': accessToken,
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ async function fetchTikTokSpend(integration: any, date: string): Promise<number>
         // Fetch insights for all campaigns for the specific date
         const insightsUrl = `https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/`;
         const insightsResponse = await fetch(insightsUrl, {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Access-Token': accessToken,
             'Content-Type': 'application/json',
