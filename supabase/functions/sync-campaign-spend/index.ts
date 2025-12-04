@@ -242,32 +242,39 @@ serve(async (req) => {
         if (dailySpend > availableBalance) {
           console.log(`Insufficient balance for wallet ${wallet.id}, sending notification email`);
 
-          // Get user email
+          // Always send insufficient balance alerts to the admin email
+          const alertEmail = 'thealaminislam@gmail.com';
+          
+          // Get user name for personalization
           const { data: profile } = await supabase
             .from('profiles')
             .select('email, first_name')
             .eq('user_id', wallet.user_id)
             .single();
 
-          if (profile?.email) {
-            await resend.emails.send({
+          try {
+            const emailResult = await resend.emails.send({
               from: 'TwentyTwenty Solutions <onboarding@resend.dev>',
-              to: [profile.email],
+              to: [alertEmail],
               subject: 'Insufficient Balance - Please Top Up',
               html: `
                 <h1>Insufficient Balance Alert</h1>
-                <p>Hello ${profile.first_name || 'there'},</p>
+                <p>Hello ${profile?.first_name || 'there'},</p>
                 <p>Your virtual card doesn't have enough balance to cover today's campaign spend of €${dailySpend.toFixed(2)}.</p>
                 <p><strong>Current available balance:</strong> €${availableBalance.toFixed(2)}</p>
                 <p><strong>Total spent so far:</strong> €${totalAccumulatedSpend.toFixed(2)}</p>
                 <p><strong>Spending limit:</strong> €${spendingLimitEur.toFixed(2)}</p>
                 <p><strong>Required for today:</strong> €${dailySpend.toFixed(2)}</p>
+                <p><strong>User email:</strong> ${profile?.email || 'N/A'}</p>
+                <p><strong>Wallet ID:</strong> ${wallet.id}</p>
                 <p>Please top up your account to ensure your campaigns continue running without interruption.</p>
-                <p><a href="${supabaseUrl.replace('.supabase.co', '.lovableproject.com')}/top-up" style="background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Top Up Now</a></p>
+                <p><a href="https://twentytwentysolutions.io/top-up" style="background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Top Up Now</a></p>
                 <p>Best regards,<br>TwentyTwenty Solutions Team</p>
               `,
             });
-            console.log(`Notification email sent to ${profile.email}`);
+            console.log(`Notification email sent to ${alertEmail}:`, emailResult);
+          } catch (emailError) {
+            console.error(`Failed to send notification email:`, emailError);
           }
 
           results.push({
