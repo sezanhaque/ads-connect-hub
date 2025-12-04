@@ -254,7 +254,7 @@ serve(async (req) => {
 
           try {
             const emailResult = await resend.emails.send({
-              from: 'TwentyTwenty Solutions <onboarding@resend.dev>',
+              from: 'TwentyTwenty Solutions <brian@twentytwentysolutions.io>',
               to: [alertEmail],
               subject: 'Insufficient Balance - Please Top Up',
               html: `
