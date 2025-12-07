@@ -25,6 +25,7 @@ import OrganizationSettings from "./pages/OrganizationSettings";
 import MetaConnection from "./pages/MetaConnection";
 import TikTokConnection from "./pages/TikTokConnection";
 import InviteUsers from "./pages/InviteUsers";
+import UserManagement from "./pages/UserManagement";
 import AcceptInvite from "./pages/AcceptInvite";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import TopUp from "./pages/TopUp";
@@ -144,6 +145,16 @@ const App = () => {
                     <DashboardLayout>
                       <AdminRoute>
                         <InviteUsers />
+                      </AdminRoute>
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/users/:userId"
+                  element={
+                    <DashboardLayout>
+                      <AdminRoute>
+                        <UserManagement />
                       </AdminRoute>
                     </DashboardLayout>
                   }
