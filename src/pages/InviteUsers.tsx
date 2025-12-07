@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { UserPlus, Search, Users, Shield, UserX, ArrowLeft } from 'lucide-react';
+import { UserPlus, Search, Users, Shield, UserX, ArrowLeft, User } from 'lucide-react';
 
 type Platform = 'meta' | 'tiktok' | null;
 
@@ -32,6 +33,7 @@ interface User {
 }
 
 const InviteUsers = () => {
+  const navigate = useNavigate();
   const [adAccountIds, setAdAccountIds] = useState<string[]>([]);
   const [currentAdAccountId, setCurrentAdAccountId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -551,62 +553,73 @@ const InviteUsers = () => {
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
-                              if (!open) {
-                                resetDialog();
-                              }
-                            }}>
-                              <DialogTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  variant={user.is_member ? "secondary" : "outline"}
-                                  onClick={() => handleOpenDialog(user)}
-                                  className="flex items-center gap-1"
-                                >
-                                  <UserPlus className="h-3 w-3" />
-                                  {user.is_member ? 'Manage Integrations' : 'Invite User'}
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>
-                                    {!selectedPlatform 
-                                      ? 'Select Platform'
-                                      : user.is_member 
-                                        ? `Manage ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Accounts` 
-                                        : `Set Up ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Integration`
-                                    }
-                                  </DialogTitle>
-                                  <DialogDescription>
-                                    {!selectedPlatform 
-                                      ? `Choose which platform to configure for ${user.email}.`
-                                      : user.is_member 
-                                        ? `Add or update ${selectedPlatform === 'meta' ? 'Meta Ad Account' : 'TikTok Advertiser'} access for ${user.email}.`
-                                        : `Invite ${user.email} to join your organization with ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} integration access.`
-                                    }
-                                  </DialogDescription>
-                                </DialogHeader>
-                                
-                                {!selectedPlatform ? renderPlatformSelection() : renderAccountInput()}
-                                
-                                {selectedPlatform && (
-                                  <DialogFooter>
-                                    <Button
-                                      variant="outline"
-                                      onClick={resetDialog}
-                                    >
-                                      Cancel
-                                    </Button>
-                                    <Button
-                                      onClick={handleInviteUser}
-                                      disabled={adAccountIds.length === 0 || isLoading}
-                                    >
-                                      {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Accounts' : 'Invite User')}
-                                    </Button>
-                                  </DialogFooter>
-                                )}
-                              </DialogContent>
-                            </Dialog>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => navigate(`/users/${user.user_id}`)}
+                                className="flex items-center gap-1"
+                              >
+                                <User className="h-3 w-3" />
+                                User
+                              </Button>
+                              <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
+                                if (!open) {
+                                  resetDialog();
+                                }
+                              }}>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant={user.is_member ? "secondary" : "outline"}
+                                    onClick={() => handleOpenDialog(user)}
+                                    className="flex items-center gap-1"
+                                  >
+                                    <UserPlus className="h-3 w-3" />
+                                    {user.is_member ? 'Manage Integrations' : 'Invite User'}
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      {!selectedPlatform 
+                                        ? 'Select Platform'
+                                        : user.is_member 
+                                          ? `Manage ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Accounts` 
+                                          : `Set Up ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Integration`
+                                      }
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      {!selectedPlatform 
+                                        ? `Choose which platform to configure for ${user.email}.`
+                                        : user.is_member 
+                                          ? `Add or update ${selectedPlatform === 'meta' ? 'Meta Ad Account' : 'TikTok Advertiser'} access for ${user.email}.`
+                                          : `Invite ${user.email} to join your organization with ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} integration access.`
+                                      }
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  
+                                  {!selectedPlatform ? renderPlatformSelection() : renderAccountInput()}
+                                  
+                                  {selectedPlatform && (
+                                    <DialogFooter>
+                                      <Button
+                                        variant="outline"
+                                        onClick={resetDialog}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        onClick={handleInviteUser}
+                                        disabled={adAccountIds.length === 0 || isLoading}
+                                      >
+                                        {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Accounts' : 'Invite User')}
+                                      </Button>
+                                    </DialogFooter>
+                                  )}
+                                </DialogContent>
+                              </Dialog>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
