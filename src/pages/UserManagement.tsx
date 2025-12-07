@@ -81,8 +81,21 @@ const UserManagement = () => {
       if (profileError) throw profileError;
       setUserProfile(profileData);
 
-      // Fetch user's wallet data (needs to be done via the user's org)
-      // First find the user's own organization
+      // Fetch wallet data via edge function (bypasses RLS for admin)
+      const { data: walletResponse, error: walletError } = await supabase.functions.invoke('get-user-wallet', {
+        body: { target_user_id: userId },
+      });
+
+      if (!walletError && walletResponse) {
+        if (walletResponse.wallet) {
+          setWallet(walletResponse.wallet);
+        }
+        if (walletResponse.stripeCard) {
+          setStripeCard(walletResponse.stripeCard);
+        }
+      }
+
+      // Fetch user's org for integrations
       const { data: userMembership } = await supabase
         .from('members')
         .select('org_id')
@@ -91,33 +104,6 @@ const UserManagement = () => {
         .maybeSingle();
 
       if (userMembership?.org_id) {
-        // Get wallet for this user's org
-        const { data: walletData } = await supabase
-          .from('wallets')
-          .select('*')
-          .eq('org_id', userMembership.org_id)
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        if (walletData) {
-          setWallet(walletData);
-
-          // If there's a stripe card, fetch real-time data
-          if (walletData.stripe_card_id || walletData.stripe_cardholder_id) {
-            // Try to get balance info - this is admin viewing another user's data
-            // We'll use the wallet data we have
-            setStripeCard({
-              id: walletData.stripe_card_id || '',
-              last4: walletData.card_last4 || '****',
-              exp_month: walletData.card_exp_month || 0,
-              exp_year: walletData.card_exp_year || 0,
-              status: walletData.card_status || 'unknown',
-              spending_limit_eur: walletData.balance || 0,
-              spent_eur: 0,
-            });
-          }
-        }
-
         // Fetch existing integrations for this user
         const { data: integrations } = await supabase
           .from('integrations')
