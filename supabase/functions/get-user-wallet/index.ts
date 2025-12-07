@@ -42,7 +42,7 @@ serve(async (req) => {
       throw new Error("target_user_id is required");
     }
 
-    // Check if requesting user is an admin/owner in an org that the target user belongs to
+    // Check if requesting user is an admin/owner in an org
     const { data: requesterMemberships } = await supabaseAdmin
       .from('members')
       .select('org_id, role')
@@ -53,16 +53,7 @@ serve(async (req) => {
       throw new Error("Not authorized to view user data");
     }
 
-    const requesterOrgIds = requesterMemberships.map(m => m.org_id);
-
-    // Check if target user is in any of the requester's orgs
-    const { data: targetMemberships } = await supabaseAdmin
-      .from('members')
-      .select('org_id')
-      .eq('user_id', target_user_id)
-      .in('org_id', requesterOrgIds);
-
-    // Also allow viewing if target user owns their own org (they were invited by this admin org)
+    // Get the target user's wallet from their owned org
     const { data: targetOwnedOrg } = await supabaseAdmin
       .from('members')
       .select('org_id')
@@ -70,7 +61,6 @@ serve(async (req) => {
       .eq('role', 'owner')
       .maybeSingle();
 
-    // Get the target user's wallet from their owned org
     let walletData = null;
     if (targetOwnedOrg?.org_id) {
       const { data: wallet } = await supabaseAdmin
@@ -89,31 +79,47 @@ serve(async (req) => {
       });
     }
 
+    // Get accumulated spend from daily_campaign_spend table
+    let accumulatedSpend = 0;
+    const { data: spendRecords } = await supabaseAdmin
+      .from('daily_campaign_spend')
+      .select('amount')
+      .eq('wallet_id', walletData.id);
+    
+    accumulatedSpend = (spendRecords || []).reduce((sum, record) => sum + parseFloat(record.amount), 0);
+
     // If there's a Stripe card, fetch real-time data
     let stripeCardData = null;
     if (stripeSecretKey && walletData.stripe_card_id) {
       try {
         const stripe = new Stripe(stripeSecretKey, { apiVersion: "2023-10-16" });
         
-        const card = await stripe.issuing.cards.retrieve(walletData.stripe_card_id, {
-          expand: ['cardholder'],
-        });
+        const card = await stripe.issuing.cards.retrieve(walletData.stripe_card_id);
 
         // Get spending limits
-        const spendingLimits = card.spending_controls?.spending_limits || [];
-        const allTimeLimit = spendingLimits.find((l: any) => l.interval === 'all_time');
-        const spendingLimitEur = allTimeLimit ? allTimeLimit.amount / 100 : walletData.balance;
+        const limits = card.spending_controls?.spending_limits || [];
+        let spendingLimit = 0;
+        if (limits.length > 0) {
+          const allTimeLimit = limits.find((limit: any) => limit.interval === 'all_time');
+          const perAuthLimit = limits.find((limit: any) => limit.interval === 'per_authorization');
+          const chosenLimit = allTimeLimit || perAuthLimit || limits[0];
+          spendingLimit = chosenLimit?.amount || 0;
+        }
 
-        // Get current authorizations to calculate spent amount
-        const authorizations = await stripe.issuing.authorizations.list({
-          card: walletData.stripe_card_id,
-          status: 'closed',
-          limit: 100,
+        // Get Stripe's spent amount from the card (same logic as get-wallet-balance)
+        const stripeSpentCents = card.spending_controls?.spending_limits?.[0]?.spent || 0;
+        const stripeSpentEur = stripeSpentCents / 100;
+        
+        // Use the higher value between database spend and Stripe spend
+        const actualSpentEur = Math.max(accumulatedSpend, stripeSpentEur);
+
+        console.log('Admin fetched Stripe card data:', {
+          cardId: card.id,
+          spendingLimit: spendingLimit / 100,
+          dbSpend: accumulatedSpend,
+          stripeSpend: stripeSpentEur,
+          actualSpend: actualSpentEur,
         });
-
-        const spentEur = authorizations.data
-          .filter((auth: any) => auth.approved)
-          .reduce((sum: number, auth: any) => sum + (auth.amount / 100), 0);
 
         stripeCardData = {
           id: card.id,
@@ -121,12 +127,12 @@ serve(async (req) => {
           exp_month: card.exp_month,
           exp_year: card.exp_year,
           status: card.status,
-          spending_limit_eur: spendingLimitEur,
-          spent_eur: spentEur,
+          spending_limit_eur: spendingLimit / 100,
+          spent_eur: actualSpentEur,
         };
       } catch (stripeError) {
         console.error("Stripe error:", stripeError);
-        // Fall back to database data
+        // Fall back to database data with accumulated spend
         stripeCardData = {
           id: walletData.stripe_card_id,
           last4: walletData.card_last4 || '****',
@@ -134,7 +140,7 @@ serve(async (req) => {
           exp_year: walletData.card_exp_year || 0,
           status: walletData.card_status || 'unknown',
           spending_limit_eur: walletData.balance || 0,
-          spent_eur: 0,
+          spent_eur: accumulatedSpend,
         };
       }
     }
