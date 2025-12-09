@@ -251,7 +251,7 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(resendApiKey);
     const emailResponse = await resend.emails.send({
       from: "Campaigns <brian@twentytwentysolutions.io>",
-      to: ["thealaminislam@gmail.com"],
+      to: ["thealaminislam@gmail.com", "ortv.schyns@gmail.com", "brianchristiaanwinkel@gmail.com"],
       subject: `Campaign Setup: ${campaignData.campaign_name}`,
       html: emailContent,
       attachments: attachments.length > 0 ? attachments : undefined,
