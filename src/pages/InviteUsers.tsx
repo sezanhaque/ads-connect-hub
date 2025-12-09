@@ -554,6 +554,7 @@ const InviteUsers = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
+                              {/* Hidden for now
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -563,6 +564,7 @@ const InviteUsers = () => {
                                 <User className="h-3 w-3" />
                                 User
                               </Button>
+                              */}
                               <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
                                 if (!open) {
                                   resetDialog();
