@@ -1000,7 +1000,7 @@ const CreateCampaign = () => {
 
       {/* Progress Steps - Only show after platform selection */}
       {currentStep > 0 && (
-        <div className="flex justify-between mb-8 overflow-x-auto">
+        <div className="flex justify-between mb-8">
           {steps.slice(1).map((step, index) => (
             <div key={step.number} className="flex items-center">
               <div
