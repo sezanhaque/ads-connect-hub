@@ -52,7 +52,11 @@ const Jobs = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    status: 'open'
+    status: 'open',
+    company_name: '',
+    external_id: '',
+    location: '',
+    vacancy_url: ''
   });
   const [organization, setOrganization] = useState<any>(null);
 
@@ -185,12 +189,25 @@ const Jobs = () => {
     }
   };
 
+  const normalizeUrl = (url: string): string => {
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    if (!/^https?:\/\//i.test(trimmed)) {
+      return `https://${trimmed}`;
+    }
+    return trimmed;
+  };
+
   const handleEditJob = (job: Job) => {
     setEditingJob(job);
     setFormData({
       title: job.title,
       description: job.description || '',
-      status: job.status
+      status: job.status,
+      company_name: job.company_name || '',
+      external_id: job.external_id || '',
+      location: job.location || '',
+      vacancy_url: job.vacancy_url || ''
     });
     setIsEditDialogOpen(true);
   };
@@ -213,7 +230,11 @@ const Jobs = () => {
         .update({
           title: formData.title.trim(),
           description: formData.description.trim() || null,
-          status: formData.status
+          status: formData.status,
+          company_name: formData.company_name.trim() || null,
+          external_id: formData.external_id.trim() || null,
+          location: formData.location.trim() || null,
+          vacancy_url: normalizeUrl(formData.vacancy_url) || null
         })
         .eq('id', editingJob.id);
 
@@ -224,7 +245,7 @@ const Jobs = () => {
         description: "Job has been updated successfully",
       });
 
-      setFormData({ title: '', description: '', status: 'open' });
+      setFormData({ title: '', description: '', status: 'open', company_name: '', external_id: '', location: '', vacancy_url: '' });
       setIsEditDialogOpen(false);
       setEditingJob(null);
       fetchJobs();
@@ -430,14 +451,69 @@ const Jobs = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-job-title">Job Title</Label>
-              <Input 
-                id="edit-job-title" 
-                placeholder="e.g. Senior Developer"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-job-title">Job Title *</Label>
+                <Input 
+                  id="edit-job-title" 
+                  placeholder="e.g. Senior Developer"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-company-name">Company Name</Label>
+                <Input 
+                  id="edit-company-name" 
+                  placeholder="e.g. Tech Corp"
+                  value={formData.company_name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-external-id">Job ID</Label>
+                <Input 
+                  id="edit-external-id" 
+                  placeholder="e.g. JOB-001"
+                  value={formData.external_id}
+                  onChange={(e) => setFormData(prev => ({ ...prev, external_id: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-job-status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="live">Live</SelectItem>
+                    <SelectItem value="offline">Offline</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-location">Location</Label>
+                <Input 
+                  id="edit-location" 
+                  placeholder="e.g. San Francisco, CA"
+                  value={formData.location}
+                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-vacancy-url">Job URL</Label>
+                <Input 
+                  id="edit-vacancy-url" 
+                  placeholder="e.g. company.com/jobs/123"
+                  value={formData.vacancy_url}
+                  onChange={(e) => setFormData(prev => ({ ...prev, vacancy_url: e.target.value }))}
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="edit-job-description">Description</Label>
@@ -448,19 +524,6 @@ const Jobs = () => {
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               />
-            </div>
-            <div>
-              <Label htmlFor="edit-job-status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="live">Live</SelectItem>
-                  <SelectItem value="offline">Offline</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
