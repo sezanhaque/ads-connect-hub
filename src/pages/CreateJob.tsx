@@ -27,6 +27,16 @@ const CreateJob = () => {
     vacancy_url: ''
   });
 
+  const normalizeUrl = (url: string): string => {
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    // If URL doesn't start with http:// or https://, add https://
+    if (!/^https?:\/\//i.test(trimmed)) {
+      return `https://${trimmed}`;
+    }
+    return trimmed;
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -95,7 +105,7 @@ const CreateJob = () => {
             status: formData.job_status,
             company_name: formData.company_name.trim() || null,
             location: formData.location_city.trim() || null,
-            vacancy_url: formData.vacancy_url.trim() || null,
+            vacancy_url: normalizeUrl(formData.vacancy_url) || null,
             created_by: profile.user_id,
           },
         ]);
@@ -222,8 +232,8 @@ const CreateJob = () => {
                 <Label htmlFor="vacancy_url">Job URL</Label>
                 <Input
                   id="vacancy_url"
-                  type="url"
-                  placeholder="https://company.com/jobs/123"
+                  type="text"
+                  placeholder="e.g. company.com/jobs/123"
                   value={formData.vacancy_url}
                   onChange={(e) => handleInputChange('vacancy_url', e.target.value)}
                 />
