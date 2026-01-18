@@ -760,17 +760,6 @@ const CreateCampaign = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="keywords">Keywords (Optional)</Label>
-                  <Input
-                    id="keywords"
-                    placeholder="e.g., running shoes, fitness, workout"
-                    value={campaignData.keywords}
-                    onChange={(e) => updateCampaignData({ keywords: e.target.value })}
-                  />
-                  <p className="text-sm text-muted-foreground">Enter keywords related to your campaign</p>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="profiling">Target Audience Description (Optional)</Label>
                   <Textarea
                     id="profiling"
