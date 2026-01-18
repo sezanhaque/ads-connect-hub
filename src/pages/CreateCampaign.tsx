@@ -481,12 +481,11 @@ const CreateCampaign = () => {
             <div className="grid grid-cols-2 gap-6">
               <button
                 type="button"
-                onClick={() => updateCampaignData({ platform: 'meta' })}
-                className={`p-8 border-2 rounded-lg transition-all hover:shadow-md ${
-                  campaignData.platform === 'meta'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                }`}
+                onClick={() => {
+                  updateCampaignData({ platform: 'meta' });
+                  setCurrentStep(1);
+                }}
+                className="p-8 border-2 rounded-lg transition-all hover:shadow-md border-border hover:border-primary/50"
               >
                 <div className="flex flex-col items-center space-y-4">
                   <img src={metaLogo} alt="Meta" className="h-16 w-16 object-contain" />
@@ -494,20 +493,16 @@ const CreateCampaign = () => {
                     <h4 className="font-semibold text-lg">Meta</h4>
                     <p className="text-sm text-muted-foreground mt-1">Facebook & Instagram</p>
                   </div>
-                  {campaignData.platform === 'meta' && (
-                    <Badge className="bg-primary text-primary-foreground">Selected</Badge>
-                  )}
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => updateCampaignData({ platform: 'tiktok' })}
-                className={`p-8 border-2 rounded-lg transition-all hover:shadow-md ${
-                  campaignData.platform === 'tiktok'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                }`}
+                onClick={() => {
+                  updateCampaignData({ platform: 'tiktok' });
+                  setCurrentStep(1);
+                }}
+                className="p-8 border-2 rounded-lg transition-all hover:shadow-md border-border hover:border-primary/50"
               >
                 <div className="flex flex-col items-center space-y-4">
                   <img src={tiktokLogo} alt="TikTok" className="h-16 w-16 object-contain" />
@@ -515,9 +510,6 @@ const CreateCampaign = () => {
                     <h4 className="font-semibold text-lg">TikTok</h4>
                     <p className="text-sm text-muted-foreground mt-1">TikTok Ads</p>
                   </div>
-                  {campaignData.platform === 'tiktok' && (
-                    <Badge className="bg-primary text-primary-foreground">Selected</Badge>
-                  )}
                 </div>
               </button>
             </div>
@@ -1047,24 +1039,26 @@ const CreateCampaign = () => {
         <CardContent>{renderStepContent()}</CardContent>
       </Card>
 
-      {/* Navigation */}
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={prevStep} disabled={currentStep === 0}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Previous
-        </Button>
+      {/* Navigation - Hide on platform selection step */}
+      {currentStep > 0 && (
+        <div className="flex justify-between">
+          <Button variant="outline" onClick={prevStep}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Previous
+          </Button>
 
-        {currentStep < 4 ? (
-          <Button onClick={nextStep}>
-            Next
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Button>
-        ) : (
-          <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Publishing..." : "Publish Campaign"}
-          </Button>
-        )}
-      </div>
+          {currentStep < 4 ? (
+            <Button onClick={nextStep}>
+              Next
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} disabled={isLoading}>
+              {isLoading ? "Publishing..." : "Publish Campaign"}
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Disabled Feature Popup */}
       <Dialog open={showDisabledPopup} onOpenChange={setShowDisabledPopup}>
