@@ -52,9 +52,11 @@ interface CampaignData {
   jobId: string;
   name: string;
   objective: "traffic" | "leads" | "";
-  budget: string;
+  budgetOption: "10" | "20" | "30" | "other";
+  budgetCustom: string;
+  durationOption: "14" | "28" | "always-on" | "other";
+  durationCustom: string;
   startDate: string;
-  endDate: string;
   locations: string;
   
   // Meta-specific
@@ -96,9 +98,11 @@ const CreateCampaign = () => {
     jobId: "",
     name: "",
     objective: "",
-    budget: "",
+    budgetOption: "10",
+    budgetCustom: "",
+    durationOption: "14",
+    durationCustom: "",
     startDate: "",
-    endDate: "",
     locations: "",
     targetAudience: "",
     ageRanges: [],
@@ -143,6 +147,38 @@ const CreateCampaign = () => {
     setCampaignData((prev) => ({ ...prev, ...updates }));
   };
 
+  // Helper to get budget value
+  const getBudgetValue = (): number => {
+    const budget = campaignData.budgetOption === 'other' 
+      ? campaignData.budgetCustom 
+      : campaignData.budgetOption;
+    return parseFloat(budget) || 0;
+  };
+
+  // Helper to get duration in days
+  const getDurationDays = (): number | null => {
+    if (campaignData.durationOption === 'always-on') return null;
+    if (campaignData.durationOption === 'other') return parseInt(campaignData.durationCustom) || 0;
+    return parseInt(campaignData.durationOption);
+  };
+
+  // Helper to calculate end date
+  const getEndDate = (): string | null => {
+    if (campaignData.durationOption === 'always-on') return null;
+    const days = getDurationDays();
+    if (!days || !campaignData.startDate) return null;
+    const start = new Date(campaignData.startDate);
+    start.setDate(start.getDate() + days);
+    return start.toISOString().split('T')[0];
+  };
+
+  // Helper to get duration display text
+  const getDurationDisplay = (): string => {
+    if (campaignData.durationOption === 'always-on') return 'Always-on';
+    const days = getDurationDays();
+    return days ? `${days} days` : '';
+  };
+
   const validateCurrentStep = () => {
     switch (currentStep) {
       case 0:
@@ -151,19 +187,22 @@ const CreateCampaign = () => {
           return false;
         }
         break;
-      case 1:
+        const budget = campaignData.budgetOption === 'other' 
+          ? campaignData.budgetCustom 
+          : campaignData.budgetOption;
+        
         if (
           !campaignData.jobId ||
           !campaignData.name ||
           !campaignData.objective ||
-          !campaignData.budget ||
+          !budget ||
           !campaignData.startDate ||
-          !campaignData.endDate
+          (campaignData.durationOption === 'other' && !campaignData.durationCustom)
         ) {
           toast({ title: "Please fill all required fields", variant: "destructive" });
           return false;
         }
-        if (parseFloat(campaignData.budget) <= 0) {
+        if (parseFloat(budget) <= 0) {
           toast({ title: "Budget must be greater than 0", variant: "destructive" });
           return false;
         }
@@ -172,10 +211,6 @@ const CreateCampaign = () => {
         const startDate = new Date(campaignData.startDate);
         if (startDate < today) {
           toast({ title: "Start date cannot be in the past", variant: "destructive" });
-          return false;
-        }
-        if (new Date(campaignData.endDate) <= new Date(campaignData.startDate)) {
-          toast({ title: "End date must be after start date", variant: "destructive" });
           return false;
         }
         break;
@@ -361,15 +396,18 @@ const CreateCampaign = () => {
           };
 
       // Create campaign
+      const budgetValue = getBudgetValue();
+      const endDate = getEndDate();
+      
       const { data: campaignId, error } = await supabase.rpc("create_campaign", {
         p_org_id: preferred.org_id,
         p_job_id: campaignData.jobId,
         p_name: campaignData.name,
         p_objective: campaignData.objective || "traffic",
-        p_budget: parseFloat(campaignData.budget) || 0,
-        p_currency: "USD",
+        p_budget: budgetValue,
+        p_currency: "EUR",
         p_start_date: campaignData.startDate,
-        p_end_date: campaignData.endDate,
+        p_end_date: endDate,
         p_targeting: targeting,
         p_creatives: {
           assets_count: campaignData.creativeAssets.length,
@@ -396,7 +434,7 @@ const CreateCampaign = () => {
       posthog.capture('campaign_created', {
         campaign_name: campaignData.name,
         objective: campaignData.objective,
-        budget: parseFloat(campaignData.budget),
+        budget: budgetValue,
         creative_assets_count: campaignData.creativeAssets.length,
       });
 
@@ -412,9 +450,11 @@ const CreateCampaign = () => {
           platform: campaignData.platform,
           campaign_name: campaignData.name,
           job_id: campaignData.jobId,
-          budget: parseFloat(campaignData.budget) || 0,
+          budget: budgetValue,
+          budget_type: 'per_day',
+          duration: getDurationDisplay(),
           start_date: campaignData.startDate,
-          end_date: campaignData.endDate,
+          end_date: endDate,
           location_targeting: campaignData.locations,
           ad_copy: campaignData.adCopy,
           cta_button: campaignData.ctaButton !== 'none' ? campaignData.ctaButton.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "None",
@@ -572,42 +612,79 @@ const CreateCampaign = () => {
               </div>
             </div>
 
-            {/* Budget & Schedule */}
+            {/* Budget per Day */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="budget">Total Budget ($) *</Label>
-                <Input
-                  id="budget"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="1000"
-                  value={campaignData.budget}
-                  onChange={(e) => updateCampaignData({ budget: e.target.value })}
-                />
+                <Label>Budget per Day (€) *</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {['10', '20', '30', 'other'].map((option) => (
+                    <Button
+                      key={option}
+                      type="button"
+                      variant={campaignData.budgetOption === option ? "default" : "outline"}
+                      className="w-full"
+                      onClick={() => updateCampaignData({ budgetOption: option as "10" | "20" | "30" | "other" })}
+                    >
+                      {option === 'other' ? 'Other' : `€${option}`}
+                    </Button>
+                  ))}
+                </div>
+                {campaignData.budgetOption === 'other' && (
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Enter custom budget"
+                    value={campaignData.budgetCustom}
+                    onChange={(e) => updateCampaignData({ budgetCustom: e.target.value })}
+                    className="mt-2"
+                  />
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date *</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    min={new Date().toISOString().split("T")[0]}
-                    value={campaignData.startDate}
-                    onChange={(e) => updateCampaignData({ startDate: e.target.value })}
-                  />
+              {/* Duration */}
+              <div className="space-y-2">
+                <Label>Duration *</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { value: '14', label: '14 Days' },
+                    { value: '28', label: '28 Days' },
+                    { value: 'always-on', label: 'Always-on' },
+                    { value: 'other', label: 'Other' },
+                  ].map((option) => (
+                    <Button
+                      key={option.value}
+                      type="button"
+                      variant={campaignData.durationOption === option.value ? "default" : "outline"}
+                      className="w-full"
+                      onClick={() => updateCampaignData({ durationOption: option.value as "14" | "28" | "always-on" | "other" })}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">End Date *</Label>
+                {campaignData.durationOption === 'other' && (
                   <Input
-                    id="endDate"
-                    type="date"
-                    min={campaignData.startDate || new Date().toISOString().split("T")[0]}
-                    value={campaignData.endDate}
-                    onChange={(e) => updateCampaignData({ endDate: e.target.value })}
+                    type="number"
+                    min="1"
+                    placeholder="Enter number of days"
+                    value={campaignData.durationCustom}
+                    onChange={(e) => updateCampaignData({ durationCustom: e.target.value })}
+                    className="mt-2"
                   />
-                </div>
+                )}
+              </div>
+
+              {/* Start Date */}
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date *</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  min={new Date().toISOString().split("T")[0]}
+                  value={campaignData.startDate}
+                  onChange={(e) => updateCampaignData({ startDate: e.target.value })}
+                />
               </div>
             </div>
           </div>
@@ -886,10 +963,10 @@ const CreateCampaign = () => {
                     <strong>Objective:</strong> {campaignData.objective === 'traffic' ? 'Traffic' : 'Leads'}
                   </div>
                   <div>
-                    <strong>Budget:</strong> ${campaignData.budget}
+                    <strong>Budget:</strong> €{getBudgetValue()}/day
                   </div>
                   <div>
-                    <strong>Duration:</strong> {campaignData.startDate} to {campaignData.endDate}
+                    <strong>Duration:</strong> {getDurationDisplay()} (from {campaignData.startDate})
                   </div>
                   <div>
                     <strong>Location:</strong> {campaignData.locations}
