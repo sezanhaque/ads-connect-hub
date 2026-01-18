@@ -563,17 +563,11 @@ const CreateCampaign = () => {
                 <Button
                   type="button"
                   variant={campaignData.objective === "leads" ? "default" : "outline"}
-                  className={`w-full justify-center ${campaignData.platform === 'meta' ? 'opacity-60' : ''}`}
-                  onClick={() => {
-                    if (campaignData.platform === 'meta') {
-                      setShowDisabledPopup(true);
-                    } else {
-                      updateCampaignData({ objective: "leads" });
-                    }
-                  }}
+                  className="w-full justify-center opacity-60"
+                  onClick={() => setShowDisabledPopup(true)}
                 >
                   <Users className="h-4 w-4 mr-2" />
-                  Leads {campaignData.platform === 'tiktok' && <Badge variant="secondary" className="ml-2">TikTok</Badge>}
+                  Leads
                 </Button>
               </div>
             </div>
