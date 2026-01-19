@@ -187,7 +187,7 @@ const CreateCampaign = () => {
     return days ? `${days} days` : '';
   };
 
-  const validateCurrentStep = () => {
+  const validateCurrentStep = async (): Promise<boolean> => {
     switch (currentStep) {
       case 0:
         if (!campaignData.platform) {
@@ -222,6 +222,37 @@ const CreateCampaign = () => {
           toast({ title: "Start date cannot be in the past", variant: "destructive" });
           return false;
         }
+
+        // Check for duplicate campaign name
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data: memberships } = await supabase
+              .from("members")
+              .select("org_id")
+              .eq("user_id", user.id);
+            
+            if (memberships && memberships.length > 0) {
+              const orgId = memberships[0].org_id;
+              const { data: existingCampaigns } = await supabase
+                .from('campaigns')
+                .select('id, name')
+                .eq('org_id', orgId)
+                .ilike('name', campaignData.name.trim());
+
+              if (existingCampaigns && existingCampaigns.length > 0) {
+                toast({
+                  title: "Duplicate campaign name",
+                  description: `A campaign named "${campaignData.name}" already exists. Please choose a different name.`,
+                  variant: "destructive",
+                });
+                return false;
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error checking duplicate campaign:', error);
+        }
         break;
       case 2:
         if (!campaignData.locations) {
@@ -245,8 +276,8 @@ const CreateCampaign = () => {
     return true;
   };
 
-  const nextStep = () => {
-    if (validateCurrentStep() && currentStep < 4) {
+  const nextStep = async () => {
+    if (await validateCurrentStep() && currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -390,24 +421,6 @@ const CreateCampaign = () => {
         return;
       }
 
-      // Check for duplicate campaign name in the organization
-      const { data: existingCampaigns, error: duplicateCheckError } = await supabase
-        .from('campaigns')
-        .select('id, name')
-        .eq('org_id', preferred.org_id)
-        .ilike('name', campaignData.name.trim());
-
-      if (duplicateCheckError) {
-        console.error('Error checking duplicate campaign:', duplicateCheckError);
-      } else if (existingCampaigns && existingCampaigns.length > 0) {
-        toast({
-          title: "Duplicate campaign name",
-          description: `A campaign named "${campaignData.name}" already exists. Please choose a different name.`,
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
 
       // Prepare targeting data based on platform
       const targeting = campaignData.platform === 'tiktok' 
