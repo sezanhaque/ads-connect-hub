@@ -459,6 +459,7 @@ const CreateCampaign = () => {
           platform: campaignData.platform,
           campaign_name: campaignData.name,
           job_id: campaignData.jobId,
+          objective: campaignData.objective,
           budget: budgetValue,
           budget_type: 'per_day',
           duration: getDurationDisplay(),
