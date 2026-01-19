@@ -90,13 +90,20 @@ const CreateCampaign = () => {
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(0);
+  
+  // Get URL params immediately to avoid flash
+  const jobIdParam = searchParams.get('jobId');
+  const platformParam = searchParams.get('platform');
+  const initialPlatform = (platformParam === 'meta' || platformParam === 'tiktok') ? platformParam : '';
+  const initialStep = initialPlatform ? 1 : 0;
+  
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [isLoading, setIsLoading] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [showDisabledPopup, setShowDisabledPopup] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
-    platform: "",
-    jobId: "",
+    platform: initialPlatform,
+    jobId: jobIdParam || "",
     name: "",
     objective: "",
     budgetOption: "10",
@@ -128,24 +135,6 @@ const CreateCampaign = () => {
   useEffect(() => {
     loadJobs();
   }, []);
-
-  // Handle URL params for pre-selection
-  useEffect(() => {
-    const jobIdParam = searchParams.get('jobId');
-    const platformParam = searchParams.get('platform');
-    
-    if (platformParam === 'meta' || platformParam === 'tiktok') {
-      setCampaignData(prev => ({ 
-        ...prev, 
-        platform: platformParam,
-        jobId: jobIdParam || prev.jobId 
-      }));
-      // Skip platform selection step if platform is pre-selected
-      setCurrentStep(1);
-    } else if (jobIdParam) {
-      setCampaignData(prev => ({ ...prev, jobId: jobIdParam }));
-    }
-  }, [searchParams]);
 
   const loadJobs = async () => {
     try {
