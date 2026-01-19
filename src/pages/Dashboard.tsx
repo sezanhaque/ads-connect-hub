@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { UnifiedCampaignsDashboard } from '@/components/UnifiedCampaignsDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -369,7 +370,23 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {campaigns.length > 0 ? <div className="space-y-4">
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                    <div className="text-right space-y-2">
+                      <Skeleton className="h-4 w-16 ml-auto" />
+                      <Skeleton className="h-3 w-20 ml-auto" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : campaigns.length > 0 ? (
+              <div className="space-y-4">
                 {campaigns.map(campaign => <div key={campaign.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div className="space-y-1">
                       <h4 className="font-medium">{campaign.name}</h4>
@@ -392,13 +409,16 @@ const Dashboard = () => {
                 <Button variant="outline" className="w-full" asChild>
                   <Link to="/campaigns">View All Campaigns</Link>
                 </Button>
-              </div> : <div className="text-center py-8">
+              </div>
+            ) : (
+              <div className="text-center py-8">
                 <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">No campaigns yet</p>
                 <Button asChild>
                   <Link to="/campaigns/create">Create First Campaign</Link>
                 </Button>
-              </div>}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -414,7 +434,20 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {jobs.length > 0 ? <div className="space-y-4">
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                ))}
+              </div>
+            ) : jobs.length > 0 ? (
+              <div className="space-y-4">
                 {jobs.map(job => <div key={job.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                     <div className="space-y-1">
                       <h4 className="font-medium">{job.title}</h4>
@@ -429,13 +462,16 @@ const Dashboard = () => {
                 <Button variant="outline" className="w-full" asChild>
                   <Link to="/jobs">View All Jobs</Link>
                 </Button>
-              </div> : <div className="text-center py-8">
+              </div>
+            ) : (
+              <div className="text-center py-8">
                 <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">No job added yet</p>
                 <Button variant="outline" asChild>
                   <Link to="/jobs">Add a new Job</Link>
                 </Button>
-              </div>}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
