@@ -62,7 +62,7 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
       setLoading(true);
 
       const currentDateRange = dateFilter || dateRange;
-      const allCampaigns: UnifiedCampaign[] = [];
+      const apiCampaigns: UnifiedCampaign[] = [];
 
       try {
         // Determine the user's primary organization
@@ -84,6 +84,67 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
           memberships.find((m: { role: string }) => m.role === "admin") ||
           memberships.find((m: { role: string }) => m.role === "member") ||
           memberships[0];
+
+        // Always fetch Supabase campaigns as fallback/base data
+        const { data: supabaseCampaigns, error: supabaseError } = await supabase
+          .from("campaigns")
+          .select(`
+            id,
+            name,
+            status,
+            objective,
+            platform,
+            budget
+          `)
+          .eq("org_id", primaryOrg.org_id);
+
+        // Fetch metrics for Supabase campaigns
+        let supabaseCampaignsWithMetrics: UnifiedCampaign[] = [];
+        if (!supabaseError && supabaseCampaigns && supabaseCampaigns.length > 0) {
+          const campaignIds = supabaseCampaigns.map(c => c.id);
+          
+          // Fetch metrics from both tables
+          const { data: metricsData } = await supabase
+            .from("metrics")
+            .select("campaign_id, impressions, clicks, spend, leads")
+            .in("campaign_id", campaignIds);
+
+          const { data: campaignMetricsData } = await supabase
+            .from("campaign_metrics")
+            .select("campaign_id, impressions, clicks, spend, leads")
+            .in("campaign_id", campaignIds);
+
+          // Aggregate metrics by campaign
+          const allMetrics = [...(metricsData || []), ...(campaignMetricsData || [])];
+          const metricsMap = new Map<string, { impressions: number; clicks: number; spend: number; leads: number }>();
+          
+          allMetrics.forEach(m => {
+            const existing = metricsMap.get(m.campaign_id) || { impressions: 0, clicks: 0, spend: 0, leads: 0 };
+            metricsMap.set(m.campaign_id, {
+              impressions: existing.impressions + (m.impressions || 0),
+              clicks: existing.clicks + (m.clicks || 0),
+              spend: existing.spend + (Number(m.spend) || 0),
+              leads: existing.leads + (m.leads || 0),
+            });
+          });
+
+          supabaseCampaignsWithMetrics = supabaseCampaigns.map(c => {
+            const metrics = metricsMap.get(c.id) || { impressions: 0, clicks: 0, spend: 0, leads: 0 };
+            const platform = (c.platform === "tiktok" ? "tiktok" : "meta") as "meta" | "tiktok";
+            return {
+              id: c.id,
+              name: c.name,
+              status: c.status?.toLowerCase() || "unknown",
+              objective: c.objective?.replace("OUTCOME_", "").replace("_", " ").toLowerCase() || "unknown",
+              impressions: metrics.impressions,
+              clicks: metrics.clicks,
+              ctr: metrics.impressions > 0 ? (metrics.clicks / metrics.impressions) * 100 : 0,
+              spend: metrics.spend,
+              cpc: metrics.clicks > 0 ? metrics.spend / metrics.clicks : 0,
+              platform,
+            };
+          });
+        }
 
         // Calculate date range parameters
         const daysDiff = Math.ceil(
@@ -150,7 +211,7 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
                 cpc: c.total_clicks > 0 ? c.total_spend / c.total_clicks : 0,
                 platform: "meta" as const,
               }));
-              allCampaigns.push(...metaCampaigns);
+              apiCampaigns.push(...metaCampaigns);
             }
           } catch (error) {
             console.error("Error fetching Meta campaigns:", error);
@@ -189,15 +250,27 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
                 cpc: c.cpc || 0,
                 platform: "tiktok" as const,
               }));
-              allCampaigns.push(...tiktokCampaigns);
+              apiCampaigns.push(...tiktokCampaigns);
             }
           } catch (error) {
             console.error("Error fetching TikTok campaigns:", error);
           }
         }
 
-        setCampaigns(allCampaigns);
-        console.log(`Fetched ${allCampaigns.length} total campaigns (Meta + TikTok)`);
+        // Merge API campaigns with Supabase campaigns
+        // API data takes priority when matching by name
+        const apiCampaignNames = new Set(apiCampaigns.map(c => c.name.toLowerCase().trim()));
+        
+        // Filter out Supabase campaigns that have matching API campaigns (by name)
+        const supabaseCampaignsToKeep = supabaseCampaignsWithMetrics.filter(
+          c => !apiCampaignNames.has(c.name.toLowerCase().trim())
+        );
+
+        // Combine: API campaigns + unmatched Supabase campaigns
+        const mergedCampaigns = [...apiCampaigns, ...supabaseCampaignsToKeep];
+
+        setCampaigns(mergedCampaigns);
+        console.log(`Fetched ${mergedCampaigns.length} total campaigns (${apiCampaigns.length} from API, ${supabaseCampaignsToKeep.length} from Supabase)`);
       } catch (error) {
         console.error("Error in fetchCampaigns:", error);
         toast({
@@ -373,7 +446,7 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
               </div>
             ) : (
               <p className="text-muted-foreground">
-                Connect your Meta or TikTok advertising account to see your campaigns here.
+                No campaigns found. Create a new campaign or connect your Meta/TikTok account to sync existing campaigns.
               </p>
             )}
           </div>
