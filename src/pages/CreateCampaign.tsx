@@ -390,6 +390,25 @@ const CreateCampaign = () => {
         return;
       }
 
+      // Check for duplicate campaign name in the organization
+      const { data: existingCampaigns, error: duplicateCheckError } = await supabase
+        .from('campaigns')
+        .select('id, name')
+        .eq('org_id', preferred.org_id)
+        .ilike('name', campaignData.name.trim());
+
+      if (duplicateCheckError) {
+        console.error('Error checking duplicate campaign:', duplicateCheckError);
+      } else if (existingCampaigns && existingCampaigns.length > 0) {
+        toast({
+          title: "Duplicate campaign name",
+          description: `A campaign named "${campaignData.name}" already exists. Please choose a different name.`,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // Prepare targeting data based on platform
       const targeting = campaignData.platform === 'tiktok' 
         ? {
