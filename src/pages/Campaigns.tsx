@@ -139,11 +139,11 @@ const Campaigns = () => {
 
       console.log('All campaigns before merge:', allCampaigns.length, 'Supabase campaigns:', supabaseCampaigns?.length);
 
-      // Merge: Add Supabase campaigns that don't exist in API results
+      // Merge: Add Supabase campaigns that don't exist in API results (match by ID, not name)
       if (supabaseCampaigns) {
         supabaseCampaigns.forEach((dbCampaign) => {
           const existsInApi = allCampaigns.some(
-            (apiCampaign) => apiCampaign.name === dbCampaign.name
+            (apiCampaign) => apiCampaign.id === dbCampaign.id
           );
           if (!existsInApi) {
             allCampaigns.push(dbCampaign);
