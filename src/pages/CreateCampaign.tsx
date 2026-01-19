@@ -195,6 +195,7 @@ const CreateCampaign = () => {
           return false;
         }
         break;
+      case 1:
         const budget = campaignData.budgetOption === 'other' 
           ? campaignData.budgetCustom 
           : campaignData.budgetOption;
