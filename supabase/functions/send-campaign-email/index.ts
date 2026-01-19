@@ -11,6 +11,7 @@ interface CampaignEmailData {
   platform: string;
   campaign_name: string;
   job_id: string;
+  objective?: string;
   budget: number;
   budget_type?: string;
   duration?: string;
@@ -104,6 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
                 Platform: <strong>${platformName}</strong><br>
                 Campaign Name: ${campaignData.campaign_name}<br>
                 Job ID: ${campaignData.job_id}<br>
+                Objective: ${campaignData.objective ? campaignData.objective.charAt(0).toUpperCase() + campaignData.objective.slice(1) : 'Not specified'}<br>
                 Budget: €${campaignData.budget}${campaignData.budget_type === 'per_day' ? ' per day' : ''}<br>
                 Duration: ${campaignData.duration || 'Not specified'}<br>
                 Start Date: ${campaignData.start_date || 'Not specified'}<br>
