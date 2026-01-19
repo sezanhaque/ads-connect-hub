@@ -67,8 +67,8 @@ const handler = async (req: Request): Promise<Response> => {
     // - Amazon SES
     // For now, we'll simulate the email sending
 
-    const platformName = campaignData.platform === 'meta' ? 'Meta' : 'TikTok';
-    const platformManager = campaignData.platform === 'meta' ? 'Meta Ads Manager' : 'TikTok Ads Manager';
+    const platformName = campaignData.platform === "meta" ? "Meta" : "TikTok";
+    const platformManager = campaignData.platform === "meta" ? "Meta Ads Manager" : "TikTok Ads Manager";
 
     const emailContent = `
 <!DOCTYPE html>
@@ -113,59 +113,87 @@ const handler = async (req: Request): Promise<Response> => {
             <div class="value">${campaignData.location_targeting}</div>
         </div>
         
-        ${campaignData.target_audience ? `
+        ${
+          campaignData.target_audience
+            ? `
         <div class="section">
             <div class="label">Target Audience (Meta)</div>
             <div class="value">${campaignData.target_audience}</div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${campaignData.age_ranges && campaignData.age_ranges.length > 0 ? `
+        ${
+          campaignData.age_ranges && campaignData.age_ranges.length > 0
+            ? `
         <div class="section">
             <div class="label">Age Brackets (TikTok)</div>
             <div class="value">
-                ${campaignData.age_ranges.map(range => `<span class="badge">${range}</span>`).join('')}
+                ${campaignData.age_ranges.map((range) => `<span class="badge">${range}</span>`).join("")}
             </div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${campaignData.interests ? `
+        ${
+          campaignData.interests
+            ? `
         <div class="section">
             <div class="label">Interests (TikTok)</div>
             <div class="value">${campaignData.interests}</div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${campaignData.keywords ? `
+        ${
+          campaignData.keywords
+            ? `
         <div class="section">
             <div class="label">Keywords (TikTok)</div>
             <div class="value">${campaignData.keywords}</div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${campaignData.profiling ? `
+        ${
+          campaignData.profiling
+            ? `
         <div class="section">
             <div class="label">Audience Profiling (TikTok)</div>
             <div class="value">${campaignData.profiling}</div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${campaignData.headline ? `
+        ${
+          campaignData.headline
+            ? `
         <div class="section">
             <div class="label">Headline (TikTok)</div>
             <div class="value">${campaignData.headline}</div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${campaignData.description ? `
+        ${
+          campaignData.description
+            ? `
         <div class="section">
             <div class="label">Description (TikTok)</div>
             <div class="value">${campaignData.description}</div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
         
         <div class="section">
-            <div class="label">${campaignData.platform === 'tiktok' ? 'Main Ad Text' : 'Ad Copy'}</div>
+            <div class="label">${campaignData.platform === "tiktok" ? "Main Ad Text" : "Ad Copy"}</div>
             <div class="value">${campaignData.ad_copy}</div>
         </div>
         
@@ -251,7 +279,7 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(resendApiKey);
     const emailResponse = await resend.emails.send({
       from: "Campaigns <brian@twentytwentysolutions.io>",
-      to: ["thealaminislam@gmail.com", "ortv.schyns@gmail.com", "brianchristiaanwinkel@gmail.com"],
+      to: ["thealaminislam@gmail.com"],
       subject: `Campaign Setup: ${campaignData.campaign_name}`,
       html: emailContent,
       attachments: attachments.length > 0 ? attachments : undefined,
