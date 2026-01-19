@@ -19,8 +19,17 @@ import {
   ExternalLink,
   RefreshCw,
   Edit,
-  Trash2
+  Trash2,
+  Megaphone
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import metaLogo from '@/assets/meta-logo.png';
+import tiktokLogo from '@/assets/tiktok-logo.png';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Job {
@@ -371,6 +380,7 @@ const Jobs = () => {
                   <TableHead>Location</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Campaign</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -399,6 +409,32 @@ const Jobs = () => {
                     </TableCell>
                     <TableCell>
                       {new Date(job.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Megaphone className="h-4 w-4" />
+                            Create
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                          <DropdownMenuItem 
+                            onClick={() => navigate(`/campaigns/create?jobId=${job.id}&platform=meta`)}
+                            className="gap-2 cursor-pointer"
+                          >
+                            <img src={metaLogo} alt="Meta" className="h-4 w-4" />
+                            Meta
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => navigate(`/campaigns/create?jobId=${job.id}&platform=tiktok`)}
+                            className="gap-2 cursor-pointer"
+                          >
+                            <img src={tiktokLogo} alt="TikTok" className="h-4 w-4" />
+                            TikTok
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
