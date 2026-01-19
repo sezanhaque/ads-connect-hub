@@ -66,13 +66,18 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    // Don't fetch if profile isn't ready yet
+    if (!profile?.user_id) {
+      return;
+    }
+    
     posthog.capture('dashboard_viewed');
     fetchDashboardData();
     autoSyncMetaCampaigns();
     autoSyncTikTokCampaigns();
     // Trigger refresh for campaign dashboards
     setRefreshTrigger(prev => prev + 1);
-  }, []);
+  }, [profile?.user_id]);
   const autoSyncMetaCampaigns = async () => {
     if (!isConnected || !integration) return;
     try {
