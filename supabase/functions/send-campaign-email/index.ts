@@ -12,8 +12,10 @@ interface CampaignEmailData {
   campaign_name: string;
   job_id: string;
   budget: number;
+  budget_type?: string;
+  duration?: string;
   start_date: string;
-  end_date: string;
+  end_date: string | null;
   location_targeting: string;
   ad_copy: string;
   cta_button: string;
@@ -102,9 +104,10 @@ const handler = async (req: Request): Promise<Response> => {
                 Platform: <strong>${platformName}</strong><br>
                 Campaign Name: ${campaignData.campaign_name}<br>
                 Job ID: ${campaignData.job_id}<br>
-                Total Budget: $${campaignData.budget}<br>
-                Start Date: ${campaignData.start_date}<br>
-                End Date: ${campaignData.end_date}
+                Budget: €${campaignData.budget}${campaignData.budget_type === 'per_day' ? ' per day' : ''}<br>
+                Duration: ${campaignData.duration || 'Not specified'}<br>
+                Start Date: ${campaignData.start_date || 'Not specified'}<br>
+                End Date: ${campaignData.end_date || 'Always-on (no end date)'}
             </div>
         </div>
         
