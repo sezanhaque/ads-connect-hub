@@ -1141,22 +1141,22 @@ const CreateCampaign = () => {
       <Card className="mb-8">
         {currentStep > 0 && (
           <CardHeader>
-            <div className="flex justify-between items-center w-full overflow-hidden">
+            <div className="flex items-center justify-between w-full mb-6">
               {steps.slice(1).map((step, index) => (
-                <div key={step.number} className="flex items-center flex-shrink-0">
-                  <div
-                    className={`flex items-center justify-center w-10 h-10 rounded-full border-2 flex-shrink-0 ${
-                      currentStep >= step.number
-                        ? "bg-primary border-primary text-primary-foreground"
-                        : "border-muted-foreground text-muted-foreground"
-                    }`}
-                  >
-                    <step.icon className="h-5 w-5" />
-                  </div>
-                  <div className="ml-2 hidden md:block">
+                <React.Fragment key={step.number}>
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <div
+                      className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                        currentStep >= step.number
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : "border-muted-foreground text-muted-foreground"
+                      }`}
+                    >
+                      <step.icon className="h-5 w-5" />
+                    </div>
                     <p
-                      className={`text-sm font-medium ${
-                        currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
+                      className={`mt-2 text-xs text-center ${
+                        currentStep >= step.number ? "text-foreground font-medium" : "text-muted-foreground"
                       }`}
                     >
                       {step.title}
@@ -1164,12 +1164,12 @@ const CreateCampaign = () => {
                   </div>
                   {index < steps.slice(1).length - 1 && (
                     <div
-                      className={`w-8 lg:w-12 h-px mx-2 lg:mx-4 flex-shrink-0 ${
-                        currentStep > step.number ? "bg-primary" : "bg-muted-foreground"
+                      className={`h-px flex-1 max-w-8 -mt-6 ${
+                        currentStep > step.number ? "bg-primary" : "bg-muted-foreground/30"
                       }`}
                     />
                   )}
-                </div>
+                </React.Fragment>
               ))}
             </div>
 
