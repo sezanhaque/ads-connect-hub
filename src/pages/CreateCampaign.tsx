@@ -1137,42 +1137,47 @@ const CreateCampaign = () => {
         </div>
       </div>
 
+      {/* Progress Steps - Only show after platform selection */}
+      {currentStep > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between w-full">
+            {steps.slice(1).map((step, index) => (
+              <React.Fragment key={step.number}>
+                <div className="flex items-center">
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                      currentStep >= step.number
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "border-muted-foreground text-muted-foreground"
+                    }`}
+                  >
+                    <step.icon className="h-5 w-5" />
+                  </div>
+                  <p
+                    className={`ml-2 text-sm hidden lg:block ${
+                      currentStep >= step.number ? "text-foreground font-medium" : "text-muted-foreground"
+                    }`}
+                  >
+                    {step.title}
+                  </p>
+                </div>
+                {index < steps.slice(1).length - 1 && (
+                  <div
+                    className={`h-px flex-1 mx-3 ${
+                      currentStep > step.number ? "bg-primary" : "bg-muted-foreground/30"
+                    }`}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Step Content */}
       <Card className="mb-8">
         {currentStep > 0 && (
           <CardHeader>
-            <div className="flex items-center justify-between w-full mb-6">
-              {steps.slice(1).map((step, index) => (
-                <React.Fragment key={step.number}>
-                  <div className="flex items-center">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                        currentStep >= step.number
-                          ? "bg-primary border-primary text-primary-foreground"
-                          : "border-muted-foreground text-muted-foreground"
-                      }`}
-                    >
-                      <step.icon className="h-5 w-5" />
-                    </div>
-                    <p
-                      className={`ml-2 text-sm hidden lg:block ${
-                        currentStep >= step.number ? "text-foreground font-medium" : "text-muted-foreground"
-                      }`}
-                    >
-                      {step.title}
-                    </p>
-                  </div>
-                  {index < steps.slice(1).length - 1 && (
-                    <div
-                      className={`h-px flex-1 mx-3 ${
-                        currentStep > step.number ? "bg-primary" : "bg-muted-foreground/30"
-                      }`}
-                    />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-
             <CardTitle>{steps[currentStep]?.title}</CardTitle>
           </CardHeader>
         )}
