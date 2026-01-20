@@ -1141,11 +1141,11 @@ const CreateCampaign = () => {
       <Card className="mb-8">
         {currentStep > 0 && (
           <CardHeader>
-            <div className="flex justify-between mb-6">
+            <div className="flex justify-between items-center w-full overflow-hidden">
               {steps.slice(1).map((step, index) => (
-                <div key={step.number} className="flex items-center">
+                <div key={step.number} className="flex items-center flex-shrink-0">
                   <div
-                    className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                    className={`flex items-center justify-center w-10 h-10 rounded-full border-2 flex-shrink-0 ${
                       currentStep >= step.number
                         ? "bg-primary border-primary text-primary-foreground"
                         : "border-muted-foreground text-muted-foreground"
@@ -1153,9 +1153,9 @@ const CreateCampaign = () => {
                   >
                     <step.icon className="h-5 w-5" />
                   </div>
-                  <div className="ml-3 hidden sm:block">
+                  <div className="ml-2 hidden md:block">
                     <p
-                      className={`text-sm font-medium whitespace-nowrap ${
+                      className={`text-sm font-medium ${
                         currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
                       }`}
                     >
@@ -1164,7 +1164,7 @@ const CreateCampaign = () => {
                   </div>
                   {index < steps.slice(1).length - 1 && (
                     <div
-                      className={`w-12 h-px mx-4 ${
+                      className={`w-8 lg:w-12 h-px mx-2 lg:mx-4 flex-shrink-0 ${
                         currentStep > step.number ? "bg-primary" : "bg-muted-foreground"
                       }`}
                     />
