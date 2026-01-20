@@ -1144,7 +1144,7 @@ const CreateCampaign = () => {
             <div className="flex items-center justify-between w-full mb-6">
               {steps.slice(1).map((step, index) => (
                 <React.Fragment key={step.number}>
-                  <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className="flex items-center">
                     <div
                       className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
                         currentStep >= step.number
@@ -1155,7 +1155,7 @@ const CreateCampaign = () => {
                       <step.icon className="h-5 w-5" />
                     </div>
                     <p
-                      className={`mt-2 text-xs text-center ${
+                      className={`ml-2 text-sm hidden lg:block ${
                         currentStep >= step.number ? "text-foreground font-medium" : "text-muted-foreground"
                       }`}
                     >
@@ -1164,7 +1164,7 @@ const CreateCampaign = () => {
                   </div>
                   {index < steps.slice(1).length - 1 && (
                     <div
-                      className={`h-px flex-1 max-w-8 -mt-6 ${
+                      className={`h-px flex-1 mx-3 ${
                         currentStep > step.number ? "bg-primary" : "bg-muted-foreground/30"
                       }`}
                     />
