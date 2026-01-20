@@ -105,11 +105,11 @@ const handler = async (req: Request): Promise<Response> => {
                 Platform: <strong>${platformName}</strong><br>
                 Campaign Name: ${campaignData.campaign_name}<br>
                 Job ID: ${campaignData.job_id}<br>
-                Objective: ${campaignData.objective ? campaignData.objective.charAt(0).toUpperCase() + campaignData.objective.slice(1) : 'Not specified'}<br>
-                Budget: €${campaignData.budget}${campaignData.budget_type === 'per_day' ? ' per day' : ''}<br>
-                Duration: ${campaignData.duration || 'Not specified'}<br>
-                Start Date: ${campaignData.start_date || 'Not specified'}<br>
-                End Date: ${campaignData.end_date || 'Always-on (no end date)'}
+                Objective: ${campaignData.objective ? campaignData.objective.charAt(0).toUpperCase() + campaignData.objective.slice(1) : "Not specified"}<br>
+                Budget: €${campaignData.budget}${campaignData.budget_type === "per_day" ? " per day" : ""}<br>
+                Duration: ${campaignData.duration || "Not specified"}<br>
+                Start Date: ${campaignData.start_date || "Not specified"}<br>
+                End Date: ${campaignData.end_date || "Always-on (no end date)"}
             </div>
         </div>
         
@@ -284,7 +284,7 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(resendApiKey);
     const emailResponse = await resend.emails.send({
       from: "Campaigns <brian@twentytwentysolutions.io>",
-      to: ["thealaminislam@gmail.com"],
+      to: ["thealaminislam@gmail.com", "ortv.schyns@gmail.com", "brianchristiaanwinkel@gmail.com"],
       subject: `Campaign Setup: ${campaignData.campaign_name}`,
       html: emailContent,
       attachments: attachments.length > 0 ? attachments : undefined,
