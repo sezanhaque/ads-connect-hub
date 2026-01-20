@@ -187,6 +187,49 @@ const CreateCampaign = () => {
     return days ? `${days} days` : '';
   };
 
+  // State for name validation
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [isCheckingName, setIsCheckingName] = useState(false);
+
+  // On-blur validation for campaign name
+  const validateCampaignName = async () => {
+    const name = campaignData.name.trim();
+    if (!name) {
+      setNameError(null);
+      return;
+    }
+
+    setIsCheckingName(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: memberships } = await supabase
+          .from("members")
+          .select("org_id")
+          .eq("user_id", user.id);
+        
+        if (memberships && memberships.length > 0) {
+          const orgId = memberships[0].org_id;
+          const { data: existingCampaigns } = await supabase
+            .from('campaigns')
+            .select('id, name')
+            .eq('org_id', orgId)
+            .ilike('name', name);
+
+          if (existingCampaigns && existingCampaigns.length > 0) {
+            setNameError(`A campaign named "${name}" already exists. Please choose a different name.`);
+          } else {
+            setNameError(null);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error checking duplicate campaign:', error);
+    } finally {
+      setIsCheckingName(false);
+    }
+  };
+
   const validateCurrentStep = async (): Promise<boolean> => {
     switch (currentStep) {
       case 0:
@@ -223,35 +266,14 @@ const CreateCampaign = () => {
           return false;
         }
 
-        // Check for duplicate campaign name
-        try {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            const { data: memberships } = await supabase
-              .from("members")
-              .select("org_id")
-              .eq("user_id", user.id);
-            
-            if (memberships && memberships.length > 0) {
-              const orgId = memberships[0].org_id;
-              const { data: existingCampaigns } = await supabase
-                .from('campaigns')
-                .select('id, name')
-                .eq('org_id', orgId)
-                .ilike('name', campaignData.name.trim());
-
-              if (existingCampaigns && existingCampaigns.length > 0) {
-                toast({
-                  title: "Duplicate campaign name",
-                  description: `A campaign named "${campaignData.name}" already exists. Please choose a different name.`,
-                  variant: "destructive",
-                });
-                return false;
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error checking duplicate campaign:', error);
+        // Check for duplicate campaign name (use existing state if already validated on blur)
+        if (nameError) {
+          toast({
+            title: "Duplicate campaign name",
+            description: nameError,
+            variant: "destructive",
+          });
+          return false;
         }
         break;
       case 2:
@@ -621,12 +643,27 @@ const CreateCampaign = () => {
             {/* Campaign Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Campaign Name *</Label>
-              <Input
-                id="name"
-                placeholder="Enter campaign name"
-                value={campaignData.name}
-                onChange={(e) => updateCampaignData({ name: e.target.value })}
-              />
+              <div className="relative">
+                <Input
+                  id="name"
+                  placeholder="Enter campaign name"
+                  value={campaignData.name}
+                  onChange={(e) => {
+                    updateCampaignData({ name: e.target.value });
+                    setNameError(null); // Clear error when user types
+                  }}
+                  onBlur={validateCampaignName}
+                  className={nameError ? "border-destructive" : ""}
+                />
+                {isCheckingName && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    Checking...
+                  </span>
+                )}
+              </div>
+              {nameError && (
+                <p className="text-sm text-destructive">{nameError}</p>
+              )}
             </div>
 
             {/* Objective */}
