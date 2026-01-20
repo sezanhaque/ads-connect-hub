@@ -1137,41 +1137,42 @@ const CreateCampaign = () => {
         </div>
       </div>
 
-      {/* Progress Steps - Only show after platform selection */}
-      {currentStep > 0 && (
-        <div className="flex justify-between mb-8 px-6">
-          {steps.slice(1).map((step, index) => (
-            <div key={step.number} className="flex items-center">
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  currentStep >= step.number
-                    ? "bg-primary border-primary text-primary-foreground"
-                    : "border-muted-foreground text-muted-foreground"
-                }`}
-              >
-                <step.icon className="h-5 w-5" />
-              </div>
-              <div className="ml-3 hidden sm:block">
-                <p
-                  className={`text-sm font-medium whitespace-nowrap ${
-                    currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
-                  }`}
-                >
-                  {step.title}
-                </p>
-              </div>
-              {index < steps.slice(1).length - 1 && (
-                <div className={`w-12 h-px mx-4 ${currentStep > step.number ? "bg-primary" : "bg-muted-foreground"}`} />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Step Content */}
       <Card className="mb-8">
         {currentStep > 0 && (
           <CardHeader>
+            <div className="flex justify-between mb-6">
+              {steps.slice(1).map((step, index) => (
+                <div key={step.number} className="flex items-center">
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                      currentStep >= step.number
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "border-muted-foreground text-muted-foreground"
+                    }`}
+                  >
+                    <step.icon className="h-5 w-5" />
+                  </div>
+                  <div className="ml-3 hidden sm:block">
+                    <p
+                      className={`text-sm font-medium whitespace-nowrap ${
+                        currentStep >= step.number ? "text-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      {step.title}
+                    </p>
+                  </div>
+                  {index < steps.slice(1).length - 1 && (
+                    <div
+                      className={`w-12 h-px mx-4 ${
+                        currentStep > step.number ? "bg-primary" : "bg-muted-foreground"
+                      }`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
             <CardTitle>{steps[currentStep]?.title}</CardTitle>
           </CardHeader>
         )}
