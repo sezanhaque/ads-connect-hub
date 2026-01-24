@@ -195,7 +195,7 @@ const BecomePartner = () => {
                     <p className="text-muted-foreground font-now">Founder</p>
                   </div>
                   <p className="text-muted-foreground font-now text-sm leading-relaxed">
-                    I'm personally involved in every partnership conversation — focused on creating measurable value for your clients.
+                    I'm personally involved in every partnership conversation, focused on creating measurable value for your clients.
                   </p>
                   <a 
                     href="https://www.linkedin.com/in/briancwinkel/"
