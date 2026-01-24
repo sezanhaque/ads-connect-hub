@@ -64,34 +64,35 @@ const Product = () => {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="relative max-w-6xl mx-auto">
-          {/* Dashboard Background */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="relative w-full max-w-5xl">
-              <img 
-                src={dashboardPreview} 
-                alt="Campaign Dashboard"
-                className="w-full h-auto opacity-15 rounded-2xl"
-              />
-              {/* Radial fade overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
+        <div className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto">
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
+            Create Winning Recruitment Campaigns in Minutes
+          </h1>
+          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
+Take control of your hiring and outpace the competition.</p>
+          
+          {/* Dashboard Preview */}
+          <div className="pt-8 md:pt-12">
+            <div className="relative mx-auto max-w-4xl">
+              {/* Glow effect behind image */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-3xl blur-2xl opacity-60" />
+              
+              {/* Dashboard image container */}
+              <div className="relative rounded-2xl overflow-hidden border border-border/50 shadow-2xl bg-card">
+                <img 
+                  src={dashboardPreview} 
+                  alt="Campaign Dashboard showing active campaigns, spend tracking, and performance metrics"
+                  className="w-full h-auto"
+                />
+                {/* Subtle overlay gradient at bottom for fade effect */}
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card/80 to-transparent pointer-events-none" />
+              </div>
             </div>
           </div>
           
-          {/* Text Content */}
-          <div className="relative z-10 text-center space-y-6 md:space-y-8 py-16 md:py-24">
-            <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
-              Create Winning Recruitment Campaigns in Minutes
-            </h1>
-            <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
-Take control of your hiring and outpace the competition.</p>
-          </div>
-        </div>
-        
-        {/* CTA Banner */}
-        <div className="max-w-5xl mx-auto pt-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent p-8 md:p-10 border border-primary/30 shadow-2xl">
+          {/* CTA Banner */}
+          <div className="pt-8">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent p-8 md:p-10 border border-primary/30 shadow-2xl">
               
               <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
                 {/* Left side - Text */}
@@ -150,9 +151,10 @@ Take control of your hiring and outpace the competition.</p>
             </div>
           </div>
 
-        {/* Campaign Creation Interface Preview */}
-        <div className="max-w-5xl mx-auto mt-12">
-          <img src={campaignPreview} alt="Campaign Creation Interface Preview" className="w-full rounded-lg shadow-lg border border-primary/20" />
+          {/* Campaign Creation Interface Preview */}
+          <div className="mt-12">
+            <img src={campaignPreview} alt="Campaign Creation Interface Preview" className="w-full rounded-lg shadow-lg border border-primary/20" />
+          </div>
         </div>
       </section>
 
