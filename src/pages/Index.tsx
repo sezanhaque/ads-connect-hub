@@ -53,7 +53,7 @@ const Index = () => {
             <Link to="/solution" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Solution
             </Link>
-            <Link to="/pilot-program" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+            <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a Partner
             </Link>
           </div>

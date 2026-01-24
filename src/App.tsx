@@ -12,6 +12,7 @@ import AdminRoute from "@/components/AdminRoute";
 import Index from "./pages/Index";
 import PlatformOverview from "./pages/PlatformOverview";
 import PilotPartner from "./pages/PilotPartner";
+import BecomePartner from "./pages/BecomePartner";
 import Solution from "./pages/Solution";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -55,6 +56,7 @@ const App = () => {
                 <Route path="/platform-overview" element={<PlatformOverview />} />
                 <Route path="/solution" element={<Solution />} />
                 <Route path="/pilot-program" element={<PilotPartner />} />
+                <Route path="/become-partner" element={<BecomePartner />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                   path="/dashboard"
