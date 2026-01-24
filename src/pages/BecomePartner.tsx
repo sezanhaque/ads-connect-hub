@@ -5,6 +5,7 @@ import { ArrowRight, Mail, Phone, Handshake, CheckCircle, Users, Zap, Building2,
 import { motion } from "framer-motion";
 import { posthog } from "@/lib/posthog";
 import brianProfile from "@/assets/brian-profile.png";
+import { MobileNav } from "@/components/MobileNav";
 
 const BecomePartner = () => {
   const handleContactClick = (method: string) => {
@@ -28,12 +29,13 @@ const BecomePartner = () => {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="font-semibold">
+            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button asChild>
+            <Button asChild className="hidden md:inline-flex">
               <Link to="/pilot-program">Request demo</Link>
             </Button>
+            <MobileNav />
           </div>
         </nav>
       </header>

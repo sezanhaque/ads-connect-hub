@@ -21,6 +21,7 @@ import {
   Shield
 } from "lucide-react";
 import { posthog } from "@/lib/posthog";
+import { MobileNav } from "@/components/MobileNav";
 
 const Solution = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -76,12 +77,13 @@ const Solution = () => {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="font-semibold">
+            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button onClick={handleDemoRequest}>
+            <Button onClick={handleDemoRequest} className="hidden md:inline-flex">
               Request demo
             </Button>
+            <MobileNav onDemoClick={handleDemoRequest} />
           </div>
         </nav>
       </header>
