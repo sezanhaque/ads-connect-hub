@@ -198,7 +198,7 @@ const BecomePartner = () => {
                     I'm personally involved in every partnership conversation. Let's explore how we can create value together for your customers.
                   </p>
                   <a 
-                    href="https://www.linkedin.com/in/brian-mols-20twenty/" 
+                    href="https://www.linkedin.com/in/briancwinkel/"
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-now text-sm"
