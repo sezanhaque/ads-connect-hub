@@ -4,6 +4,7 @@ import Logo from "@/components/ui/logo";
 import { ArrowRight, Mail, Phone, Handshake, CheckCircle, Users, Zap, Building2, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
 import { posthog } from "@/lib/posthog";
+import brianProfile from "@/assets/brian-profile.png";
 
 const BecomePartner = () => {
   const handleContactClick = (method: string) => {
@@ -182,9 +183,11 @@ const BecomePartner = () => {
                 <div className="text-center md:text-left space-y-4">
                   <div className="inline-block">
                     <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent p-1 mx-auto md:mx-0">
-                      <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-                        <span className="text-4xl font-now font-bold text-primary">B</span>
-                      </div>
+                      <img 
+                        src={brianProfile} 
+                        alt="Brian - Founder & CEO" 
+                        className="w-full h-full rounded-full object-cover"
+                      />
                     </div>
                   </div>
                   <div>
