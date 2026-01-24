@@ -212,7 +212,7 @@ const BecomePartner = () => {
                 {/* Contact Options */}
                 <div className="space-y-6">
                   <h2 className="text-2xl md:text-3xl font-now font-bold text-foreground text-center md:text-left">
-                    Let's Start a Conversation
+                    Let's connect!
                   </h2>
                   
                   <div className="space-y-4">
