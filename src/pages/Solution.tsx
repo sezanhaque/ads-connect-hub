@@ -57,7 +57,7 @@ const Solution = () => {
               Automated advertising, built for your team.
             </h1>
             <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">
-              We built this platform to bring clarity back to digital advertising by eliminating wasted time, unnecessary costs, and loss of control caused by fragmented ecosystems.
+              We built this platform to bring back clarity and remove wasted time, unnecessary agency costs, and loss of control caused by fragmented processes.
             </p>
             <div className="pt-4">
               <Button size="lg" variant="accent" className="text-foreground" onClick={handleDemoRequest}>
