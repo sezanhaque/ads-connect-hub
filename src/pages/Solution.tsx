@@ -38,6 +38,17 @@ const Solution = () => {
           <Link to="/">
             <Logo />
           </Link>
+          <div className="hidden md:flex items-center gap-8">
+            <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Product
+            </Link>
+            <Link to="/solution" className="text-foreground font-now font-medium">
+              Solution
+            </Link>
+            <Link to="/pilot-program" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Become a Partner
+            </Link>
+          </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild className="font-semibold">
               <Link to="/auth">Sign in</Link>
