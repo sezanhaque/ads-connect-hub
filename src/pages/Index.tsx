@@ -5,6 +5,7 @@ import { ArrowRight, Rocket, Sparkles, Eye, Shield, TrendingUp, BarChart3, Clock
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import { MobileNav } from "@/components/MobileNav";
 
 import { posthog } from "@/lib/posthog";
 const Index = () => {
@@ -55,12 +56,13 @@ const Index = () => {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="font-semibold">
+            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button onClick={handleDemoRequest}>
+            <Button onClick={handleDemoRequest} className="hidden md:inline-flex">
               Request demo
             </Button>
+            <MobileNav onDemoClick={handleDemoRequest} />
           </div>
         </nav>
       </header>

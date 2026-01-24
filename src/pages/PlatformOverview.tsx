@@ -11,6 +11,8 @@ import campaignPreview from "@/assets/campaign-preview.png";
 import jobsInterface from "@/assets/jobs-interface.png";
 import campaignBuilder from "@/assets/campaign-builder.png";
 import dashboardPreview from "@/assets/dashboard-preview.png";
+import { MobileNav } from "@/components/MobileNav";
+
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -50,12 +52,13 @@ const Product = () => {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="font-semibold">
+            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button onClick={() => setIsFormOpen(true)}>
+            <Button onClick={() => setIsFormOpen(true)} className="hidden md:inline-flex">
               Request demo
             </Button>
+            <MobileNav onDemoClick={() => setIsFormOpen(true)} />
           </div>
         </nav>
       </header>
