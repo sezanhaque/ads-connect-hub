@@ -71,8 +71,8 @@ const Solution = () => {
               We built this platform to bring back clarity and remove wasted time, unnecessary agency costs, and loss of control caused by fragmented processes.
             </p>
             <div className="pt-4">
-              <Button size="lg" variant="accent" className="text-foreground" onClick={handleDemoRequest}>
-                Book a demo
+            <Button size="lg" variant="accent" className="text-foreground" onClick={handleDemoRequest}>
+                Explore our product
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
