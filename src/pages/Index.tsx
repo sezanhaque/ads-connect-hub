@@ -5,7 +5,7 @@ import { ArrowRight, Rocket, Sparkles, Eye, Shield, TrendingUp, BarChart3, Clock
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+
 import { posthog } from "@/lib/posthog";
 const Index = () => {
   const {
@@ -46,26 +46,16 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <Logo />
-          <div className="flex-1 flex justify-center">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link to="/platform-overview">Product</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link to="/solution">Solution</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link to="/pilot-program">Become a Partner</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+          <div className="hidden md:flex items-center gap-8">
+            <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Product
+            </Link>
+            <Link to="/solution" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Solution
+            </Link>
+            <Link to="/pilot-program" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Become a Partner
+            </Link>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild className="font-semibold">
