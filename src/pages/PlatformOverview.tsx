@@ -45,9 +45,6 @@ const Product = () => {
             <Link to="/platform-overview" className="text-foreground font-now font-medium">
               Product
             </Link>
-            <Link to="/solution" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Solution
-            </Link>
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a Partner
             </Link>
