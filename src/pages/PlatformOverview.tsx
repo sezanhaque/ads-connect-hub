@@ -187,40 +187,6 @@ Take control of your hiring and outpace the competition.</p>
         </div>
       </section>
 
-      {/* Platform Integrations */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-8">
-            Works With The Platforms You Already Use
-          </h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
-              <div className="w-16 h-16 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                <p className="font-now font-bold text-primary text-xl">Meta</p>
-              </div>
-              <h3 className="font-now font-semibold text-foreground">Meta Ads</h3>
-              <p className="text-sm text-muted-foreground font-now">Launch targeted campaigns across the world's largest social networks</p>
-            </div>
-            
-            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
-              <div className="w-16 h-16 mx-auto rounded-lg bg-secondary/10 flex items-center justify-center">
-                <p className="font-now font-bold text-secondary text-xl">TikTok</p>
-              </div>
-              <h3 className="font-now font-semibold text-foreground">TikTok Ads</h3>
-              <p className="text-sm text-muted-foreground font-now">We're currently working on the TikTok integration.</p>
-            </div>
-            
-            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
-              <div className="w-16 h-16 mx-auto rounded-lg bg-success/10 flex items-center justify-center">
-                <p className="font-now font-bold text-success text-xl">More</p>
-              </div>
-              <h3 className="font-now font-semibold text-foreground">LinkedIn & much more</h3>
-              <p className="text-sm text-muted-foreground font-now">20/20 Solutions is continuously developing new integrations to make our platform even more powerful and efficient for you.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
       <section className="container mx-auto px-4 py-10 md:py-20">
         <div className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
