@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import Logo from "@/components/ui/logo";
 import { ArrowRight, Rocket, Sparkles, Eye, Briefcase, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,8 +9,12 @@ import { useState, useEffect } from "react";
 import campaignPreview from "@/assets/campaign-preview.png";
 import jobsInterface from "@/assets/jobs-interface.png";
 import campaignBuilder from "@/assets/campaign-builder.png";
+
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+
   useEffect(() => {
     // Load HubSpot form script
     const script = document.createElement("script");
@@ -19,6 +25,14 @@ const Product = () => {
       document.body.removeChild(script);
     };
   }, []);
+
+  const handleBannerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email && agreedToPrivacy) {
+      setIsFormOpen(true);
+    }
+  };
+
   return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
@@ -26,10 +40,25 @@ const Product = () => {
           <Link to="/">
             <Logo />
           </Link>
-          <Button size="lg" onClick={() => setIsFormOpen(true)}>
-            Request demo
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="hidden md:flex items-center gap-8">
+            <Link to="/platform-overview" className="text-foreground font-now font-medium">
+              Product
+            </Link>
+            <Link to="/solution" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Solution
+            </Link>
+            <Link to="/pilot-program" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Become a Partner
+            </Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild className="font-semibold">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+            <Button onClick={() => setIsFormOpen(true)}>
+              Request demo
+            </Button>
+          </div>
         </nav>
       </header>
 
@@ -41,12 +70,75 @@ const Product = () => {
           </h1>
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
-          <div className="pt-4">
-            <Button size="lg" onClick={() => setIsFormOpen(true)}>
-              Request demo
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+          
+          {/* CTA Banner */}
+          <div className="pt-8">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent p-8 md:p-10 border border-primary/30 shadow-2xl">
+              {/* Background grid pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                  backgroundSize: '40px 40px'
+                }} />
+              </div>
+              
+              <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+                {/* Left side - Text */}
+                <div className="text-left space-y-4">
+                  <h2 className="text-2xl md:text-3xl font-now font-bold text-white">
+                    Ready to get started?
+                  </h2>
+                  <p className="text-white/80 font-now text-lg">
+                    Join in-house recruitment teams who've already made the switch. See how easy campaign creation can be.
+                  </p>
+                </div>
+                
+                {/* Right side - Form */}
+                <div className="bg-white rounded-xl p-6 shadow-lg">
+                  <form onSubmit={handleBannerSubmit} className="space-y-4">
+                    <Input
+                      type="email"
+                      placeholder="Work Email:"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full border-border/50 focus:border-primary"
+                      required
+                    />
+                    <Button 
+                      type="submit" 
+                      size="lg" 
+                      variant="accent"
+                      className="w-full text-foreground font-semibold"
+                      disabled={!agreedToPrivacy}
+                    >
+                      Get started
+                    </Button>
+                    <div className="flex items-start gap-2">
+                      <Checkbox 
+                        id="privacy" 
+                        checked={agreedToPrivacy}
+                        onCheckedChange={(checked) => setAgreedToPrivacy(checked as boolean)}
+                        className="mt-1"
+                      />
+                      <label htmlFor="privacy" className="text-xs text-muted-foreground leading-tight cursor-pointer">
+                        I agree to the{" "}
+                        <a 
+                          href="/Privacyverklaring_TwentyTwentySolutions.io.pdf" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          privacy policy
+                        </a>{" "}
+                        including to 20/20 Solutions using my contact details to contact me for marketing purposes.
+                      </label>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
+
           {/* Campaign Creation Interface Preview */}
           <div className="mt-12">
             <img src={campaignPreview} alt="Campaign Creation Interface Preview" className="w-full rounded-lg shadow-lg border border-primary/20" />
