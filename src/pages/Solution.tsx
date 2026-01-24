@@ -53,7 +53,7 @@ const Solution = () => {
         {/* Hero Section */}
         <section className="text-center max-w-4xl mx-auto mb-20 md:mb-28">
           <h1 className="font-now font-bold tracking-tight text-foreground leading-tight text-[clamp(1.75rem,5vw,3rem)] mb-6">
-            Advertising that works for you, not against you
+            Automated advertising, built for your team.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed mb-8 max-w-3xl mx-auto">
             We built this platform because too many companies lose time, money, and clarity 
