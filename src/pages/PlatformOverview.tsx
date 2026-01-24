@@ -6,6 +6,7 @@ import Logo from "@/components/ui/logo";
 import { ArrowRight, Rocket, Sparkles, Eye, Briefcase, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import campaignPreview from "@/assets/campaign-preview.png";
 import jobsInterface from "@/assets/jobs-interface.png";
 import campaignBuilder from "@/assets/campaign-builder.png";
@@ -79,61 +80,114 @@ Take control of your hiring and outpace the competition.</p>
       </section>
 
       {/* How It Works - Step 1 */}
-      <section className="container mx-auto px-4 py-10 md:py-16">
-        <div className="text-center mb-12">
+      <section className="container mx-auto px-4 py-10 md:py-16 overflow-hidden">
+        <motion.div 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">
             How It Works
           </h2>
           <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
             From connection to conversion in three simple steps
           </p>
-        </div>
+        </motion.div>
         
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <div className="order-2 md:order-1">
-            <img src={jobsInterface} alt="Jobs Interface - Import and manage your job postings" className="w-full rounded-lg shadow-lg border border-primary/20" />
-          </div>
-          <div className="order-1 md:order-2 space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10">
+          <motion.div 
+            className="order-2 md:order-1"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <img src={jobsInterface} alt="Jobs Interface - Import and manage your job postings" className="w-full rounded-lg shadow-lg border border-primary/20 hover:shadow-xl transition-shadow duration-300" />
+          </motion.div>
+          <motion.div 
+            className="order-1 md:order-2 space-y-4"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <motion.div 
+              className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <Briefcase className="h-8 w-8 text-primary" />
-            </div>
+            </motion.div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
               1. Import Your Jobs
             </h3>
             <p className="text-lg text-muted-foreground font-now">Add jobs manually or import them directly with the use of seamless integrations . Our flexible system lets you bring in job data your way and no complex setup required.</p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Step 2 */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <div className="space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-secondary/10">
+          <motion.div 
+            className="space-y-4"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <motion.div 
+              className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-secondary/10"
+              whileHover={{ scale: 1.1, rotate: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <Sparkles className="h-8 w-8 text-secondary" />
-            </div>
+            </motion.div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
               2. Build Your Campaign
             </h3>
             <p className="text-lg text-muted-foreground font-now">Use our advanced multi-step campaign builder to create professional recruitment ads on Meta. From campaign basics to audience targeting and creative copy, we guide you through every detail.</p>
-          </div>
-          <div>
-            <img src={campaignBuilder} alt="Campaign Builder Interface - Multi-step campaign creation" className="w-full rounded-lg shadow-lg border border-secondary/20" />
-          </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <img src={campaignBuilder} alt="Campaign Builder Interface - Multi-step campaign creation" className="w-full rounded-lg shadow-lg border border-secondary/20 hover:shadow-xl transition-shadow duration-300" />
+          </motion.div>
         </div>
 
         {/* Step 3 */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
-          <div className="order-2 md:order-1">
-            <img src={campaignPreview} alt="Campaign Dashboard - Real-time analytics and performance tracking" className="w-full rounded-lg shadow-lg border border-success/20" />
-          </div>
-          <div className="order-1 md:order-2 space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-success/10">
+          <motion.div 
+            className="order-2 md:order-1"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <img src={campaignPreview} alt="Campaign Dashboard - Real-time analytics and performance tracking" className="w-full rounded-lg shadow-lg border border-success/20 hover:shadow-xl transition-shadow duration-300" />
+          </motion.div>
+          <motion.div 
+            className="order-1 md:order-2 space-y-4"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <motion.div 
+              className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-success/10"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <Eye className="h-8 w-8 text-success" />
-            </div>
+            </motion.div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
               3. Launch & Track
             </h3>
             <p className="text-lg text-muted-foreground font-now">Go live in minutes and monitor real-time performance data from one unified dashboard. See exactly what's working and adjust on the fly.</p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
