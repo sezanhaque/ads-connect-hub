@@ -71,25 +71,6 @@ const Product = () => {
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
           
-          {/* Dashboard Preview */}
-          <div className="pt-8 md:pt-12">
-            <div className="relative mx-auto max-w-4xl">
-              {/* Glow effect behind image */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-3xl blur-2xl opacity-60" />
-              
-              {/* Dashboard image container */}
-              <div className="relative rounded-2xl overflow-hidden border border-border/50 shadow-2xl bg-card">
-                <img 
-                  src={dashboardPreview} 
-                  alt="Campaign Dashboard showing active campaigns, spend tracking, and performance metrics"
-                  className="w-full h-auto"
-                />
-                {/* Subtle overlay gradient at bottom for fade effect */}
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card/80 to-transparent pointer-events-none" />
-              </div>
-            </div>
-          </div>
-          
           {/* CTA Banner */}
           <div className="pt-8">
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent p-8 md:p-10 border border-primary/30 shadow-2xl">
