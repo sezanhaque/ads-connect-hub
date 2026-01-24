@@ -191,7 +191,7 @@ const BecomePartner = () => {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-now font-bold text-foreground">Brian</h3>
+                    <h3 className="text-2xl font-now font-bold text-foreground">Brian C. Winkel</h3>
                     <p className="text-muted-foreground font-now">Founder</p>
                   </div>
                   <p className="text-muted-foreground font-now text-sm leading-relaxed">
