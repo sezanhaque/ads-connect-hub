@@ -214,9 +214,6 @@ const BecomePartner = () => {
                   <h2 className="text-2xl md:text-3xl font-now font-bold text-foreground text-center md:text-left">
                     Let's Start a Conversation
                   </h2>
-                  <p className="text-muted-foreground font-now text-center md:text-left">
-                    No forms, no waiting. Reach out directly and let's discuss how a partnership could work.
-                  </p>
                   
                   <div className="space-y-4">
                     <motion.a
