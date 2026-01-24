@@ -192,7 +192,7 @@ const BecomePartner = () => {
                   </div>
                   <div>
                     <h3 className="text-2xl font-now font-bold text-foreground">Brian</h3>
-                    <p className="text-muted-foreground font-now">Founder & CEO</p>
+                    <p className="text-muted-foreground font-now">Founder</p>
                   </div>
                   <p className="text-muted-foreground font-now text-sm leading-relaxed">
                     I'm personally involved in every partnership conversation. Let's explore how we can create value together for your customers.
