@@ -70,67 +70,6 @@ const Product = () => {
           </h1>
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
-          
-          {/* CTA Banner */}
-          <div className="pt-8">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent p-8 md:p-10 border border-primary/30 shadow-2xl">
-              
-              <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
-                {/* Left side - Text */}
-                <div className="text-left space-y-4">
-                  <h2 className="text-2xl md:text-3xl font-now font-bold text-white">
-                    Ready to get started?
-                  </h2>
-                  <p className="text-white/80 font-now text-lg">
-                    Join in-house recruitment teams who've already made the switch. See how easy campaign creation can be.
-                  </p>
-                </div>
-                
-                {/* Right side - Form */}
-                <div className="bg-white rounded-xl p-6 shadow-lg">
-                  <form onSubmit={handleBannerSubmit} className="space-y-4">
-                    <Input
-                      type="email"
-                      placeholder="Work Email:"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full border-border/50 focus:border-primary"
-                      required
-                    />
-                    <Button 
-                      type="submit" 
-                      size="lg" 
-                      variant="accent"
-                      className="w-full text-foreground font-semibold"
-                      disabled={!agreedToPrivacy}
-                    >
-                      Get started
-                    </Button>
-                    <div className="flex items-start gap-2">
-                      <Checkbox 
-                        id="privacy" 
-                        checked={agreedToPrivacy}
-                        onCheckedChange={(checked) => setAgreedToPrivacy(checked as boolean)}
-                        className="mt-1"
-                      />
-                      <label htmlFor="privacy" className="text-xs text-muted-foreground leading-tight cursor-pointer">
-                        I agree to the{" "}
-                        <a 
-                          href="/Privacyverklaring_TwentyTwentySolutions.io.pdf" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          privacy policy
-                        </a>{" "}
-                        including to 20/20 Solutions using my contact details to contact me for marketing purposes.
-                      </label>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Campaign Creation Interface Preview */}
           <div className="mt-12">
