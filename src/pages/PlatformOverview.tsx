@@ -74,13 +74,6 @@ Take control of your hiring and outpace the competition.</p>
           {/* CTA Banner */}
           <div className="pt-8">
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent p-8 md:p-10 border border-primary/30 shadow-2xl">
-              {/* Background grid pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0" style={{
-                  backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-                  backgroundSize: '40px 40px'
-                }} />
-              </div>
               
               <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
                 {/* Left side - Text */}
