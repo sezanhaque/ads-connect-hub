@@ -625,6 +625,39 @@ const CreateCampaign = () => {
         );
 
       case 1:
+        // Show loading skeleton while jobs are loading (especially when coming from Jobs page with pre-selected job)
+        if (isLoadingJobs && jobIdParam) {
+          return (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label>Select Job *</Label>
+                <div className="h-10 bg-muted animate-pulse rounded-md" />
+              </div>
+              <div className="space-y-2">
+                <Label>Campaign Name *</Label>
+                <div className="h-10 bg-muted animate-pulse rounded-md" />
+              </div>
+              <div className="space-y-2">
+                <Label>Objective *</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="h-10 bg-muted animate-pulse rounded-md" />
+                  <div className="h-10 bg-muted animate-pulse rounded-md" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Daily Budget (EUR) *</Label>
+                  <div className="h-10 bg-muted animate-pulse rounded-md" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Duration *</Label>
+                  <div className="h-10 bg-muted animate-pulse rounded-md" />
+                </div>
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="space-y-6">
             {/* Job Selection */}
