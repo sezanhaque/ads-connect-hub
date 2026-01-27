@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { subDays } from 'date-fns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UnifiedCampaignsDashboard } from '@/components/UnifiedCampaignsDashboard';
+import { UnifiedCampaignsDashboard, CampaignAggregates } from '@/components/UnifiedCampaignsDashboard';
+import { DateRange } from '@/components/DateRangeFilter';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -52,6 +54,17 @@ const Dashboard = () => {
     isConnected: isTikTokConnected
   } = useTikTokIntegrationStatus();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: subDays(new Date(), 7),
+    to: new Date(),
+  });
+  const [campaignAggregates, setCampaignAggregates] = useState<CampaignAggregates>({
+    totalSpend: 0,
+    totalImpressions: 0,
+    totalClicks: 0,
+    totalCampaigns: 0,
+    activeCampaigns: 0,
+  });
   const [stats, setStats] = useState<DashboardStats>({
     totalCampaigns: 0,
     activeCampaigns: 0,
@@ -300,66 +313,68 @@ const Dashboard = () => {
             <Target className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCampaigns}</div>
+            <div className="text-2xl font-bold">{campaignAggregates.totalCampaigns}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.activeCampaigns} active
+              {campaignAggregates.activeCampaigns} active
             </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Budget vs Spend</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Spend</CardTitle>
             <DollarSign className="h-4 w-4 text-secondary" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold">
-                €{stats.totalBudget.toLocaleString()}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Budget • €{stats.totalSpend.toFixed(2)} spent
-              </p>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div className="bg-secondary h-2 rounded-full transition-all" style={{
-                width: stats.totalBudget > 0 ? `${Math.min(stats.totalSpend / stats.totalBudget * 100, 100)}%` : '0%'
-              }} />
-              </div>
+            <div className="text-2xl font-bold">
+              €{campaignAggregates.totalSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
+            <p className="text-xs text-muted-foreground">
+              In selected period
+            </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Landingpage views</CardTitle>
+            <CardTitle className="text-sm font-medium">Impressions</CardTitle>
             <Eye className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.totalImpressions > 0 ? stats.totalImpressions.toLocaleString() : '0'}
+              {campaignAggregates.totalImpressions.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              {stats.totalClicks > 0 ? `${stats.totalClicks} clicks` : 'No impression data yet'}
+              {campaignAggregates.totalClicks > 0 ? `${campaignAggregates.totalClicks.toLocaleString()} clicks` : 'No clicks yet'}
             </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversions</CardTitle>
+            <CardTitle className="text-sm font-medium">CTR</CardTitle>
             <Users className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalLeads}</div>
+            <div className="text-2xl font-bold">
+              {campaignAggregates.totalImpressions > 0 
+                ? ((campaignAggregates.totalClicks / campaignAggregates.totalImpressions) * 100).toFixed(2)
+                : '0.00'}%
+            </div>
             <p className="text-xs text-muted-foreground">
-              {stats.totalLeads > 0 ? 'Total generated' : 'No leads data yet'}
+              Click-through rate
             </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Unified Campaigns Dashboard */}
-      <UnifiedCampaignsDashboard refreshTrigger={refreshTrigger} />
+      <UnifiedCampaignsDashboard 
+        refreshTrigger={refreshTrigger} 
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        onAggregatesChange={setCampaignAggregates}
+      />
 
       {/* Recent Activity */}
       <div className="grid gap-8 lg:grid-cols-2">

@@ -29,20 +29,32 @@ interface UnifiedCampaign {
   platform: "meta" | "tiktok";
 }
 
-interface UnifiedCampaignsDashboardProps {
-  refreshTrigger?: number;
+export interface CampaignAggregates {
+  totalSpend: number;
+  totalImpressions: number;
+  totalClicks: number;
+  totalCampaigns: number;
+  activeCampaigns: number;
 }
 
-export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDashboardProps) => {
+interface UnifiedCampaignsDashboardProps {
+  refreshTrigger?: number;
+  dateRange: DateRange;
+  onDateRangeChange: (range: DateRange) => void;
+  onAggregatesChange?: (aggregates: CampaignAggregates) => void;
+}
+
+export const UnifiedCampaignsDashboard = ({ 
+  refreshTrigger, 
+  dateRange, 
+  onDateRangeChange,
+  onAggregatesChange 
+}: UnifiedCampaignsDashboardProps) => {
   const [campaigns, setCampaigns] = useState<UnifiedCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [platformFilter, setPlatformFilter] = useState<Platform>("all");
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: subDays(new Date(), 7),
-    to: new Date(),
-  });
   const { user } = useAuth();
   const { integration: metaIntegration, isConnected: isMetaConnected, loading: metaLoading } = useMetaIntegrationStatus();
   const { integration: tiktokIntegration, isConnected: isTikTokConnected, loading: tiktokLoading } = useTikTokIntegrationStatus();
@@ -271,6 +283,18 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
 
         setCampaigns(mergedCampaigns);
         console.log(`Fetched ${mergedCampaigns.length} total campaigns (${apiCampaigns.length} from API, ${supabaseCampaignsToKeep.length} from Supabase)`);
+        
+        // Calculate and report aggregates
+        if (onAggregatesChange) {
+          const aggregates: CampaignAggregates = {
+            totalSpend: mergedCampaigns.reduce((sum, c) => sum + c.spend, 0),
+            totalImpressions: mergedCampaigns.reduce((sum, c) => sum + c.impressions, 0),
+            totalClicks: mergedCampaigns.reduce((sum, c) => sum + c.clicks, 0),
+            totalCampaigns: mergedCampaigns.length,
+            activeCampaigns: mergedCampaigns.filter(c => c.status === 'active').length,
+          };
+          onAggregatesChange(aggregates);
+        }
       } catch (error) {
         console.error("Error in fetchCampaigns:", error);
         toast({
@@ -295,7 +319,7 @@ export const UnifiedCampaignsDashboard = ({ refreshTrigger }: UnifiedCampaignsDa
   }, [fetchCampaigns, refreshTrigger, integrationsLoading]);
 
   const handleDateRangeChange = (newRange: DateRange) => {
-    setDateRange(newRange);
+    onDateRangeChange(newRange);
   };
 
   const handleManualSync = async () => {
