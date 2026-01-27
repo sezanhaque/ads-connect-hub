@@ -53,6 +53,7 @@ const App = () => {
               <AuthRecoveryListener />
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
                 <Route path="/platform-overview" element={<PlatformOverview />} />
                 <Route path="/solution" element={<Solution />} />
                 <Route path="/pilot-program" element={<PilotPartner />} />
