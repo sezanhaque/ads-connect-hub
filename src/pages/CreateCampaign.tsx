@@ -99,6 +99,7 @@ const CreateCampaign = () => {
   
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(true);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [showDisabledPopup, setShowDisabledPopup] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
@@ -137,6 +138,7 @@ const CreateCampaign = () => {
   }, []);
 
   const loadJobs = async () => {
+    setIsLoadingJobs(true);
     try {
       const { data, error } = await supabase
         .from("jobs")
@@ -148,6 +150,8 @@ const CreateCampaign = () => {
       setJobs(data || []);
     } catch (error) {
       console.error("Error loading jobs:", error);
+    } finally {
+      setIsLoadingJobs(false);
     }
   };
 
@@ -626,9 +630,13 @@ const CreateCampaign = () => {
             {/* Job Selection */}
             <div className="space-y-2">
               <Label htmlFor="job">Select Job *</Label>
-              <Select value={campaignData.jobId} onValueChange={(value) => updateCampaignData({ jobId: value })}>
+              <Select 
+                value={campaignData.jobId} 
+                onValueChange={(value) => updateCampaignData({ jobId: value })}
+                disabled={isLoadingJobs}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a job" />
+                  <SelectValue placeholder={isLoadingJobs ? "Loading jobs..." : "Select a job"} />
                 </SelectTrigger>
                 <SelectContent>
                   {jobs.map((job) => (
