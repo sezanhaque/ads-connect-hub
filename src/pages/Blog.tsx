@@ -5,67 +5,17 @@ import { ArrowRight, Calendar, Clock, User } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 
-// Placeholder blog posts data
+// Blog posts data
 const blogPosts = [
   {
-    id: "1",
-    title: "The Future of Recruitment Advertising: AI-Powered Campaigns",
-    excerpt: "Discover how artificial intelligence is transforming the way companies attract and hire top talent through smarter, data-driven advertising strategies.",
+    id: "openai-advertising-future",
+    slug: "openai-advertising-future",
+    title: "What OpenAI's New Advertising Approach Signals for the Future of Digital Advertising",
+    excerpt: "Recently, OpenAI published its official stance on introducing advertising within ChatGPT, not as a product launch, but as a deliberate experiment tied to a broader mission of making AI more accessible.",
     author: "20/20 Solutions Team",
-    date: "January 25, 2025",
+    date: "January 28, 2025",
     readTime: "5 min read",
     category: "Industry Insights",
-    image: "/placeholder.svg"
-  },
-  {
-    id: "2",
-    title: "5 Common Mistakes in Social Media Recruitment (And How to Avoid Them)",
-    excerpt: "Learn the most frequent pitfalls recruiters face when advertising on Meta and TikTok, and actionable tips to maximize your campaign performance.",
-    author: "20/20 Solutions Team",
-    date: "January 20, 2025",
-    readTime: "7 min read",
-    category: "Best Practices",
-    image: "/placeholder.svg"
-  },
-  {
-    id: "3",
-    title: "Why In-House Recruitment Teams Are Moving Away from Agencies",
-    excerpt: "Explore the growing trend of companies taking control of their recruitment advertising and the benefits of managing campaigns internally.",
-    author: "20/20 Solutions Team",
-    date: "January 15, 2025",
-    readTime: "6 min read",
-    category: "Trends",
-    image: "/placeholder.svg"
-  },
-  {
-    id: "4",
-    title: "Understanding Cost-Per-Lead in Recruitment Marketing",
-    excerpt: "A deep dive into CPL metrics, why they matter for your hiring strategy, and how to optimize your campaigns for better ROI.",
-    author: "20/20 Solutions Team",
-    date: "January 10, 2025",
-    readTime: "8 min read",
-    category: "Analytics",
-    image: "/placeholder.svg"
-  },
-  {
-    id: "5",
-    title: "TikTok for Recruitment: Reaching Gen Z Talent",
-    excerpt: "How to leverage TikTok's unique platform to attract younger candidates and build an authentic employer brand that resonates.",
-    author: "20/20 Solutions Team",
-    date: "January 5, 2025",
-    readTime: "5 min read",
-    category: "Platform Tips",
-    image: "/placeholder.svg"
-  },
-  {
-    id: "6",
-    title: "Building a Data-Driven Recruitment Strategy",
-    excerpt: "Step-by-step guide to using analytics and insights to make smarter hiring decisions and improve your overall recruitment performance.",
-    author: "20/20 Solutions Team",
-    date: "January 1, 2025",
-    readTime: "9 min read",
-    category: "Strategy",
-    image: "/placeholder.svg"
   }
 ];
 
@@ -121,55 +71,58 @@ const Blog = () => {
       <section className="container mx-auto px-4 pb-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {blogPosts.map((post) => (
-            <article 
-              key={post.id} 
-              className="group bg-card rounded-xl border shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+            <Link 
+              key={post.id}
+              to={`/blog/${post.slug}`}
+              className="group"
             >
-              {/* Image placeholder */}
-              <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-2xl font-now font-bold text-primary">20</span>
-                </div>
-              </div>
-              
-              {/* Content */}
-              <div className="p-6 space-y-4">
-                {/* Category badge */}
-                <span className="inline-block px-3 py-1 text-xs font-now font-medium bg-primary/10 text-primary rounded-full">
-                  {post.category}
-                </span>
-                
-                {/* Title */}
-                <h2 className="text-xl font-now font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                  {post.title}
-                </h2>
-                
-                {/* Excerpt */}
-                <p className="text-muted-foreground font-now text-sm line-clamp-3">
-                  {post.excerpt}
-                </p>
-                
-                {/* Meta info */}
-                <div className="flex items-center gap-4 text-xs text-muted-foreground font-now pt-2">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>{post.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>{post.readTime}</span>
+              <article className="bg-card rounded-xl border shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden h-full">
+                {/* Image placeholder */}
+                <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-2xl font-now font-bold text-primary">20</span>
                   </div>
                 </div>
                 
-                {/* Read more link */}
-                <div className="pt-2">
-                  <span className="inline-flex items-center text-sm font-now font-medium text-primary group-hover:gap-2 transition-all">
-                    Read article
-                    <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                {/* Content */}
+                <div className="p-6 space-y-4">
+                  {/* Category badge */}
+                  <span className="inline-block px-3 py-1 text-xs font-now font-medium bg-primary/10 text-primary rounded-full">
+                    {post.category}
                   </span>
+                  
+                  {/* Title */}
+                  <h2 className="text-xl font-now font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                    {post.title}
+                  </h2>
+                  
+                  {/* Excerpt */}
+                  <p className="text-muted-foreground font-now text-sm line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                  
+                  {/* Meta info */}
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground font-now pt-2">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>{post.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>{post.readTime}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Read more link */}
+                  <div className="pt-2">
+                    <span className="inline-flex items-center text-sm font-now font-medium text-primary group-hover:gap-2 transition-all">
+                      Read article
+                      <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
+            </Link>
           ))}
         </div>
       </section>
