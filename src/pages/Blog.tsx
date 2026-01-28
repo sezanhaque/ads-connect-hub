@@ -6,9 +6,21 @@ import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
 import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
+import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
 
 // Blog posts data
 const blogPosts = [
+  {
+    id: "aligning-hr-recruitment-marketing",
+    slug: "aligning-hr-recruitment-marketing",
+    title: "Aligning HR, Recruitment, and Marketing Through Advertising Automation",
+    excerpt: "Recruitment advertising almost never lives with one team. Advertising automation becomes truly valuable when it is used to connect these roles instead of separating them further.",
+    author: "Our team",
+    date: "January 30, 2026",
+    readTime: "4 min read",
+    category: "Strategy",
+    image: strategyAlignmentBlogImage,
+  },
   {
     id: "5-common-mistakes-recruitment-advertising",
     slug: "5-common-mistakes-recruitment-advertising",
