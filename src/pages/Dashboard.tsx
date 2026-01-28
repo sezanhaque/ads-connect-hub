@@ -14,6 +14,7 @@ import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
 import { useTikTokIntegrationStatus } from '@/hooks/useTikTokIntegrationStatus';
 import { posthog } from '@/lib/posthog';
 import { Plus, Target, Briefcase, DollarSign, Eye, Users } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 interface DashboardStats {
   totalCampaigns: number;
   activeCampaigns: number;
@@ -24,18 +25,14 @@ interface DashboardStats {
   totalClicks: number;
   totalLeads: number;
 }
-interface Campaign {
-  id: string;
-  name: string;
-  status: string;
-  objective: string;
-  budget: number;
-  created_at: string;
-}
 interface Job {
   id: string;
+  external_id: string | null;
   title: string;
+  description: string | null;
   status: string;
+  company_name: string | null;
+  location: string | null;
   created_at: string;
 }
 const Dashboard = () => {
@@ -75,7 +72,7 @@ const Dashboard = () => {
     totalClicks: 0,
     totalLeads: 0
   });
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -193,22 +190,6 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     if (!profile?.user_id) return;
     try {
-      // Fetch recent campaigns created by this user (limit 5)
-      const {
-        data: recentCampaignsData,
-        error: recentCampaignsError
-      } = await supabase.from('campaigns').select('*').eq('created_by', profile.user_id).order('created_at', {
-        ascending: false
-      }).limit(5);
-      if (recentCampaignsError) throw recentCampaignsError;
-
-      // Fetch total campaign count, active campaigns count, and budget totals for this user
-      const {
-        data: campaignCountData,
-        error: campaignCountError
-      } = await supabase.from('campaigns').select('id, status, budget').eq('created_by', profile.user_id);
-      if (campaignCountError) throw campaignCountError;
-
       // Fetch recent jobs created by this user (limit 5)
       const {
         data: recentJobsData,
@@ -225,43 +206,11 @@ const Dashboard = () => {
       } = await supabase.from('jobs').select('id').eq('created_by', profile.user_id);
       if (jobCountError) throw jobCountError;
 
-      // Get campaign IDs for this user to filter metrics
-      const userCampaignIds = campaignCountData?.map(c => c.id) || [];
-
-      // Fetch metrics only for user's campaigns
-      let allMetrics: any[] = [];
-      if (userCampaignIds.length > 0) {
-        const {
-          data: metricsData
-        } = await supabase.from('metrics').select('spend, impressions, clicks, leads').in('campaign_id', userCampaignIds);
-        const {
-          data: campaignMetricsData
-        } = await supabase.from('campaign_metrics').select('spend, impressions, clicks, leads').in('campaign_id', userCampaignIds);
-        allMetrics = [...(metricsData || []), ...(campaignMetricsData || [])];
-      }
-
-      // Calculate performance metrics
-      const totalSpend = allMetrics.reduce((sum, metric) => sum + (Number(metric.spend) || 0), 0);
-      const totalImpressions = allMetrics.reduce((sum, metric) => sum + (metric.impressions || 0), 0);
-      const totalClicks = allMetrics.reduce((sum, metric) => sum + (metric.clicks || 0), 0);
-      const totalLeads = allMetrics.reduce((sum, metric) => sum + (metric.leads || 0), 0);
-
-      // Calculate budget and campaign totals
-      const totalCampaigns = campaignCountData?.length || 0;
-      const activeCampaigns = campaignCountData?.filter(c => c.status === 'active' || c.status === 'ACTIVE').length || 0;
-      const totalBudget = campaignCountData?.reduce((sum, campaign) => sum + (Number(campaign.budget) || 0), 0) || 0;
       const totalJobs = jobCountData?.length || 0;
-      setStats({
-        totalCampaigns,
-        activeCampaigns,
-        totalJobs,
-        totalBudget,
-        totalSpend,
-        totalImpressions,
-        totalClicks,
-        totalLeads
-      });
-      setCampaigns(recentCampaignsData || []);
+      setStats(prev => ({
+        ...prev,
+        totalJobs
+      }));
       setJobs(recentJobsData || []);
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
@@ -277,13 +226,16 @@ const Dashboard = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-success text-success-foreground';
+      case 'open':
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'paused':
-        return 'bg-warning text-warning-foreground';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'closed':
+        return 'bg-red-100 text-red-800 border-red-200';
       case 'draft':
-        return 'bg-secondary text-secondary-foreground';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
-        return 'bg-muted text-muted-foreground';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
   return <div className="space-y-8">
@@ -376,125 +328,82 @@ const Dashboard = () => {
         onAggregatesChange={setCampaignAggregates}
       />
 
-      {/* Recent Activity */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Recent Campaigns */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Recent Campaigns
-            </CardTitle>
-            <CardDescription>
-              Your latest campaign activity
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                    <div className="space-y-2 flex-1">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-1/2" />
-                    </div>
-                    <div className="text-right space-y-2">
-                      <Skeleton className="h-4 w-16 ml-auto" />
-                      <Skeleton className="h-3 w-20 ml-auto" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : campaigns.length > 0 ? (
-              <div className="space-y-4">
-                {campaigns.map(campaign => <div key={campaign.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                    <div className="space-y-1">
-                      <h4 className="font-medium">{campaign.name}</h4>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className={getStatusColor(campaign.status)}>
-                          {campaign.status}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {campaign.objective}
-                        </span>
+      {/* Recent Jobs */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Recent Jobs
+              </CardTitle>
+              <CardDescription>
+                Latest job activity
+              </CardDescription>
+            </div>
+            <Button variant="outline" asChild>
+              <Link to="/jobs">View All Jobs</Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="text-muted-foreground">Loading jobs...</div>
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-12">
+              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">No jobs added yet</p>
+              <Button asChild>
+                <Link to="/jobs/create">Add a new Job</Link>
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Job ID</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {jobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">
+                      {job.external_id || '-'}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{job.title}</div>
+                        {job.description && (
+                          <div className="text-sm text-muted-foreground truncate max-w-xs">
+                            {job.description}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">€{campaign.budget}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(campaign.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>)}
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/campaigns">View All Campaigns</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">No campaigns yet</p>
-                <Button asChild>
-                  <Link to="/campaigns/create">Create First Campaign</Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Jobs */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5" />
-              Recent Jobs
-            </CardTitle>
-            <CardDescription>
-              Latest job activity
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                    <div className="space-y-2 flex-1">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-20" />
-                    </div>
-                    <Skeleton className="h-3 w-24" />
-                  </div>
-                ))}
-              </div>
-            ) : jobs.length > 0 ? (
-              <div className="space-y-4">
-                {jobs.map(job => <div key={job.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                    <div className="space-y-1">
-                      <h4 className="font-medium">{job.title}</h4>
-                      <Badge variant="outline" className={getStatusColor(job.status)}>
+                    </TableCell>
+                    <TableCell>{job.company_name || '-'}</TableCell>
+                    <TableCell>{job.location || '-'}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className={getStatusColor(job.status)}>
                         {job.status}
                       </Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
+                    </TableCell>
+                    <TableCell>
                       {new Date(job.created_at).toLocaleDateString()}
-                    </div>
-                  </div>)}
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/jobs">View All Jobs</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">No job added yet</p>
-                <Button variant="outline" asChild>
-                  <Link to="/jobs">Add a new Job</Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>;
 };
 export default Dashboard;
