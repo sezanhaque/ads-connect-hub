@@ -65,6 +65,10 @@ export const blogPostsData: Record<string, {
       {
         question: "What does this mean for recruitment and marketing teams?",
         answer: "For recruitment, HR, and marketing teams, this shift emphasizes the importance of clarity, structure, and transparency in advertising. As AI handles more executional tasks, teams need systems that make decisions and performance easier to understand."
+      },
+      {
+        question: "How will Twenty Twenty Solutions act on this trend?",
+        answer: "Over the years, we have seen a clear shift from audience targeting toward contextual targeting, driven by new and emerging products and platforms that can be optimized for advertising. At the moment, we are actively investigating whether this type of advertising model — either through OpenAI's approach or through other contextual advertising solutions — can be added to our product library and future integrations. If you are interested in seeing a contextual advertising method added to the Twenty Twenty Solutions platform, feel free to let us know and we will get in touch."
       }
     ],
     content: (
