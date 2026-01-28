@@ -37,6 +37,119 @@ export const blogPostsData: Record<string, {
   content: React.ReactNode;
   faqs: FAQItem[];
 }> = {
+  "5-common-mistakes-recruitment-advertising": {
+    id: "5-common-mistakes-recruitment-advertising",
+    title: "5 Common Mistakes in Recruitment Advertising",
+    excerpt: "Recruitment advertising has become a core pillar of modern hiring strategies. Yet despite powerful tools, many campaigns still underperform. Here are five common mistakes and why addressing them matters.",
+    author: "Our team",
+    date: "January 29, 2026",
+    readTime: "4 min read",
+    category: "Best Practices",
+    faqs: [
+      {
+        question: "What are some important metrics in recruitment advertising?",
+        answer: "While impressions and clicks provide useful context, they rarely tell the full story. More meaningful metrics in recruitment advertising include cost per applicant, application completion rate, and time to first contact. These metrics connect advertising performance directly to hiring outcomes and help teams evaluate effectiveness beyond surface-level engagement."
+      },
+      {
+        question: "How can I align my team so the campaign objective is clear for everyone?",
+        answer: "Clear alignment starts with defining a single primary objective before a campaign goes live. This objective should be shared across recruitment, HR, and marketing teams, along with a clear explanation of what success looks like and which metrics will be used to measure it. Using a shared workspace or dashboard helps ensure everyone is working from the same assumptions and data."
+      },
+      {
+        question: "How can Twenty Twenty's automation help prevent these mistakes?",
+        answer: "Twenty Twenty's automation focuses on creating structure and consistency across recruitment advertising. By standardizing campaign setup, centralizing performance insights, and automating key processes, teams gain clarity on objectives, cost per applicant, and follow-up speed. This reduces manual errors and helps teams stay aligned as campaigns scale."
+      }
+    ],
+    content: (
+      <>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+          Recruitment advertising has become a core pillar of modern hiring strategies. Social platforms and performance channels offer reach and speed that traditional methods cannot match.
+        </p>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+          Yet despite these tools, many recruitment campaigns still underperform. Not because the platforms don't work, but because of how campaigns are structured, measured, and followed up.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Below we outline five common mistakes we see in recruitment advertising today and why addressing them matters.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">1. No Clear Objective for the Advertising Campaign</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          One of the most common issues is the absence of a clearly defined campaign objective.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Advertising platforms require explicit choices: awareness, traffic, leads, or conversions. Each objective optimizes toward a different outcome. Problems arise when expectations do not match the chosen setup.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          For example, awareness campaigns are designed to maximize visibility, not to generate applications. Expecting high applicant volume from such a setup creates misalignment between goals and results.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Clear objectives create structure. They guide optimization, reporting, and decision-making throughout the campaign lifecycle.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">2. No Real Insight Into Cost per Applicant</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Many organizations struggle to answer a simple question: what does one applicant actually cost?
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Recruitment advertising data is often spread across ad platforms, landing pages, ATS systems, and internal reports. This fragmentation makes it difficult to calculate cost per applicant reliably.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Without clear insight into this metric, teams rely on assumptions instead of facts. That limits the ability to compare campaigns, scale success, or improve efficiency.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Transparency around cost per applicant is not a reporting detail. It is a strategic requirement.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">3. Vague or Non-Triggering Ad Copy</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Ad copy plays a decisive role in recruitment performance, yet it is often overly generic.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Many recruitment ads rely on broad descriptions and safe language. While this may feel inclusive, it rarely creates urgency or relevance.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          Strong recruitment copy typically:
+        </p>
+        <ul className="list-disc list-inside text-muted-foreground mb-6 space-y-2">
+          <li>Speaks to a specific role or situation</li>
+          <li>Highlights why the opportunity matters</li>
+          <li>Makes the next step clear</li>
+        </ul>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          When candidates immediately understand what is expected and what to do next, conversion improves.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">4. Boring or Static Visuals</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Visual content still has a significant impact on recruitment advertising results.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Video content consistently outperforms static images because it provides context. It shows people, environments, and roles in a way static visuals cannot. This reduces uncertainty and builds trust before the click.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Static visuals can still play a role, but relying on them alone often limits performance, especially in crowded social feeds.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">5. Slow Follow-Up After Applying</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          A common breakdown occurs after the application is submitted.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Organizations invest heavily in driving applications, only to lose candidates due to slow follow-up. In competitive labor markets, delays of hours or days can significantly reduce response rates.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Candidates who apply via social platforms expect quick confirmation and clear next steps. Speed is not just operational efficiency, it directly impacts hiring outcomes.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Conclusion</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          These mistakes rarely occur in isolation. Unclear objectives affect reporting, limited insight slows learning, and slow follow-up undermines overall performance. Recruitment advertising works best when structure, clarity, and speed are aligned across the entire process.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          As recruitment advertising becomes more automated and data-driven, the margin for inefficiency shrinks. Teams that rely on clear objectives, transparent metrics, relevant messaging, and timely follow-up will be better positioned to attract and convert candidates consistently.
+        </p>
+      </>
+    )
+  },
   "openai-advertising-future": {
     id: "openai-advertising-future",
     title: "What OpenAI's New Advertising Approach Signals for the Future of Digital Advertising",

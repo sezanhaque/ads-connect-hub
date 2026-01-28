@@ -9,6 +9,17 @@ import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
 // Blog posts data
 const blogPosts = [
   {
+    id: "5-common-mistakes-recruitment-advertising",
+    slug: "5-common-mistakes-recruitment-advertising",
+    title: "5 Common Mistakes in Recruitment Advertising",
+    excerpt: "Recruitment advertising has become a core pillar of modern hiring strategies. Yet despite powerful tools, many campaigns still underperform. Here are five common mistakes and why addressing them matters.",
+    author: "Our team",
+    date: "January 29, 2026",
+    readTime: "4 min read",
+    category: "Best Practices",
+    image: undefined,
+  },
+  {
     id: "openai-advertising-future",
     slug: "openai-advertising-future",
     title: "What OpenAI's New Advertising Approach Signals for the Future of Digital Advertising",
