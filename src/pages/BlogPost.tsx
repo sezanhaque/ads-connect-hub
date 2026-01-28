@@ -1,9 +1,29 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
-import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User, Share2, Linkedin, Twitter, Facebook, Link as LinkIcon, Check } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
+
+// FAQ data type
+interface FAQItem {
+  question: string;
+  answer: string;
+}
 
 // Blog posts data - will be moved to a CMS or database later
 export const blogPostsData: Record<string, {
@@ -15,6 +35,7 @@ export const blogPostsData: Record<string, {
   readTime: string;
   category: string;
   content: React.ReactNode;
+  faqs: FAQItem[];
 }> = {
   "openai-advertising-future": {
     id: "openai-advertising-future",
@@ -24,6 +45,28 @@ export const blogPostsData: Record<string, {
     date: "January 28, 2025",
     readTime: "5 min read",
     category: "Industry Insights",
+    faqs: [
+      {
+        question: "Will advertisements influence ChatGPT's answers?",
+        answer: "No. OpenAI has stated that advertisements are strictly separated from AI-generated responses. Ads do not affect how answers are generated, and the model's outputs are not shaped by advertisers."
+      },
+      {
+        question: "How are ads selected inside conversational AI tools?",
+        answer: "In OpenAI's approach, ads are selected based on contextual relevance rather than personal conversations or sensitive data. Placement is aligned with the general topic of a conversation, not with individual user profiles or private inputs."
+      },
+      {
+        question: "Is user data shared with advertisers?",
+        answer: "OpenAI has indicated that personal conversations are not sold to advertisers and that user data is protected. Users also have control over ad personalization settings, including the option to opt out."
+      },
+      {
+        question: "What makes advertising in AI-driven environments different from traditional digital ads?",
+        answer: "Advertising in AI-driven interfaces is more intent-based and context-aware. Instead of interrupting users with broad targeting, ads appear only when they are relevant to the subject being discussed, raising expectations around transparency and usefulness."
+      },
+      {
+        question: "What does this mean for recruitment and marketing teams?",
+        answer: "For recruitment, HR, and marketing teams, this shift emphasizes the importance of clarity, structure, and transparency in advertising. As AI handles more executional tasks, teams need systems that make decisions and performance easier to understand."
+      }
+    ],
     content: (
       <>
         <p className="text-lg text-muted-foreground leading-relaxed mb-6">
@@ -81,55 +124,112 @@ export const blogPostsData: Record<string, {
         <p className="text-muted-foreground leading-relaxed mb-8">
           Advertising is moving closer to intent, explanation, and control. Platforms and teams that adapt to that reality will be better positioned for what comes next.
         </p>
-
-        <div className="bg-muted/50 rounded-xl p-6 md:p-8 my-8">
-          <h3 className="text-xl font-now font-bold text-foreground mb-6">Frequently Asked Questions</h3>
-          
-          <div className="space-y-6">
-            <div>
-              <h4 className="font-now font-semibold text-foreground mb-2">Will advertisements influence ChatGPT's answers?</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                No. OpenAI has stated that advertisements are strictly separated from AI-generated responses. Ads do not affect how answers are generated, and the model's outputs are not shaped by advertisers.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-now font-semibold text-foreground mb-2">How are ads selected inside conversational AI tools?</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                In OpenAI's approach, ads are selected based on contextual relevance rather than personal conversations or sensitive data. Placement is aligned with the general topic of a conversation, not with individual user profiles or private inputs.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-now font-semibold text-foreground mb-2">Is user data shared with advertisers?</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                OpenAI has indicated that personal conversations are not sold to advertisers and that user data is protected. Users also have control over ad personalization settings, including the option to opt out.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-now font-semibold text-foreground mb-2">What makes advertising in AI-driven environments different from traditional digital ads?</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                Advertising in AI-driven interfaces is more intent-based and context-aware. Instead of interrupting users with broad targeting, ads appear only when they are relevant to the subject being discussed, raising expectations around transparency and usefulness.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-now font-semibold text-foreground mb-2">What does this mean for recruitment and marketing teams?</h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                For recruitment, HR, and marketing teams, this shift emphasizes the importance of clarity, structure, and transparency in advertising. As AI handles more executional tasks, teams need systems that make decisions and performance easier to understand.
-              </p>
-            </div>
-          </div>
-        </div>
       </>
     )
   }
 };
 
+// Social sharing component
+const SocialShare = ({ title, url }: { title: string; url: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const shareLinks = {
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+  };
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast({
+      title: "Link copied!",
+      description: "The article link has been copied to your clipboard.",
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <Share2 className="h-4 w-4" />
+          Share
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 bg-card border shadow-lg z-50">
+        <DropdownMenuItem asChild>
+          <a
+            href={shareLinks.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <Linkedin className="h-4 w-4" />
+            LinkedIn
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href={shareLinks.twitter}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <Twitter className="h-4 w-4" />
+            X (Twitter)
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href={shareLinks.facebook}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <Facebook className="h-4 w-4" />
+            Facebook
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={copyLink} className="flex items-center gap-2 cursor-pointer">
+          {copied ? <Check className="h-4 w-4 text-green-500" /> : <LinkIcon className="h-4 w-4" />}
+          {copied ? "Copied!" : "Copy link"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+// FAQ Accordion component
+const FAQSection = ({ faqs }: { faqs: FAQItem[] }) => {
+  return (
+    <div className="bg-muted/50 rounded-xl p-6 md:p-8 my-8">
+      <h3 className="text-xl font-now font-bold text-foreground mb-6">Frequently Asked Questions</h3>
+      <Accordion type="single" collapsible className="w-full">
+        {faqs.map((faq, index) => (
+          <AccordionItem key={index} value={`item-${index}`} className="border-b border-border/50">
+            <AccordionTrigger className="text-left font-now font-semibold text-foreground hover:text-primary hover:no-underline py-4">
+              {faq.question}
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4">
+              {faq.answer}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
+  );
+};
+
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const post = slug ? blogPostsData[slug] : null;
+  
+  // Construct full URL for sharing
+  const fullUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}${location.pathname}` 
+    : '';
 
   if (!post) {
     return (
@@ -204,25 +304,33 @@ const BlogPost = () => {
           </h1>
           
           {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground font-now mb-8 pb-8 border-b">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span>{post.author}</span>
+          <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground font-now mb-8 pb-8 border-b">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span>{post.author}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span>{post.date}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>{post.readTime}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>{post.date}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>{post.readTime}</span>
-            </div>
+            <SocialShare title={post.title} url={fullUrl} />
           </div>
           
           {/* Content */}
           <div className="prose prose-lg max-w-none font-now">
             {post.content}
           </div>
+          
+          {/* FAQ Section */}
+          {post.faqs && post.faqs.length > 0 && (
+            <FAQSection faqs={post.faqs} />
+          )}
         </div>
       </article>
 
