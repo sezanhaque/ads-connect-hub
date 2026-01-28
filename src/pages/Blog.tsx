@@ -4,6 +4,7 @@ import Logo from "@/components/ui/logo";
 import { ArrowRight, Calendar, Clock, User } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
+import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
 
 // Blog posts data
 const blogPosts = [
@@ -12,10 +13,11 @@ const blogPosts = [
     slug: "openai-advertising-future",
     title: "What OpenAI's New Advertising Approach Signals for the Future of Digital Advertising",
     excerpt: "Recently, OpenAI published its official stance on introducing advertising within ChatGPT, not as a product launch, but as a deliberate experiment tied to a broader mission of making AI more accessible.",
-    author: "20/20 Solutions Team",
+    author: "Our team",
     date: "January 28, 2025",
     readTime: "5 min read",
     category: "Industry Insights",
+    image: openaiAdBlogImage,
   }
 ];
 
@@ -77,11 +79,21 @@ const Blog = () => {
               className="group"
             >
               <article className="bg-card rounded-xl border shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden h-full">
-                {/* Image placeholder */}
-                <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-2xl font-now font-bold text-primary">20</span>
-                  </div>
+                {/* Image */}
+                <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 overflow-hidden">
+                  {post.image ? (
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="text-2xl font-now font-bold text-primary">20</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Content */}
