@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import campaignBuilderImage from "@/assets/campaign-builder-new.png";
 import { MobileNav } from "@/components/MobileNav";
+import Footer from "@/components/layout/Footer";
 
 const PilotPartner = () => {
   const {
@@ -558,30 +559,7 @@ const PilotPartner = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-8 mt-10">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Logo />
-              <span className="text-sm text-muted-foreground font-now">
-                © 2025 20/20 Solutions. {isEnglish ? "All rights reserved." : "Alle rechten voorbehouden."}
-              </span>
-            </div>
-            <div className="flex gap-6 text-sm font-now">
-              <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-                Home
-              </Link>
-              <Link to="/auth" className="text-muted-foreground hover:text-foreground transition-colors">
-                {isEnglish ? "Sign In" : "Inloggen"}
-              </Link>
-              <a href="/Privacyverklaring_TwentyTwentySolutions.io.pdf" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
-                Privacy Statement
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* HubSpot Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
