@@ -48,7 +48,7 @@ export const blogPostsData: Record<string, {
     faqs: [
       {
         question: "What are some important metrics in recruitment advertising?",
-        answer: "While impressions and clicks provide useful context, they rarely tell the full story. More meaningful metrics in recruitment advertising include cost per applicant, application completion rate, and time to first contact. These metrics connect advertising performance directly to hiring outcomes and help teams evaluate effectiveness beyond surface-level engagement."
+        answer: "While impressions and clicks provide useful context, they rarely tell the full story. More meaningful metrics include cost per applicant and application completion rate. With integrations to selected ATS systems, Twenty Twenty Solutions helps teams measure the full recruitment funnel, from ad to applicant and gain clearer insight into performance."
       },
       {
         question: "How can I align my team so the campaign objective is clear for everyone?",
