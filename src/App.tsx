@@ -15,6 +15,7 @@ import PilotPartner from "./pages/PilotPartner";
 import BecomePartner from "./pages/BecomePartner";
 import Solution from "./pages/Solution";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
@@ -60,6 +61,7 @@ const App = () => {
                 <Route path="/pilot-program" element={<PilotPartner />} />
                 <Route path="/become-partner" element={<BecomePartner />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                   path="/dashboard"
