@@ -12,7 +12,7 @@ import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
 import { useToast } from "@/hooks/use-toast";
 import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
-import { TrendingUp, Eye, MousePointer, DollarSign, RefreshCw, Link as LinkIcon } from "lucide-react";
+import { TrendingUp, Eye, MousePointer, Euro, RefreshCw, Link as LinkIcon } from "lucide-react";
 
 type Platform = "all" | "meta" | "tiktok";
 
@@ -44,11 +44,11 @@ interface UnifiedCampaignsDashboardProps {
   onAggregatesChange?: (aggregates: CampaignAggregates) => void;
 }
 
-export const UnifiedCampaignsDashboard = ({ 
-  refreshTrigger, 
-  dateRange, 
+export const UnifiedCampaignsDashboard = ({
+  refreshTrigger,
+  dateRange,
   onDateRangeChange,
-  onAggregatesChange 
+  onAggregatesChange,
 }: UnifiedCampaignsDashboardProps) => {
   const [campaigns, setCampaigns] = useState<UnifiedCampaign[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,8 +56,16 @@ export const UnifiedCampaignsDashboard = ({
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [platformFilter, setPlatformFilter] = useState<Platform>("all");
   const { user } = useAuth();
-  const { integration: metaIntegration, isConnected: isMetaConnected, loading: metaLoading } = useMetaIntegrationStatus();
-  const { integration: tiktokIntegration, isConnected: isTikTokConnected, loading: tiktokLoading } = useTikTokIntegrationStatus();
+  const {
+    integration: metaIntegration,
+    isConnected: isMetaConnected,
+    loading: metaLoading,
+  } = useMetaIntegrationStatus();
+  const {
+    integration: tiktokIntegration,
+    isConnected: isTikTokConnected,
+    loading: tiktokLoading,
+  } = useTikTokIntegrationStatus();
   const { toast } = useToast();
 
   // Wait for integration status to be determined before fetching campaigns
@@ -69,7 +77,7 @@ export const UnifiedCampaignsDashboard = ({
       if (integrationsLoading || !user) {
         return;
       }
-      
+
       console.log("UnifiedCampaignsDashboard: Fetching campaigns...");
       setLoading(true);
 
@@ -100,21 +108,23 @@ export const UnifiedCampaignsDashboard = ({
         // Always fetch Supabase campaigns as fallback/base data
         const { data: supabaseCampaigns, error: supabaseError } = await supabase
           .from("campaigns")
-          .select(`
+          .select(
+            `
             id,
             name,
             status,
             objective,
             platform,
             budget
-          `)
+          `,
+          )
           .eq("org_id", primaryOrg.org_id);
 
         // Fetch metrics for Supabase campaigns
         let supabaseCampaignsWithMetrics: UnifiedCampaign[] = [];
         if (!supabaseError && supabaseCampaigns && supabaseCampaigns.length > 0) {
-          const campaignIds = supabaseCampaigns.map(c => c.id);
-          
+          const campaignIds = supabaseCampaigns.map((c) => c.id);
+
           // Fetch metrics from both tables
           const { data: metricsData } = await supabase
             .from("metrics")
@@ -129,8 +139,8 @@ export const UnifiedCampaignsDashboard = ({
           // Aggregate metrics by campaign
           const allMetrics = [...(metricsData || []), ...(campaignMetricsData || [])];
           const metricsMap = new Map<string, { impressions: number; clicks: number; spend: number; leads: number }>();
-          
-          allMetrics.forEach(m => {
+
+          allMetrics.forEach((m) => {
             const existing = metricsMap.get(m.campaign_id) || { impressions: 0, clicks: 0, spend: 0, leads: 0 };
             metricsMap.set(m.campaign_id, {
               impressions: existing.impressions + (m.impressions || 0),
@@ -140,7 +150,7 @@ export const UnifiedCampaignsDashboard = ({
             });
           });
 
-          supabaseCampaignsWithMetrics = supabaseCampaigns.map(c => {
+          supabaseCampaignsWithMetrics = supabaseCampaigns.map((c) => {
             const metrics = metricsMap.get(c.id) || { impressions: 0, clicks: 0, spend: 0, leads: 0 };
             const platform = (c.platform === "tiktok" ? "tiktok" : "meta") as "meta" | "tiktok";
             return {
@@ -271,19 +281,21 @@ export const UnifiedCampaignsDashboard = ({
 
         // Merge API campaigns with Supabase campaigns
         // API data takes priority when matching by name
-        const apiCampaignNames = new Set(apiCampaigns.map(c => c.name.toLowerCase().trim()));
-        
+        const apiCampaignNames = new Set(apiCampaigns.map((c) => c.name.toLowerCase().trim()));
+
         // Filter out Supabase campaigns that have matching API campaigns (by name)
         const supabaseCampaignsToKeep = supabaseCampaignsWithMetrics.filter(
-          c => !apiCampaignNames.has(c.name.toLowerCase().trim())
+          (c) => !apiCampaignNames.has(c.name.toLowerCase().trim()),
         );
 
         // Combine: API campaigns + unmatched Supabase campaigns
         const mergedCampaigns = [...apiCampaigns, ...supabaseCampaignsToKeep];
 
         setCampaigns(mergedCampaigns);
-        console.log(`Fetched ${mergedCampaigns.length} total campaigns (${apiCampaigns.length} from API, ${supabaseCampaignsToKeep.length} from Supabase)`);
-        
+        console.log(
+          `Fetched ${mergedCampaigns.length} total campaigns (${apiCampaigns.length} from API, ${supabaseCampaignsToKeep.length} from Supabase)`,
+        );
+
         // Calculate and report aggregates
         if (onAggregatesChange) {
           const aggregates: CampaignAggregates = {
@@ -291,7 +303,7 @@ export const UnifiedCampaignsDashboard = ({
             totalImpressions: mergedCampaigns.reduce((sum, c) => sum + c.impressions, 0),
             totalClicks: mergedCampaigns.reduce((sum, c) => sum + c.clicks, 0),
             totalCampaigns: mergedCampaigns.length,
-            activeCampaigns: mergedCampaigns.filter(c => c.status === 'active').length,
+            activeCampaigns: mergedCampaigns.filter((c) => c.status === "active").length,
           };
           onAggregatesChange(aggregates);
         }
@@ -406,7 +418,7 @@ export const UnifiedCampaignsDashboard = ({
 
   // Show loading state while integrations are loading OR while fetching campaigns (but only before initial load completes)
   const showLoading = integrationsLoading || loading || !initialLoadComplete;
-  
+
   if (showLoading) {
     return (
       <Card>
@@ -459,9 +471,7 @@ export const UnifiedCampaignsDashboard = ({
                         ? "Meta account connected but no campaigns found."
                         : "TikTok account connected but no campaigns found."}
                   </p>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Click "Sync Now" to fetch your latest campaigns.
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">Click "Sync Now" to fetch your latest campaigns.</p>
                   <Button onClick={handleManualSync} disabled={syncing}>
                     <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
                     {syncing ? "Syncing..." : "Sync Campaigns"}
@@ -470,7 +480,8 @@ export const UnifiedCampaignsDashboard = ({
               </div>
             ) : (
               <p className="text-muted-foreground">
-                No campaigns found. Create a new campaign or connect your Meta/TikTok account to sync existing campaigns.
+                No campaigns found. Create a new campaign or connect your Meta/TikTok account to sync existing
+                campaigns.
               </p>
             )}
           </div>
@@ -529,7 +540,7 @@ export const UnifiedCampaignsDashboard = ({
                 <TableHead className="text-right">CTR</TableHead>
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <DollarSign className="h-4 w-4" />
+                    <Euro className="h-4 w-4" />
                     Spend
                   </div>
                 </TableHead>
