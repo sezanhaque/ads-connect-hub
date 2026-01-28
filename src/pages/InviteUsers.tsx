@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { UserPlus, Search, Users, Shield, UserX, ArrowLeft, User } from 'lucide-react';
+import { MetaLogo, TikTokLogo } from '@/components/icons';
 
 type Platform = 'meta' | 'tiktok' | null;
 
@@ -344,7 +345,7 @@ const InviteUsers = () => {
           className="h-24 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5"
           onClick={() => handleSelectPlatform('meta')}
         >
-          <img src="/meta-logo.png" alt="Meta" className="h-8 w-8 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <MetaLogo size={32} />
           <span className="font-medium">Meta</span>
           <span className="text-xs text-muted-foreground">Facebook & Instagram</span>
         </Button>
@@ -353,7 +354,7 @@ const InviteUsers = () => {
           className="h-24 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5"
           onClick={() => handleSelectPlatform('tiktok')}
         >
-          <img src="/tiktok-logo.png" alt="TikTok" className="h-8 w-8 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <TikTokLogo size={32} />
           <span className="font-medium">TikTok</span>
           <span className="text-xs text-muted-foreground">TikTok Ads</span>
         </Button>
@@ -382,12 +383,7 @@ const InviteUsers = () => {
         </Button>
         
         <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-          <img 
-            src={isMeta ? "/meta-logo.png" : "/tiktok-logo.png"} 
-            alt={isMeta ? "Meta" : "TikTok"} 
-            className="h-6 w-6 object-contain"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          />
+          {isMeta ? <MetaLogo size={24} /> : <TikTokLogo size={24} />}
           <span className="font-medium">{isMeta ? 'Meta' : 'TikTok'} Integration</span>
         </div>
 

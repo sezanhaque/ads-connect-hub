@@ -34,8 +34,7 @@ import {
   X,
   Layers,
 } from "lucide-react";
-import metaLogo from "@/assets/meta-logo.png";
-import tiktokLogo from "@/assets/tiktok-logo.png";
+import { MetaLogo, TikTokLogo } from "@/components/icons";
 
 interface Job {
   id: string;
@@ -596,7 +595,7 @@ const CreateCampaign = () => {
                 className="p-8 border-2 rounded-lg transition-all hover:shadow-md border-border hover:border-primary/50"
               >
                 <div className="flex flex-col items-center space-y-4">
-                  <img src={metaLogo} alt="Meta" className="h-16 w-16 object-contain" />
+                  <MetaLogo size={64} />
                   <div className="text-center">
                     <h4 className="font-semibold text-lg">Meta</h4>
                     <p className="text-sm text-muted-foreground mt-1">Facebook & Instagram</p>
@@ -613,7 +612,7 @@ const CreateCampaign = () => {
                 className="p-8 border-2 rounded-lg transition-all hover:shadow-md border-border hover:border-primary/50"
               >
                 <div className="flex flex-col items-center space-y-4">
-                  <img src={tiktokLogo} alt="TikTok" className="h-16 w-16 object-contain" />
+                  <TikTokLogo size={64} />
                   <div className="text-center">
                     <h4 className="font-semibold text-lg">TikTok</h4>
                     <p className="text-sm text-muted-foreground mt-1">TikTok Ads</p>
@@ -1057,11 +1056,7 @@ const CreateCampaign = () => {
                     <CardDescription>Campaign Preview</CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
-                    <img 
-                      src={campaignData.platform === 'meta' ? metaLogo : tiktokLogo} 
-                      alt={campaignData.platform} 
-                      className="h-8 w-8 object-contain"
-                    />
+                    {campaignData.platform === 'meta' ? <MetaLogo size={32} /> : <TikTokLogo size={32} />}
                     <Badge variant="secondary">{campaignData.platform === 'meta' ? 'Meta' : 'TikTok'}</Badge>
                   </div>
                 </div>

@@ -28,8 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import metaLogo from '@/assets/meta-logo.png';
-import tiktokLogo from '@/assets/tiktok-logo.png';
+import { MetaLogo, TikTokLogo } from '@/components/icons';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Job {
@@ -423,14 +422,14 @@ const Jobs = () => {
                             onClick={() => navigate(`/campaigns/create?jobId=${job.id}&platform=meta`)}
                             className="gap-2 cursor-pointer"
                           >
-                            <img src={metaLogo} alt="Meta" className="h-4 w-4" />
+                            <MetaLogo size={16} />
                             Meta
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => navigate(`/campaigns/create?jobId=${job.id}&platform=tiktok`)}
                             className="gap-2 cursor-pointer"
                           >
-                            <img src={tiktokLogo} alt="TikTok" className="h-4 w-4" />
+                            <TikTokLogo size={16} />
                             TikTok
                           </DropdownMenuItem>
                         </DropdownMenuContent>
