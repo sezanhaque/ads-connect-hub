@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
 import { posthog } from "@/lib/posthog";
-import { Plus, Target, Briefcase, DollarSign, Eye, Users } from "lucide-react";
+import { Plus, Target, Briefcase, Euro, Eye, Users } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 interface DashboardStats {
   totalCampaigns: number;
@@ -268,7 +268,7 @@ const Dashboard = () => {
         <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Spend</CardTitle>
-            <Euro className="h-4 w-4 text-secondary" />
+            <DollarSign className="h-4 w-4 text-secondary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
