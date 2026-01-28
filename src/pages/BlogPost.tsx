@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import openaiAdMock from "@/assets/openai-ad-mock.webp";
 
 // FAQ data type
 interface FAQItem {
@@ -98,6 +99,20 @@ export const blogPostsData: Record<string, {
         <p className="text-muted-foreground leading-relaxed mb-8">
           This contrasts sharply with many traditional ad ecosystems, where optimization often prioritizes engagement metrics over clarity or user trust.
         </p>
+
+        {/* Visual illustration */}
+        <figure className="my-10">
+          <div className="rounded-xl overflow-hidden shadow-lg border bg-gradient-to-br from-primary/5 to-accent/5 p-4">
+            <img 
+              src={openaiAdMock} 
+              alt="Example of contextual advertising in ChatGPT interface" 
+              className="w-full rounded-lg"
+            />
+          </div>
+          <figcaption className="text-center text-sm text-muted-foreground mt-3 font-now">
+            An example of how contextual ads might appear in AI-powered interfaces
+          </figcaption>
+        </figure>
 
         <h2 className="text-2xl font-now font-bold text-foreground mb-4">Contextual Relevance Over Broadcast Targeting</h2>
         <p className="text-muted-foreground leading-relaxed mb-6">
