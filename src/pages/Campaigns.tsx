@@ -11,8 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMetaIntegrationStatus } from '@/hooks/useMetaIntegrationStatus';
 import { useTikTokIntegrationStatus } from '@/hooks/useTikTokIntegrationStatus';
 import { Plus, Search, Target, DollarSign, Calendar, Filter } from 'lucide-react';
-import metaLogo from "@/assets/meta-logo.png";
-import tiktokLogo from "@/assets/tiktok-logo.png";
+import { MetaLogo, TikTokLogo } from "@/components/icons";
 
 interface Campaign {
   id: string;
@@ -323,11 +322,7 @@ const Campaigns = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       {campaign.platform && (
-                        <img 
-                          src={campaign.platform === 'meta' ? metaLogo : tiktokLogo} 
-                          alt={campaign.platform} 
-                          className="h-6 w-6 object-contain"
-                        />
+                        campaign.platform === 'meta' ? <MetaLogo size={24} /> : <TikTokLogo size={24} />
                       )}
                       <h3 className="text-lg font-semibold">{campaign.name}</h3>
                       <Badge className={getStatusColor(campaign.status)}>

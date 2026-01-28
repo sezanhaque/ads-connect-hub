@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft, CreditCard, Loader2, Save, User } from 'lucide-react';
+import { MetaLogo, TikTokLogo } from '@/components/icons';
 
 interface UserProfile {
   user_id: string;
@@ -344,12 +345,7 @@ const UserManagement = () => {
           {/* Meta Integration */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-              <img 
-                src="/meta-logo.png" 
-                alt="Meta" 
-                className="h-6 w-6 object-contain"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
+              <MetaLogo size={24} />
               <span className="font-medium">Meta Integration</span>
             </div>
 
@@ -399,12 +395,7 @@ const UserManagement = () => {
           {/* TikTok Integration */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-              <img 
-                src="/tiktok-logo.png" 
-                alt="TikTok" 
-                className="h-6 w-6 object-contain"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
+              <TikTokLogo size={24} />
               <span className="font-medium">TikTok Integration</span>
             </div>
 
