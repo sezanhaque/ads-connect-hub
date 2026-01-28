@@ -41,7 +41,7 @@ export const blogPostsData: Record<string, {
     id: "openai-advertising-future",
     title: "What OpenAI's New Advertising Approach Signals for the Future of Digital Advertising",
     excerpt: "Recently, OpenAI published its official stance on introducing advertising within ChatGPT, not as a product launch, but as a deliberate experiment tied to a broader mission of making AI more accessible.",
-    author: "20/20 Solutions Team",
+    author: "Our team",
     date: "January 28, 2025",
     readTime: "5 min read",
     category: "Industry Insights",
