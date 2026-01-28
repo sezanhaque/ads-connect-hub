@@ -5,6 +5,7 @@ import { ArrowRight, Calendar, Clock, User } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
+import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
 
 // Blog posts data
 const blogPosts = [
@@ -17,7 +18,7 @@ const blogPosts = [
     date: "January 29, 2026",
     readTime: "4 min read",
     category: "Best Practices",
-    image: undefined,
+    image: recruitmentMistakesBlogImage,
   },
   {
     id: "openai-advertising-future",
