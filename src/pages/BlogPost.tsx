@@ -37,6 +37,76 @@ export const blogPostsData: Record<string, {
   content: React.ReactNode;
   faqs: FAQItem[];
 }> = {
+  "aligning-hr-recruitment-marketing": {
+    id: "aligning-hr-recruitment-marketing",
+    title: "Aligning HR, Recruitment, and Marketing Through Advertising Automation",
+    excerpt: "Recruitment advertising almost never lives with one team. Advertising automation becomes truly valuable when it is used to connect these roles instead of separating them further.",
+    author: "Our team",
+    date: "January 30, 2026",
+    readTime: "4 min read",
+    category: "Strategy",
+    faqs: [
+      {
+        question: "Why is alignment between HR, recruitment, and marketing so difficult in practice?",
+        answer: "Each team traditionally works with its own tools, metrics, and priorities. HR focuses on workforce needs, recruitment on candidate flow, and marketing often on supporting commercial tasks. Without a shared structure and data layer, these perspectives naturally drift apart, creating friction rather than collaboration."
+      },
+      {
+        question: "How does advertising automation help improve alignment?",
+        answer: "Automation helps by standardizing how campaigns are set up, measured, and evaluated. When objectives, structures, and metrics are predefined and consistent, teams can work from the same assumptions and data, reducing manual interpretation and misalignment."
+      },
+      {
+        question: "Does automation reduce control over recruitment advertising?",
+        answer: "No. When implemented correctly, automation increases control. Routine execution is handled systematically, while teams gain clearer oversight into performance, costs, and outcomes, allowing them to focus on strategic decisions rather than operational tasks."
+      },
+      {
+        question: "How does Twenty Twenty Solutions support this approach?",
+        answer: "Twenty Twenty Solutions provides a centralized platform for recruitment advertising, combining structured campaign setup, clear performance insights, and integrations with selected ATS systems. This helps HR, recruitment, and marketing teams operate from a shared framework and maintain clarity as hiring scales."
+      }
+    ],
+    content: (
+      <>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+          Recruitment advertising almost never lives with one team.
+        </p>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+          HR defines hiring needs and priorities. Recruitment manages vacancies and candidate flow. Marketing understands channels, optimization, and performance logic. Each role is essential, yet in practice these disciplines often operate in parallel rather than as a single system. The result is not a lack of activity, but a lack of clarity: campaigns run, data exists, but ownership, alignment, and insight are fragmented.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Advertising automation becomes truly valuable when it is used to connect these roles instead of separating them further.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Where Misalignment Creates Friction</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Most inefficiencies in recruitment advertising are structural. Campaigns take longer to launch because information moves between teams. Performance discussions become reactive because data lives in multiple tools. Follow-up speed suffers because advertising activity is disconnected from recruitment workflows.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          These issues are rarely caused by people or effort. They are the natural outcome of fragmented processes. When HR, recruitment, and marketing work with different objectives, definitions of success, and systems, optimization becomes slow and inconsistent. Advertising turns into execution rather than a controllable process.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Automation as a Shared Framework</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Advertising automation should not be seen as a way to replace decision-making, but as a way to standardize it.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          When campaign structures, objectives, and performance metrics are clearly defined upfront, automation helps enforce consistency. It removes repetitive manual steps, reduces interpretation differences between teams, and creates a single source of truth for performance. This allows discussions to shift from opinions to data, and from short-term fixes to long-term improvement.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          The key is not how much is automated, but whether automation supports understanding.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">From Execution to Control</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          In well-aligned teams, automation moves the focus away from daily execution and toward oversight. Routine tasks such as structuring campaigns, pacing budgets, and handling optimization logic run in the background.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          This balance makes recruitment advertising scalable. Growth no longer depends on adding more manual work, but on maintaining clarity as volume increases.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          At Twenty Twenty Solutions, we approach advertising automation as an enabler of alignment. By centralizing campaign setup, performance insights, and integrations with selected ATS systems, we help HR, recruitment, and marketing teams work from the same objectives and data. This creates a shared process where advertising becomes transparent, measurable, and easier to manage at scale.
+        </p>
+      </>
+    )
+  },
   "5-common-mistakes-recruitment-advertising": {
     id: "5-common-mistakes-recruitment-advertising",
     title: "5 Common Mistakes in Recruitment Advertising",
