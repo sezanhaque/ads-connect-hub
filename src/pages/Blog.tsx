@@ -112,7 +112,7 @@ const Blog = () => {
             Insights & Resources
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now subtitle max-w-2xl mx-auto">
-            Expert tips, industry trends, and best practices to help you master recruitment advertising.
+            Expert insights and industry perspectives to help teams navigate modern advertising with confidence.
           </p>
         </div>
       </section>
