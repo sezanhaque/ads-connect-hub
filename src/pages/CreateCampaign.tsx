@@ -56,6 +56,7 @@ interface CampaignData {
   durationOption: "14" | "28" | "always-on" | "other";
   durationCustom: string;
   startDate: string;
+  endDate: string;
   locations: string;
   
   // Meta-specific
@@ -111,6 +112,7 @@ const CreateCampaign = () => {
     durationOption: "14",
     durationCustom: "",
     startDate: "",
+    endDate: "",
     locations: "",
     targetAudience: "",
     ageRanges: [],
@@ -176,6 +178,9 @@ const CreateCampaign = () => {
   // Helper to calculate end date
   const getEndDate = (): string | null => {
     if (campaignData.durationOption === 'always-on') return null;
+    if (campaignData.durationOption === 'other') {
+      return campaignData.endDate || null;
+    }
     const days = getDurationDays();
     if (!days || !campaignData.startDate) return null;
     const start = new Date(campaignData.startDate);
@@ -186,6 +191,16 @@ const CreateCampaign = () => {
   // Helper to get duration display text
   const getDurationDisplay = (): string => {
     if (campaignData.durationOption === 'always-on') return 'Always-on';
+    if (campaignData.durationOption === 'other') {
+      if (campaignData.startDate && campaignData.endDate) {
+        const start = new Date(campaignData.startDate);
+        const end = new Date(campaignData.endDate);
+        const diffTime = end.getTime() - start.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays > 0 ? `${diffDays} days` : '';
+      }
+      return '';
+    }
     const days = getDurationDays();
     return days ? `${days} days` : '';
   };
@@ -252,7 +267,7 @@ const CreateCampaign = () => {
           !campaignData.objective ||
           !budget ||
           !campaignData.startDate ||
-          (campaignData.durationOption === 'other' && !campaignData.durationCustom)
+          (campaignData.durationOption === 'other' && !campaignData.endDate)
         ) {
           toast({ title: "Please fill all required fields", variant: "destructive" });
           return false;
@@ -782,16 +797,6 @@ const CreateCampaign = () => {
                     </Button>
                   ))}
                 </div>
-                {campaignData.durationOption === 'other' && (
-                  <Input
-                    type="number"
-                    min="1"
-                    placeholder="Enter number of days"
-                    value={campaignData.durationCustom}
-                    onChange={(e) => updateCampaignData({ durationCustom: e.target.value })}
-                    className="mt-2"
-                  />
-                )}
               </div>
 
               {/* Start Date */}
@@ -805,6 +810,20 @@ const CreateCampaign = () => {
                   onChange={(e) => updateCampaignData({ startDate: e.target.value })}
                 />
               </div>
+
+              {/* End Date - only shown when "Other" duration is selected */}
+              {campaignData.durationOption === 'other' && (
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">End Date *</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    min={campaignData.startDate || new Date().toISOString().split("T")[0]}
+                    value={campaignData.endDate}
+                    onChange={(e) => updateCampaignData({ endDate: e.target.value })}
+                  />
+                </div>
+              )}
             </div>
           </div>
         );
