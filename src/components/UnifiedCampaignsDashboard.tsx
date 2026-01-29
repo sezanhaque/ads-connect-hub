@@ -228,9 +228,9 @@ export const UnifiedCampaignsDashboard = ({
                 objective: c.objective.replace("OUTCOME_", "").toLowerCase(),
                 impressions: c.total_impressions || 0,
                 clicks: c.total_clicks || 0,
-                ctr: c.total_impressions > 0 ? (c.total_clicks / c.total_impressions) * 100 : 0,
+                ctr: c.link_ctr || 0, // Link CTR from API
                 spend: c.total_spend || 0,
-                cpc: c.total_clicks > 0 ? c.total_spend / c.total_clicks : 0,
+                cpc: c.link_cpc || 0, // Link CPC from API
                 platform: "meta" as const,
               }));
               apiCampaigns.push(...metaCampaigns);
