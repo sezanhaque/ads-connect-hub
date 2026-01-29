@@ -11,6 +11,9 @@ interface MetaCampaignInsight {
   campaign_name: string;
   impressions: string;
   clicks: string;
+  inline_link_clicks: string;
+  inline_link_click_ctr: string;
+  cost_per_inline_link_click: Array<{ value: string }>;
   spend: string;
   actions?: Array<{ action_type: string; value: string }>;
   date_start: string;
@@ -230,21 +233,29 @@ serve(async (req) => {
     for (const campaign of campaigns) {
       try {
         console.log(`Fetching insights for campaign: ${campaign.name}`);
-        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${accessToken}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&${metaDateParam}`;
+        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${accessToken}&fields=campaign_id,campaign_name,impressions,clicks,inline_link_clicks,inline_link_click_ctr,cost_per_inline_link_click,spend,actions&${metaDateParam}`;
         const insightsResponse = await fetch(insightsUrl);
         const insightsData = await insightsResponse.json();
 
         let totalImpressions = 0;
         let totalClicks = 0;
+        let totalLinkClicks = 0;
         let totalSpend = 0;
         let totalLeads = 0;
+        let weightedCtr = 0;
+        let weightedCpc = 0;
 
         if (insightsData.data && insightsData.data.length > 0) {
           // Aggregate metrics across all insight periods
           insightsData.data.forEach((insight: MetaCampaignInsight) => {
-            totalImpressions += parseInt(insight.impressions) || 0;
+            const impressions = parseInt(insight.impressions) || 0;
+            const linkClicks = parseInt(insight.inline_link_clicks) || 0;
+            const spend = parseFloat(insight.spend) || 0;
+            
+            totalImpressions += impressions;
             totalClicks += parseInt(insight.clicks) || 0;
-            totalSpend += parseFloat(insight.spend) || 0;
+            totalLinkClicks += linkClicks;
+            totalSpend += spend;
             
             // Get leads count from actions
             const leads = insight.actions?.find(action => action.action_type === 'lead')?.value || '0';
@@ -276,15 +287,21 @@ serve(async (req) => {
           return baseStatus;
         };
 
+        // Calculate link CTR and link CPC
+        const linkCtr = totalImpressions > 0 ? (totalLinkClicks / totalImpressions) * 100 : 0;
+        const linkCpc = totalLinkClicks > 0 ? totalSpend / totalLinkClicks : 0;
+
         campaignResults.push({
           id: campaign.id,
           name: campaign.name,
           status: mapStatus(campaign.status, campaign.stop_time),
           objective: campaign.objective,
           total_impressions: totalImpressions,
-          total_clicks: totalClicks,
+          total_clicks: totalLinkClicks, // Now using link clicks
           total_spend: totalSpend,
           total_leads: totalLeads,
+          link_ctr: linkCtr,
+          link_cpc: linkCpc,
           end_date: campaign.stop_time || null,
         });
 
