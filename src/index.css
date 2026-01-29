@@ -126,15 +126,11 @@ All colors MUST be HSL.
     @apply bg-background text-foreground font-now;
   }
   
-  h1, h2 {
+  h1, h2, h3, h4, h5, h6 {
     @apply font-now font-bold;
   }
   
-  h3, h4, h5, h6 {
-    @apply font-serif-display;
-  }
-  
   .subtitle {
-    @apply font-serif-display;
+    @apply font-now;
   }
 }
