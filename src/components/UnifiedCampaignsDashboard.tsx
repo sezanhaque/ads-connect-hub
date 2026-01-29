@@ -559,10 +559,13 @@ export const UnifiedCampaignsDashboard = ({
                           ? "default"
                           : campaign.status === "paused"
                             ? "secondary"
-                            : campaign.status === "deleted"
-                              ? "destructive"
-                              : "outline"
+                            : campaign.status === "finished"
+                              ? "outline"
+                              : campaign.status === "deleted"
+                                ? "destructive"
+                                : "outline"
                       }
+                      className={campaign.status === "finished" ? "bg-success/10 text-success border-success/30" : ""}
                     >
                       {campaign.status.toUpperCase()}
                     </Badge>

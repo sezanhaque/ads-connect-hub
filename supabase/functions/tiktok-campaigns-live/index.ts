@@ -23,6 +23,8 @@ interface TikTokCampaignData {
   campaign_name: string;
   status: string;
   objective_type: string;
+  budget_mode?: string;
+  schedule_end_time?: string;
 }
 
 serve(async (req) => {
@@ -189,14 +191,29 @@ serve(async (req) => {
 
           const metrics = insights.metrics || {};
 
-          // Map TikTok status
-          const statusMap: { [key: string]: string } = {
-            CAMPAIGN_STATUS_ENABLE: "active",
-            CAMPAIGN_STATUS_DISABLE: "paused",
-            CAMPAIGN_STATUS_DELETE: "deleted",
+          // Map TikTok status, checking end_date for "finished"
+          const mapTikTokStatus = (tiktokStatus: string, scheduleEndTime?: string) => {
+            const statusMap: { [key: string]: string } = {
+              CAMPAIGN_STATUS_ENABLE: "active",
+              CAMPAIGN_STATUS_DISABLE: "paused",
+              CAMPAIGN_STATUS_DELETE: "deleted",
+            };
+            
+            const baseStatus = statusMap[tiktokStatus] || "paused";
+            
+            // If status is active or paused, check if end_date has passed
+            if ((baseStatus === 'active' || baseStatus === 'paused') && scheduleEndTime) {
+              const endDate = new Date(scheduleEndTime);
+              const now = new Date();
+              if (endDate < now) {
+                return 'finished';
+              }
+            }
+            
+            return baseStatus;
           };
 
-          const spend = parseFloat(metrics.spend || "0"); // TikTok returns in cents
+          const spend = parseFloat(metrics.spend || "0");
           const impressions = parseInt(metrics.impressions || "0");
           const clicks = parseInt(metrics.clicks || "0");
           const conversions = parseInt(metrics.conversion || "0");
@@ -206,7 +223,7 @@ serve(async (req) => {
           allCampaigns.push({
             id: campaignData.campaign_id,
             name: campaignData.campaign_name,
-            status: statusMap[campaignData.status] || "paused",
+            status: mapTikTokStatus(campaignData.status, campaignData.schedule_end_time),
             objective: campaignData.objective_type || "TRAFFIC",
             impressions,
             clicks,
@@ -215,6 +232,7 @@ serve(async (req) => {
             cpc: cpc > 0 ? cpc : clicks > 0 ? spend / clicks : 0,
             conversions,
             platform: "tiktok",
+            end_date: campaignData.schedule_end_time || null,
           });
         }
       }

@@ -22,6 +22,8 @@ interface MetaCampaignData {
   name: string;
   status: string;
   objective: string;
+  start_time?: string;
+  stop_time?: string;
 }
 
 serve(async (req) => {
@@ -250,26 +252,40 @@ serve(async (req) => {
           });
         }
 
-        // Map Meta status to our status
-        const mapStatus = (metaStatus: string) => {
-          switch (metaStatus) {
-            case 'ACTIVE': return 'active';
-            case 'PAUSED': return 'paused';
-            case 'DELETED': return 'deleted';
-            case 'ARCHIVED': return 'archived';
-            default: return 'draft';
+        // Map Meta status to our status, checking end_date for "finished"
+        const mapStatus = (metaStatus: string, stopTime?: string) => {
+          const baseStatus = (() => {
+            switch (metaStatus) {
+              case 'ACTIVE': return 'active';
+              case 'PAUSED': return 'paused';
+              case 'DELETED': return 'deleted';
+              case 'ARCHIVED': return 'archived';
+              default: return 'draft';
+            }
+          })();
+          
+          // If status is active or paused, check if end_date has passed
+          if ((baseStatus === 'active' || baseStatus === 'paused') && stopTime) {
+            const endDate = new Date(stopTime);
+            const now = new Date();
+            if (endDate < now) {
+              return 'finished';
+            }
           }
+          
+          return baseStatus;
         };
 
         campaignResults.push({
           id: campaign.id,
           name: campaign.name,
-          status: mapStatus(campaign.status),
+          status: mapStatus(campaign.status, campaign.stop_time),
           objective: campaign.objective,
           total_impressions: totalImpressions,
           total_clicks: totalClicks,
           total_spend: totalSpend,
           total_leads: totalLeads,
+          end_date: campaign.stop_time || null,
         });
 
       } catch (error) {
