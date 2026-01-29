@@ -131,10 +131,10 @@ All colors MUST be HSL.
   }
   
   h3, h4, h5, h6 {
-    @apply font-serif-display;
+    @apply font-now font-semibold;
   }
   
   .subtitle {
-    @apply font-serif-display;
+    @apply font-now;
   }
 }
