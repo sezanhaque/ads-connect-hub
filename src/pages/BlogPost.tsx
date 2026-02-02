@@ -59,8 +59,8 @@ export const blogPostsData: Record<string, {
         answer: "No. When executed properly, realistic recruitment content can perform very well on social platforms. Content that reflects real situations, real people, and real work environments often drives stronger relevance, trust, and engagement."
       },
       {
-        question: "How does automation support realistic recruitment advertising?",
-        answer: "Automation helps structure and scale campaigns, ensuring consistent delivery and insight, while the content itself remains truthful and context-driven."
+        question: "Can I create content with AI within Twenty Twenty Solutions?",
+        answer: "Yes. Twenty Twenty Solutions supports AI-assisted content creation to help teams structure and adapt recruitment messaging efficiently. AI can be used to accelerate production and formatting, while organizations retain full control over tone, content, and realism."
       }
     ],
     content: (
