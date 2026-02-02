@@ -37,6 +37,75 @@ export const blogPostsData: Record<string, {
   content: React.ReactNode;
   faqs: FAQItem[];
 }> = {
+  "realistic-recruitment-advertising": {
+    id: "realistic-recruitment-advertising",
+    title: "Why Realistic Recruitment Advertising Is Becoming a Strategic Necessity",
+    excerpt: "Many HR teams experience a disconnect between attraction and retention. Application volumes may be high, but early drop-off and short tenure remain persistent challenges.",
+    author: "Our team",
+    date: "February 2, 2026",
+    readTime: "4 min read",
+    category: "Industry Insights",
+    faqs: [
+      {
+        question: "Why does realistic recruitment advertising reduce early-stage turnover?",
+        answer: "Because candidates enter the hiring process with a more accurate understanding of the role and environment, reducing the gap between expectation and reality once they start."
+      },
+      {
+        question: "Does realistic content negatively impact application volume?",
+        answer: "It can reduce volume, but it typically improves relevance and fit, which leads to more efficient hiring outcomes overall."
+      },
+      {
+        question: "Is realistic recruitment content less effective on social platforms?",
+        answer: "No. While it may generate fewer clicks, it often leads to higher-quality engagement and more aligned candidates."
+      },
+      {
+        question: "How does automation support realistic recruitment advertising?",
+        answer: "Automation helps structure and scale campaigns, ensuring consistent delivery and insight, while the content itself remains truthful and context-driven."
+      }
+    ],
+    content: (
+      <>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+          Recruitment advertising has become easier to scale, faster to deploy, and more automated than ever before. Social platforms, video formats, and performance-driven tooling allow organizations to reach large audiences with relatively little effort.
+        </p>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+          Yet many HR teams and business leaders are experiencing a growing disconnect between attraction and retention. Application volumes may be high, but early drop-off and short tenure remain persistent challenges. This issue is rarely caused by a lack of reach or budget. More often, it is the result of misaligned expectations created early in the recruitment process.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">When Attraction Creates the Wrong Expectations</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          A significant portion of recruitment advertising still presents an idealized version of the workplace. Carefully selected visuals, optimistic messaging, and abstract descriptions of culture or growth opportunities are used to position roles as broadly appealing. While this approach can be effective in driving interest, it often lacks context about the actual working environment, pace, and demands of the role.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          When candidates enter an organization and discover that daily reality differs from what was communicated, engagement declines quickly. The result is a familiar pattern: strong inflow, followed by early exits. If people are attracted based on a distorted or incomplete picture, they tend to disengage just as quickly once that picture no longer holds.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Realism as a Structural Filter in Hiring</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Realistic recruitment advertising is not about lowering ambition or reducing appeal. It functions as a filter rather than a funnel. By clearly communicating what a role entails, organizations allow candidates to assess fit before applying, rather than after starting.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          This approach often leads to fewer applications, but those applications tend to be more relevant. Conversations during interviews become more concrete, onboarding friction is reduced, and new hires integrate more smoothly into teams. For HR and recruitment teams, this means spending less time correcting mismatches later in the process. For leadership, it translates into improved retention and more stable teams.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Content That Reflects the Actual Work Environment</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Realism is best conveyed through content that shows context rather than aspiration. Formats such as short "day in the life" impressions, employees explaining their roles in their own words, or job ads that describe challenges alongside benefits help candidates understand what working in a role truly looks like.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          These formats do not aim to maximize reach or engagement metrics, but to provide clarity. When used consistently, this type of content shifts recruitment advertising away from persuasion and toward expectation management.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Why This Matters Now</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          As recruitment processes become more automated and candidate decision cycles shorten, tolerance for ambiguity continues to decrease. Candidates are better informed and quicker to disengage when expectations are not met.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Organizations that invest in realistic recruitment advertising may attract fewer applicants, but they tend to hire people who stay longer, perform better, and integrate faster. In the current labor market, clarity has become a competitive advantage.
+        </p>
+      </>
+    )
+  },
   "aligning-hr-recruitment-marketing": {
     id: "aligning-hr-recruitment-marketing",
     title: "Aligning HR, Recruitment, and Marketing Through Advertising Automation",
