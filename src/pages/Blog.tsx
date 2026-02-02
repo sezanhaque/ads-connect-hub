@@ -7,9 +7,21 @@ import Footer from "@/components/layout/Footer";
 import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
 import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
 import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
+import realisticRecruitmentBlogImage from "@/assets/realistic-recruitment-blog.png";
 
 // Blog posts data
 const blogPosts = [
+  {
+    id: "realistic-recruitment-advertising",
+    slug: "realistic-recruitment-advertising",
+    title: "Why Realistic Recruitment Advertising Is Becoming a Strategic Necessity",
+    excerpt: "Many HR teams experience a disconnect between attraction and retention. Application volumes may be high, but early drop-off and short tenure remain persistent challenges.",
+    author: "Our team",
+    date: "February 2, 2026",
+    readTime: "4 min read",
+    category: "Industry Insights",
+    image: realisticRecruitmentBlogImage,
+  },
   {
     id: "aligning-hr-recruitment-marketing",
     slug: "aligning-hr-recruitment-marketing",
