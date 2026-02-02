@@ -56,7 +56,7 @@ export const blogPostsData: Record<string, {
       },
       {
         question: "Is realistic recruitment content less effective on social platforms?",
-        answer: "No. While it may generate fewer clicks, it often leads to higher-quality engagement and more aligned candidates."
+        answer: "No. When executed properly, realistic recruitment content can perform very well on social platforms. Content that reflects real situations, real people, and real work environments often drives stronger relevance, trust, and engagement. Algorithms reward meaningful interaction, and candidates are more likely to engage with content that feels credible and recognisable. Realism does not limit reach; it strengthens connection."
       },
       {
         question: "How does automation support realistic recruitment advertising?",
