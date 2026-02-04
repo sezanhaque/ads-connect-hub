@@ -198,19 +198,15 @@ const Blog = () => {
 
       {/* Newsletter Dialog */}
       <Dialog open={isNewsletterOpen} onOpenChange={setIsNewsletterOpen}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto p-6">
-          <div className="w-full flex justify-center">
-            <iframe
-              width="540"
-              height="305"
-              src="https://c1eb69ba.sibforms.com/serve/MUIFACFgaD0ywFJbLkU3c01zsTjuJbu_hK4vizKUGhJbiRIrUXXWqPt6qy6btsVR2F_FLAVGQNuZadDb8CwPyPmjtBZdhhHf9yCnuPl0BYi2oGh-LJ-BIPUfH9z2XTDuOk2iVzdof5OBoXTRwCLQtWSz2QDvgud22GRNGz5TBS2dvJ0BKdfj_DRX5qiPKGSY6CXPuxwFO06SM52Bdg=="
-              frameBorder="0"
-              scrolling="auto"
-              allowFullScreen
-              className="block mx-auto max-w-full"
-              title="Newsletter Subscription"
-            />
-          </div>
+        <DialogContent className="w-[min(640px,calc(100vw-1.5rem))] h-[calc(100vh-1.5rem)] max-h-[900px] overflow-hidden p-0">
+          <iframe
+            src="https://c1eb69ba.sibforms.com/serve/MUIFACFgaD0ywFJbLkU3c01zsTjuJbu_hK4vizKUGhJbiRIrUXXWqPt6qy6btsVR2F_FLAVGQNuZadDb8CwPyPmjtBZdhhHf9yCnuPl0BYi2oGh-LJ-BIPUfH9z2XTDuOk2iVzdof5OBoXTRwCLQtWSz2QDvgud22GRNGz5TBS2dvJ0BKdfj_DRX5qiPKGSY6CXPuxwFO06SM52Bdg=="
+            frameBorder="0"
+            scrolling="no"
+            allowFullScreen
+            className="block h-full w-full border-0"
+            title="Newsletter Subscription"
+          />
         </DialogContent>
       </Dialog>
 
