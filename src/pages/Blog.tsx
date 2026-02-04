@@ -198,14 +198,16 @@ const Blog = () => {
 
       {/* Newsletter Dialog */}
       <Dialog open={isNewsletterOpen} onOpenChange={setIsNewsletterOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-          <div className="w-full">
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto p-6">
+          <div className="w-full flex justify-center">
             <iframe
-              src="https://a0a3cdf4.sibforms.com/serve/MUIFAFZSv_V_-Dv5_V_QZFZRxFRjzMPNSJjx_TdKsOQ5ukxFGVE8_xCCwNfNRy0u-0rg8OsHaRqLdYj7IYONbqfwZcP6OTtV4EW6yNfJxYmQpXXX5YVLDhRBQyCQZyJvZT_i7hL8Dc9sMZfMZbRkwh-sGVHdNnMw7L0bSh8vKRxNqKiWfxNdDKMnQxdh"
+              width="540"
+              height="305"
+              src="https://c1eb69ba.sibforms.com/serve/MUIFACFgaD0ywFJbLkU3c01zsTjuJbu_hK4vizKUGhJbiRIrUXXWqPt6qy6btsVR2F_FLAVGQNuZadDb8CwPyPmjtBZdhhHf9yCnuPl0BYi2oGh-LJ-BIPUfH9z2XTDuOk2iVzdof5OBoXTRwCLQtWSz2QDvgud22GRNGz5TBS2dvJ0BKdfj_DRX5qiPKGSY6CXPuxwFO06SM52Bdg=="
               frameBorder="0"
               scrolling="auto"
               allowFullScreen
-              className="w-full min-h-[500px] border-0"
+              className="block mx-auto max-w-full"
               title="Newsletter Subscription"
             />
           </div>
