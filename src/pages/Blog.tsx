@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
-import { ArrowRight, Calendar, Clock, User } from "lucide-react";
+import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
 import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
 import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
 import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
@@ -58,6 +60,23 @@ const blogPosts = [
 ];
 
 const Blog = () => {
+  const [isNewsletterOpen, setIsNewsletterOpen] = useState(false);
+
+  useEffect(() => {
+    // Load Brevo form script when dialog opens
+    if (isNewsletterOpen) {
+      const script = document.createElement("script");
+      script.src = "https://sibforms.com/forms/end-form/build/main.js";
+      script.defer = true;
+      document.body.appendChild(script);
+      return () => {
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
+    }
+  }, [isNewsletterOpen]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
@@ -175,7 +194,6 @@ const Blog = () => {
         </div>
       </section>
 
-      {/* Newsletter CTA */}
       <section className="container mx-auto px-4 py-10 md:py-16">
         <div className="max-w-3xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
           <h2 className="text-2xl md:text-3xl font-now font-bold text-foreground">
@@ -185,13 +203,92 @@ const Blog = () => {
             Get the latest recruitment advertising insights delivered to your inbox.
           </p>
           <div className="pt-2">
-            <Button size="lg" variant="accent" className="text-foreground">
+            <Button size="lg" variant="accent" className="text-foreground" onClick={() => setIsNewsletterOpen(true)}>
               Subscribe to Newsletter
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>
       </section>
+
+      {/* Newsletter Dialog */}
+      <Dialog open={isNewsletterOpen} onOpenChange={setIsNewsletterOpen}>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-now font-bold">Subscribe to Newsletter</DialogTitle>
+          </DialogHeader>
+          <div className="sib-form-container">
+            <div id="sib-form-container" className="sib-form-container">
+              <div id="error-message" className="sib-form-message-panel hidden p-4 mb-4 bg-destructive/10 text-destructive rounded-lg">
+                <div className="sib-form-message-panel__text sib-form-message-panel__text--center">
+                  <span className="sib-form-message-panel__inner-text">
+                    Your subscription could not be saved. Please try again.
+                  </span>
+                </div>
+              </div>
+              <div id="success-message" className="sib-form-message-panel hidden p-4 mb-4 bg-success/10 text-success rounded-lg">
+                <div className="sib-form-message-panel__text sib-form-message-panel__text--center">
+                  <span className="sib-form-message-panel__inner-text">
+                    Your subscription has been successful.
+                  </span>
+                </div>
+              </div>
+              <div id="sib-container" className="sib-container--large sib-container--vertical space-y-4">
+                <form
+                  id="sib-form"
+                  method="POST"
+                  action="https://a0a3cdf4.sibforms.com/serve/MUIFAFZSv_V_-Dv5_V_QZFZRxFRjzMPNSJjx_TdKsOQ5ukxFGVE8_xCCwNfNRy0u-0rg8OsHaRqLdYj7IYONbqfwZcP6OTtV4EW6yNfJxYmQpXXX5YVLDhRBQyCQZyJvZT_i7hL8Dc9sMZfMZbRkwh-sGVHdNnMw7L0bSh8vKRxNqKiWfxNdDKMnQxdh"
+                  data-type="subscription"
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-now font-semibold text-foreground">What others are following</h3>
+                    <p className="text-sm text-muted-foreground font-now">
+                      Sharing perspectives on how technology, automation and AI are reshaping processes across sectors.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground" htmlFor="EMAIL">
+                      E-mail <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:text-sm"
+                      type="email"
+                      id="EMAIL"
+                      name="EMAIL"
+                      autoComplete="off"
+                      placeholder="email@company.com"
+                      data-required="true"
+                      required
+                    />
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 rounded border-input"
+                      value="1"
+                      id="OPT_IN"
+                      name="OPT_IN"
+                      required
+                    />
+                    <label className="text-sm text-muted-foreground font-now" htmlFor="OPT_IN">
+                      I agree to receive your newsletters and accept the data privacy statement.
+                    </label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    You may unsubscribe at any time using the link in our newsletter.
+                  </p>
+                  <Button type="submit" className="w-full" size="lg">
+                    Explore our insights
+                  </Button>
+                  <input type="text" name="email_address_check" value="" className="hidden" />
+                  <input type="hidden" name="locale" value="en" />
+                </form>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
