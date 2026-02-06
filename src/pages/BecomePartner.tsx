@@ -245,7 +245,7 @@ const BecomePartner = () => {
                       </div>
                       <div>
                         <p className="font-now font-semibold text-foreground">Give Me a Call</p>
-                        <p className="text-sm text-muted-foreground font-now">+31 6 40411523</p>
+                        <p className="text-sm text-muted-foreground font-now">(+31) 6 40 31 15 23</p>
                       </div>
                       <ArrowRight className="h-5 w-5 text-muted-foreground ml-auto group-hover:text-secondary transition-colors" />
                     </motion.a>
