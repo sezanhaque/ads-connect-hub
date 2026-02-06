@@ -82,7 +82,8 @@ const Index = () => {
           <div className="space-y-8 max-w-xl">
             {/* Three-line headline */}
             <h1 className="font-now font-bold tracking-tight text-foreground leading-[1.1] text-[clamp(2rem,5vw,3.25rem)]">Go live in minutes.
-Full financial transparency. Recruitment advertising without noise.<br />
+Full financial transparency. 
+Recruitment advertising without noise.<br />
               Full financial transparency.
               <br />
               Recruitment advertising without noise.
