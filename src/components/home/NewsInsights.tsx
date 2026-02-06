@@ -1,23 +1,41 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import realisticRecruitmentBlogImage from "@/assets/realistic-recruitment-blog.png";
+import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
+import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
 
 const recentArticles = [
   {
     slug: "realistic-recruitment-advertising",
     title: "Why Realistic Recruitment Advertising Is Becoming a Strategic Necessity",
+    excerpt: "Many HR teams experience a disconnect between attraction and retention.",
+    category: "Industry Insights",
+    date: "February 2, 2026",
+    readTime: "4 min read",
+    image: realisticRecruitmentBlogImage,
   },
   {
     slug: "aligning-hr-recruitment-marketing",
     title: "Aligning HR, Recruitment, and Marketing Through Advertising Automation",
+    excerpt: "Recruitment advertising almost never lives with one team.",
+    category: "Strategy",
+    date: "January 30, 2026",
+    readTime: "4 min read",
+    image: strategyAlignmentBlogImage,
   },
   {
     slug: "5-common-mistakes-recruitment-advertising",
     title: "5 Common Mistakes in Recruitment Advertising",
+    excerpt: "Recruitment advertising has become a core pillar of modern hiring strategies.",
+    category: "Best Practices",
+    date: "January 29, 2026",
+    readTime: "4 min read",
+    image: recruitmentMistakesBlogImage,
   },
 ];
 
@@ -37,22 +55,59 @@ const NewsInsights = () => {
           News & insights
         </motion.h2>
         
-        <div className="max-w-2xl mx-auto space-y-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto mb-10">
           {recentArticles.map((article, index) => (
             <motion.div
               key={article.slug}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <Link
                 to={`/blog/${article.slug}`}
-                className="group block p-4 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border"
+                className="group block h-full"
               >
-                <h3 className="font-now font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {article.title}
-                </h3>
+                <article className="bg-card rounded-xl border shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden h-full flex flex-col">
+                  {/* Image */}
+                  <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 overflow-hidden">
+                    <img 
+                      src={article.image} 
+                      alt={article.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="p-5 space-y-3 flex-1 flex flex-col">
+                    {/* Category badge */}
+                    <span className="inline-block px-2.5 py-0.5 text-xs font-now font-medium bg-primary/10 text-primary rounded-full w-fit">
+                      {article.category}
+                    </span>
+                    
+                    {/* Title */}
+                    <h3 className="text-lg font-now font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                      {article.title}
+                    </h3>
+                    
+                    {/* Excerpt */}
+                    <p className="text-muted-foreground font-now text-sm line-clamp-2 flex-1">
+                      {article.excerpt}
+                    </p>
+                    
+                    {/* Meta info */}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground font-now pt-2">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>{article.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{article.readTime}</span>
+                      </div>
+                    </div>
+                  </div>
+                </article>
               </Link>
             </motion.div>
           ))}
