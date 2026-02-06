@@ -162,7 +162,7 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      <HowItWorks />
+      <HowItWorks onDemoClick={handleDemoRequest} />
       <NewsInsights />
       <HomeFAQ />
 
