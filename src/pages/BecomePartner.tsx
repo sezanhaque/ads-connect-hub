@@ -7,14 +7,13 @@ import { posthog } from "@/lib/posthog";
 import brianProfile from "@/assets/brian-profile.png";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
-
 const BecomePartner = () => {
   const handleContactClick = (method: string) => {
-    posthog.capture('partner_contact_clicked', { method });
+    posthog.capture('partner_contact_clicked', {
+      method
+    });
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+  return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -44,12 +43,15 @@ const BecomePartner = () => {
       <main>
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-10 md:py-20">
-          <motion.div 
-            className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto" initial={{
+          opacity: 0,
+          y: 30
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.6
+        }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-now font-medium text-sm">
               <Handshake className="h-4 w-4" />
               Partnership Program
@@ -65,24 +67,34 @@ const BecomePartner = () => {
 
         {/* Why Partner With Us */}
         <section className="container mx-auto px-4 py-10 md:py-16">
-          <motion.div 
-            className="max-w-4xl mx-auto text-center space-y-8"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div className="max-w-4xl mx-auto text-center space-y-8" initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true,
+          margin: "-100px"
+        }} transition={{
+          duration: 0.5
+        }}>
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               Why Partner With 20/20 Solutions?
             </h2>
             <div className="grid md:grid-cols-3 gap-8 pt-4">
-              <motion.div 
-                className="text-center space-y-4"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-              >
+              <motion.div className="text-center space-y-4" initial={{
+              opacity: 0,
+              y: 20
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} viewport={{
+              once: true
+            }} transition={{
+              duration: 0.4,
+              delay: 0.1
+            }}>
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10">
                   <Zap className="h-8 w-8 text-primary" />
                 </div>
@@ -91,13 +103,18 @@ const BecomePartner = () => {
                   Our platform is built API-first, making it easy to integrate recruitment advertising directly into your ATS workflow.
                 </p>
               </motion.div>
-              <motion.div 
-                className="text-center space-y-4"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              >
+              <motion.div className="text-center space-y-4" initial={{
+              opacity: 0,
+              y: 20
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} viewport={{
+              once: true
+            }} transition={{
+              duration: 0.4,
+              delay: 0.2
+            }}>
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-secondary/10">
                   <Users className="h-8 w-8 text-secondary" />
                 </div>
@@ -106,13 +123,18 @@ const BecomePartner = () => {
                   Give your users the ability to launch and track recruitment campaigns without leaving your platform.
                 </p>
               </motion.div>
-              <motion.div 
-                className="text-center space-y-4"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 }}
-              >
+              <motion.div className="text-center space-y-4" initial={{
+              opacity: 0,
+              y: 20
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} viewport={{
+              once: true
+            }} transition={{
+              duration: 0.4,
+              delay: 0.3
+            }}>
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-success/10">
                   <Building2 className="h-8 w-8 text-success" />
                 </div>
@@ -127,13 +149,18 @@ const BecomePartner = () => {
 
         {/* Ideal Partner */}
         <section className="container mx-auto px-4 py-10 md:py-16">
-          <motion.div 
-            className="max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div className="max-w-4xl mx-auto" initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true,
+          margin: "-100px"
+        }} transition={{
+          duration: 0.5
+        }}>
             <div className="bg-card border rounded-xl p-8 md:p-10">
               <h2 className="text-2xl md:text-3xl font-now font-bold text-foreground mb-6 text-center">
                 You're an Ideal Partner If You...
@@ -170,24 +197,25 @@ const BecomePartner = () => {
 
         {/* Contact Section */}
         <section className="container mx-auto px-4 py-10 md:py-20">
-          <motion.div 
-            className="max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div className="max-w-4xl mx-auto" initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true,
+          margin: "-100px"
+        }} transition={{
+          duration: 0.5
+        }}>
             <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
               <div className="grid md:grid-cols-2 gap-10 items-center">
                 {/* CEO Profile */}
                 <div className="text-center md:text-left space-y-4">
                   <div className="inline-block">
                     <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent p-1 mx-auto md:mx-0">
-                      <img 
-                        src={brianProfile} 
-                        alt="Brian - Founder & CEO" 
-                        className="w-full h-full rounded-full object-cover"
-                      />
+                      <img src={brianProfile} alt="Brian - Founder & CEO" className="w-full h-full rounded-full object-cover" />
                     </div>
                   </div>
                   <div>
@@ -195,15 +223,9 @@ const BecomePartner = () => {
                     <p className="text-muted-foreground font-now">Founder</p>
                   </div>
                   <p className="text-muted-foreground font-now text-sm leading-relaxed">
-                    I'm personally involved in every partnership conversation, focused on creating measurable value for your clients.
+                    We focus on building partnerships that create measurable value for your clients, with hands-on support to make sure integrations works.    
                   </p>
-                  <a 
-                    href="https://www.linkedin.com/in/briancwinkel/"
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-now text-sm"
-                    onClick={() => handleContactClick('linkedin')}
-                  >
+                  <a href="https://www.linkedin.com/in/briancwinkel/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-now text-sm" onClick={() => handleContactClick('linkedin')}>
                     <Linkedin className="h-4 w-4" />
                     Connect on LinkedIn
                   </a>
@@ -216,13 +238,11 @@ const BecomePartner = () => {
                   </h2>
                   
                   <div className="space-y-4">
-                    <motion.a
-                      href="mailto:Brian@twentytwentysolutions.io"
-                      className="flex items-center gap-4 p-4 bg-card rounded-xl border hover:border-primary/50 transition-colors group"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleContactClick('email')}
-                    >
+                    <motion.a href="mailto:Brian@twentytwentysolutions.io" className="flex items-center gap-4 p-4 bg-card rounded-xl border hover:border-primary/50 transition-colors group" whileHover={{
+                    scale: 1.02
+                  }} whileTap={{
+                    scale: 0.98
+                  }} onClick={() => handleContactClick('email')}>
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                         <Mail className="h-6 w-6 text-primary" />
                       </div>
@@ -233,13 +253,11 @@ const BecomePartner = () => {
                       <ArrowRight className="h-5 w-5 text-muted-foreground ml-auto group-hover:text-primary transition-colors" />
                     </motion.a>
 
-                    <motion.a
-                      href="tel:+31640411523"
-                      className="flex items-center gap-4 p-4 bg-card rounded-xl border hover:border-primary/50 transition-colors group"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleContactClick('phone')}
-                    >
+                    <motion.a href="tel:+31640411523" className="flex items-center gap-4 p-4 bg-card rounded-xl border hover:border-primary/50 transition-colors group" whileHover={{
+                    scale: 1.02
+                  }} whileTap={{
+                    scale: 0.98
+                  }} onClick={() => handleContactClick('phone')}>
                       <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
                         <Phone className="h-6 w-6 text-secondary" />
                       </div>
@@ -258,8 +276,6 @@ const BecomePartner = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default BecomePartner;
