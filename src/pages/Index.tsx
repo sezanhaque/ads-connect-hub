@@ -88,7 +88,7 @@ const Index = () => {
             </h1>
 
             {/* Subline */}
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-xl text-center font-light">A central platform for recruitment teams to manage advertising across channels with full transparency and control.</p>
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left">A central platform for recruitment teams to manage advertising across channels with full transparency and control.</p>
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-px !mt-5">
