@@ -82,13 +82,13 @@ const Index = () => {
           <div className="space-y-8 min-w-0">
             {/* Three-line headline */}
             <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,4.5vw,3.75rem)] text-left">
-              <span className="block bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Go live in minutes.</span>
-              <span className="block bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Full transparency.</span>
-              <span className="block bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Expert-led support.</span>
+              <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Go live in minutes.</span>
+              <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Full transparency.</span>
+              <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Expert-led support.</span>
             </h1>
 
             {/* Subline */}
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left">A central platform for recruitment teams to manage advertising across channels with full transparency and control.</p>
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left">A central platform for <span className="text-primary font-medium">recruitment teams</span> to manage advertising across channels with full transparency and control.</p>
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-px !mt-5">
