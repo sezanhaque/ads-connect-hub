@@ -77,16 +77,14 @@ const Index = () => {
 
       {/* Hero Section */}
       <main className="container mx-auto px-4 pt-12 md:pt-20 pb-16 md:pb-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-16 items-center">
           {/* Left: Text Content */}
-          <div className="space-y-8 max-w-xl">
+          <div className="space-y-8 max-w-2xl">
             {/* Three-line headline */}
-            <h1 className="font-now font-bold tracking-tight text-foreground leading-[1.1] text-[clamp(2rem,5vw,3.25rem)] text-left">​Go live in minutes.
-Full financial transparency.  
-Recruitment advertising without noise.<br />
-              ​
-              <br />
-              Recruitment advertising without noise.
+            <h1 className="font-now font-bold tracking-tight text-foreground leading-[1.1] text-[clamp(1.5rem,3.6vw,3.25rem)] text-left">
+              <span className="block whitespace-nowrap">Go live in minutes.</span>
+              <span className="block whitespace-nowrap">Full financial transparency.</span>
+              <span className="block whitespace-nowrap">Recruitment advertising without noise.</span>
             </h1>
 
             {/* Subline */}
@@ -103,15 +101,17 @@ Recruitment advertising without noise.<br />
             </div>
 
             {/* Trust note */}
-            <p className="text-sm text-muted-foreground font-now font-medium">
-              No agencies. No long setup. Full control.
-            </p>
+            <p className="text-sm text-muted-foreground font-now font-medium">No agencies. No long setup. Full control.</p>
           </div>
 
           {/* Right: Product Visual */}
-          <div className="relative">
+          <div className="relative ml-auto lg:max-w-[560px]">
             <div className="bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 rounded-2xl p-4 md:p-6 shadow-xl">
-              <img src={campaignPreview} alt="Twenty Twenty Solutions dashboard showing campaign performance metrics" className="w-full h-auto rounded-lg shadow-lg" />
+              <img
+                src={campaignPreview}
+                alt="Twenty Twenty Solutions dashboard showing campaign performance metrics"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
             </div>
             {/* Subtle background accent */}
             <div className="absolute -z-10 top-8 right-8 w-full h-full bg-accent/20 rounded-2xl blur-xl" />
