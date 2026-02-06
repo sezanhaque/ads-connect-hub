@@ -57,7 +57,7 @@ const HowItWorks = () => {
               >
                 <step.icon className={`h-7 w-7 ${step.iconColor}`} />
               </motion.div>
-              <h3 className="text-xl font-now font-bold text-foreground">{step.title}</h3>
+              <h3 className="text-lg md:text-xl font-now font-bold text-foreground whitespace-nowrap">{step.title}</h3>
               <p className="text-muted-foreground font-now leading-relaxed text-sm">{step.description}</p>
             </motion.div>
           ))}
