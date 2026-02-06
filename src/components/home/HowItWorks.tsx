@@ -8,7 +8,7 @@ const steps = [{
   iconColor: "text-primary-foreground"
 }, {
   icon: Megaphone,
-  title: "Launch recruitment ads across channels",
+  title: "Launch ads across channels",
   description: "Create and launch recruitment advertising campaigns in minutes. Select your target audience, channels, and budget without dealing with complex advertising setups or agencies. The platform handles the execution, so you can focus on hiring instead of campaign management.",
   gradient: "from-secondary to-secondary/70",
   iconColor: "text-secondary-foreground"
