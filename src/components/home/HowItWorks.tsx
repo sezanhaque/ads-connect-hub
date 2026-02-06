@@ -1,5 +1,6 @@
-import { Link2, Megaphone, BarChart3 } from "lucide-react";
+import { Link2, Megaphone, BarChart3, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 const steps = [{
   icon: Link2,
   title: "Connect your ATS",
@@ -19,7 +20,11 @@ const steps = [{
   gradient: "from-accent to-accent/70",
   iconColor: "text-accent-foreground"
 }];
-const HowItWorks = () => {
+interface HowItWorksProps {
+  onDemoClick?: () => void;
+}
+
+const HowItWorks = ({ onDemoClick }: HowItWorksProps) => {
   return <section className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <motion.h2 className="text-3xl md:text-4xl font-now font-bold text-center mb-12 md:mb-16" initial={{
@@ -64,6 +69,21 @@ const HowItWorks = () => {
               <p className="text-muted-foreground font-now leading-relaxed text-sm">{step.description}</p>
             </motion.div>)}
         </div>
+        
+        {onDemoClick && (
+          <motion.div 
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <Button size="lg" onClick={onDemoClick} className="text-primary-foreground">
+              Get started
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </motion.div>
+        )}
       </div>
     </section>;
 };
