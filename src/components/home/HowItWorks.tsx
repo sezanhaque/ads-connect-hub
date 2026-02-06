@@ -1,25 +1,25 @@
-import { Rocket, Sparkles, Eye } from "lucide-react";
+import { Link2, Megaphone, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const steps = [
   {
-    icon: Rocket,
-    title: "Hire faster, work smarter",
-    description: "Traditional recruitment is slow and costly, but with AI-optimized campaigns you cut manual effort, reduce wasted spend, and fill roles faster while keeping full control over process and cost.",
+    icon: Link2,
+    title: "Connect your ATS or upload a vacancy",
+    description: "Connect your ATS or upload a vacancy manually. The platform is designed to fit seamlessly into existing recruitment workflows and supports a growing number of ATS integrations. If your ATS isn't connected yet, we can quickly set up an integration so you can start publishing vacancies without changing how you work.",
     gradient: "from-primary to-primary/70",
     iconColor: "text-primary-foreground",
   },
   {
-    icon: Sparkles,
-    title: "Campaigns built in minutes",
-    description: "Creating recruitment ads doesn't have to be complex. With our guided flow you can launch complete campaigns in just a few steps, without needing marketing expertise or external agencies.",
+    icon: Megaphone,
+    title: "Launch recruitment ads across channels",
+    description: "Create and launch recruitment advertising campaigns in minutes. Select your target audience, channels, and budget without dealing with complex advertising setups or agencies. The platform handles the execution, so you can focus on hiring instead of campaign management.",
     gradient: "from-secondary to-secondary/70",
     iconColor: "text-secondary-foreground",
   },
   {
-    icon: Eye,
-    title: "Full clarity on data and costs",
-    description: "Recruitment spend is often hidden behind unclear reports and agency fees, but with real-time dashboards you see exactly where your budget goes, what results it delivers, and the true cost of every candidate.",
+    icon: BarChart3,
+    title: "Track performance with full transparency",
+    description: "Monitor spend, performance, and results in real time from one central dashboard. You always know where your budget is going, how campaigns are performing, and what results they generate, with no markups, no black boxes, and full financial transparency.",
     gradient: "from-accent to-accent/70",
     iconColor: "text-accent-foreground",
   },
