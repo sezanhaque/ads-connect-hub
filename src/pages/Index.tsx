@@ -9,16 +9,15 @@ import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 import { posthog } from "@/lib/posthog";
 import campaignPreview from "@/assets/campaign-preview.png";
-
 const Index = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
-
   const handleDemoRequest = () => {
     posthog.capture("demo_requested");
     setIsFormOpen(true);
   };
-
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://js-eu1.hsforms.net/forms/embed/147002455.js";
@@ -28,10 +27,8 @@ const Index = () => {
       document.body.removeChild(script);
     };
   }, []);
-
   if (user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Logo />
           <p className="text-muted-foreground font-now">Redirecting to dashboard...</p>
@@ -39,33 +36,21 @@ const Index = () => {
             <Link to="/dashboard">Go to Dashboard</Link>
           </Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <Logo />
           <div className="hidden md:flex items-center gap-8">
-            <Link
-              to="/platform-overview"
-              className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium"
-            >
+            <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Product
             </Link>
-            <Link
-              to="/become-partner"
-              className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium"
-            >
+            <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a Partner
             </Link>
-            <Link
-              to="/blog"
-              className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium"
-            >
+            <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Blog
             </Link>
           </div>
@@ -76,14 +61,16 @@ const Index = () => {
             <Button variant="outline" onClick={handleDemoRequest} className="hidden md:inline-flex">
               Request demo
             </Button>
-            <MobileNav
-              onDemoClick={handleDemoRequest}
-              links={[
-                { to: "/platform-overview", label: "Product" },
-                { to: "/become-partner", label: "Become a Partner" },
-                { to: "/blog", label: "Blog" },
-              ]}
-            />
+            <MobileNav onDemoClick={handleDemoRequest} links={[{
+            to: "/platform-overview",
+            label: "Product"
+          }, {
+            to: "/become-partner",
+            label: "Become a Partner"
+          }, {
+            to: "/blog",
+            label: "Blog"
+          }]} />
           </div>
         </nav>
       </header>
@@ -94,9 +81,9 @@ const Index = () => {
           {/* Left: Text Content */}
           <div className="space-y-8 max-w-xl">
             {/* Three-line headline */}
-            <h1 className="font-now font-bold tracking-tight text-foreground leading-[1.1] text-[clamp(2rem,5vw,3.25rem)]">
-              Go live in minutes.
-              <br />
+            <h1 className="font-now font-bold tracking-tight text-foreground leading-[1.1] text-[clamp(2rem,5vw,3.25rem)]">Go live in minutes.
+Full financial transparency.
+Recruitment advertising without noise.<br />
               Full financial transparency.
               <br />
               Recruitment advertising without noise.
@@ -124,11 +111,7 @@ const Index = () => {
           {/* Right: Product Visual */}
           <div className="relative">
             <div className="bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 rounded-2xl p-4 md:p-6 shadow-xl">
-              <img
-                src={campaignPreview}
-                alt="Twenty Twenty Solutions dashboard showing campaign performance metrics"
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
+              <img src={campaignPreview} alt="Twenty Twenty Solutions dashboard showing campaign performance metrics" className="w-full h-auto rounded-lg shadow-lg" />
             </div>
             {/* Subtle background accent */}
             <div className="absolute -z-10 top-8 right-8 w-full h-full bg-accent/20 rounded-2xl blur-xl" />
@@ -142,18 +125,11 @@ const Index = () => {
           <DialogHeader>
             <DialogTitle>Request demo</DialogTitle>
           </DialogHeader>
-          <div
-            className="hs-form-frame"
-            data-region="eu1"
-            data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80"
-            data-portal-id="147002455"
-          />
+          <div className="hs-form-frame" data-region="eu1" data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" data-portal-id="147002455" />
         </DialogContent>
       </Dialog>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
