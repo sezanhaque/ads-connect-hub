@@ -14,7 +14,7 @@ const steps = [{
   iconColor: "text-secondary-foreground"
 }, {
   icon: BarChart3,
-  title: "Track performance with full transparency",
+  title: "Track all your preferred KPI's",
   description: "Monitor spend, performance, and results in real time from one central dashboard. You always know where your budget is going, how campaigns are performing, and what results they generate, with no markups, no black boxes, and full financial transparency.",
   gradient: "from-accent to-accent/70",
   iconColor: "text-accent-foreground"
