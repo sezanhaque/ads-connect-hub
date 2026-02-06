@@ -86,34 +86,46 @@ const Index = () => {
           <div className="space-y-8 min-w-0">
             {/* Three-line headline */}
             <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,4.5vw,3.75rem)] text-left">
-              <motion.span 
-                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
+              <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
+              opacity: 0,
+              y: 20
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.5,
+              delay: 0.1
+            }}>
                 Go live in minutes.
               </motion.span>
-              <motion.span 
-                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.25 }}
-              >
+              <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
+              opacity: 0,
+              y: 20
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.5,
+              delay: 0.25
+            }}>
                 Full transparency.
               </motion.span>
-              <motion.span 
-                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
+              <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
+              opacity: 0,
+              y: 20
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.5,
+              delay: 0.4
+            }}>
                 Expert-led support.
               </motion.span>
             </h1>
 
             {/* Subline */}
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left">A central platform for <span className="text-primary font-medium">recruitment teams</span> to manage advertising across channels with full transparency and control.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left md:text-lg">A central platform for <span className="text-primary font-medium">recruitment teams</span> to manage advertising across channels with full transparency and control.</p>
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-px !mt-5">
