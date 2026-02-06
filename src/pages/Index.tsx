@@ -81,18 +81,18 @@ const Index = () => {
 
       {/* Hero Section */}
       <main className="container mx-auto px-4 pt-12 md:pt-20 pb-16 md:pb-24">
-        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-[1fr_auto] gap-8 lg:gap-12 items-center">
           {/* Left: Text Content */}
-          <div className="space-y-8 max-w-2xl border-0 mx-0">
+          <div className="space-y-8 min-w-0">
             {/* Three-line headline */}
             <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,4.5vw,3.75rem)] text-left">
-              <span className="block whitespace-nowrap bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Go live in minutes.</span>
-              <span className="block whitespace-nowrap bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Full financial transparency.</span>
-              <span className="block whitespace-nowrap bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Recruitment advertising without noise.</span>
+              <span className="block bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Go live in minutes.</span>
+              <span className="block bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Full financial transparency.</span>
+              <span className="block bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">Recruitment advertising without noise.</span>
             </h1>
 
             {/* Subline */}
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now">
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-xl">
               A central platform for teams to manage advertising across channels with full transparency and control.
             </p>
 
@@ -111,7 +111,7 @@ const Index = () => {
           </div>
 
           {/* Right: Product Visual */}
-          <div className="relative lg:max-w-[560px]">
+          <div className="relative w-full lg:w-[420px] xl:w-[480px] flex-shrink-0">
             <div className="bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 rounded-2xl p-4 md:p-6 shadow-xl">
               <img
                 src={campaignPreview}
