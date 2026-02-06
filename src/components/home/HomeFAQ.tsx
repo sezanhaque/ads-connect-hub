@@ -8,14 +8,6 @@ import { motion } from "framer-motion";
 
 const faqs = [
   {
-    question: "Is this a replacement for a recruitment agency?",
-    answer: "No. The platform enables teams to run recruitment advertising independently, with expert support when needed.",
-  },
-  {
-    question: "Which advertising channels are supported?",
-    answer: "The platform supports major advertising channels and is built to expand through integrations.",
-  },
-  {
     question: "Can I connect our ATS with your platform?",
     answer: "Yes. Our automated advertising platform integrates with a growing number of ATS systems. If your ATS is not yet on the list, we can quickly set up an integration with your preferred system.",
   },
