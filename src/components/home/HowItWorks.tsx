@@ -2,7 +2,7 @@ import { Link2, Megaphone, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 const steps = [{
   icon: Link2,
-  title: "Connect your ATS or upload a vacancy",
+  title: "Connect your ATS",
   description: "Connect your ATS or upload a vacancy manually. The platform is designed to fit seamlessly into existing recruitment workflows and supports a growing number of ATS integrations. If your ATS isn't connected yet, we can quickly set up an integration so you can start publishing vacancies without changing how you work.",
   gradient: "from-primary to-primary/70",
   iconColor: "text-primary-foreground"
