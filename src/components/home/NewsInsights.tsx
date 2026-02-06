@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -123,29 +122,26 @@ const NewsInsights = () => {
           </Link>
         </div>
 
-        {/* Newsletter signup */}
+        {/* Newsletter signup - matching Blog page style */}
         <motion.div 
-          className="max-w-xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 rounded-2xl p-8 border border-border"
+          className="max-w-3xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <Input 
-              type="email" 
-              placeholder="Enter your email" 
-              className="flex-1"
-              onClick={() => setIsNewsletterOpen(true)}
-              readOnly
-            />
-            <Button onClick={() => setIsNewsletterOpen(true)}>
-              Subscribe
+          <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
+            Stay Updated
+          </h3>
+          <p className="text-muted-foreground font-now">
+            Get the latest recruitment advertising insights delivered to your inbox.
+          </p>
+          <div className="pt-2">
+            <Button size="lg" variant="accent" className="text-foreground" onClick={() => setIsNewsletterOpen(true)}>
+              Subscribe to Newsletter
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground font-now">
-            Updates on recruitment advertising, automation, and platform news.
-          </p>
         </motion.div>
 
         {/* Newsletter Dialog */}
