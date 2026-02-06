@@ -142,7 +142,7 @@ const Index = () => {
           </div>
 
           {/* Right: Product Visual */}
-          <div className="relative w-full lg:w-[420px] xl:w-[480px] flex-shrink-0">
+          <div className="relative w-full lg:w-[500px] xl:w-[580px] flex-shrink-0">
             <div className="bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 rounded-2xl p-4 md:p-6 shadow-xl">
               <img src={campaignPreview} alt="Twenty Twenty Solutions dashboard showing campaign performance metrics" className="w-full h-auto rounded-lg shadow-lg" />
             </div>
