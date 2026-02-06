@@ -10,6 +10,9 @@ import Footer from "@/components/layout/Footer";
 import { posthog } from "@/lib/posthog";
 import campaignPreview from "@/assets/campaign-preview.png";
 import { motion } from "framer-motion";
+import HowItWorks from "@/components/home/HowItWorks";
+import NewsInsights from "@/components/home/NewsInsights";
+import HomeFAQ from "@/components/home/HomeFAQ";
 const Index = () => {
   const {
     user
@@ -146,6 +149,10 @@ const Index = () => {
           <div className="hs-form-frame" data-region="eu1" data-form-id="de605c31-9f1e-4f10-92b7-3f621cd9bc80" data-portal-id="147002455" />
         </DialogContent>
       </Dialog>
+
+      <HowItWorks />
+      <NewsInsights />
+      <HomeFAQ />
 
       <Footer />
     </div>;
