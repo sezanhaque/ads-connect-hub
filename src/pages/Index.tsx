@@ -9,6 +9,7 @@ import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 import { posthog } from "@/lib/posthog";
 import campaignPreview from "@/assets/campaign-preview.png";
+import { motion } from "framer-motion";
 const Index = () => {
   const {
     user
@@ -82,9 +83,30 @@ const Index = () => {
           <div className="space-y-8 min-w-0">
             {/* Three-line headline */}
             <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,4.5vw,3.75rem)] text-left">
-              <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Go live in minutes.</span>
-              <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Full transparency.</span>
-              <span className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">Expert-led support.</span>
+              <motion.span 
+                className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                Go live in minutes.
+              </motion.span>
+              <motion.span 
+                className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+              >
+                Full transparency.
+              </motion.span>
+              <motion.span 
+                className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                Expert-led support.
+              </motion.span>
             </h1>
 
             {/* Subline */}
