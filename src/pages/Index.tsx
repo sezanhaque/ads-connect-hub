@@ -85,10 +85,10 @@ const Index = () => {
           {/* Left: Text Content */}
           <div className="space-y-8 max-w-xl">
             {/* Three-line headline */}
-            <h1 className="font-now font-bold tracking-tight text-foreground leading-[1.1] text-[clamp(2rem,5vw,3.25rem)] text-left">
-              Go live in minutes.<br />
-              Full financial transparency.<br />
-              Recruitment advertising without noise.
+            <h1 className="font-now font-bold tracking-tight text-foreground leading-[1.1] text-[clamp(1.75rem,4vw,3.25rem)] text-left">
+              <span className="block whitespace-nowrap">Go live in minutes.</span>
+              <span className="block whitespace-nowrap">Full financial transparency.</span>
+              <span className="block whitespace-nowrap">Recruitment advertising without noise.</span>
             </h1>
 
             {/* Subline */}
