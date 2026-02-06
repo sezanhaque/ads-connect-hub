@@ -87,7 +87,7 @@ const Index = () => {
             {/* Three-line headline */}
             <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,4.5vw,3.75rem)] text-left">
               <motion.span 
-                className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent"
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
@@ -95,7 +95,7 @@ const Index = () => {
                 Go live in minutes.
               </motion.span>
               <motion.span 
-                className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent"
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.25 }}
@@ -103,7 +103,7 @@ const Index = () => {
                 Full transparency.
               </motion.span>
               <motion.span 
-                className="block bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent"
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
