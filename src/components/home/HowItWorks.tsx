@@ -1,4 +1,4 @@
-import { Link2, Megaphone, BarChart3, ArrowRight, ChevronRight } from "lucide-react";
+import { Link2, Megaphone, BarChart3, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -55,31 +55,6 @@ const HowItWorks = ({ onDemoClick }: HowItWorksProps) => {
         </motion.div>
         
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto relative">
-          {/* Connecting lines (hidden on mobile) */}
-          <div className="hidden md:block absolute top-24 left-1/3 right-1/3 h-0.5">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-secondary/30 to-accent/30" />
-            <motion.div 
-              className="absolute left-0 top-1/2 -translate-y-1/2"
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-            >
-              <ChevronRight className="w-5 h-5 text-primary/50" />
-            </motion.div>
-          </div>
-          <div className="hidden md:block absolute top-24 left-2/3 right-[8%] h-0.5">
-            <div className="absolute inset-0 bg-gradient-to-r from-secondary/30 to-accent/30" />
-            <motion.div 
-              className="absolute left-0 top-1/2 -translate-y-1/2"
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.7 }}
-            >
-              <ChevronRight className="w-5 h-5 text-secondary/50" />
-            </motion.div>
-          </div>
           
           {steps.map((step, index) => (
             <motion.div 
