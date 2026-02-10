@@ -4,11 +4,20 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import salaryTransparencyBlogImage from "@/assets/salary-transparency-blog.png";
 import realisticRecruitmentBlogImage from "@/assets/realistic-recruitment-blog.png";
 import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
-import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
 
 const recentArticles = [
+  {
+    slug: "salary-transparency-vacancy",
+    title: "Why Not Listing a Salary in Your Vacancy Costs You Trust",
+    excerpt: "Nearly 40% of candidates assume a company is a poor payer when no salary is mentioned.",
+    category: "Best Practices",
+    date: "February 10, 2026",
+    readTime: "4 min read",
+    image: salaryTransparencyBlogImage,
+  },
   {
     slug: "realistic-recruitment-advertising",
     title: "Why Realistic Recruitment Advertising Is Becoming a Strategic Necessity",
@@ -26,15 +35,6 @@ const recentArticles = [
     date: "January 30, 2026",
     readTime: "4 min read",
     image: strategyAlignmentBlogImage,
-  },
-  {
-    slug: "5-common-mistakes-recruitment-advertising",
-    title: "5 Common Mistakes in Recruitment Advertising",
-    excerpt: "Recruitment advertising has become a core pillar of modern hiring strategies.",
-    category: "Best Practices",
-    date: "January 29, 2026",
-    readTime: "4 min read",
-    image: recruitmentMistakesBlogImage,
   },
 ];
 

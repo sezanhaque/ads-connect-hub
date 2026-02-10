@@ -10,9 +10,21 @@ import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
 import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
 import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
 import realisticRecruitmentBlogImage from "@/assets/realistic-recruitment-blog.png";
+import salaryTransparencyBlogImage from "@/assets/salary-transparency-blog.png";
 
 // Blog posts data
 const blogPosts = [
+  {
+    id: "salary-transparency-vacancy",
+    slug: "salary-transparency-vacancy",
+    title: "Why Not Listing a Salary in Your Vacancy Costs You Trust",
+    excerpt: "Nearly 40% of candidates assume a company is a poor payer when no salary is mentioned. Even before reading the rest of the vacancy, trust is already damaged.",
+    author: "Our team",
+    date: "February 10, 2026",
+    readTime: "4 min read",
+    category: "Best Practices",
+    image: salaryTransparencyBlogImage,
+  },
   {
     id: "realistic-recruitment-advertising",
     slug: "realistic-recruitment-advertising",
