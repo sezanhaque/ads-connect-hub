@@ -37,6 +37,83 @@ export const blogPostsData: Record<string, {
   content: React.ReactNode;
   faqs: FAQItem[];
 }> = {
+  "salary-transparency-vacancy": {
+    id: "salary-transparency-vacancy",
+    title: "Why Not Listing a Salary in Your Vacancy Costs You Trust",
+    excerpt: "Nearly 40% of candidates assume a company is a poor payer when no salary is mentioned. Even before reading the rest of the vacancy, trust is already damaged.",
+    author: "Our team",
+    date: "February 10, 2026",
+    readTime: "4 min read",
+    category: "Best Practices",
+    faqs: [
+      {
+        question: "Should you include salary in a job vacancy?",
+        answer: "Yes. Including salary in a job vacancy increases trust and improves application quality. Research shows that many candidates interpret missing salary information as a sign of poor compensation. Transparent salary ranges help attract candidates who are genuinely aligned with the role."
+      },
+      {
+        question: "Does listing a salary improve recruitment advertising results?",
+        answer: "In most cases, yes. Vacancies with salary information tend to achieve higher conversion rates, lower cost per applicant, and better candidate quality. Salary clarity reduces uncertainty, which is critical in performance-based recruitment advertising."
+      },
+      {
+        question: "What if the salary depends on experience or negotiation?",
+        answer: "You can still include a salary range. Mentioning a minimum and maximum salary, combined with a short explanation (for example, based on experience or seniority), sets expectations without limiting flexibility. This approach is far more effective than leaving salary out entirely."
+      }
+    ],
+    content: (
+      <>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+          Transparency has become a defining factor in modern recruitment. Candidates compare roles faster, across more channels, and with higher expectations than ever before. Yet one element is still frequently missing from job descriptions and vacancy texts: salary.
+        </p>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+          Recent research shows that nearly 40% of candidates assume a company is a poor payer when no salary is mentioned. Even before reading the rest of the vacancy, trust is already damaged. In recruitment advertising, perception matters. And silence sends a message.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">What Candidates Really Think When Salary Is Missing</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          From a candidate's perspective, the absence of salary information in a vacancy creates uncertainty. That uncertainty is often interpreted negatively.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">Common assumptions include:</p>
+        <ul className="list-disc pl-6 space-y-2 text-muted-foreground mb-8">
+          <li>The salary is below market level</li>
+          <li>The employer is not transparent</li>
+          <li>Negotiation will be difficult or one-sided</li>
+        </ul>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          This doesn't just reduce application volume. It affects who applies. Strong, experienced candidates are more likely to opt out early, while less suitable candidates may still apply. The result: lower quality applications and more time lost in screening.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Why Salary Transparency Matters in Recruitment Advertising</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          In performance-driven recruitment advertising, every click has a cost. When salary expectations are unclear, conversion rates drop.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          You pay for reach and traffic via platforms like social media and job ads, but hesitation at the vacancy level prevents candidates from applying. This increases cost per applicant and reduces campaign efficiency. Including a salary range in a job description acts as a natural filter. It improves relevance, attracts candidates with the right expectations, and leads to higher-quality applications.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Transparency Builds Trust Before the First Click</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Salary transparency is not about locking yourself into a single number. It is about setting clear expectations early in the hiring process.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">High-performing vacancy texts typically:</p>
+        <ul className="list-disc pl-6 space-y-2 text-muted-foreground mb-8">
+          <li>Include a realistic salary range</li>
+          <li>Explain how compensation grows with experience or performance</li>
+          <li>Align salary with role responsibilities and market standards</li>
+        </ul>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          This allows candidates to quickly assess whether a role fits their situation. Fewer doubts lead to higher intent and better conversion.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">From Better Job Descriptions to Better Hiring Results</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Recruitment advertising works best when messaging, targeting, and expectations are aligned. Salary transparency supports all three.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          It strengthens employer branding, improves candidate trust, and makes recruitment advertising budgets more effective. Especially in competitive labor markets, clarity in job postings is not optional. It directly impacts performance. At Twenty Twenty Solutions, we consistently see that vacancies with clear, honest information outperform those that leave candidates guessing.
+        </p>
+      </>
+    )
+  },
   "realistic-recruitment-advertising": {
     id: "realistic-recruitment-advertising",
     title: "Why Realistic Recruitment Advertising Is Becoming a Strategic Necessity",
