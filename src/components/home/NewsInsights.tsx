@@ -4,11 +4,20 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import openaiAdMinImage from "@/assets/openai-ad-blog.png";
 import salaryTransparencyBlogImage from "@/assets/salary-transparency-blog.png";
 import realisticRecruitmentBlogImage from "@/assets/realistic-recruitment-blog.png";
-import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
 
 const recentArticles = [
+  {
+    slug: "openai-ad-minimum",
+    title: "What OpenAI's $200,000 Ad Minimum Tells Us About the Future of Digital Advertising",
+    excerpt: "OpenAI has confirmed a minimum commitment of $200,000 for advertisers entering its ChatGPT ad beta. Tightly controlled and intentionally small — it tells us where advertising is heading next.",
+    category: "Industry Insights",
+    date: "February 18, 2026",
+    readTime: "5 min read",
+    image: openaiAdMinImage,
+  },
   {
     slug: "salary-transparency-vacancy",
     title: "Why Not Listing a Salary in Your Vacancy Costs You Trust",
@@ -26,15 +35,6 @@ const recentArticles = [
     date: "February 2, 2026",
     readTime: "4 min read",
     image: realisticRecruitmentBlogImage,
-  },
-  {
-    slug: "aligning-hr-recruitment-marketing",
-    title: "Aligning HR, Recruitment, and Marketing Through Advertising Automation",
-    excerpt: "Recruitment advertising almost never lives with one team.",
-    category: "Strategy",
-    date: "January 30, 2026",
-    readTime: "4 min read",
-    image: strategyAlignmentBlogImage,
   },
 ];
 

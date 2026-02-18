@@ -366,12 +366,100 @@ export const blogPostsData: Record<string, {
       </>
     )
   },
+  "openai-ad-minimum": {
+    id: "openai-ad-minimum",
+    title: "What OpenAI's $200,000 Ad Minimum Tells Us About the Future of Digital Advertising",
+    excerpt: "OpenAI has confirmed a minimum commitment of $200,000 for advertisers entering its ChatGPT ad beta. The beta is live, tightly controlled, and intentionally small — and it tells us a great deal about where advertising is heading next.",
+    author: "Our team",
+    date: "February 18, 2026",
+    readTime: "5 min read",
+    category: "Industry Insights",
+    faqs: [
+      {
+        question: "What is the minimum budget to advertise on ChatGPT?",
+        answer: "OpenAI's current ad beta requires a minimum commitment of $200,000, with some brands being approached at $250,000 and select early partners reportedly committing up to $1 million. This is not a self-serve platform — access is by invitation only and intentionally restricted to established advertisers during the beta phase."
+      },
+      {
+        question: "How much does it cost per impression?",
+        answer: "Early pricing is reported at approximately $60 per 1,000 impressions (CPM). This is significantly higher than standard display or social media rates, reflecting the premium, intent-rich nature of the placement."
+      },
+      {
+        question: "Will ads influence what ChatGPT recommends?",
+        answer: "No. OpenAI has been explicit on this point. Ads are clearly labeled as sponsored and appear at the bottom of responses. They do not shape or influence the answers ChatGPT generates. The model's outputs remain independent of advertiser relationships."
+      },
+      {
+        question: "Does ChatGPT share my conversation data with advertisers?",
+        answer: "No. Advertiser reporting is limited to aggregate performance data — views and clicks. Advertisers do not receive access to individual conversations or personal user data. Users can also review why a specific ad was shown to them, turn off ad personalization, or opt out of ads entirely."
+      },
+      {
+        question: "Will I see ads if I pay for ChatGPT?",
+        answer: "No. Users on paid tiers — Plus, Pro, Business, and Enterprise — will not see ads. Advertising is limited to the free tier as a mechanism to support broader access to the product."
+      },
+      {
+        question: "Is this relevant to recruitment advertising?",
+        answer: "It is worth watching closely. Someone asking ChatGPT which recruitment platform to use, or how to write a job posting, is already mid-decision. Advertising in that context — matched to genuine intent — is a fundamentally different proposition from broad audience targeting. As the beta develops, recruitment and HR software brands are likely to be among the most relevant early adopters."
+      }
+    ],
+    content: (
+      <>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+          When we wrote about OpenAI's initial advertising stance earlier this year, the story was still hypothetical. A direction, not a decision. That has changed.
+        </p>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+          OpenAI has confirmed a minimum commitment of $200,000 for advertisers entering its ChatGPT ad beta — with some brands being approached at $250,000 and a few reportedly committing up to $1 million. The beta is live, tightly controlled, and intentionally small. And it tells us a great deal about where advertising is heading next.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">This Is Premium Inventory, By Design</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          The $200,000 minimum is not arbitrary. It is a deliberate signal. By setting a high barrier to entry, OpenAI ensures that only established brands with serious budgets shape the early experience of advertising inside ChatGPT. Fly-by-night advertisers and low-quality placements are filtered out before they can damage user trust during a critical phase.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Early pricing is reported at around $60 per 1,000 impressions — significantly higher than standard display or social rates. OpenAI is positioning ChatGPT ads as premium inventory from day one, and the pricing reflects that.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">The Rules Have Not Changed — They Have Become Concrete</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          In January, OpenAI outlined its principles for advertising: answer independence, conversation privacy, user control. Those principles are now operational. Ads appear at the bottom of responses, clearly labeled as sponsored. They do not influence what ChatGPT recommends. Advertiser data is limited to aggregate performance — views and clicks — with no access to user conversations.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Users can dismiss ads, review why a specific ad appeared, turn off personalization, or opt out of ads entirely in exchange for reduced free usage. Paid subscribers on Plus, Pro, Business, and Enterprise tiers see no ads at all.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          There are also explicit content restrictions. Ads will not appear in conversations about health, mental health, or politics. They will not be served to users under 18. These guardrails reflect a considered approach to where commercial messaging does and does not belong.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Contextual Targeting at Scale</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          The targeting model being tested does not rely on personal data or audience profiles. Instead, ads are matched to the general topic of a conversation. Ask about meal planning and you may see an ad for a grocery delivery service. Ask about productivity tools and you may see relevant software.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          This is intent-based advertising in its most direct form. The user has already told the platform what they are thinking about. The ad does not interrupt — it follows. For marketing and recruitment teams, this is a meaningful shift. Reaching someone mid-task, in a moment of genuine intent, is fundamentally different from reaching them mid-scroll on a social feed.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">A Signal for the Broader Market</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          OpenAI is not alone in this direction. The advertising industry has been moving toward contextual, intent-driven models for years — accelerated by privacy changes, cookie deprecation, and declining trust in traditional targeting. What OpenAI is testing is a more advanced version of that shift: advertising that lives inside a reasoning interface rather than alongside passive content.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          The questions that will define this space are not yet answered. How do users respond to commercial messages inside a tool they associate with objective answers? How do brands measure consistent exposure when AI responses vary? What happens to the model's perceived neutrality as ad revenue grows? These are open questions, and the current beta exists precisely to begin answering them.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">What This Means for Recruitment and Marketing Teams</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          For teams investing in digital advertising, the key takeaway is structural, not tactical. As AI interfaces become a primary entry point for research and decision-making, the moment of intent moves earlier in the journey. Someone asking ChatGPT which recruitment platform to use, or which HR software to consider, is already close to a decision.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Advertising in that context requires clarity, relevance, and trust — not volume or reach. The brands that perform well in AI-native advertising environments will be those that have invested in structured, transparent messaging. Not because of regulation, but because the context demands it.
+        </p>
+      </>
+    )
+  },
   "openai-advertising-future": {
     id: "openai-advertising-future",
     title: "What OpenAI's New Advertising Approach Signals for the Future of Digital Advertising",
     excerpt: "Recently, OpenAI published its official stance on introducing advertising within ChatGPT, not as a product launch, but as a deliberate experiment tied to a broader mission of making AI more accessible.",
     author: "Our team",
-    date: "January 28, 2025",
+    date: "January 28, 2026",
     readTime: "5 min read",
     category: "Industry Insights",
     faqs: [

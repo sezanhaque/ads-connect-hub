@@ -6,6 +6,7 @@ import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
+import openaiAdMinImage from "@/assets/openai-ad-blog.png";
 import openaiAdBlogImage from "@/assets/openai-ad-blog.webp";
 import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avif";
 import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
@@ -14,6 +15,17 @@ import salaryTransparencyBlogImage from "@/assets/salary-transparency-blog.png";
 
 // Blog posts data
 const blogPosts = [
+  {
+    id: "openai-ad-minimum",
+    slug: "openai-ad-minimum",
+    title: "What OpenAI's $200,000 Ad Minimum Tells Us About the Future of Digital Advertising",
+    excerpt: "OpenAI has confirmed a minimum commitment of $200,000 for advertisers entering its ChatGPT ad beta. The beta is live, tightly controlled, and intentionally small — and it tells us a great deal about where advertising is heading next.",
+    author: "Our team",
+    date: "February 18, 2026",
+    readTime: "5 min read",
+    category: "Industry Insights",
+    image: openaiAdMinImage,
+  },
   {
     id: "salary-transparency-vacancy",
     slug: "salary-transparency-vacancy",
