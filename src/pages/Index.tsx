@@ -129,9 +129,11 @@ const Index = () => {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-px !mt-5">
-              <Button size="lg" onClick={handleDemoRequest} className="text-primary-foreground">
-                See how it works
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button size="lg" asChild className="text-primary-foreground">
+                <Link to="/platform-overview">
+                  See how it works
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </Button>
             </div>
 
