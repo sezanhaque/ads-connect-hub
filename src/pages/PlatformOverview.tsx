@@ -69,8 +69,12 @@ const Product = () => {
         <div className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto">
           <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">Turn Recruitment Advertising
 Into Predictable Hires.
-        
-        
+
+
+
+
+
+
         </h1>
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
@@ -84,10 +88,7 @@ Take control of your hiring and outpace the competition.</p>
 
       {/* How It Works - Step 1 */}
       <section className="container mx-auto px-4 py-10 md:py-16 overflow-hidden">
-        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.6 }}>
+        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
 
           <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">
             How It Works
@@ -98,12 +99,11 @@ Take control of your hiring and outpace the competition.</p>
         </motion.div>
         
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <motion.div
-          className="order-2 md:order-1"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, delay: 0.2 }}>
+          <motion.div className="order-2 md:order-1"
+        initial={{ opacity: 0, x: -50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6, delay: 0.2 }}>
 
             <img src={jobsInterface} alt="Jobs Interface - Import and manage your job postings" className="w-full rounded-lg shadow-lg border border-primary/20 hover:shadow-xl transition-shadow duration-300" />
           </motion.div>
