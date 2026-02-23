@@ -6,9 +6,18 @@ import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import openaiAdMinImage from "@/assets/openai-ad-blog.png";
 import salaryTransparencyBlogImage from "@/assets/salary-transparency-blog.png";
-import realisticRecruitmentBlogImage from "@/assets/realistic-recruitment-blog.png";
+import recruitmentAdvertisingBlogImage from "@/assets/recruitment-advertising-blog.png";
 
 const recentArticles = [
+  {
+    slug: "should-you-use-advertising-for-recruitment",
+    title: "Should You Use Advertising for Recruitment?",
+    excerpt: "Recruitment has become a visibility challenge. If your hiring goals depend on consistent applicant flow, advertising is no longer optional.",
+    category: "Strategy",
+    date: "February 23, 2026",
+    readTime: "4 min read",
+    image: recruitmentAdvertisingBlogImage,
+  },
   {
     slug: "openai-ad-minimum",
     title: "What OpenAI's $200,000 Ad Minimum Tells Us About the Future of Digital Advertising",
@@ -26,15 +35,6 @@ const recentArticles = [
     date: "February 10, 2026",
     readTime: "4 min read",
     image: salaryTransparencyBlogImage,
-  },
-  {
-    slug: "realistic-recruitment-advertising",
-    title: "Why Realistic Recruitment Advertising Is Becoming a Strategic Necessity",
-    excerpt: "Many HR teams experience a disconnect between attraction and retention.",
-    category: "Industry Insights",
-    date: "February 2, 2026",
-    readTime: "4 min read",
-    image: realisticRecruitmentBlogImage,
   },
 ];
 
