@@ -37,6 +37,70 @@ export const blogPostsData: Record<string, {
   content: React.ReactNode;
   faqs: FAQItem[];
 }> = {
+  "should-you-use-advertising-for-recruitment": {
+    id: "should-you-use-advertising-for-recruitment",
+    title: "Should You Use Advertising for Recruitment?",
+    excerpt: "Recruitment has become a visibility challenge. If your hiring goals depend on consistent applicant flow, advertising is no longer optional — it is a strategic extension of talent acquisition.",
+    author: "Our team",
+    date: "February 23, 2026",
+    readTime: "4 min read",
+    category: "Strategy",
+    faqs: [
+      {
+        question: "Should I advertise every vacancy?",
+        answer: "Not necessarily. Advertising is most effective for recurring roles, competitive markets, or when organic reach does not generate enough qualified applicants."
+      },
+      {
+        question: "Does social media advertising improve applicant volume?",
+        answer: "Yes. Platforms like Meta and TikTok increase visibility among both active and passive candidates, leading to more predictable inflow."
+      },
+      {
+        question: "Is recruitment advertising expensive?",
+        answer: "It becomes expensive when unmanaged. When structured and optimized, it provides measurable cost per applicant and cost per hire, giving full budget control."
+      },
+      {
+        question: "Can recruitment advertising be automated?",
+        answer: "Yes. With Twenty Twenty Solutions, campaigns can be launched, optimized, and connected to your ATS automatically, reducing manual workload while maintaining performance."
+      }
+    ],
+    content: (
+      <>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+          Recruitment has become a visibility challenge. Candidates compare opportunities across multiple platforms and spend more time on social media than on job boards. Yet many organizations still rely mainly heavily on organic vacancy traffic.
+        </p>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+          If your hiring goals depend on consistent applicant flow, advertising is no longer optional. It is a strategic extension of talent acquisition. The question is not whether advertising replaces recruitment strategy, but whether your recruitment strategy includes controlled visibility.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Why Organic Reach Is No Longer Enough</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Job boards and career pages only reach active job seekers. A large part of the workforce is passive. They are open to opportunities but not actively searching.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          Platforms such as Meta and TikTok allow you to reach these candidates directly. Instead of waiting for traffic, you place your vacancy in front of the right audience based on location, interests, and behavior. For organizations with recurring hiring needs, this creates predictability. Advertising transforms recruitment from hope-based exposure into measurable reach.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">Advertising as the Performance Layer of Talent Acquisition</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Advertising does not replace employer branding, workforce planning, or candidate experience. It strengthens them.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          When campaigns are structured correctly, you gain insight into cost per applicant, cost per hire, and channel effectiveness. Recruitment budgets become controllable. Decisions become data driven. Hiring becomes scalable and now-a-days even completely automated. In competitive labor markets, the companies that actively promote their vacancies consistently outperform those that rely only on organic visibility.
+        </p>
+
+        <h2 className="text-2xl font-now font-bold text-foreground mb-4">From Campaigns to Control</h2>
+        <p className="text-muted-foreground leading-relaxed mb-6">
+          Recruitment advertising only works when it is structured and connected to outcomes. Random boosts or short experiments rarely create sustainable results.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          High-performing teams run continuous campaigns for recurring roles, align targeting with geography and job requirements, and connect advertising data directly to their ATS. This creates full funnel insight from click to hire.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-8">
+          At Twenty Twenty Solutions, we automate recruitment advertising for organizations that want performance without complexity. Our platform connects campaigns directly to your ATS, provides clear dashboards focused on cost and results, and uses AI to optimize targeting and bidding in the background. Recruitment advertising is no longer a marketing experiment. For growth-focused organizations, it is a strategic driver of consistent hiring results.
+        </p>
+      </>
+    )
+  },
   "salary-transparency-vacancy": {
     id: "salary-transparency-vacancy",
     title: "Why Not Listing a Salary in Your Vacancy Costs You Trust",

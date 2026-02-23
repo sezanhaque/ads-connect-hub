@@ -12,9 +12,21 @@ import recruitmentMistakesBlogImage from "@/assets/recruitment-mistakes-blog.avi
 import strategyAlignmentBlogImage from "@/assets/strategy-alignment-blog.png";
 import realisticRecruitmentBlogImage from "@/assets/realistic-recruitment-blog.png";
 import salaryTransparencyBlogImage from "@/assets/salary-transparency-blog.png";
+import recruitmentAdvertisingBlogImage from "@/assets/recruitment-advertising-blog.png";
 
 // Blog posts data
 const blogPosts = [
+  {
+    id: "should-you-use-advertising-for-recruitment",
+    slug: "should-you-use-advertising-for-recruitment",
+    title: "Should You Use Advertising for Recruitment?",
+    excerpt: "Recruitment has become a visibility challenge. If your hiring goals depend on consistent applicant flow, advertising is no longer optional — it is a strategic extension of talent acquisition.",
+    author: "Our team",
+    date: "February 23, 2026",
+    readTime: "4 min read",
+    category: "Strategy",
+    image: recruitmentAdvertisingBlogImage,
+  },
   {
     id: "openai-ad-minimum",
     slug: "openai-ad-minimum",
