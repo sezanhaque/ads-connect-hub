@@ -51,6 +51,9 @@ const Product = () => {
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a Partner
             </Link>
+            <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Blog
+            </Link>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
