@@ -79,7 +79,7 @@ Into Predictable Hires.
 
 
         </h1>
-          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto text-center">Built for teams that hire at scale and are done with agency dependency, unclear performance, and disconnected ATS reporting.</p>
+          <p className="text-lg text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto text-center md:text-xl">Built for teams that hire at scale and are done with agency dependency, unclear performance, and disconnected ATS reporting.</p>
 
           {/* Campaign Creation Interface Preview */}
           <div className="mt-12">
