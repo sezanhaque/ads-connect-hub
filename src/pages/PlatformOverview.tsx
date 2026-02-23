@@ -68,7 +68,9 @@ const Product = () => {
       <section className="container mx-auto px-4 py-10 md:py-20">
         <div className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto">
           <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">Turn Recruitment Advertising
- Into Predictable Hires.
+Into Predictable Hires.
+        
+        
         </h1>
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
@@ -82,9 +84,7 @@ Take control of your hiring and outpace the competition.</p>
 
       {/* How It Works - Step 1 */}
       <section className="container mx-auto px-4 py-10 md:py-16 overflow-hidden">
-        <motion.div
-        className="text-center mb-12"
-        initial={{ opacity: 0, y: 30 }}
+        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.6 }}>
