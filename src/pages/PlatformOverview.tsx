@@ -81,8 +81,24 @@ Into Predictable Hires.
         </h1>
           <p className="text-lg text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto text-center md:text-xl">Built for teams that hire at scale and are done with agency dependency, unclear performance, and disconnected ATS reporting.</p>
 
+          {/* USP badges */}
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-10">
+            <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground font-now">
+              <Zap className="h-4 w-4 text-primary" />
+              <span>Go live in minutes.</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground font-now">
+              <Rocket className="h-4 w-4 text-primary" />
+              <span>Expert-led support.</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground font-now">
+              <Eye className="h-4 w-4 text-primary" />
+              <span>Full transparency.</span>
+            </div>
+          </div>
+
           {/* Campaign Creation Interface Preview */}
-          <div className="mt-12">
+          <div className="mt-8">
             <img src={campaignPreview} alt="Campaign Creation Interface Preview" className="w-full rounded-lg shadow-lg border border-primary/20" />
           </div>
         </div>
