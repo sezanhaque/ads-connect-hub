@@ -67,9 +67,9 @@ const Product = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-10 md:py-20">
         <div className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto">
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
-            Turn Recruitment Advertising Into Predictable Hires.
-          </h1>
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">Turn Recruitment Advertising 
+Into Predictable Hires.
+        </h1>
           <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">For teams who want agency level results without the agency.
 Take control of your hiring and outpace the competition.</p>
 
@@ -82,13 +82,13 @@ Take control of your hiring and outpace the competition.</p>
 
       {/* How It Works - Step 1 */}
       <section className="container mx-auto px-4 py-10 md:py-16 overflow-hidden">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-        >
+        <motion.div
+        className="text-center mb-12"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}>
+
           <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">
             How It Works
           </h2>
@@ -98,27 +98,27 @@ Take control of your hiring and outpace the competition.</p>
         </motion.div>
         
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <motion.div 
-            className="order-2 md:order-1"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <motion.div
+          className="order-2 md:order-1"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, delay: 0.2 }}>
+
             <img src={jobsInterface} alt="Jobs Interface - Import and manage your job postings" className="w-full rounded-lg shadow-lg border border-primary/20 hover:shadow-xl transition-shadow duration-300" />
           </motion.div>
-          <motion.div 
-            className="order-1 md:order-2 space-y-4"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <motion.div 
-              className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
+          <motion.div
+          className="order-1 md:order-2 space-y-4"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, delay: 0.3 }}>
+
+            <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}>
+
               <Briefcase className="h-8 w-8 text-primary" />
             </motion.div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
@@ -130,18 +130,18 @@ Take control of your hiring and outpace the competition.</p>
 
         {/* Step 2 */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <motion.div 
-            className="space-y-4"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <motion.div 
-              className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-secondary/10"
-              whileHover={{ scale: 1.1, rotate: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
+          <motion.div
+          className="space-y-4"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, delay: 0.2 }}>
+
+            <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-secondary/10"
+            whileHover={{ scale: 1.1, rotate: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}>
+
               <Sparkles className="h-8 w-8 text-secondary" />
             </motion.div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
@@ -150,38 +150,38 @@ Take control of your hiring and outpace the competition.</p>
             <p className="text-lg text-muted-foreground font-now">Use our advanced multi-step campaign builder to create professional recruitment ads on Meta. From campaign basics to audience targeting and creative copy, we guide you through every detail.</p>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, delay: 0.3 }}>
+
             <img src={campaignBuilder} alt="Campaign Builder Interface - Multi-step campaign creation" className="w-full rounded-lg shadow-lg border border-secondary/20 hover:shadow-xl transition-shadow duration-300" />
           </motion.div>
         </div>
 
         {/* Step 3 */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
-          <motion.div 
-            className="order-2 md:order-1"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <motion.div
+          className="order-2 md:order-1"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, delay: 0.2 }}>
+
             <img src={campaignPreview} alt="Campaign Dashboard - Real-time analytics and performance tracking" className="w-full rounded-lg shadow-lg border border-success/20 hover:shadow-xl transition-shadow duration-300" />
           </motion.div>
-          <motion.div 
-            className="order-1 md:order-2 space-y-4"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <motion.div 
-              className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-success/10"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
+          <motion.div
+          className="order-1 md:order-2 space-y-4"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, delay: 0.3 }}>
+
+            <motion.div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-success/10"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}>
+
               <Eye className="h-8 w-8 text-success" />
             </motion.div>
             <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
