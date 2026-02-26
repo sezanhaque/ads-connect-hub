@@ -19,7 +19,8 @@ interface MobileNavProps {
 
 const defaultLinks: NavLink[] = [
   { to: "/platform-overview", label: "Product" },
-  { to: "/become-partner", label: "Become a Partner" },
+  { to: "/become-partner", label: "Become a partner" },
+  { to: "/blog", label: "Blog" },
 ];
 
 export function MobileNav({ 

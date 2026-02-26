@@ -25,7 +25,10 @@ const BecomePartner = () => {
               Product
             </Link>
             <Link to="/become-partner" className="text-foreground font-now font-medium">
-              Become a Partner
+              Become a partner
+            </Link>
+            <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Blog
             </Link>
           </div>
           <div className="flex items-center gap-4">

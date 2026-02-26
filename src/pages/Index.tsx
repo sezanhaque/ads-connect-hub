@@ -52,7 +52,7 @@ const Index = () => {
               Product
             </Link>
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Become a Partner
+              Become a partner
             </Link>
             <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Blog
@@ -70,7 +70,7 @@ const Index = () => {
             label: "Product"
           }, {
             to: "/become-partner",
-            label: "Become a Partner"
+            label: "Become a partner"
           }, {
             to: "/blog",
             label: "Blog"
