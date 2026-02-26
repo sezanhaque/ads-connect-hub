@@ -49,7 +49,7 @@ const Product = () => {
               Product
             </Link>
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Become a Partner
+              Become a partner
             </Link>
             <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Blog

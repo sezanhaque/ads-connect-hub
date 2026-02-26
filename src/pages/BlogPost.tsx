@@ -742,7 +742,7 @@ const BlogPost = () => {
               Product
             </Link>
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Become a Partner
+              Become a partner
             </Link>
             <Link to="/blog" className="text-foreground font-now font-medium">
               Blog
@@ -755,7 +755,7 @@ const BlogPost = () => {
             <MobileNav 
               links={[
                 { to: "/platform-overview", label: "Product" },
-                { to: "/become-partner", label: "Become a Partner" },
+                { to: "/become-partner", label: "Become a partner" },
                 { to: "/blog", label: "Blog" },
               ]}
               showDemoButton={false}
