@@ -214,7 +214,7 @@ const Pricing = () => {
         />
 
         <div className="container mx-auto px-4 pt-10 pb-10 md:pt-16 md:pb-16">
-          <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-8 md:gap-12 items-center max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-10 md:gap-16 items-center max-w-6xl mx-auto">
             {/* Left column — text */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -271,12 +271,12 @@ const Pricing = () => {
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.15 }}
-              className="hidden md:block"
+              className="hidden md:flex items-center justify-center"
             >
               <img
                 src={dashboardPreview}
                 alt="TwentyTwenty Solutions platform preview"
-                className="w-full rounded-xl shadow-xl border border-border"
+                className="w-[90%] rounded-xl shadow-xl border border-border"
               />
             </motion.div>
           </div>
