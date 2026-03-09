@@ -1,4 +1,8 @@
 import { Link } from "react-router-dom";
+import avatar1 from "@/assets/avatar-1.png";
+import avatar2 from "@/assets/avatar-2.png";
+import avatar3 from "@/assets/avatar-3.png";
+import avatar4 from "@/assets/avatar-4.png";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/ui/logo";
@@ -227,13 +231,13 @@ const Pricing = () => {
             {/* Social proof */}
             <div className="flex items-center justify-center gap-4 mb-10">
               <div className="flex -space-x-3">
-                {["A", "M", "J", "S"].map((initial, i) => (
-                  <div
+                {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
+                  <img
                     key={i}
-                    className="w-10 h-10 rounded-full border-2 border-background bg-primary/15 flex items-center justify-center text-xs font-bold text-primary"
-                  >
-                    {initial}
-                  </div>
+                    src={src}
+                    alt=""
+                    className="w-10 h-10 rounded-full border-2 border-background object-cover object-top"
+                  />
                 ))}
               </div>
               <p className="text-sm text-muted-foreground text-left">
