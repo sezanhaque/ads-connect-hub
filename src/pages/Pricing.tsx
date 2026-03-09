@@ -100,28 +100,20 @@ const stats = [
 
 const faqs = [
   {
-    q: "What counts as an active campaign?",
-    a: "1 campaign = 1 vacancy. If you're hiring for 5 roles simultaneously, you need a plan that supports at least 5 active campaigns.",
+    q: "What is the contract duration?",
+    a: "We offer flexible contract terms to fit your needs. Our Solo plan is cancellable on a monthly basis, while our Team plan starts from a 6-month commitment and Business from 12 months. Looking for a longer partnership? We offer attractive discounts on 2 or 3-year contracts.",
   },
   {
-    q: "Is there a markup on ad spend?",
-    a: "No. Zero percent. Ad spend flows 100% through your own ad account. We never touch it. Our revenue comes purely from the platform subscription.",
+    q: "Can I connect my ATS?",
+    a: "Yes. TwentyTwenty Solutions integrates with all major ATS systems — and ATS integration is included on every plan at no extra cost. Don't see your ATS listed yet? We'll build the integration for you, free of charge. Our development is fully driven by client feedback, so new integrations are delivered fast.",
   },
   {
-    q: "Can I add extra campaigns beyond my tier?",
-    a: "Yes. Each additional active campaign beyond your tier limit costs €79/month. On the Scale plan, pricing is custom.",
+    q: "How do you handle the advertising budget?",
+    a: "Every organisation receives its own built-in credit card account where you deposit your ad budget directly. This means your advertising spend flows 100% transparently through your own account — no transaction fees, no markup on spend, no hidden margins. You stay fully in control of your budget at all times.",
   },
   {
-    q: "What happens if I downgrade?",
-    a: "You can downgrade at the end of your minimum term. Any campaigns beyond the new tier's limit will be paused.",
-  },
-  {
-    q: "Do all plans really include the same features?",
-    a: "Yes. Every client gets Meta + TikTok campaigns, ATS integration, real-time dashboard, cost-per-apply tracking, and their own ad account. No feature gating — support level is the only thing that scales.",
-  },
-  {
-    q: "How does the ad spend wallet work?",
-    a: "Each company gets its own built-in credit card account so ad spend flows directly and transparently — no hidden margins and no fronting costs.",
+    q: "How quickly can we go live with the platform?",
+    a: "After signing up, our onboarding team will get your platform fully up and running — including ATS integration — within approximately 2 to 6 hours. The exact timeline depends on your subscription tier and the complexity of your setup. From there, you can launch your first campaign in minutes.",
   },
 ];
 
