@@ -105,6 +105,10 @@ const faqs = [
     q: "How quickly can we go live with the platform?",
     a: "After signing up, our onboarding team will get your platform fully up and running — including ATS integration — within approximately 2 to 6 hours. The exact timeline depends on your subscription tier and the complexity of your setup. From there, you can launch your first campaign in minutes.",
   },
+  {
+    q: "Can I try before I commit?",
+    a: "Absolutely. We offer a free pilot month where you can experience the full platform with a live campaign. You only pay your own advertising budget — the platform itself is completely free during the pilot. At the end of the month, we'll share a detailed report showing your results, cost-per-apply, and exactly what your investment delivered. No obligations, no risk.",
+  },
 ];
 
 const Pricing = () => {
