@@ -110,6 +110,9 @@ const Blog = () => {
             <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Product
             </Link>
+            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Pricing
+            </Link>
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a partner
             </Link>
