@@ -61,6 +61,7 @@ const App = () => {
                 <Route path="/solution" element={<Solution />} />
                 <Route path="/pilot-program" element={<PilotPartner />} />
                 <Route path="/become-partner" element={<BecomePartner />} />
+                <Route path="/pricing" element={<Pricing />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/reset-password" element={<ResetPassword />} />

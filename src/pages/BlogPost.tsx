@@ -758,6 +758,7 @@ const BlogPost = () => {
             <MobileNav 
               links={[
                 { to: "/platform-overview", label: "Product" },
+                { to: "/pricing", label: "Pricing" },
                 { to: "/become-partner", label: "Become a partner" },
                 { to: "/blog", label: "Blog" },
               ]}
