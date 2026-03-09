@@ -304,7 +304,7 @@ const Pricing = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 max-w-7xl mx-auto"
         >
           {tiers.map((tier, idx) => {
             // Each non-highlighted card gets a unique subtle gradient accent
