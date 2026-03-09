@@ -171,46 +171,77 @@ const Pricing = () => {
       </header>
 
       {/* Hero */}
-      <section className="container mx-auto px-4 pt-16 pb-12 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 text-sm px-4 py-1.5">
-            Same features everywhere · Price scales with volume · Zero markup on ad spend
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            Simple pricing,{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage: `linear-gradient(135deg, hsl(var(--usp-gradient-start)), hsl(var(--usp-gradient-mid)), hsl(var(--usp-gradient-end)))`,
-              }}
-            >
-              zero surprises
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-            Every plan includes all features. No markup on ad spend — ever.
-            You only pay more when you hire more.
-          </p>
-        </motion.div>
+      <section className="container mx-auto px-4 pt-16 pb-16">
+        <div className="max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-4 leading-[1.1]">
+              Pricing
+            </h1>
+            <p className="text-xl md:text-2xl font-semibold text-foreground/70 mb-3">
+              Live within 1 day.
+            </p>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10">
+              Every plan includes all features. No markup on ad spend — ever. You only pay more when you hire more.
+            </p>
+          </motion.div>
 
-        {/* Stats bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-wrap justify-center gap-8 md:gap-16 mb-16"
-        >
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</div>
-              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
-            </div>
-          ))}
-        </motion.div>
+          {/* Stats row */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-wrap items-center gap-8 md:gap-12 mb-10"
+          >
+            {stats.map((stat, i) => (
+              <div key={stat.label} className="flex items-center gap-3">
+                <stat.icon className="w-5 h-5 text-primary" />
+                <div>
+                  <div className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                </div>
+                {i < stats.length - 1 && (
+                  <div className="hidden md:block w-px h-10 bg-border ml-8" />
+                )}
+              </div>
+            ))}
+          </motion.div>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mb-12"
+          >
+            <Button
+              onClick={handleDemoRequest}
+              size="lg"
+              className="text-base px-8 py-6 rounded-full font-bold"
+            >
+              Book your free demo
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </motion.div>
+
+          {/* Trust badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-wrap gap-6 md:gap-10"
+          >
+            {trustBadges.map((badge) => (
+              <div key={badge} className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-primary" />
+                <span className="text-sm font-semibold text-primary">{badge}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
       </section>
 
       {/* Pricing Cards */}
