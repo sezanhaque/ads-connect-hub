@@ -219,10 +219,29 @@ const Pricing = () => {
                 pricing
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
               Always know what you pay. Every plan includes all features.
               Zero markup on ad spend — ever.
             </p>
+
+            {/* Social proof */}
+            <div className="flex items-center justify-center gap-4 mb-10">
+              <div className="flex -space-x-3">
+                {["A", "M", "J", "S"].map((initial, i) => (
+                  <div
+                    key={i}
+                    className="w-10 h-10 rounded-full border-2 border-background bg-primary/15 flex items-center justify-center text-xs font-bold text-primary"
+                  >
+                    {initial}
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground text-left">
+                <span className="font-semibold text-foreground">Trusted by recruitment teams</span>
+                <br />
+                across the Netherlands
+              </p>
+            </div>
           </motion.div>
 
           {/* Transparency pillars */}
