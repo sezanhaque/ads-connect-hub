@@ -48,11 +48,11 @@ const Product = () => {
             <Link to="/platform-overview" className="text-foreground font-now font-medium">
               Product
             </Link>
-            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Pricing
-            </Link>
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a partner
+            </Link>
+            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Pricing
             </Link>
             <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Blog

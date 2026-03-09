@@ -755,13 +755,7 @@ const BlogPost = () => {
             <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <MobileNav 
-              links={[
-                { to: "/platform-overview", label: "Product" },
-                { to: "/pricing", label: "Pricing" },
-                { to: "/become-partner", label: "Become a partner" },
-                { to: "/blog", label: "Blog" },
-              ]}
+            <MobileNav
               showDemoButton={false}
             />
           </div>

@@ -68,12 +68,7 @@ const Index = () => {
             <Button variant="outline" onClick={handleDemoRequest} className="hidden md:inline-flex">
               Request demo
             </Button>
-            <MobileNav onDemoClick={handleDemoRequest} links={[
-              { to: "/platform-overview", label: "Product" },
-              { to: "/pricing", label: "Pricing" },
-              { to: "/become-partner", label: "Become a partner" },
-              { to: "/blog", label: "Blog" },
-            ]} />
+            <MobileNav onDemoClick={handleDemoRequest} />
           </div>
         </nav>
       </header>
