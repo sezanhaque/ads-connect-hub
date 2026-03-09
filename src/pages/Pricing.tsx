@@ -81,16 +81,6 @@ const tiers = [
   },
 ];
 
-const allFeatures = [
-  "Meta campaigns (Facebook + Instagram)",
-  "TikTok campaigns",
-  "Own credit card ad account",
-  "Real-time cost-per-apply tracking",
-  "Campaign performance dashboard",
-  "ATS integration (iFrame)",
-  "Multi-user access",
-  "GDPR / AVG compliant",
-];
 
 const stats = [
   { value: "0%", label: "Markup on ad spend" },
@@ -100,28 +90,20 @@ const stats = [
 
 const faqs = [
   {
-    q: "What counts as an active campaign?",
-    a: "1 campaign = 1 vacancy. If you're hiring for 5 roles simultaneously, you need a plan that supports at least 5 active campaigns.",
+    q: "What is the contract duration?",
+    a: "We offer flexible contract terms to fit your needs. Our Solo plan is cancellable on a monthly basis, while our Team plan starts from a 6-month commitment and Business from 12 months. Looking for a longer partnership? We offer attractive discounts on 2 or 3-year contracts.",
   },
   {
-    q: "Is there a markup on ad spend?",
-    a: "No. Zero percent. Ad spend flows 100% through your own ad account. We never touch it. Our revenue comes purely from the platform subscription.",
+    q: "Can I connect my ATS?",
+    a: "Yes. TwentyTwenty Solutions integrates with all major ATS systems — and ATS integration is included on every plan at no extra cost. Don't see your ATS listed yet? We'll build the integration for you, free of charge. Our development is fully driven by client feedback, so new integrations are delivered fast.",
   },
   {
-    q: "Can I add extra campaigns beyond my tier?",
-    a: "Yes. Each additional active campaign beyond your tier limit costs €79/month. On the Scale plan, pricing is custom.",
+    q: "How do you handle the advertising budget?",
+    a: "Every organisation receives its own built-in credit card account where you deposit your ad budget directly. This means your advertising spend flows 100% transparently through your own account — no transaction fees, no markup on spend, no hidden margins. You stay fully in control of your budget at all times.",
   },
   {
-    q: "What happens if I downgrade?",
-    a: "You can downgrade at the end of your minimum term. Any campaigns beyond the new tier's limit will be paused.",
-  },
-  {
-    q: "Do all plans really include the same features?",
-    a: "Yes. Every client gets Meta + TikTok campaigns, ATS integration, real-time dashboard, cost-per-apply tracking, and their own ad account. No feature gating — support level is the only thing that scales.",
-  },
-  {
-    q: "How does the ad spend wallet work?",
-    a: "Each company gets its own built-in credit card account so ad spend flows directly and transparently — no hidden margins and no fronting costs.",
+    q: "How quickly can we go live with the platform?",
+    a: "After signing up, our onboarding team will get your platform fully up and running — including ATS integration — within approximately 2 to 6 hours. The exact timeline depends on your subscription tier and the complexity of your setup. From there, you can launch your first campaign in minutes.",
   },
 ];
 
@@ -352,59 +334,6 @@ const Pricing = () => {
             </motion.div>
           ))}
         </div>
-      </section>
-
-      {/* All features included */}
-      <section className="bg-muted/50 py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Every plan includes all features
-          </h2>
-          <p className="text-muted-foreground mb-12 max-w-xl mx-auto">
-            No feature gating. From Solo to Scale, you get the full platform.
-            The only thing that scales with your tier is support level.
-          </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
-            {allFeatures.map((feature) => (
-              <motion.div
-                key={feature}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-card rounded-xl p-5 border border-border text-left flex items-start gap-3"
-              >
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-foreground">{feature}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto bg-primary rounded-3xl p-12 text-primary-foreground"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to transform your recruitment?
-          </h2>
-          <p className="text-primary-foreground/80 mb-8 text-lg">
-            Book a free demo and see how 20/20 Solutions makes hiring faster, cheaper, and fully transparent.
-          </p>
-          <Button
-            onClick={handleDemoRequest}
-            variant="accent"
-            size="lg"
-            className="text-base px-8"
-          >
-            Book your free demo
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </motion.div>
       </section>
 
       {/* FAQ */}
