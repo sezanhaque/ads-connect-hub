@@ -4,7 +4,18 @@ import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/ui/logo";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
-import { Check, ArrowRight, Minus, Zap, Users, Building2, Rocket, Star, TrendingUp, CheckCircle } from "lucide-react";
+import {
+  Check,
+  ArrowRight,
+  Minus,
+  Zap,
+  Users,
+  Building2,
+  Rocket,
+  Shield,
+  CreditCard,
+  BarChart3,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { posthog } from "@/lib/posthog";
@@ -21,7 +32,7 @@ const tiers = [
   {
     name: "Solo",
     price: "€199",
-    period: "/month",
+    period: "/mo",
     description: "For companies hiring 1–3 roles at a time",
     icon: Zap,
     campaigns: "1–3",
@@ -36,7 +47,7 @@ const tiers = [
   {
     name: "Team",
     price: "€399",
-    period: "/month",
+    period: "/mo",
     description: "For growing teams scaling their hiring",
     icon: Users,
     campaigns: "4–10",
@@ -52,7 +63,7 @@ const tiers = [
   {
     name: "Business",
     price: "€649",
-    period: "/month",
+    period: "/mo",
     description: "For established organizations with high-volume hiring",
     icon: Building2,
     campaigns: "11–25",
@@ -81,17 +92,22 @@ const tiers = [
   },
 ];
 
-
-const stats = [
-  { value: "0%", label: "Markup on ad spend", icon: Star },
-  { value: "+40%", label: "More applications", icon: TrendingUp },
-  { value: "1 day", label: "Time to go live", icon: Rocket },
-];
-
-const trustBadges = [
-  "Plug. Live within hours.",
-  "Play. You're in control.",
-  "Go! Results from day one.",
+const transparencyPillars = [
+  {
+    icon: CreditCard,
+    title: "Your own ad account",
+    description: "Every organisation gets a dedicated credit card account. Ad spend flows 100% through your account — no middleman.",
+  },
+  {
+    icon: Shield,
+    title: "0% markup on ad spend",
+    description: "We charge a flat subscription fee. Your advertising budget goes directly to the platforms, with zero hidden fees or commissions.",
+  },
+  {
+    icon: BarChart3,
+    title: "Real-time cost tracking",
+    description: "See exactly what every euro delivers — cost per click, cost per apply, and full campaign analytics in real time.",
+  },
 ];
 
 const faqs = [
@@ -116,6 +132,11 @@ const faqs = [
     a: "Absolutely. We offer a free pilot month where you can experience the full platform with a live campaign. You only pay your own advertising budget — the platform itself is completely free during the pilot. At the end of the month, we'll share a detailed report showing your results, cost-per-apply, and exactly what your investment delivered. No obligations, no risk.",
   },
 ];
+
+const stagger = {
+  container: { hidden: {}, show: { transition: { staggerChildren: 0.08 } } },
+  item: { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } },
+};
 
 const Pricing = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -162,7 +183,7 @@ const Pricing = () => {
             <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button variant="outline" onClick={handleDemoRequest} className="hidden md:inline-flex">
+            <Button onClick={handleDemoRequest} className="hidden md:inline-flex">
               Request demo
             </Button>
             <MobileNav onDemoClick={handleDemoRequest} links={navLinks} />
@@ -170,107 +191,128 @@ const Pricing = () => {
         </nav>
       </header>
 
-      {/* Hero */}
-      <section className="container mx-auto px-4 pt-16 pb-16">
-        <div className="max-w-4xl">
+      {/* ─── HERO ─── */}
+      <section className="relative overflow-hidden">
+        {/* Subtle gradient background */}
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background: `radial-gradient(ellipse 80% 60% at 50% 0%, hsl(var(--primary) / 0.06) 0%, transparent 70%)`,
+          }}
+        />
+
+        <div className="container mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="max-w-3xl mx-auto"
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-4 leading-[1.1]">
-              Pricing
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.08] tracking-tight">
+              Simple, transparent{" "}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, hsl(var(--usp-gradient-start)), hsl(var(--usp-gradient-mid)), hsl(var(--usp-gradient-end)))`,
+                }}
+              >
+                pricing
+              </span>
             </h1>
-            <p className="text-xl md:text-2xl font-semibold text-foreground/70 mb-3">
-              Live within 1 day.
-            </p>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10">
-              Every plan includes all features. No markup on ad spend — ever. You only pay more when you hire more.
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
+              Always know what you pay. Every plan includes all features.
+              Zero markup on ad spend — ever.
             </p>
           </motion.div>
 
-          {/* Stats row */}
+          {/* Transparency pillars */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-wrap items-center gap-8 md:gap-12 mb-10"
+            variants={stagger.container}
+            initial="hidden"
+            animate="show"
+            className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12"
           >
-            {stats.map((stat, i) => (
-              <div key={stat.label} className="flex items-center gap-3">
-                <stat.icon className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+            {transparencyPillars.map((pillar) => (
+              <motion.div
+                key={pillar.title}
+                variants={stagger.item}
+                className="rounded-2xl bg-card border border-border p-6 text-left hover:shadow-md transition-shadow"
+              >
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-4">
+                  <pillar.icon className="w-5 h-5 text-primary" />
                 </div>
-                {i < stats.length - 1 && (
-                  <div className="hidden md:block w-px h-10 bg-border ml-8" />
-                )}
-              </div>
+                <h3 className="font-bold text-foreground mb-1.5 text-sm">{pillar.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{pillar.description}</p>
+              </motion.div>
             ))}
           </motion.div>
 
-          {/* CTA */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mb-12"
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
             <Button
               onClick={handleDemoRequest}
               size="lg"
-              className="text-base px-8 py-6 rounded-full font-bold"
+              className="text-base px-10 py-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow"
             >
-              Book your free demo
+              Start your free pilot
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          </motion.div>
-
-          {/* Trust badges */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-wrap gap-6 md:gap-10"
-          >
-            {trustBadges.map((badge) => (
-              <div key={badge} className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="text-sm font-semibold text-primary">{badge}</span>
-              </div>
-            ))}
+            <p className="text-xs text-muted-foreground mt-4">
+              Free 1-month pilot · No credit card required · Full platform access
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Pricing Cards */}
-      <section className="container mx-auto px-4 pb-24">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {tiers.map((tier, index) => (
+      {/* ─── PRICING CARDS ─── */}
+      <section className="container mx-auto px-4 py-20 md:py-28">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-14"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+            Choose the plan that fits your hiring volume
+          </h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Same platform, same features, every tier. Support level scales with your plan.
+          </p>
+        </motion.div>
+
+        <motion.div
+          variants={stagger.container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+        >
+          {tiers.map((tier) => (
             <motion.div
               key={tier.name}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
-              className={`relative rounded-2xl p-7 flex flex-col ${
+              variants={stagger.item}
+              className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 ${
                 tier.highlighted
-                  ? "bg-primary text-primary-foreground shadow-2xl scale-[1.03] border-2 border-primary z-10"
-                  : "bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
+                  ? "bg-primary text-primary-foreground shadow-2xl ring-2 ring-primary/30 scale-[1.02] z-10"
+                  : "bg-card border border-border shadow-sm hover:shadow-lg hover:-translate-y-1"
               }`}
             >
               {tier.badge && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-accent text-accent-foreground border-0 px-4 py-1 text-sm font-bold shadow-lg">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-foreground text-background border-0 px-4 py-1 text-xs font-bold shadow-lg uppercase tracking-wide">
                     {tier.badge}
                   </Badge>
                 </div>
               )}
 
-              <div className="mb-5">
+              {/* Tier name + icon */}
+              <div className="mb-6">
                 <div
-                  className={`inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3 ${
-                    tier.highlighted ? "bg-primary-foreground/20" : "bg-primary/10"
+                  className={`inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3 ${
+                    tier.highlighted ? "bg-primary-foreground/15" : "bg-primary/8"
                   }`}
                 >
                   <tier.icon
@@ -279,141 +321,160 @@ const Pricing = () => {
                     }`}
                   />
                 </div>
-                <h3 className="text-xl font-bold mb-1">{tier.name}</h3>
+                <h3 className="text-lg font-bold mb-1">{tier.name}</h3>
                 <p
-                  className={`text-sm ${
-                    tier.highlighted ? "text-primary-foreground/80" : "text-muted-foreground"
+                  className={`text-sm leading-relaxed ${
+                    tier.highlighted ? "text-primary-foreground/75" : "text-muted-foreground"
                   }`}
                 >
                   {tier.description}
                 </p>
               </div>
 
-              <div className="mb-5">
-                <span className="text-4xl font-bold">{tier.price}</span>
+              {/* Price */}
+              <div className="mb-6">
+                <span className="text-4xl font-bold tracking-tight">{tier.price}</span>
                 <span
-                  className={`text-sm ${
-                    tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"
+                  className={`text-sm ml-1 ${
+                    tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"
                   }`}
                 >
                   {tier.period}
                 </span>
               </div>
 
-              {/* Key details */}
-              <div
-                className={`text-xs space-y-1.5 mb-5 pb-5 border-b ${
-                  tier.highlighted ? "border-primary-foreground/20" : "border-border"
-                }`}
-              >
-                <div className="flex justify-between">
-                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Active campaigns</span>
-                  <span className="font-semibold">{tier.campaigns}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Setup fee</span>
-                  <span className="font-semibold">{tier.setupFee}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Minimum term</span>
-                  <span className="font-semibold">{tier.minTerm}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Extra campaign</span>
-                  <span className="font-semibold">{tier.extraCampaign}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Ad spend markup</span>
-                  <span className={`font-bold ${tier.highlighted ? "text-primary-foreground" : "text-primary"}`}>0%</span>
-                </div>
-              </div>
-
-              {/* Support */}
-              <div className="flex-1 mb-6">
-                <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${
-                  tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"
-                }`}>Support</p>
-                <ul className="space-y-2">
-                  {tier.support.map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <Check
-                        className={`w-4 h-4 shrink-0 mt-0.5 ${
-                          tier.highlighted ? "text-accent" : "text-primary"
-                        }`}
-                      />
-                      <span className="text-sm">{item}</span>
-                    </li>
-                  ))}
-                  {tier.supportMissing.map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <Minus
-                        className={`w-4 h-4 shrink-0 mt-0.5 ${
-                          tier.highlighted ? "text-primary-foreground/30" : "text-muted-foreground/40"
-                        }`}
-                      />
-                      <span className={`text-sm ${
-                        tier.highlighted ? "text-primary-foreground/40" : "text-muted-foreground/50"
-                      }`}>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
+              {/* CTA button */}
               <Button
                 onClick={handleDemoRequest}
-                className={`w-full group ${
+                className={`w-full group mb-6 ${
                   tier.highlighted
-                    ? "bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
+                    ? "bg-background text-foreground hover:bg-background/90 font-bold"
                     : ""
                 }`}
-                variant={tier.highlighted ? "accent" : "default"}
+                variant={tier.highlighted ? undefined : "default"}
                 size="lg"
               >
                 {tier.cta}
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
               </Button>
+
+              {/* Key details */}
+              <div
+                className={`text-xs space-y-2.5 mb-5 pb-5 border-b ${
+                  tier.highlighted ? "border-primary-foreground/15" : "border-border"
+                }`}
+              >
+                {[
+                  { label: "Active campaigns", value: tier.campaigns },
+                  { label: "Setup fee", value: tier.setupFee },
+                  { label: "Minimum term", value: tier.minTerm },
+                  { label: "Extra campaign", value: tier.extraCampaign },
+                ].map((detail) => (
+                  <div key={detail.label} className="flex justify-between">
+                    <span className={tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"}>
+                      {detail.label}
+                    </span>
+                    <span className="font-semibold">{detail.value}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between">
+                  <span className={tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"}>
+                    Ad spend markup
+                  </span>
+                  <span className={`font-bold ${tier.highlighted ? "text-primary-foreground" : "text-primary"}`}>
+                    0%
+                  </span>
+                </div>
+              </div>
+
+              {/* Support features */}
+              <div className="flex-1">
+                <p
+                  className={`text-[11px] font-semibold uppercase tracking-wider mb-3 ${
+                    tier.highlighted ? "text-primary-foreground/50" : "text-muted-foreground"
+                  }`}
+                >
+                  Support
+                </p>
+                <ul className="space-y-2">
+                  {tier.support.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <Check
+                        className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                          tier.highlighted ? "text-primary-foreground" : "text-primary"
+                        }`}
+                      />
+                      <span className="text-[13px] leading-snug">{item}</span>
+                    </li>
+                  ))}
+                  {tier.supportMissing.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <Minus
+                        className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                          tier.highlighted ? "text-primary-foreground/25" : "text-muted-foreground/30"
+                        }`}
+                      />
+                      <span
+                        className={`text-[13px] leading-snug ${
+                          tier.highlighted ? "text-primary-foreground/35" : "text-muted-foreground/40"
+                        }`}
+                      >
+                        {item}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
-      {/* FAQ */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-16 items-start">
-          {/* Left side text */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Frequently asked questions
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Here you'll find answers to the most frequently asked questions about Twenty Twenty Solutions. Have more questions? Feel free to get in touch with us.
-            </p>
-          </motion.div>
+      {/* ─── FAQ ─── */}
+      <section className="bg-muted/30">
+        <div className="container mx-auto px-4 py-20 md:py-28">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-16 items-start">
+            {/* Left side text */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Frequently asked questions
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                Here you'll find answers to the most frequently asked questions about Twenty Twenty Solutions. Have more questions? Feel free to get in touch with us.
+              </p>
+              <Button variant="outline" onClick={handleDemoRequest} className="group">
+                Get in touch
+                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </motion.div>
 
-          {/* Right side FAQ items */}
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <motion.details
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="group bg-card border border-border rounded-xl"
-              >
-                <summary className="flex items-center justify-between p-5 cursor-pointer font-semibold text-foreground list-none">
-                  {faq.q}
-                  <span className="ml-4 text-muted-foreground group-open:rotate-45 transition-transform text-xl">+</span>
-                </summary>
-                <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
-                  {faq.a}
-                </div>
-              </motion.details>
-            ))}
+            {/* Right side FAQ items */}
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <motion.details
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  className="group bg-card border border-border rounded-xl hover:border-primary/20 transition-colors"
+                >
+                  <summary className="flex items-center justify-between p-5 cursor-pointer font-semibold text-foreground list-none text-[15px]">
+                    {faq.q}
+                    <span className="ml-4 text-muted-foreground group-open:rotate-45 transition-transform duration-200 text-xl leading-none">
+                      +
+                    </span>
+                  </summary>
+                  <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                    {faq.a}
+                  </div>
+                </motion.details>
+              ))}
+            </div>
           </div>
         </div>
       </section>
