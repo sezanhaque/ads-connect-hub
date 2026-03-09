@@ -204,7 +204,7 @@ const Pricing = () => {
           }}
         />
 
-        <div className="container mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-20 text-center">
+        <div className="container mx-auto px-4 pt-14 pb-12 md:pt-28 md:pb-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
