@@ -281,7 +281,7 @@ const Pricing = () => {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-14"
+          className="text-center mb-8 md:mb-14"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             Find your{" "}
