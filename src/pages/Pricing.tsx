@@ -204,7 +204,7 @@ const Pricing = () => {
           }}
         />
 
-        <div className="container mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-20 text-center">
+        <div className="container mx-auto px-4 pt-14 pb-12 md:pt-28 md:pb-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -276,12 +276,12 @@ const Pricing = () => {
       </section>
 
       {/* ─── PRICING CARDS ─── */}
-      <section className="container mx-auto px-4 py-20 md:py-28">
+      <section className="container mx-auto px-4 py-12 md:py-28">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-14"
+          className="text-center mb-8 md:mb-14"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             Find your{" "}
@@ -304,7 +304,7 @@ const Pricing = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 max-w-7xl mx-auto"
         >
           {tiers.map((tier, idx) => {
             // Each non-highlighted card gets a unique subtle gradient accent
@@ -333,9 +333,9 @@ const Pricing = () => {
             <motion.div
               key={tier.name}
               variants={stagger.item}
-              className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 ${
+              className={`relative rounded-2xl p-6 md:p-7 flex flex-col transition-all duration-300 ${
                 tier.highlighted
-                  ? "bg-gradient-to-br from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] text-white shadow-2xl ring-2 ring-[hsl(var(--usp-gradient-mid)/0.3)] scale-[1.02] z-10"
+                  ? "bg-gradient-to-br from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] text-white shadow-2xl ring-2 ring-[hsl(var(--usp-gradient-mid)/0.3)] lg:scale-[1.02] z-10"
                   : `bg-card border border-border shadow-sm hover:-translate-y-1 ${cardAccents[idx]}`
               }`}
             >
