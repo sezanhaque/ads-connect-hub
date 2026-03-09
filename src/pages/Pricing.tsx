@@ -242,9 +242,9 @@ const Pricing = () => {
                 ))}
               </div>
               <p className="text-sm text-muted-foreground text-left">
-                <span className="font-semibold text-foreground">Trusted by recruitment teams</span>
+                <span className="font-semibold text-foreground">Used by hiring teams</span>
                 <br />
-                across the Netherlands
+                across Europe
               </p>
             </div>
           </motion.div>
