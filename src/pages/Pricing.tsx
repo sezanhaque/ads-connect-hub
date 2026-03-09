@@ -28,8 +28,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 const navLinks = [
   { to: "/platform-overview", label: "Product" },
-  { to: "/pricing", label: "Pricing" },
   { to: "/become-partner", label: "Become a partner" },
+  { to: "/pricing", label: "Pricing" },
   { to: "/blog", label: "Blog" },
 ];
 
@@ -213,8 +213,8 @@ const Pricing = () => {
           style={{ background: `hsl(var(--usp-gradient-mid) / 0.04)` }}
         />
 
-        <div className="container mx-auto px-4 pt-10 pb-10 md:pt-16 md:pb-16">
-          <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-10 md:gap-16 items-center max-w-6xl mx-auto">
+        <div className="container mx-auto px-4 pt-8 pb-8 md:pt-16 md:pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-8 md:gap-16 items-center max-w-6xl mx-auto">
             {/* Left column — text */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -222,13 +222,13 @@ const Pricing = () => {
               transition={{ duration: 0.6 }}
               className="text-center md:text-left"
             >
-              <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(2rem,5vw,3.5rem)] mb-5 md:mb-5">
+              <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(1.75rem,5vw,3.5rem)] mb-4 md:mb-5">
                 <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
                   Simple, transparent pricing.
                 </span>
               </h1>
 
-              <p className="text-xs md:text-sm text-muted-foreground max-w-sm mx-auto md:mx-0 mb-6 leading-relaxed">
+              <p className="text-xs md:text-sm text-muted-foreground max-w-xs sm:max-w-sm mx-auto md:mx-0 mb-5 md:mb-6 leading-relaxed">
                 Always know what you pay. Every plan includes all features.
                 Zero markup on ad spend — ever.
               </p>
@@ -259,7 +259,7 @@ const Pricing = () => {
                   document.getElementById("pricing-plans")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
                 size="lg"
-                className="text-base px-10 py-6 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] to-[hsl(var(--usp-gradient-mid))] hover:opacity-95 text-primary-foreground"
+                className="text-sm md:text-base px-8 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] to-[hsl(var(--usp-gradient-mid))] hover:opacity-95 text-primary-foreground w-full sm:w-auto"
               >
                 Choose your plan
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -313,7 +313,7 @@ const Pricing = () => {
       </section>
 
       {/* ─── PRICING CARDS ─── */}
-      <section id="pricing-plans" className="container mx-auto px-4 py-12 md:py-28 scroll-mt-8">
+      <section id="pricing-plans" className="container mx-auto px-4 py-10 md:py-28 scroll-mt-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -334,7 +334,7 @@ const Pricing = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 max-w-7xl mx-auto"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto"
         >
           {tiers.map((tier, idx) => {
             // Each non-highlighted card gets a unique subtle gradient accent
@@ -496,8 +496,8 @@ const Pricing = () => {
 
       {/* ─── FAQ ─── */}
       <section className="bg-muted/30">
-        <div className="container mx-auto px-4 py-20 md:py-28">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-16 items-start">
+        <div className="container mx-auto px-4 py-12 md:py-28">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-8 md:gap-16 items-start">
             {/* Left side text */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
