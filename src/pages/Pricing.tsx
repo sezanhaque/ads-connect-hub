@@ -246,7 +246,7 @@ const Pricing = () => {
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground text-left">
-                  <span className="font-semibold text-foreground">Trusted by 50+ hiring teams</span>
+                  <span className="font-semibold text-foreground">Trusted by others</span>
                   <br />
                   across Europe
                 </p>
