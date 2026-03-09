@@ -90,7 +90,7 @@ const Index = () => {
               duration: 0.5,
               delay: 0.1
             }}>
-                Go live in minutes.
+                Go live in minutes
               </motion.span>
               <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
               opacity: 0,
@@ -102,7 +102,7 @@ const Index = () => {
               duration: 0.5,
               delay: 0.25
             }}>
-                Full transparency.
+                Full transparency
               </motion.span>
               <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
               opacity: 0,
@@ -114,7 +114,7 @@ const Index = () => {
               duration: 0.5,
               delay: 0.4
             }}>
-                Expert-led support.
+                Expert-led support
               </motion.span>
             </h1>
 
