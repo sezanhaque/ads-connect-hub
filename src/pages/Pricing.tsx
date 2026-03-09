@@ -346,59 +346,6 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* All features included */}
-      <section className="bg-muted/50 py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Every plan includes all features
-          </h2>
-          <p className="text-muted-foreground mb-12 max-w-xl mx-auto">
-            No feature gating. From Solo to Scale, you get the full platform.
-            The only thing that scales with your tier is support level.
-          </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
-            {allFeatures.map((feature) => (
-              <motion.div
-                key={feature}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-card rounded-xl p-5 border border-border text-left flex items-start gap-3"
-              >
-                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-foreground">{feature}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto bg-primary rounded-3xl p-12 text-primary-foreground"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to transform your recruitment?
-          </h2>
-          <p className="text-primary-foreground/80 mb-8 text-lg">
-            Book a free demo and see how 20/20 Solutions makes hiring faster, cheaper, and fully transparent.
-          </p>
-          <Button
-            onClick={handleDemoRequest}
-            variant="accent"
-            size="lg"
-            className="text-base px-8"
-          >
-            Book your free demo
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </motion.div>
-      </section>
-
       {/* FAQ */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-3xl mx-auto">
