@@ -222,7 +222,7 @@ const Pricing = () => {
               transition={{ duration: 0.6 }}
               className="text-center md:text-left"
             >
-              <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(2rem,5vw,3.5rem)] md:whitespace-nowrap mb-5 md:mb-5">
+              <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(2rem,5vw,3.5rem)] mb-5 md:mb-5">
                 <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
                   Simple, transparent pricing.
                 </span>
