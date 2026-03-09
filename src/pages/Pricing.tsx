@@ -324,7 +324,7 @@ const Pricing = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Ad spend markup</span>
-                  <span className="font-bold text-accent">0%</span>
+                  <span className={`font-bold ${tier.highlighted ? "text-primary-foreground" : "text-primary"}`}>0%</span>
                 </div>
               </div>
 
