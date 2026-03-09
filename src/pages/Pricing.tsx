@@ -47,7 +47,8 @@ const tiers = [
   support: ["Email support", "30 min onboarding call", "24h response time SLA"],
   supportMissing: ["Priority support", "Dedicated success manager", "Quarterly business review"],
   cta: "Get started",
-  highlighted: false
+  highlighted: false,
+  checkoutUrl: "https://twentytwentysolutions.chargebee.com/hosted_pages/checkout?subscription_items[item_price_id][0]=Solo-EUR-Monthly&subscription_items[quantity][0]=1&layout=full_page"
 },
 {
   name: "Team",
