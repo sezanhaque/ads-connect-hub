@@ -204,49 +204,51 @@ const Pricing = () => {
           }}
         />
 
-        <div className="container mx-auto px-4 pt-14 pb-12 md:pt-28 md:pb-20 text-center">
+        <div className="container mx-auto px-4 pt-10 pb-12 md:pt-20 md:pb-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto"
           >
-            <h1 className="font-now font-extrabold tracking-tight leading-[1.15] text-[clamp(2rem,5vw,3.75rem)] mb-6">
+            <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(2.25rem,5.5vw,4rem)] mb-8 md:mb-10">
               <span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
                 Simple, transparent pricing.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-6 leading-relaxed">
+
+            <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-8 md:mb-10 leading-relaxed">
               Always know what you pay. Every plan includes all features.
               Zero markup on ad spend — ever.
             </p>
-            <Button
-              onClick={handleDemoRequest}
-              size="lg"
-              className="text-base px-10 py-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow mb-10"
-            >
-              Experience it now
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
 
-            {/* Social proof */}
-            <div className="flex items-center justify-center gap-4 mb-12">
+            {/* Social proof — positioned before CTA for trust at decision point */}
+            <div className="flex items-center justify-center gap-3 mb-8 md:mb-10">
               <div className="flex -space-x-3">
                 {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
                   <img
                     key={i}
                     src={src}
                     alt=""
-                    className="w-10 h-10 rounded-full border-2 border-background object-cover object-top"
+                    className="w-9 h-9 rounded-full border-2 border-background object-cover object-top"
                   />
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground text-left">
+              <p className="text-xs text-muted-foreground text-left">
                 <span className="font-semibold text-foreground">Used by hiring teams</span>
                 <br />
                 across Europe
               </p>
             </div>
+
+            <Button
+              onClick={handleDemoRequest}
+              size="lg"
+              className="text-base px-12 py-7 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] to-[hsl(var(--usp-gradient-mid))] hover:opacity-95 text-primary-foreground mb-0"
+            >
+              Experience it now
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
           </motion.div>
 
           {/* USP stats bar */}
@@ -254,16 +256,18 @@ const Pricing = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="max-w-3xl mx-auto"
+            className="max-w-3xl mx-auto mt-14 md:mt-20"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border rounded-2xl bg-card border border-border p-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border rounded-2xl bg-card border border-border shadow-sm p-1">
               {[
                 { icon: BarChart3, stat: "Volume-based", desc: "pricing" },
                 { icon: Zap, stat: "Full features", desc: "on every tier" },
                 { icon: Shield, stat: "0% markup", desc: "on ad spend" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 px-6 py-4 sm:justify-center">
-                  <item.icon className="w-5 h-5 text-primary shrink-0" />
+                <div key={i} className="flex items-center gap-3 px-6 py-5 sm:justify-center">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0">
+                    <item.icon className="w-4.5 h-4.5 text-primary" />
+                  </div>
                   <div className="text-left">
                     <p className="font-bold text-foreground text-sm leading-tight">{item.stat}</p>
                     <p className="text-xs text-muted-foreground">{item.desc}</p>
