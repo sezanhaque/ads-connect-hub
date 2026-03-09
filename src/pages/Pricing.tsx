@@ -276,7 +276,7 @@ const Pricing = () => {
               <img
                 src={dashboardPreview}
                 alt="TwentyTwenty Solutions platform preview"
-                className="w-[75%] rounded-xl shadow-xl border border-border"
+                className="w-[95%] rounded-xl shadow-xl border border-border"
               />
             </motion.div>
           </div>
