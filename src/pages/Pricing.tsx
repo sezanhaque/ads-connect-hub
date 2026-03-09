@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/ui/logo";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
-import { Check, ArrowRight, Minus, Zap, Users, Building2, Rocket } from "lucide-react";
+import { Check, ArrowRight, Minus, Zap, Users, Building2, Rocket, Star, TrendingUp, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { posthog } from "@/lib/posthog";
