@@ -197,7 +197,6 @@ const Pricing = () => {
 
       {/* ─── HERO ─── */}
       <section className="relative overflow-hidden">
-        {/* Subtle gradient background */}
         <div
           className="absolute inset-0 -z-10"
           style={{
@@ -213,7 +212,7 @@ const Pricing = () => {
             className="max-w-3xl mx-auto"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.08] tracking-tight">
-              Simple, transparent{" "}
+              Simple and transparent{" "}
               <span
                 className="bg-clip-text text-transparent"
                 style={{
@@ -223,13 +222,13 @@ const Pricing = () => {
                 pricing
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
               Always know what you pay. Every plan includes all features.
               Zero markup on ad spend — ever.
             </p>
 
             {/* Social proof */}
-            <div className="flex items-center justify-center gap-4 mb-10">
+            <div className="flex items-center justify-center gap-4 mb-12">
               <div className="flex -space-x-3">
                 {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
                   <img
@@ -248,44 +247,28 @@ const Pricing = () => {
             </div>
           </motion.div>
 
-          {/* Transparency pillars */}
+          {/* USP stats bar */}
           <motion.div
-            variants={stagger.container}
-            initial="hidden"
-            animate="show"
-            className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12"
-          >
-            {transparencyPillars.map((pillar) => (
-              <motion.div
-                key={pillar.title}
-                variants={stagger.item}
-                className="rounded-2xl bg-card border border-border p-6 text-left hover:shadow-md transition-shadow"
-              >
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-4">
-                  <pillar.icon className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-bold text-foreground mb-1.5 text-sm">{pillar.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{pillar.description}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="max-w-3xl mx-auto"
           >
-            <Button
-              onClick={handleDemoRequest}
-              size="lg"
-              className="text-base px-10 py-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow"
-            >
-              Start your free pilot
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <p className="text-xs text-muted-foreground mt-4">
-              Free 1-month pilot · No credit card required · Full platform access
-            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border rounded-2xl bg-card border border-border p-2">
+              {[
+                { icon: BarChart3, stat: "Volume-based", desc: "pricing" },
+                { icon: Zap, stat: "Full features", desc: "on every tier" },
+                { icon: Shield, stat: "0% markup", desc: "on ad spend" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 px-6 py-4 sm:justify-center">
+                  <item.icon className="w-5 h-5 text-primary shrink-0" />
+                  <div className="text-left">
+                    <p className="font-bold text-foreground text-sm leading-tight">{item.stat}</p>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
