@@ -83,9 +83,15 @@ const tiers = [
 
 
 const stats = [
-  { value: "0%", label: "Markup on ad spend" },
-  { value: "100%", label: "Feature access on every tier" },
-  { value: "1 day", label: "Live & running" },
+  { value: "0%", label: "Markup on ad spend", icon: Star },
+  { value: "+40%", label: "More applications", icon: TrendingUp },
+  { value: "1 day", label: "Time to go live", icon: Rocket },
+];
+
+const trustBadges = [
+  "Plug. Live within hours.",
+  "Play. You're in control.",
+  "Go! Results from day one.",
 ];
 
 const faqs = [
