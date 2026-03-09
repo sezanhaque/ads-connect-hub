@@ -211,21 +211,30 @@ const Pricing = () => {
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.08] tracking-tight">
-              Simple and transparent{" "}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.08] tracking-tight">
               <span
                 className="bg-clip-text text-transparent"
                 style={{
                   backgroundImage: `linear-gradient(135deg, hsl(var(--usp-gradient-start)), hsl(var(--usp-gradient-mid)), hsl(var(--usp-gradient-end)))`,
                 }}
               >
-                pricing
+                Simple and transparent
               </span>
+              <br />
+              <span className="text-foreground">pricing.</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-6 leading-relaxed">
               Always know what you pay. Every plan includes all features.
               Zero markup on ad spend — ever.
             </p>
+            <Button
+              onClick={handleDemoRequest}
+              size="lg"
+              className="text-base px-10 py-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow mb-10"
+            >
+              Experience it now
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
 
             {/* Social proof */}
             <div className="flex items-center justify-center gap-4 mb-12">
