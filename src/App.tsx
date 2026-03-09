@@ -16,6 +16,7 @@ import BecomePartner from "./pages/BecomePartner";
 import Solution from "./pages/Solution";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
