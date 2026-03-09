@@ -496,8 +496,8 @@ const Pricing = () => {
 
       {/* ─── FAQ ─── */}
       <section className="bg-muted/30">
-        <div className="container mx-auto px-4 py-20 md:py-28">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-16 items-start">
+        <div className="container mx-auto px-4 py-12 md:py-28">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-8 md:gap-16 items-start">
             {/* Left side text */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
