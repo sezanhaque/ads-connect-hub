@@ -3,6 +3,7 @@ import avatar1 from "@/assets/avatar-1.png";
 import avatar2 from "@/assets/avatar-2.png";
 import avatar3 from "@/assets/avatar-3.png";
 import avatar4 from "@/assets/avatar-4.png";
+import dashboardPreview from "@/assets/dashboard-preview.png";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/ui/logo";
@@ -196,77 +197,109 @@ const Pricing = () => {
       </header>
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden">
+      <section
+        className="relative overflow-hidden"
+        style={{
+          background: `linear-gradient(180deg, hsl(var(--hero-bg-top)) 0%, hsl(var(--hero-bg-bottom)) 100%)`,
+        }}
+      >
+        {/* Decorative blobs */}
         <div
-          className="absolute inset-0 -z-10"
-          style={{
-            background: `radial-gradient(ellipse 80% 60% at 50% 0%, hsl(var(--primary) / 0.06) 0%, transparent 70%)`,
-          }}
+          className="absolute -top-20 right-[10%] w-[320px] h-[320px] rounded-full -z-10 pointer-events-none"
+          style={{ background: `hsl(var(--usp-gradient-start) / 0.05)` }}
+        />
+        <div
+          className="absolute bottom-0 left-[5%] w-[200px] h-[200px] rounded-full -z-10 pointer-events-none"
+          style={{ background: `hsl(var(--usp-gradient-mid) / 0.04)` }}
         />
 
-        <div className="container mx-auto px-4 pt-10 pb-12 md:pt-20 md:pb-20 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto"
-          >
-            <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(2.25rem,5.5vw,4rem)] mb-8 md:mb-10">
-              <span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
-                Simple, transparent pricing.
-              </span>
-            </h1>
-
-            <p className="text-sm md:text-base text-muted-foreground max-w-md mx-auto mb-8 md:mb-10 leading-relaxed">
-              Always know what you pay. Every plan includes all features.
-              Zero markup on ad spend — ever.
-            </p>
-
-            {/* Social proof — positioned before CTA for trust at decision point */}
-            <div className="flex items-center justify-center gap-3 mb-8 md:mb-10">
-              <div className="flex -space-x-3">
-                {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
-                  <img
-                    key={i}
-                    src={src}
-                    alt=""
-                    className="w-9 h-9 rounded-full border-2 border-background object-cover object-top"
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground text-left">
-                <span className="font-semibold text-foreground">Used by hiring teams</span>
-                <br />
-                across Europe
-              </p>
-            </div>
-
-            <Button
-              onClick={handleDemoRequest}
-              size="lg"
-              className="text-base px-12 py-7 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] to-[hsl(var(--usp-gradient-mid))] hover:opacity-95 text-primary-foreground mb-0"
+        <div className="container mx-auto px-4 pt-10 pb-10 md:pt-16 md:pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-8 md:gap-12 items-center max-w-6xl mx-auto">
+            {/* Left column — text */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center md:text-left"
             >
-              Experience it now
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </motion.div>
+              <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(2rem,5vw,3.5rem)] md:whitespace-nowrap mb-5 md:mb-5">
+                <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
+                  Zero markup. Full access.
+                </span>
+              </h1>
+
+              <p className="text-xs md:text-sm text-muted-foreground max-w-sm mx-auto md:mx-0 mb-6 leading-relaxed">
+                Always know what you pay. Every plan includes all features.
+                Zero markup on ad spend — ever.
+              </p>
+
+              {/* Social proof */}
+              <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
+                <div className="flex -space-x-2.5">
+                  {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt=""
+                      className="w-8 h-8 rounded-full border-2 border-background object-cover object-top"
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground text-left">
+                  <span className="font-semibold text-foreground">Trusted by 50+ hiring teams</span>
+                  <br />
+                  across Europe
+                </p>
+              </div>
+
+              {/* CTA */}
+              <Button
+                onClick={() => {
+                  posthog.capture("cta_choose_plan_pricing");
+                  document.getElementById("pricing-plans")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                size="lg"
+                className="text-base px-10 py-6 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] to-[hsl(var(--usp-gradient-mid))] hover:opacity-95 text-primary-foreground"
+              >
+                Choose your plan
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </motion.div>
+
+            {/* Right column — product visual */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="hidden md:block"
+            >
+              <img
+                src={dashboardPreview}
+                alt="TwentyTwenty Solutions platform preview"
+                className="w-full rounded-xl shadow-xl border border-border"
+              />
+            </motion.div>
+          </div>
 
           {/* USP stats bar */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="max-w-3xl mx-auto mt-14 md:mt-20"
+            className="max-w-4xl mx-auto mt-10 md:mt-14"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border rounded-2xl bg-card border border-border shadow-sm p-1">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/50 rounded-2xl p-1"
+              style={{ background: `hsl(var(--value-bar-bg))` }}
+            >
               {[
                 { icon: BarChart3, stat: "Volume-based", desc: "pricing" },
                 { icon: Zap, stat: "Full features", desc: "on every tier" },
                 { icon: Shield, stat: "0% markup", desc: "on ad spend" },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 px-6 py-5 sm:justify-center">
-                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0">
-                    <item.icon className="w-4.5 h-4.5 text-primary" />
+                  <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-primary/10 shrink-0">
+                    <item.icon className="w-5 h-5 text-primary" />
                   </div>
                   <div className="text-left">
                     <p className="font-bold text-foreground text-sm leading-tight">{item.stat}</p>
@@ -280,7 +313,7 @@ const Pricing = () => {
       </section>
 
       {/* ─── PRICING CARDS ─── */}
-      <section className="container mx-auto px-4 py-12 md:py-28">
+      <section id="pricing-plans" className="container mx-auto px-4 py-12 md:py-28 scroll-mt-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
