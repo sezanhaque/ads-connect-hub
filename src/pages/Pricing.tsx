@@ -306,14 +306,37 @@ const Pricing = () => {
           viewport={{ once: true }}
           className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
         >
-          {tiers.map((tier) => (
+          {tiers.map((tier, idx) => {
+            // Each non-highlighted card gets a unique subtle gradient accent
+            const cardAccents = [
+              "hover:border-[hsl(var(--usp-gradient-start))] hover:shadow-[0_8px_30px_-8px_hsl(var(--usp-gradient-start)/0.15)]",
+              "", // highlighted card
+              "hover:border-[hsl(var(--usp-gradient-mid))] hover:shadow-[0_8px_30px_-8px_hsl(var(--usp-gradient-mid)/0.15)]",
+              "hover:border-[hsl(var(--usp-gradient-end))] hover:shadow-[0_8px_30px_-8px_hsl(var(--usp-gradient-end)/0.15)]",
+            ];
+
+            const iconBgs = [
+              "bg-[hsl(var(--usp-gradient-start)/0.12)]",
+              "bg-primary-foreground/15",
+              "bg-[hsl(var(--usp-gradient-mid)/0.12)]",
+              "bg-[hsl(var(--usp-gradient-end)/0.12)]",
+            ];
+
+            const iconColors = [
+              "text-[hsl(var(--usp-gradient-start))]",
+              "text-primary-foreground",
+              "text-[hsl(var(--usp-gradient-mid))]",
+              "text-[hsl(var(--usp-gradient-end))]",
+            ];
+
+            return (
             <motion.div
               key={tier.name}
               variants={stagger.item}
               className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 ${
                 tier.highlighted
-                  ? "bg-primary text-primary-foreground shadow-2xl ring-2 ring-primary/30 scale-[1.02] z-10"
-                  : "bg-card border border-border shadow-sm hover:shadow-lg hover:-translate-y-1"
+                  ? "bg-gradient-to-br from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] text-white shadow-2xl ring-2 ring-[hsl(var(--usp-gradient-mid)/0.3)] scale-[1.02] z-10"
+                  : `bg-card border border-border shadow-sm hover:-translate-y-1 ${cardAccents[idx]}`
               }`}
             >
               {tier.badge && (
@@ -327,20 +350,14 @@ const Pricing = () => {
               {/* Tier name + icon */}
               <div className="mb-6">
                 <div
-                  className={`inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3 ${
-                    tier.highlighted ? "bg-primary-foreground/15" : "bg-primary/8"
-                  }`}
+                  className={`inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3 ${iconBgs[idx]}`}
                 >
-                  <tier.icon
-                    className={`w-5 h-5 ${
-                      tier.highlighted ? "text-primary-foreground" : "text-primary"
-                    }`}
-                  />
+                  <tier.icon className={`w-5 h-5 ${iconColors[idx]}`} />
                 </div>
                 <h3 className="text-lg font-bold mb-1">{tier.name}</h3>
                 <p
                   className={`text-sm leading-relaxed ${
-                    tier.highlighted ? "text-primary-foreground/75" : "text-muted-foreground"
+                    tier.highlighted ? "text-white/75" : "text-muted-foreground"
                   }`}
                 >
                   {tier.description}
@@ -352,7 +369,7 @@ const Pricing = () => {
                 <span className="text-4xl font-bold tracking-tight">{tier.price}</span>
                 <span
                   className={`text-sm ml-1 ${
-                    tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"
+                    tier.highlighted ? "text-white/60" : "text-muted-foreground"
                   }`}
                 >
                   {tier.period}
@@ -364,7 +381,7 @@ const Pricing = () => {
                 onClick={handleDemoRequest}
                 className={`w-full group mb-6 ${
                   tier.highlighted
-                    ? "bg-background text-foreground hover:bg-background/90 font-bold"
+                    ? "bg-white text-foreground hover:bg-white/90 font-bold shadow-lg"
                     : ""
                 }`}
                 variant={tier.highlighted ? undefined : "default"}
@@ -377,7 +394,7 @@ const Pricing = () => {
               {/* Key details */}
               <div
                 className={`text-xs space-y-2.5 mb-5 pb-5 border-b ${
-                  tier.highlighted ? "border-primary-foreground/15" : "border-border"
+                  tier.highlighted ? "border-white/15" : "border-border"
                 }`}
               >
                 {[
@@ -387,17 +404,17 @@ const Pricing = () => {
                   { label: "Extra campaign", value: tier.extraCampaign },
                 ].map((detail) => (
                   <div key={detail.label} className="flex justify-between">
-                    <span className={tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"}>
+                    <span className={tier.highlighted ? "text-white/60" : "text-muted-foreground"}>
                       {detail.label}
                     </span>
                     <span className="font-semibold">{detail.value}</span>
                   </div>
                 ))}
                 <div className="flex justify-between">
-                  <span className={tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"}>
+                  <span className={tier.highlighted ? "text-white/60" : "text-muted-foreground"}>
                     Ad spend markup
                   </span>
-                  <span className={`font-bold ${tier.highlighted ? "text-primary-foreground" : "text-primary"}`}>
+                  <span className={`font-bold ${tier.highlighted ? "text-white" : "text-primary"}`}>
                     0%
                   </span>
                 </div>
@@ -407,7 +424,7 @@ const Pricing = () => {
               <div className="flex-1">
                 <p
                   className={`text-[11px] font-semibold uppercase tracking-wider mb-3 ${
-                    tier.highlighted ? "text-primary-foreground/50" : "text-muted-foreground"
+                    tier.highlighted ? "text-white/50" : "text-muted-foreground"
                   }`}
                 >
                   Support
@@ -417,7 +434,7 @@ const Pricing = () => {
                     <li key={item} className="flex items-start gap-2">
                       <Check
                         className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
-                          tier.highlighted ? "text-primary-foreground" : "text-primary"
+                          tier.highlighted ? "text-white" : "text-primary"
                         }`}
                       />
                       <span className="text-[13px] leading-snug">{item}</span>
@@ -427,12 +444,12 @@ const Pricing = () => {
                     <li key={item} className="flex items-start gap-2">
                       <Minus
                         className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
-                          tier.highlighted ? "text-primary-foreground/25" : "text-muted-foreground/30"
+                          tier.highlighted ? "text-white/25" : "text-muted-foreground/30"
                         }`}
                       />
                       <span
                         className={`text-[13px] leading-snug ${
-                          tier.highlighted ? "text-primary-foreground/35" : "text-muted-foreground/40"
+                          tier.highlighted ? "text-white/35" : "text-muted-foreground/40"
                         }`}
                       >
                         {item}
@@ -442,7 +459,8 @@ const Pricing = () => {
                 </ul>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </motion.div>
       </section>
 
