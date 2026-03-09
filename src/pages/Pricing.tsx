@@ -349,7 +349,7 @@ const Pricing = () => {
               Frequently asked questions
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Hier vindt u antwoorden op de meest gestelde vragen over Twenty Twenty Solutions. Heb je meer vragen? Neem dan vrijblijvend contact met ons op.
+              Here you'll find answers to the most frequently asked questions about Twenty Twenty Solutions. Have more questions? Feel free to get in touch with us.
             </p>
           </motion.div>
 
