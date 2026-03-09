@@ -211,17 +211,10 @@ const Pricing = () => {
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.08] tracking-tight">
-              <span
-                className="bg-clip-text text-transparent"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, hsl(var(--usp-gradient-start)), hsl(var(--usp-gradient-mid)), hsl(var(--usp-gradient-end)))`,
-                }}
-              >
-                Simple and transparent
+            <h1 className="font-now font-extrabold tracking-tight leading-[1.15] text-[clamp(2rem,5vw,3.75rem)] mb-6">
+              <span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
+                Simple, transparent pricing.
               </span>
-              <br />
-              <span className="text-foreground">pricing.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-6 leading-relaxed">
               Always know what you pay. Every plan includes all features.
