@@ -4,85 +4,125 @@ import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/ui/logo";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
-import { Check, ArrowRight, Zap, Building2, Rocket } from "lucide-react";
+import { Check, ArrowRight, Minus, Zap, Users, Building2, Rocket } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { posthog } from "@/lib/posthog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import HomeFAQ from "@/components/home/HomeFAQ";
 
 const navLinks = [
   { to: "/platform-overview", label: "Product" },
+  { to: "/pricing", label: "Pricing" },
   { to: "/become-partner", label: "Become a partner" },
   { to: "/blog", label: "Blog" },
 ];
 
 const tiers = [
   {
-    name: "Starter",
-    price: "€299",
+    name: "Solo",
+    price: "€199",
     period: "/month",
-    description: "For companies starting with recruitment advertising",
+    description: "For companies hiring 1–3 roles at a time",
     icon: Zap,
-    features: [
-      "Up to 5 active job campaigns",
-      "Meta Ads (Facebook & Instagram)",
-      "Real-time campaign dashboard",
-      "Built-in ad spend wallet",
-      "Email support",
-      "Campaign builder",
-    ],
+    campaigns: "1–3",
+    setupFee: "€0",
+    minTerm: "Monthly",
+    extraCampaign: "€79/mo",
+    support: ["Email support", "30 min onboarding call", "24h response time SLA"],
+    supportMissing: ["Priority support", "Dedicated success manager", "Quarterly business review"],
     cta: "Get started",
     highlighted: false,
-    setup: "€0 setup fee",
   },
   {
-    name: "Growth",
-    price: "€499",
+    name: "Team",
+    price: "€399",
     period: "/month",
-    description: "For growing teams scaling their hiring efforts",
-    icon: Rocket,
-    features: [
-      "Everything in Starter",
-      "Up to 25 active job campaigns",
-      "TikTok Ads integration",
-      "Advanced analytics & reporting",
-      "Google Sheets integration",
-      "Priority support",
-      "Multi-user access",
-      "Campaign optimization tips",
-    ],
+    description: "For growing teams scaling their hiring",
+    icon: Users,
+    campaigns: "4–10",
+    setupFee: "€249",
+    minTerm: "6 months",
+    extraCampaign: "€79/mo",
+    support: ["Email support", "Priority support (phone + chat)", "1 hour onboarding call", "12h response time SLA"],
+    supportMissing: ["Dedicated success manager", "Quarterly business review"],
     cta: "Start growing",
     highlighted: true,
     badge: "Most popular",
-    setup: "€0 setup fee",
   },
   {
-    name: "Enterprise",
+    name: "Business",
+    price: "€649",
+    period: "/month",
+    description: "For established organizations with high-volume hiring",
+    icon: Building2,
+    campaigns: "11–25",
+    setupFee: "€499",
+    minTerm: "12 months",
+    extraCampaign: "€79/mo",
+    support: ["Email support", "Priority support (phone + chat)", "2 hour onboarding call", "Dedicated success manager", "8h response time SLA"],
+    supportMissing: ["Quarterly business review"],
+    cta: "Scale up",
+    highlighted: false,
+  },
+  {
+    name: "Scale",
     price: "Custom",
     period: "",
-    description: "For large organizations with complex hiring needs",
-    icon: Building2,
-    features: [
-      "Everything in Growth",
-      "Unlimited job campaigns",
-      "Dedicated success manager",
-      "Custom integrations",
-      "White-label options",
-      "SLA & premium support",
-      "Custom onboarding",
-      "API access",
-    ],
+    description: "For enterprises with 25+ simultaneous vacancies",
+    icon: Rocket,
+    campaigns: "25+",
+    setupFee: "Custom",
+    minTerm: "Custom",
+    extraCampaign: "Custom",
+    support: ["Email support", "Priority support (phone + chat)", "Custom onboarding", "Dedicated success manager", "Quarterly business review", "4h response time SLA"],
+    supportMissing: [],
     cta: "Contact us",
     highlighted: false,
-    setup: "Custom onboarding",
   },
 ];
 
+const allFeatures = [
+  "Meta campaigns (Facebook + Instagram)",
+  "TikTok campaigns",
+  "Own credit card ad account",
+  "Real-time cost-per-apply tracking",
+  "Campaign performance dashboard",
+  "ATS integration (iFrame)",
+  "Multi-user access",
+  "GDPR / AVG compliant",
+];
+
 const stats = [
-  { value: "50%", label: "Lower cost per hire" },
-  { value: "3x", label: "Faster time to fill" },
-  { value: "100%", label: "Transparent spend" },
+  { value: "0%", label: "Markup on ad spend" },
+  { value: "100%", label: "Feature access on every tier" },
+  { value: "1 day", label: "Live & running" },
+];
+
+const faqs = [
+  {
+    q: "What counts as an active campaign?",
+    a: "1 campaign = 1 vacancy. If you're hiring for 5 roles simultaneously, you need a plan that supports at least 5 active campaigns.",
+  },
+  {
+    q: "Is there a markup on ad spend?",
+    a: "No. Zero percent. Ad spend flows 100% through your own ad account. We never touch it. Our revenue comes purely from the platform subscription.",
+  },
+  {
+    q: "Can I add extra campaigns beyond my tier?",
+    a: "Yes. Each additional active campaign beyond your tier limit costs €79/month. On the Scale plan, pricing is custom.",
+  },
+  {
+    q: "What happens if I downgrade?",
+    a: "You can downgrade at the end of your minimum term. Any campaigns beyond the new tier's limit will be paused.",
+  },
+  {
+    q: "Do all plans really include the same features?",
+    a: "Yes. Every client gets Meta + TikTok campaigns, ATS integration, real-time dashboard, cost-per-apply tracking, and their own ad account. No feature gating — support level is the only thing that scales.",
+  },
+  {
+    q: "How does the ad spend wallet work?",
+    a: "Each company gets its own built-in credit card account so ad spend flows directly and transparently — no hidden margins and no fronting costs.",
+  },
 ];
 
 const Pricing = () => {
@@ -108,13 +148,19 @@ const Pricing = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
-          <Logo />
+          <Link to="/">
+            <Logo />
+          </Link>
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium"
+                className={`font-now font-medium transition-colors ${
+                  link.to === "/pricing"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 {link.label}
               </Link>
@@ -140,22 +186,22 @@ const Pricing = () => {
           transition={{ duration: 0.6 }}
         >
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 text-sm px-4 py-1.5">
-            Simple, transparent pricing
+            Same features everywhere · Price scales with volume · Zero markup on ad spend
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            Plans that scale{" "}
+            Simple pricing,{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{
                 backgroundImage: `linear-gradient(135deg, hsl(var(--usp-gradient-start)), hsl(var(--usp-gradient-mid)), hsl(var(--usp-gradient-end)))`,
               }}
             >
-              with your hiring
+              zero surprises
             </span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-            All features included. No hidden fees. No agency markups. 
-            Just transparent recruitment advertising that delivers results.
+            Every plan includes all features. No markup on ad spend — ever.
+            You only pay more when you hire more.
           </p>
         </motion.div>
 
@@ -177,16 +223,16 @@ const Pricing = () => {
 
       {/* Pricing Cards */}
       <section className="container mx-auto px-4 pb-24">
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {tiers.map((tier, index) => (
             <motion.div
               key={tier.name}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
-              className={`relative rounded-2xl p-8 flex flex-col ${
+              className={`relative rounded-2xl p-7 flex flex-col ${
                 tier.highlighted
-                  ? "bg-primary text-primary-foreground shadow-2xl scale-[1.03] border-2 border-primary"
+                  ? "bg-primary text-primary-foreground shadow-2xl scale-[1.03] border-2 border-primary z-10"
                   : "bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               }`}
             >
@@ -198,16 +244,14 @@ const Pricing = () => {
                 </div>
               )}
 
-              <div className="mb-6">
+              <div className="mb-5">
                 <div
-                  className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${
-                    tier.highlighted
-                      ? "bg-primary-foreground/20"
-                      : "bg-primary/10"
+                  className={`inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3 ${
+                    tier.highlighted ? "bg-primary-foreground/20" : "bg-primary/10"
                   }`}
                 >
                   <tier.icon
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 ${
                       tier.highlighted ? "text-primary-foreground" : "text-primary"
                     }`}
                   />
@@ -222,7 +266,7 @@ const Pricing = () => {
                 </p>
               </div>
 
-              <div className="mb-6">
+              <div className="mb-5">
                 <span className="text-4xl font-bold">{tier.price}</span>
                 <span
                   className={`text-sm ${
@@ -231,27 +275,66 @@ const Pricing = () => {
                 >
                   {tier.period}
                 </span>
-                <div
-                  className={`text-xs mt-1 ${
-                    tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"
-                  }`}
-                >
-                  {tier.setup}
+              </div>
+
+              {/* Key details */}
+              <div
+                className={`text-xs space-y-1.5 mb-5 pb-5 border-b ${
+                  tier.highlighted ? "border-primary-foreground/20" : "border-border"
+                }`}
+              >
+                <div className="flex justify-between">
+                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Active campaigns</span>
+                  <span className="font-semibold">{tier.campaigns}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Setup fee</span>
+                  <span className="font-semibold">{tier.setupFee}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Minimum term</span>
+                  <span className="font-semibold">{tier.minTerm}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Extra campaign</span>
+                  <span className="font-semibold">{tier.extraCampaign}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={tier.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}>Ad spend markup</span>
+                  <span className="font-bold text-accent">0%</span>
                 </div>
               </div>
 
-              <ul className="space-y-3 mb-8 flex-1">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <Check
-                      className={`w-5 h-5 shrink-0 mt-0.5 ${
-                        tier.highlighted ? "text-accent" : "text-primary"
-                      }`}
-                    />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              {/* Support */}
+              <div className="flex-1 mb-6">
+                <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${
+                  tier.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"
+                }`}>Support</p>
+                <ul className="space-y-2">
+                  {tier.support.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <Check
+                        className={`w-4 h-4 shrink-0 mt-0.5 ${
+                          tier.highlighted ? "text-accent" : "text-primary"
+                        }`}
+                      />
+                      <span className="text-sm">{item}</span>
+                    </li>
+                  ))}
+                  {tier.supportMissing.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <Minus
+                        className={`w-4 h-4 shrink-0 mt-0.5 ${
+                          tier.highlighted ? "text-primary-foreground/30" : "text-muted-foreground/40"
+                        }`}
+                      />
+                      <span className={`text-sm ${
+                        tier.highlighted ? "text-primary-foreground/40" : "text-muted-foreground/50"
+                      }`}>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <Button
                 onClick={handleDemoRequest}
@@ -271,31 +354,27 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* All plans include */}
+      {/* All features included */}
       <section className="bg-muted/50 py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Every plan includes
+            Every plan includes all features
           </h2>
           <p className="text-muted-foreground mb-12 max-w-xl mx-auto">
-            No matter which plan you choose, you get access to the core features that make recruitment advertising simple and transparent.
+            No feature gating. From Solo to Scale, you get the full platform.
+            The only thing that scales with your tier is support level.
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {[
-              { title: "Campaign builder", desc: "Launch campaigns in minutes with our guided flow" },
-              { title: "Real-time dashboards", desc: "See exactly where your budget goes and what it delivers" },
-              { title: "Built-in ad wallet", desc: "No risky upfront payments or hidden margins" },
-              { title: "AI-optimized ads", desc: "Smart targeting and optimization powered by AI" },
-            ].map((item) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
+            {allFeatures.map((feature) => (
               <motion.div
-                key={item.title}
+                key={feature}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-card rounded-xl p-6 border border-border text-left"
+                className="bg-card rounded-xl p-5 border border-border text-left flex items-start gap-3"
               >
-                <h3 className="font-bold text-foreground mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm font-medium text-foreground">{feature}</span>
               </motion.div>
             ))}
           </div>
@@ -329,7 +408,36 @@ const Pricing = () => {
       </section>
 
       {/* FAQ */}
-      <HomeFAQ />
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-4">
+            Frequently asked questions
+          </h2>
+          <p className="text-muted-foreground text-center mb-10">
+            Everything you need to know about our pricing
+          </p>
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <motion.details
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="group bg-card border border-border rounded-xl"
+              >
+                <summary className="flex items-center justify-between p-5 cursor-pointer font-semibold text-foreground list-none">
+                  {faq.q}
+                  <span className="ml-4 text-muted-foreground group-open:rotate-45 transition-transform text-xl">+</span>
+                </summary>
+                <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                  {faq.a}
+                </div>
+              </motion.details>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <Footer />
 
