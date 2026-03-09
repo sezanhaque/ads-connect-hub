@@ -259,7 +259,7 @@ const Pricing = () => {
                   document.getElementById("pricing-plans")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
                 size="lg"
-                className="text-base px-10 py-6 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] to-[hsl(var(--usp-gradient-mid))] hover:opacity-95 text-primary-foreground"
+                className="text-sm md:text-base px-8 md:px-10 py-5 md:py-6 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-[1.02] bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] to-[hsl(var(--usp-gradient-mid))] hover:opacity-95 text-primary-foreground w-full sm:w-auto"
               >
                 Choose your plan
                 <ArrowRight className="w-5 h-5 ml-2" />
