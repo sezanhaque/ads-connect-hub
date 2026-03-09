@@ -409,7 +409,13 @@ const Pricing = () => {
 
               {/* CTA button */}
               <Button
-                  onClick={handleDemoRequest}
+                  onClick={() => {
+                    if (tier.checkoutUrl) {
+                      window.open(tier.checkoutUrl, "_blank");
+                    } else {
+                      handleDemoRequest();
+                    }
+                  }}
                   className={`w-full group mb-6 ${
                   tier.highlighted ?
                   "bg-white text-foreground hover:bg-white/90 font-bold shadow-lg" :
