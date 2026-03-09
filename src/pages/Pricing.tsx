@@ -338,13 +338,22 @@ const Pricing = () => {
 
       {/* FAQ */}
       <section className="container mx-auto px-4 py-20">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-4">
-            Frequently asked questions
-          </h2>
-          <p className="text-muted-foreground text-center mb-10">
-            Everything you need to know about our pricing
-          </p>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-16 items-start">
+          {/* Left side text */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Frequently asked questions
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Hier vindt u antwoorden op de meest gestelde vragen over Twenty Twenty Solutions. Heb je meer vragen? Neem dan vrijblijvend contact met ons op.
+            </p>
+          </motion.div>
+
+          {/* Right side FAQ items */}
           <div className="space-y-4">
             {faqs.map((faq, i) => (
               <motion.details
