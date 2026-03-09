@@ -313,7 +313,7 @@ const Pricing = () => {
       </section>
 
       {/* ─── PRICING CARDS ─── */}
-      <section id="pricing-plans" className="container mx-auto px-4 py-12 md:py-28 scroll-mt-8">
+      <section id="pricing-plans" className="container mx-auto px-4 py-10 md:py-28 scroll-mt-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
