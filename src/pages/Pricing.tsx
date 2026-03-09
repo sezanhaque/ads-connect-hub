@@ -333,9 +333,9 @@ const Pricing = () => {
             <motion.div
               key={tier.name}
               variants={stagger.item}
-              className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 ${
+              className={`relative rounded-2xl p-6 md:p-7 flex flex-col transition-all duration-300 ${
                 tier.highlighted
-                  ? "bg-gradient-to-br from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] text-white shadow-2xl ring-2 ring-[hsl(var(--usp-gradient-mid)/0.3)] scale-[1.02] z-10"
+                  ? "bg-gradient-to-br from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] text-white shadow-2xl ring-2 ring-[hsl(var(--usp-gradient-mid)/0.3)] lg:scale-[1.02] z-10"
                   : `bg-card border border-border shadow-sm hover:-translate-y-1 ${cardAccents[idx]}`
               }`}
             >
