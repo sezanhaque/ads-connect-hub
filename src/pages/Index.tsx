@@ -51,6 +51,9 @@ const Index = () => {
             <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Product
             </Link>
+            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Pricing
+            </Link>
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a partner
             </Link>
@@ -68,6 +71,9 @@ const Index = () => {
             <MobileNav onDemoClick={handleDemoRequest} links={[{
             to: "/platform-overview",
             label: "Product"
+          }, {
+            to: "/pricing",
+            label: "Pricing"
           }, {
             to: "/become-partner",
             label: "Become a partner"
