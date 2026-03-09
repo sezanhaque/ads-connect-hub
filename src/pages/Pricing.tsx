@@ -81,16 +81,6 @@ const tiers = [
   },
 ];
 
-const allFeatures = [
-  "Meta campaigns (Facebook + Instagram)",
-  "TikTok campaigns",
-  "Own credit card ad account",
-  "Real-time cost-per-apply tracking",
-  "Campaign performance dashboard",
-  "ATS integration (iFrame)",
-  "Multi-user access",
-  "GDPR / AVG compliant",
-];
 
 const stats = [
   { value: "0%", label: "Markup on ad spend" },
