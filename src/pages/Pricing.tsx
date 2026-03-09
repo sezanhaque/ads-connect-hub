@@ -283,16 +283,9 @@ const Pricing = () => {
           viewport={{ once: true }}
           className="text-center mb-8 md:mb-14"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Find your{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage: `linear-gradient(135deg, hsl(var(--usp-gradient-start)), hsl(var(--usp-gradient-mid)), hsl(var(--usp-gradient-end)))`,
-              }}
-            >
-              perfect plan
-            </span>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+            <span className="text-foreground">Find your </span>
+            <span className="text-foreground">perfect plan</span>
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
             Same platform, same features, every tier. Support level scales with your plan.
