@@ -94,11 +94,11 @@ const PilotPartner = () => {
         <div className="max-w-5xl mx-auto text-center space-y-6 md:space-y-8">
           
           
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">
             {isEnglish ? "Let's improve recruitment." : "Recruitment advertising, maar dan slimmer."}
           </h1>
           
-          <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
             {isEnglish 
               ? "Be among the first 10 companies to Test, Rethink and Evolve recruitment advertising. No costs. Full support. Real impact."
               : "Sluit je aan bij onze eerste 10 pilotbedrijven en test de toekomst van job advertising. Zonder platformkosten en mét echte resultaten."}
