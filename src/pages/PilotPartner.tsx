@@ -94,7 +94,7 @@ const PilotPartner = () => {
         <div className="max-w-5xl mx-auto text-center space-y-6 md:space-y-8">
           
           
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">
             {isEnglish ? "Let's improve recruitment." : "Recruitment advertising, maar dan slimmer."}
           </h1>
           
