@@ -73,7 +73,7 @@ const Product = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-10 md:py-20">
         <div className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto">
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,4rem)]">Turn Recruitment Advertising
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">Turn Recruitment Advertising
 Into Predictable Hires.
 
 

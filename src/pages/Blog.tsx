@@ -134,7 +134,7 @@ const Blog = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-10 md:py-16">
         <div className="text-center space-y-6 max-w-4xl mx-auto">
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,6vw,3.5rem)]">
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">
             Insights & Resources
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now subtitle max-w-2xl mx-auto">

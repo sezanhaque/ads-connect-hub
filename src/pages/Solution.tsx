@@ -117,7 +117,7 @@ const Solution = () => {
             <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">
               Automated advertising, built for your team.
             </h1>
-            <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">
               Bringing back clarity and removing wasted time, unnecessary agency costs, and loss of control caused by fragmented processes.
             </p>
             <motion.div 

@@ -65,7 +65,7 @@ const BecomePartner = () => {
             <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">
               Let's Build the Future of Recruitment Together
             </h1>
-            <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto">
               We're looking for ATS providers who want to offer their customers a seamless, integrated recruitment advertising experience.
             </p>
           </motion.div>
