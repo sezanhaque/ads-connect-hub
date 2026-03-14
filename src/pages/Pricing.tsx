@@ -226,8 +226,7 @@ const Pricing = () => {
               </h1>
 
               <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">
-                Always know what you pay. Every plan includes all features.
-                <br />Zero markup on ad spend — ever.
+                No hidden fees. No feature gating. No markup on ad spend. Just one clear price for everything you need.
               </p>
 
               {/* Social proof */}
