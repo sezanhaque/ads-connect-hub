@@ -69,7 +69,7 @@ const MetaJobAds = () => {
                 On Meta.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">Turn your vacancies into targeted Facebook & Instagram campaigns that deliver a steady flow of new applicants.<br />No advertising expertise needed. No agency required.</p>
+            <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed max-w-xl font-light">Turn your vacancies into targeted Facebook & Instagram campaigns that deliver a steady flow of new applicants.<br />No advertising expertise needed. No agency required.</p>
 
             {/* Trust proof */}
             <div className="flex items-center gap-3">
