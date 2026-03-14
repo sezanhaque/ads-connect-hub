@@ -124,7 +124,10 @@ No marketing expertise needed. No agency required.
         <motion.div className="container mx-auto px-4 max-w-2xl text-center space-y-6" {...fadeUp}>
           
           <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-            Reach talent beyond the job boards
+            Reach talent{" "}
+            <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
+              beyond the job boards
+            </span>
           </h2>
           <p className="text-lg text-muted-foreground font-now leading-relaxed">
             The majority of your ideal candidates are not browsing job boards. They are spending time on platforms such as Facebook and Instagram. Meta advertising allows your vacancies to appear directly in their daily feed, with the right message at the right moment, turning passive scrollers into active applicants.
