@@ -76,12 +76,16 @@ const MetaJobAds = () => {
 
             {/* Trust proof */}
             <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {[avatar1, avatar2, avatar3, avatar4].map((a, i) => (
-                  <img key={i} src={a} alt="" className="w-8 h-8 rounded-full border-2 border-background" />
+              <div className="flex -space-x-2.5">
+                {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
+                  <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-background object-cover object-top" />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground font-now">Trusted by recruitment teams across Europe</span>
+              <p className="text-xs text-muted-foreground text-left">
+                <span className="font-semibold text-foreground">Trusted by recruitment teams</span>
+                <br />
+                across Europe
+              </p>
             </div>
 
             <Button size="lg" asChild className="text-primary-foreground">
