@@ -12,6 +12,7 @@ import avatar2 from "@/assets/avatar-2.png";
 import avatar3 from "@/assets/avatar-3.png";
 import avatar4 from "@/assets/avatar-4.png";
 import MetaLogo from "@/components/icons/MetaLogo";
+import metaHeroPhones from "@/assets/meta-hero-phones.png";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
