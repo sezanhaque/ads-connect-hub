@@ -146,7 +146,7 @@ const TikTokJobAds = () => {
             <img
               src={tiktokHeroPhone}
               alt="Recruitment ad on TikTok shown on a mobile phone"
-              className="w-full max-w-md mx-auto"
+              className="w-full max-w-lg mx-auto"
             />
           </motion.div>
         </div>
