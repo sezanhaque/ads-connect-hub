@@ -224,7 +224,7 @@ No marketing expertise needed. No agency required.
               {
                 icon: Image,
                 title: "AI-generated images & videos",
-                desc: "No designer? No problem. Our platform generates scroll-stopping ad creatives for you, both static images and video and tailored to your vacancy. Ready to launch."
+                desc: "No designer? No problem. Our platform generates scroll-stopping ad creatives for you, both static images and video and tailored to your vacancy."
               },
               {
                 icon: Film,
