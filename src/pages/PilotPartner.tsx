@@ -460,6 +460,7 @@ const PilotPartner = () => {
               : "Beoordeling van aanmelding duurt 1-2 werkdagen"}
           </p>
         </div>
+        </div>
       </section>
 
       {/* Section 8: FAQ */}
