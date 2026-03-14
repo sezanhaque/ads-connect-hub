@@ -130,10 +130,10 @@ No marketing expertise needed. No agency required.
             </span>
           </h2>
           <p className="text-lg text-muted-foreground font-now leading-relaxed">
-            The majority of your ideal candidates are not browsing job boards. They are spending time on platforms such as Facebook and Instagram. Meta advertising allows your vacancies to appear directly in their daily feed, with the right message at the right moment, turning passive scrollers into active applicants.
+            The majority of your ideal candidates are not browsing job boards. They are spending time on platforms such as Facebook and Instagram. Meta advertising allows your vacancies to appear directly in their daily feed, with the right message at the right moment, turning scrollers into applicants.
           </p>
           <p className="text-lg text-muted-foreground font-now leading-relaxed">
-            With Twenty Twenty Solutions, you can run these campaigns directly through our platform without relying on agencies. You stay in full control of your budget and results, while connecting your vacancies with the people you actually want to hire.
+            With Twenty Twenty Solutions, you can run these campaigns directly through our platform without relying on agencies. You stay in full control of your budget and can track your results in real time.
           </p>
         </motion.div>
       </section>
