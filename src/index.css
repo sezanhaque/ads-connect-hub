@@ -150,3 +150,35 @@ All colors MUST be HSL.
     @apply font-now;
   }
 }
+
+/* ─── Unified layout utilities ─── */
+@layer components {
+  /* Section spacing — unified across all public pages */
+  .section-padding {
+    @apply py-10 md:py-20;
+  }
+  
+  .section-padding-sm {
+    @apply py-8 md:py-14;
+  }
+
+  /* Hero section spacing */
+  .hero-padding {
+    @apply pt-8 pb-8 md:pt-16 md:pb-16;
+  }
+
+  /* Section label pill — small uppercase badge above headlines */
+  .section-label {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-now font-semibold tracking-wide uppercase;
+  }
+
+  /* Unified card style */
+  .unified-card {
+    @apply bg-card rounded-xl border shadow-sm p-5 md:p-6 transition-all duration-300 hover:shadow-md;
+  }
+
+  /* CTA banner — gradient box used at page bottom */
+  .cta-banner {
+    @apply max-w-4xl mx-auto text-center space-y-5 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 md:p-12 border border-primary/20;
+  }
+}
