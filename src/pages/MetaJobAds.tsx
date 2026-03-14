@@ -16,14 +16,14 @@ const fadeUp = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.5 },
+  transition: { duration: 0.5 }
 };
 
 const navLinks = [
-  { to: "/become-partner", label: "Become a partner" },
-  { to: "/pricing", label: "Pricing" },
-  { to: "/blog", label: "Blog" },
-];
+{ to: "/become-partner", label: "Become a partner" },
+{ to: "/pricing", label: "Pricing" },
+{ to: "/blog", label: "Blog" }];
+
 
 const MetaJobAds = () => {
   return (
@@ -38,11 +38,11 @@ const MetaJobAds = () => {
           <Link to="/"><Logo /></Link>
           <div className="hidden md:flex items-center gap-8">
             <ProductDropdown />
-            {navLinks.map((l) => (
-              <Link key={l.to} to={l.to} className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+            {navLinks.map((l) =>
+            <Link key={l.to} to={l.to} className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
                 {l.label}
               </Link>
-            ))}
+            )}
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
@@ -67,16 +67,16 @@ const MetaJobAds = () => {
                 On Meta.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">
-              Turn your vacancies into targeted Facebook & Instagram campaigns — with AI-generated images and videos — that deliver a steady flow of applicants. No marketing expertise needed. No agency required.
+            <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">Turn your vacancies into targeted Facebook & Instagram campaigns, that deliver a steady flow of new applicants.
+No marketing expertise needed. No agency required.
             </p>
 
             {/* Trust proof */}
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
-                  <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-background object-cover object-top" />
-                ))}
+                {[avatar1, avatar2, avatar3, avatar4].map((src, i) =>
+                <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-background object-cover object-top" />
+                )}
               </div>
               <p className="text-xs text-muted-foreground text-left">
                 <span className="font-semibold text-foreground">Trusted by recruitment teams</span>
@@ -127,16 +127,16 @@ const MetaJobAds = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="grid sm:grid-cols-3 gap-6 text-center">
             {[
-              { emoji: "📊", title: "Reach passive candidates", sub: "73% aren't actively searching" },
-              { emoji: "⚡", title: "Launch in minutes", sub: "No marketing expertise needed" },
-              { emoji: "🛡️", title: "0% markup", sub: "on ad spend — ever" },
-            ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
+            { emoji: "📊", title: "Reach passive candidates", sub: "73% aren't actively searching" },
+            { emoji: "⚡", title: "Launch in minutes", sub: "No marketing expertise needed" },
+            { emoji: "🛡️", title: "0% markup", sub: "on ad spend — ever" }].
+            map((item, i) =>
+            <div key={i} className="flex flex-col items-center gap-1">
                 <span className="text-2xl">{item.emoji}</span>
                 <p className="font-now font-semibold text-foreground text-sm">{item.title}</p>
                 <p className="text-xs text-muted-foreground font-now">{item.sub}</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -167,34 +167,34 @@ const MetaJobAds = () => {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
-              {
-                icon: Link2,
-                step: "01",
-                title: "Connect",
-                desc: "Connect your ATS and import your vacancies. Your jobs sync automatically — when you pause or close a vacancy, the campaign stops too.",
-                color: "primary",
-              },
-              {
-                icon: Rocket,
-                step: "02",
-                title: "Create & Launch",
-                desc: "Choose between image or video ad formats — or let our platform generate them for you using AI. Our guided flow handles targeting, budget, and creative so you can launch a complete campaign in minutes, without needing a marketing background or design skills.",
-                color: "secondary",
-              },
-              {
-                icon: BarChart3,
-                step: "03",
-                title: "Track",
-                desc: "See exactly what every applicant costs. Real-time dashboards show spend, clicks, and cost-per-applicant per vacancy. Fully transparent, no hidden fees.",
-                color: "success",
-              },
-            ].map((s, i) => (
-              <motion.div
-                key={i}
-                className="bg-card rounded-xl border p-6 space-y-4 shadow-sm"
-                {...fadeUp}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-              >
+            {
+              icon: Link2,
+              step: "01",
+              title: "Connect",
+              desc: "Connect your ATS and import your vacancies. Your jobs sync automatically — when you pause or close a vacancy, the campaign stops too.",
+              color: "primary"
+            },
+            {
+              icon: Rocket,
+              step: "02",
+              title: "Create & Launch",
+              desc: "Choose between image or video ad formats — or let our platform generate them for you using AI. Our guided flow handles targeting, budget, and creative so you can launch a complete campaign in minutes, without needing a marketing background or design skills.",
+              color: "secondary"
+            },
+            {
+              icon: BarChart3,
+              step: "03",
+              title: "Track",
+              desc: "See exactly what every applicant costs. Real-time dashboards show spend, clicks, and cost-per-applicant per vacancy. Fully transparent, no hidden fees.",
+              color: "success"
+            }].
+            map((s, i) =>
+            <motion.div
+              key={i}
+              className="bg-card rounded-xl border p-6 space-y-4 shadow-sm"
+              {...fadeUp}
+              transition={{ duration: 0.5, delay: i * 0.1 }}>
+              
                 <div className={`inline-flex items-center justify-center w-14 h-14 rounded-lg bg-${s.color}/10`}>
                   <s.icon className={`h-7 w-7 text-${s.color}`} />
                 </div>
@@ -202,7 +202,7 @@ const MetaJobAds = () => {
                 <h3 className="text-xl font-now font-bold text-foreground">{s.title}</h3>
                 <p className="text-sm text-muted-foreground font-now leading-relaxed">{s.desc}</p>
               </motion.div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -218,53 +218,53 @@ const MetaJobAds = () => {
             {/* Top row: 3 */}
             <div className="grid md:grid-cols-3 gap-6 mb-6">
               {[
-                {
-                  icon: Users,
-                  title: "Built for recruiters, not marketers",
-                  desc: "You don't need to understand audience segmentation or ad bidding. Our guided flow handles the complexity — you just pick the vacancy and set the budget.",
-                },
-                {
-                  icon: Image,
-                  title: "AI-generated images & videos",
-                  desc: "No designer? No problem. Our platform generates scroll-stopping ad creatives for you — both static images and video — tailored to your vacancy and ready to launch.",
-                },
-                {
-                  icon: Film,
-                  title: "Multiple ad formats",
-                  desc: "Run image ads, video ads, or both. Test what works best for your audience and sector. Switch formats anytime without starting over.",
-                },
-              ].map((b, i) => (
-                <motion.div key={i} className="bg-card rounded-xl border p-6 space-y-3 shadow-sm" {...fadeUp} transition={{ duration: 0.5, delay: i * 0.08 }}>
+              {
+                icon: Users,
+                title: "Built for recruiters, not marketers",
+                desc: "You don't need to understand audience segmentation or ad bidding. Our guided flow handles the complexity — you just pick the vacancy and set the budget."
+              },
+              {
+                icon: Image,
+                title: "AI-generated images & videos",
+                desc: "No designer? No problem. Our platform generates scroll-stopping ad creatives for you — both static images and video — tailored to your vacancy and ready to launch."
+              },
+              {
+                icon: Film,
+                title: "Multiple ad formats",
+                desc: "Run image ads, video ads, or both. Test what works best for your audience and sector. Switch formats anytime without starting over."
+              }].
+              map((b, i) =>
+              <motion.div key={i} className="bg-card rounded-xl border p-6 space-y-3 shadow-sm" {...fadeUp} transition={{ duration: 0.5, delay: i * 0.08 }}>
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
                     <b.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-now font-bold text-foreground">{b.title}</h3>
                   <p className="text-sm text-muted-foreground font-now leading-relaxed">{b.desc}</p>
                 </motion.div>
-              ))}
+              )}
             </div>
             {/* Bottom row: 2 centered */}
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
               {[
-                {
-                  icon: Activity,
-                  title: "Real-time cost per applicant",
-                  desc: "Know exactly what each applicant costs, per vacancy, in real time. Connected to your ATS so you can track from impression to hire.",
-                },
-                {
-                  icon: Plug,
-                  title: "Integrated with your ATS",
-                  desc: "Connect TwentyTwenty with your ATS. Jobs, applicants, and performance data flow seamlessly between systems.",
-                },
-              ].map((b, i) => (
-                <motion.div key={i} className="bg-card rounded-xl border p-6 space-y-3 shadow-sm" {...fadeUp} transition={{ duration: 0.5, delay: i * 0.08 }}>
+              {
+                icon: Activity,
+                title: "Real-time cost per applicant",
+                desc: "Know exactly what each applicant costs, per vacancy, in real time. Connected to your ATS so you can track from impression to hire."
+              },
+              {
+                icon: Plug,
+                title: "Integrated with your ATS",
+                desc: "Connect TwentyTwenty with your ATS. Jobs, applicants, and performance data flow seamlessly between systems."
+              }].
+              map((b, i) =>
+              <motion.div key={i} className="bg-card rounded-xl border p-6 space-y-3 shadow-sm" {...fadeUp} transition={{ duration: 0.5, delay: i * 0.08 }}>
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
                     <b.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-now font-bold text-foreground">{b.title}</h3>
                   <p className="text-sm text-muted-foreground font-now leading-relaxed">{b.desc}</p>
                 </motion.div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -285,7 +285,7 @@ const MetaJobAds = () => {
             <motion.div className="bg-card rounded-xl border p-8 space-y-4 shadow-sm" {...fadeUp}>
               <div className="w-12 h-12 rounded-lg bg-[#1877F2]/10 flex items-center justify-center">
                 <svg viewBox="0 0 24 24" className="w-6 h-6 fill-[#1877F2]">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </div>
               <h3 className="text-xl font-now font-bold text-foreground">Facebook</h3>
@@ -298,7 +298,7 @@ const MetaJobAds = () => {
             <motion.div className="bg-card rounded-xl border p-8 space-y-4 shadow-sm" {...fadeUp} transition={{ duration: 0.5, delay: 0.1 }}>
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#F58529]/10 via-[#DD2A7B]/10 to-[#8134AF]/10 flex items-center justify-center">
                 <svg viewBox="0 0 24 24" className="w-6 h-6 fill-[#E1306C]">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
                 </svg>
               </div>
               <h3 className="text-xl font-now font-bold text-foreground">Instagram</h3>
@@ -315,8 +315,8 @@ const MetaJobAds = () => {
         <div className="container mx-auto px-4">
           <motion.div
             className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-14 border border-primary/20"
-            {...fadeUp}
-          >
+            {...fadeUp}>
+            
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               Ready to reach candidates who aren't looking?
             </h2>
@@ -334,8 +334,8 @@ const MetaJobAds = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>);
+
 };
 
 export default MetaJobAds;
