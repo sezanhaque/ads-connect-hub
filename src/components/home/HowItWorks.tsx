@@ -2,7 +2,16 @@ import { Link2, Megaphone, BarChart3, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-const steps = [
+export interface HowItWorksStep {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  gradient: string;
+  bgGlow: string;
+  step: string;
+}
+
+const defaultSteps: HowItWorksStep[] = [
   {
     icon: Link2,
     title: "Connect your ATS",
@@ -31,6 +40,7 @@ const steps = [
 
 interface HowItWorksProps {
   onDemoClick?: () => void;
+  steps?: HowItWorksStep[];
 }
 
 const HowItWorks = ({ onDemoClick }: HowItWorksProps) => {

@@ -69,6 +69,7 @@ const App = () => {
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/meta-job-ads" element={<MetaJobAds />} />
+                <Route path="/tiktok-job-ads" element={<TikTokJobAds />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                   path="/dashboard"
