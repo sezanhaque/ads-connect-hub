@@ -223,15 +223,15 @@ const Pricing = () => {
               transition={{ duration: 0.6 }}
               className="text-center md:text-left">
               
-               <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(1.75rem,5vw,3.5rem)] mb-4 md:mb-5">
+               <h1 className="font-now font-bold tracking-tight text-[clamp(2rem,5vw,3.5rem)] leading-tight">
                 <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
-                  Simple, transparent pricing
+                  Simple, transparent pricing.
                 </span>
               </h1>
 
-              <p className="text-xs md:text-sm text-muted-foreground max-w-xs sm:max-w-sm mx-auto md:mx-0 mb-5 md:mb-6 leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">
                 Always know what you pay. Every plan includes all features.
-                Zero markup on ad spend — ever.
+                <br />Zero markup on ad spend — ever.
               </p>
 
               {/* Social proof */}
