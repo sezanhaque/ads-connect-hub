@@ -4,6 +4,7 @@ import Logo from "@/components/ui/logo";
 import { ArrowRight, Link2, Rocket, BarChart3, Users, Image, Film, Activity, Plug } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { motion } from "framer-motion";
 import avatar1 from "@/assets/avatar-1.png";
 import avatar2 from "@/assets/avatar-2.png";
@@ -19,7 +20,6 @@ const fadeUp = {
 };
 
 const navLinks = [
-  { to: "/platform-overview", label: "Product" },
   { to: "/become-partner", label: "Become a partner" },
   { to: "/pricing", label: "Pricing" },
   { to: "/blog", label: "Blog" },
@@ -37,6 +37,7 @@ const MetaJobAds = () => {
         <nav className="flex items-center justify-between">
           <Link to="/"><Logo /></Link>
           <div className="hidden md:flex items-center gap-8">
+            <ProductDropdown />
             {navLinks.map((l) => (
               <Link key={l.to} to={l.to} className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
                 {l.label}

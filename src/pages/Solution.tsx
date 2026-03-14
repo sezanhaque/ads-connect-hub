@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import Logo from "@/components/ui/logo";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
@@ -70,9 +71,7 @@ const Solution = () => {
             <Logo />
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Product
-            </Link>
+            <ProductDropdown />
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a partner
             </Link>

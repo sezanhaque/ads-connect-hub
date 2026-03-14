@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/ui/logo";
 import { MobileNav } from "@/components/MobileNav";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import Footer from "@/components/layout/Footer";
 import {
   Check,
@@ -27,11 +28,9 @@ import { posthog } from "@/lib/posthog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const navLinks = [
-{ to: "/platform-overview", label: "Product" },
 { to: "/become-partner", label: "Become a partner" },
 { to: "/pricing", label: "Pricing" },
 { to: "/blog", label: "Blog" }];
-
 
 const tiers = [
 {
@@ -171,6 +170,7 @@ const Pricing = () => {
             <Logo />
           </Link>
           <div className="hidden md:flex items-center gap-8">
+            <ProductDropdown />
             {navLinks.map((link) =>
             <Link
               key={link.to}

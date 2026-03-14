@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import Logo from "@/components/ui/logo";
@@ -45,9 +46,7 @@ const Product = () => {
             <Logo />
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/platform-overview" className="text-foreground font-now font-medium">
-              Product
-            </Link>
+            <ProductDropdown />
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a partner
             </Link>

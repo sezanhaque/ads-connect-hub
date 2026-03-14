@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { ArrowRight, Mail, Phone, Handshake, CheckCircle, Users, Zap, Building2, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
 import { posthog } from "@/lib/posthog";
@@ -21,9 +22,7 @@ const BecomePartner = () => {
             <Logo />
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Product
-            </Link>
+            <ProductDropdown />
             <Link to="/become-partner" className="text-foreground font-now font-medium">
               Become a partner
             </Link>

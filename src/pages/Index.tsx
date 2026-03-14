@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
 import { ArrowRight } from "lucide-react";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
@@ -48,9 +49,7 @@ const Index = () => {
         <nav className="flex items-center justify-between">
           <Logo />
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/platform-overview" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Product
-            </Link>
+            <ProductDropdown />
             <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
               Become a partner
             </Link>
