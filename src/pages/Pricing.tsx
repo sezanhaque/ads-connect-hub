@@ -217,7 +217,7 @@ const Pricing = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-center md:text-left">
+              className="text-center md:text-left space-y-6">
               
                <h1 className="font-now font-bold tracking-tight text-[clamp(2rem,5vw,3.5rem)] leading-tight">
                 <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
@@ -231,7 +231,7 @@ const Pricing = () => {
               </p>
 
               {/* Social proof */}
-              <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
+              <div className="flex items-center justify-center md:justify-start gap-3">
                 <div className="flex -space-x-2.5">
                   {[avatar1, avatar2, avatar3, avatar4].map((src, i) =>
                   <img
