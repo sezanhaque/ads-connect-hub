@@ -4,6 +4,7 @@ import Logo from "@/components/ui/logo";
 import { ArrowRight, Link2, Rocket, BarChart3, Users, Image, Film, Activity, Plug } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { motion } from "framer-motion";
 import avatar1 from "@/assets/avatar-1.png";
 import avatar2 from "@/assets/avatar-2.png";
