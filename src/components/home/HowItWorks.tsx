@@ -2,28 +2,32 @@ import { Link2, Megaphone, BarChart3, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-const steps = [{
-  icon: Link2,
-  title: "Connect your ATS",
-  description: "Connect your ATS or upload a vacancy manually. The platform is designed to fit seamlessly into existing recruitment workflows and supports a growing number of ATS integrations.",
-  gradient: "from-primary via-primary/80 to-primary/60",
-  bgGlow: "bg-primary/20",
-  step: "01"
-}, {
-  icon: Megaphone,
-  title: "Launch ads across channels",
-  description: "Create and launch recruitment advertising campaigns in minutes. Select your target audience, channels, and budget without dealing with complex advertising setups.",
-  gradient: "from-secondary via-secondary/80 to-secondary/60",
-  bgGlow: "bg-secondary/20",
-  step: "02"
-}, {
-  icon: BarChart3,
-  title: "Track all your preferred KPI's",
-  description: "Monitor spend, performance, and results in real time from one central dashboard. Full financial transparency with no markups or black boxes.",
-  gradient: "from-accent via-accent/80 to-accent/60",
-  bgGlow: "bg-accent/30",
-  step: "03"
-}];
+const steps = [
+  {
+    icon: Link2,
+    title: "Connect your ATS",
+    description: "Connect your ATS or upload a vacancy manually. The platform is designed to fit seamlessly into existing recruitment workflows and supports a growing number of ATS integrations.",
+    gradient: "from-primary via-primary/80 to-primary/60",
+    bgGlow: "bg-primary/20",
+    step: "01",
+  },
+  {
+    icon: Megaphone,
+    title: "Launch ads across channels",
+    description: "Create and launch recruitment advertising campaigns in minutes. Select your target audience, channels, and budget without dealing with complex advertising setups.",
+    gradient: "from-secondary via-secondary/80 to-secondary/60",
+    bgGlow: "bg-secondary/20",
+    step: "02",
+  },
+  {
+    icon: BarChart3,
+    title: "Track all your preferred KPI's",
+    description: "Monitor spend, performance, and results in real time from one central dashboard. Full financial transparency with no markups or black boxes.",
+    gradient: "from-accent via-accent/80 to-accent/60",
+    bgGlow: "bg-accent/30",
+    step: "03",
+  },
+];
 
 interface HowItWorksProps {
   onDemoClick?: () => void;
@@ -31,92 +35,64 @@ interface HowItWorksProps {
 
 const HowItWorks = ({ onDemoClick }: HowItWorksProps) => {
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-muted/30 via-muted/50 to-muted/30 relative overflow-hidden">
+    <section className="section-padding bg-muted/30 relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
       </div>
-      
+
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div 
-          className="text-center mb-12 md:mb-16"
+        <motion.div
+          className="text-center mb-10 md:mb-14"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-now font-medium rounded-full mb-4">
-            Simple 3-step process
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-now font-bold">
-            How it works
-          </h2>
+          <span className="section-label mb-4 inline-flex">Simple 3-step process</span>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold mt-4">How it works</h2>
         </motion.div>
-        
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto relative">
-          
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 max-w-6xl mx-auto relative">
           {steps.map((step, index) => (
-            <motion.div 
-              key={step.title} 
+            <motion.div
+              key={step.title}
               className="relative group"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
             >
-              {/* Card */}
-              <motion.div 
-                className="h-full p-6 md:p-8 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
-                whileHover={{ y: -6, scale: 1.02 }}
+              <motion.div
+                className="h-full p-5 md:p-7 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                whileHover={{ y: -4 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                {/* Background glow effect */}
                 <div className={`absolute -top-20 -right-20 w-40 h-40 ${step.bgGlow} rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                
-                {/* Step number */}
-                <div className="absolute top-4 right-4 text-5xl font-now font-bold text-muted/20 select-none">
-                  {step.step}
-                </div>
-                
-                <div className="relative z-10 space-y-5">
-                  {/* Icon container */}
-                  <motion.div 
-                    className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg`}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <step.icon className="h-8 w-8 text-white" />
-                    {/* Icon glow */}
-                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${step.gradient} blur-xl opacity-50`} />
-                  </motion.div>
-                  
-                  {/* Title */}
-                  <h3 className="text-lg md:text-xl font-now font-bold text-foreground whitespace-nowrap">
-                    {step.title}
-                  </h3>
-                  
-                  {/* Description */}
-                  <p className="text-muted-foreground font-now leading-relaxed text-sm">
-                    {step.description}
-                  </p>
+                <div className="absolute top-4 right-4 text-5xl font-now font-bold text-muted/20 select-none">{step.step}</div>
+                <div className="relative z-10 space-y-4">
+                  <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg`}>
+                    <step.icon className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="text-lg font-now font-bold text-foreground">{step.title}</h3>
+                  <p className="text-muted-foreground font-now leading-relaxed text-sm">{step.description}</p>
                 </div>
               </motion.div>
             </motion.div>
           ))}
         </div>
-        
+
         {onDemoClick && (
-          <motion.div 
-            className="text-center mt-12"
+          <motion.div
+            className="text-center mt-10"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <Button size="lg" onClick={onDemoClick} className="text-primary-foreground shadow-lg hover:shadow-xl transition-shadow">
-              Get started
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button size="lg" onClick={onDemoClick} className="text-primary-foreground w-full sm:w-auto">
+              Get started <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </motion.div>
         )}

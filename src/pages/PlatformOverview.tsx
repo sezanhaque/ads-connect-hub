@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProductDropdown } from "@/components/ProductDropdown";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import Logo from "@/components/ui/logo";
 import { ArrowRight, Rocket, Sparkles, Eye, Briefcase, Zap, BarChart3, Shield, Clock, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -11,17 +9,13 @@ import { motion } from "framer-motion";
 import campaignPreview from "@/assets/campaign-preview.png";
 import jobsInterface from "@/assets/jobs-interface.png";
 import campaignBuilder from "@/assets/campaign-builder.png";
-import dashboardPreview from "@/assets/dashboard-preview.png";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 
 const Product = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
 
   useEffect(() => {
-    // Load HubSpot form script
     const script = document.createElement("script");
     script.src = "https://js-eu1.hsforms.net/forms/embed/147002455.js";
     script.defer = true;
@@ -31,251 +25,154 @@ const Product = () => {
     };
   }, []);
 
-  const handleBannerSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email && agreedToPrivacy) {
-      setIsFormOpen(true);
-    }
-  };
-
-  return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+  return (
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
-          <Link to="/">
-            <Logo />
-          </Link>
+          <Link to="/"><Logo /></Link>
           <div className="hidden md:flex items-center gap-8">
             <ProductDropdown />
-            <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Become a partner
-            </Link>
-            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Pricing
-            </Link>
-            <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Blog
-            </Link>
+            <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">Become a partner</Link>
+            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">Pricing</Link>
+            <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">Blog</Link>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
               <Link to="/auth">Sign in</Link>
             </Button>
-            <Button onClick={() => setIsFormOpen(true)} className="hidden md:inline-flex">
-              Request demo
-            </Button>
+            <Button onClick={() => setIsFormOpen(true)} className="hidden md:inline-flex">Request demo</Button>
             <MobileNav onDemoClick={() => setIsFormOpen(true)} />
           </div>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="text-center space-y-6 md:space-y-8 max-w-5xl mx-auto">
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">Turn Recruitment Advertising
-Into Predictable Hires.
-
-
-
-
-
-
-        </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed font-now subtitle max-w-3xl mx-auto text-center md:text-xl">Built for teams that hire at scale and are done with agency dependency, unclear performance, and disconnected ATS reporting.</p>
+      <section className="container mx-auto px-4 hero-padding">
+        <div className="text-center space-y-5 md:space-y-6 max-w-5xl mx-auto">
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(1.75rem,5vw,3.5rem)]">
+            Turn Recruitment Advertising Into Predictable Hires.
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
+            Built for teams that hire at scale and are done with agency dependency, unclear performance, and disconnected ATS reporting.
+          </p>
 
           {/* USP badges */}
-          <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-10">
-            <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground font-now">
-              <Zap className="h-4 w-4 text-primary" />
-              <span>Go live in minutes.</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground font-now">
-              <Rocket className="h-4 w-4 text-primary" />
-              <span>Expert-led support.</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground font-now">
-              <Eye className="h-4 w-4 text-primary" />
-              <span>Full transparency.</span>
-            </div>
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-6">
+            {[
+              { icon: Zap, text: "Go live in minutes." },
+              { icon: Rocket, text: "Expert-led support." },
+              { icon: Eye, text: "Full transparency." },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground font-now">
+                <item.icon className="h-4 w-4 text-primary" />
+                <span>{item.text}</span>
+              </div>
+            ))}
           </div>
 
           {/* Campaign Creation Interface Preview */}
-          <div className="mt-8">
-            <img src={campaignPreview} alt="Campaign Creation Interface Preview" className="w-full rounded-lg shadow-lg border border-primary/20" />
+          <div className="mt-6 md:mt-8">
+            <img src={campaignPreview} alt="Campaign Creation Interface Preview" className="w-full rounded-lg shadow-lg border border-border" />
           </div>
         </div>
       </section>
 
-      {/* How It Works - Step 1 */}
-      <section className="container mx-auto px-4 py-10 md:py-16 overflow-hidden">
-        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground mb-4">
-            How It Works
-          </h2>
-          <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
-            From connection to conversion in three simple steps
-          </p>
-        </motion.div>
-        
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <motion.div className="order-2 md:order-1"
-        initial={{ opacity: 0, x: -50 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.6, delay: 0.2 }}>
-
-            <img src={jobsInterface} alt="Jobs Interface - Import and manage your job postings" className="w-full rounded-lg shadow-lg border border-primary/20 hover:shadow-xl transition-shadow duration-300" />
+      {/* How It Works */}
+      <section className="section-padding overflow-hidden">
+        <div className="container mx-auto px-4">
+          <motion.div className="text-center mb-10 md:mb-12" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground mb-3">How It Works</h2>
+            <p className="text-base md:text-lg text-muted-foreground font-now max-w-2xl mx-auto">From connection to conversion in three simple steps</p>
           </motion.div>
-          <motion.div
-          className="order-1 md:order-2 space-y-4"
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, delay: 0.3 }}>
 
-            <motion.div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 300 }}>
-
-              <Briefcase className="h-8 w-8 text-primary" />
+          {/* Step 1 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center max-w-6xl mx-auto mb-10 md:mb-16">
+            <motion.div className="order-2 md:order-1" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <img src={jobsInterface} alt="Jobs Interface" className="w-full rounded-lg shadow-lg border border-border" />
             </motion.div>
-            <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
-              1. Import Your Jobs
-            </h3>
-            <p className="text-lg text-muted-foreground font-now">Add jobs manually or import them directly with the use of seamless integrations . Our flexible system lets you bring in job data your way and no complex setup required.</p>
-          </motion.div>
-        </div>
-
-        {/* Step 2 */}
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto mb-16">
-          <motion.div
-          className="space-y-4"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, delay: 0.2 }}>
-
-            <motion.div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-secondary/10"
-            whileHover={{ scale: 1.1, rotate: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}>
-
-              <Sparkles className="h-8 w-8 text-secondary" />
+            <motion.div className="order-1 md:order-2 space-y-3" initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.3 }}>
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10">
+                <Briefcase className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">1. Import Your Jobs</h3>
+              <p className="text-base text-muted-foreground font-now leading-relaxed">Add jobs manually or import them directly with seamless integrations. Our flexible system lets you bring in job data your way — no complex setup required.</p>
             </motion.div>
-            <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
-              2. Build Your Campaign
-            </h3>
-            <p className="text-lg text-muted-foreground font-now">Use our advanced multi-step campaign builder to create professional recruitment ads on Meta. From campaign basics to audience targeting and creative copy, we guide you through every detail.</p>
-          </motion.div>
-          <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, delay: 0.3 }}>
+          </div>
 
-            <img src={campaignBuilder} alt="Campaign Builder Interface - Multi-step campaign creation" className="w-full rounded-lg shadow-lg border border-secondary/20 hover:shadow-xl transition-shadow duration-300" />
-          </motion.div>
-        </div>
-
-        {/* Step 3 */}
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
-          <motion.div
-          className="order-2 md:order-1"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, delay: 0.2 }}>
-
-            <img src={campaignPreview} alt="Campaign Dashboard - Real-time analytics and performance tracking" className="w-full rounded-lg shadow-lg border border-success/20 hover:shadow-xl transition-shadow duration-300" />
-          </motion.div>
-          <motion.div
-          className="order-1 md:order-2 space-y-4"
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, delay: 0.3 }}>
-
-            <motion.div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-success/10"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 300 }}>
-
-              <Eye className="h-8 w-8 text-success" />
+          {/* Step 2 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center max-w-6xl mx-auto mb-10 md:mb-16">
+            <motion.div className="space-y-3" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-secondary/10">
+                <Sparkles className="h-7 w-7 text-secondary" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">2. Build Your Campaign</h3>
+              <p className="text-base text-muted-foreground font-now leading-relaxed">Use our advanced multi-step campaign builder to create professional recruitment ads on Meta. From campaign basics to audience targeting and creative copy, we guide you through every detail.</p>
             </motion.div>
-            <h3 className="text-2xl md:text-3xl font-now font-bold text-foreground">
-              3. Launch & Track
-            </h3>
-            <p className="text-lg text-muted-foreground font-now">Go live in minutes and monitor real-time performance data from one unified dashboard. See exactly what's working and adjust on the fly.</p>
-          </motion.div>
+            <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.3 }}>
+              <img src={campaignBuilder} alt="Campaign Builder Interface" className="w-full rounded-lg shadow-lg border border-border" />
+            </motion.div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center max-w-6xl mx-auto">
+            <motion.div className="order-2 md:order-1" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <img src={campaignPreview} alt="Campaign Dashboard" className="w-full rounded-lg shadow-lg border border-border" />
+            </motion.div>
+            <motion.div className="order-1 md:order-2 space-y-3" initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.3 }}>
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-success/10">
+                <Eye className="h-7 w-7 text-success" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">3. Launch & Track</h3>
+              <p className="text-base text-muted-foreground font-now leading-relaxed">Go live in minutes and monitor real-time performance data from one unified dashboard. See exactly what's working and adjust on the fly.</p>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Target Audience Benefits */}
-      <section className="container mx-auto px-4 py-10 md:py-20 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-            Built for In-House Recruitment Teams
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-6 text-left">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-now font-semibold text-foreground mb-2">Take control back from expensive agencies</h3>
-                <p className="text-sm text-muted-foreground font-now">Own your recruitment strategy without middlemen</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-secondary" />
-              </div>
-              <div>
-                <h3 className="font-now font-semibold text-foreground mb-2">Scale your hiring without scaling your team</h3>
-                <p className="text-sm text-muted-foreground font-now">Do more with the resources you already have</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-success" />
-              </div>
-              <div>
-                <h3 className="font-now font-semibold text-foreground mb-2">Make data-driven decisions with confidence</h3>
-                <p className="text-sm text-muted-foreground font-now">Real insights, not vague agency reports</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-now font-semibold text-foreground mb-2">Launch campaigns whenever you need</h3>
-                <p className="text-sm text-muted-foreground font-now">No waiting on agencies or long approval chains</p>
-              </div>
+      <section className="bg-muted/30 section-padding">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">Built for In-House Recruitment Teams</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-left">
+              {[
+                { icon: Shield, title: "Take control back from expensive agencies", desc: "Own your recruitment strategy without middlemen", color: "primary" },
+                { icon: TrendingUp, title: "Scale your hiring without scaling your team", desc: "Do more with the resources you already have", color: "secondary" },
+                { icon: BarChart3, title: "Make data-driven decisions with confidence", desc: "Real insights, not vague agency reports", color: "success" },
+                { icon: Clock, title: "Launch campaigns whenever you need", desc: "No waiting on agencies or long approval chains", color: "primary" },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className={`flex-shrink-0 w-11 h-11 rounded-xl bg-${item.color}/10 flex items-center justify-center`}>
+                    <item.icon className={`h-5 w-5 text-${item.color}`} />
+                  </div>
+                  <div>
+                    <h3 className="font-now font-semibold text-foreground mb-1 text-sm">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground font-now">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-            Ready to Transform Your Recruitment Advertising?
-          </h2>
-          <p className="text-lg md:text-xl text-muted-foreground font-now max-w-2xl mx-auto">
-            See how easy campaign creation can be. Join in-house recruitment teams who've already made the switch.
-          </p>
-          <div className="pt-4">
-            <Button size="lg" variant="accent" className="text-foreground" onClick={() => setIsFormOpen(true)}>
-              Request demo
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+          <div className="cta-banner">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
+              Ready to Transform Your Recruitment Advertising?
+            </h2>
+            <p className="text-base md:text-lg text-muted-foreground font-now max-w-2xl mx-auto">
+              See how easy campaign creation can be. Join in-house recruitment teams who've already made the switch.
+            </p>
+            <div className="pt-2">
+              <Button size="lg" onClick={() => setIsFormOpen(true)} className="text-primary-foreground w-full sm:w-auto">
+                Request demo
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -291,6 +188,8 @@ Into Predictable Hires.
       </Dialog>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Product;

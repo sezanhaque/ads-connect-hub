@@ -14,15 +14,16 @@ import { motion } from "framer-motion";
 import HowItWorks from "@/components/home/HowItWorks";
 import NewsInsights from "@/components/home/NewsInsights";
 import HomeFAQ from "@/components/home/HomeFAQ";
+
 const Index = () => {
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
+
   const handleDemoRequest = () => {
     posthog.capture("demo_requested");
     setIsFormOpen(true);
   };
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://js-eu1.hsforms.net/forms/embed/147002455.js";
@@ -32,8 +33,10 @@ const Index = () => {
       document.body.removeChild(script);
     };
   }, []);
+
   if (user) {
-    return <div className="min-h-screen flex items-center justify-center">
+    return (
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Logo />
           <p className="text-muted-foreground font-now">Redirecting to dashboard...</p>
@@ -41,9 +44,12 @@ const Index = () => {
             <Link to="/dashboard">Go to Dashboard</Link>
           </Button>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -73,56 +79,46 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-4 pt-12 md:pt-20 pb-16 md:pb-24">
-        <div className="grid lg:grid-cols-[1fr_auto] gap-8 lg:gap-12 items-center">
+      <main className="container mx-auto px-4 hero-padding">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 lg:gap-12 items-center">
           {/* Left: Text Content */}
-          <div className="space-y-8 min-w-0">
+          <div className="space-y-6 min-w-0">
             {/* Three-line headline */}
-            <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,4.5vw,3.75rem)] text-left">
-              <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.5,
-              delay: 0.1
-            }}>
+            <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,5vw,3.5rem)] text-left">
+              <motion.span
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
                 Go live in minutes
               </motion.span>
-              <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.5,
-              delay: 0.25
-            }}>
+              <motion.span
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+              >
                 Full transparency
               </motion.span>
-              <motion.span className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent" initial={{
-              opacity: 0,
-              y: 20
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.5,
-              delay: 0.4
-            }}>
+              <motion.span
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
                 Expert-led support
               </motion.span>
             </h1>
 
             {/* Subline */}
-            <p className="text-lg text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left md:text-lg">A central platform for <span className="text-primary font-medium">recruitment teams</span> to manage advertising across channels with full transparency and control.</p>
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left">
+              A central platform for <span className="text-primary font-medium">recruitment teams</span> to manage advertising across channels with full transparency and control.
+            </p>
 
             {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-px !mt-5">
-              <Button size="lg" asChild className="text-primary-foreground">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button size="lg" asChild className="text-primary-foreground w-full sm:w-auto">
                 <Link to="/platform-overview">
                   See how it works
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -139,9 +135,12 @@ const Index = () => {
           {/* Right: Product Visual */}
           <div className="relative w-full lg:w-[500px] xl:w-[580px] flex-shrink-0">
             <div className="bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 rounded-2xl p-4 md:p-6 shadow-xl">
-              <img src={campaignPreview} alt="Twenty Twenty Solutions dashboard showing campaign performance metrics" className="w-full h-auto rounded-lg shadow-lg" />
+              <img
+                src={campaignPreview}
+                alt="Twenty Twenty Solutions dashboard showing campaign performance metrics"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
             </div>
-            {/* Subtle background accent */}
             <div className="absolute -z-10 top-8 right-8 w-full h-full bg-accent/20 rounded-2xl blur-xl" />
           </div>
         </div>
@@ -162,6 +161,8 @@ const Index = () => {
       <HomeFAQ />
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
