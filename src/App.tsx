@@ -38,6 +38,7 @@ import TopUpSuccess from "./pages/TopUpSuccess";
 import NotFound from "./pages/NotFound";
 import MetaJobAds from "./pages/MetaJobAds";
 import AuthRecoveryListener from "@/components/AuthRecoveryListener";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <AuthRecoveryListener />
               <Routes>
                 <Route path="/" element={<Index />} />
