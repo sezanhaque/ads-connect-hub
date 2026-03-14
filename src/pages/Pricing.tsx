@@ -225,7 +225,7 @@ const Pricing = () => {
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">
+              <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed max-w-xl font-light">
                 No hidden fees. No feature gating. No markup on ad spend. Just one clear price for everything you need.
               </p>
 
@@ -320,7 +320,7 @@ const Pricing = () => {
             <span className="text-foreground">Find your </span>
             <span className="text-foreground">perfect plan</span>
           </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-lg mx-auto font-light">
             Same platform, same features, every tier. Support level scales with your plan.
           </p>
         </motion.div>
@@ -509,7 +509,7 @@ const Pricing = () => {
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Frequently asked questions
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-6">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6 font-light">
                 Here you'll find answers to the most frequently asked questions about Twenty Twenty Solutions. Have more questions? Feel free to get in touch with us.
               </p>
               <Button variant="outline" onClick={handleDemoRequest} className="group">
