@@ -18,7 +18,8 @@ interface MobileNavProps {
 }
 
 const defaultLinks: NavLink[] = [
-  { to: "/platform-overview", label: "Product" },
+  { to: "/platform-overview", label: "Platform Overview" },
+  { to: "/meta-job-ads", label: "Meta Job Ads" },
   { to: "/become-partner", label: "Become a partner" },
   { to: "/pricing", label: "Pricing" },
   { to: "/blog", label: "Blog" },

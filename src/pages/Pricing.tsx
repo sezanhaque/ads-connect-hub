@@ -170,6 +170,7 @@ const Pricing = () => {
             <Logo />
           </Link>
           <div className="hidden md:flex items-center gap-8">
+            <ProductDropdown />
             {navLinks.map((link) =>
             <Link
               key={link.to}

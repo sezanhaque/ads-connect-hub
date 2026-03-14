@@ -37,6 +37,7 @@ const MetaJobAds = () => {
         <nav className="flex items-center justify-between">
           <Link to="/"><Logo /></Link>
           <div className="hidden md:flex items-center gap-8">
+            <ProductDropdown />
             {navLinks.map((l) => (
               <Link key={l.to} to={l.to} className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
                 {l.label}
