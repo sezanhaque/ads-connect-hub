@@ -321,7 +321,7 @@ const Pricing = () => {
           viewport={{ once: true }}
           className="text-center mb-8 md:mb-14">
           
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
             <span className="text-foreground">Find your </span>
             <span className="text-foreground">perfect plan</span>
           </h2>
