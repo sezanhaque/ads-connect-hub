@@ -209,7 +209,7 @@ No marketing expertise needed. No agency required.
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <motion.div className="text-center mb-14 space-y-3" {...fadeUp}>
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">Why recruitment teams choose TwentyTwenty</h2>
+            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">Why teams choose Twenty Twenty Solutions</h2>
           </motion.div>
 
           <div className="max-w-5xl mx-auto">
@@ -218,18 +218,18 @@ No marketing expertise needed. No agency required.
               {[
               {
                 icon: Users,
-                title: "Built for recruiters, not marketers",
-                desc: "You don't need to understand audience segmentation or ad bidding. Our guided flow handles the complexity — you just pick the vacancy and set the budget."
+                title: "Built for recruiters",
+                desc: "You don't need to understand audience segmentation or ad bidding. Our guided flow handles the complexity, you just pick the vacancy and set the budget."
               },
               {
                 icon: Image,
                 title: "AI-generated images & videos",
-                desc: "No designer? No problem. Our platform generates scroll-stopping ad creatives for you — both static images and video — tailored to your vacancy and ready to launch."
+                desc: "No designer? No problem. Our platform generates scroll-stopping ad creatives for you, both static images and video and tailored to your vacancy. Ready to launch."
               },
               {
                 icon: Film,
                 title: "Multiple ad formats",
-                desc: "Run image ads, video ads, or both. Test what works best for your audience and sector. Switch formats anytime without starting over."
+                desc: "Run image ads, video ads, or both. Test what works best for your audience and sector. "
               }].
               map((b, i) =>
               <motion.div key={i} className="bg-card rounded-xl border p-6 space-y-3 shadow-sm" {...fadeUp} transition={{ duration: 0.5, delay: i * 0.08 }}>
