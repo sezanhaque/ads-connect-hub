@@ -20,7 +20,6 @@ const fadeUp = {
 };
 
 const navLinks = [
-  { to: "/platform-overview", label: "Product" },
   { to: "/become-partner", label: "Become a partner" },
   { to: "/pricing", label: "Pricing" },
   { to: "/blog", label: "Blog" },
