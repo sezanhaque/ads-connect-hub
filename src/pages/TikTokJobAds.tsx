@@ -216,7 +216,7 @@ const TikTokJobAds = () => {
                 {
                   icon: Video,
                   title: "AI-generated video ads",
-                  desc: "No videographer? No problem. Our platform generates short-form video creatives tailored to your vacancy — ready to launch on TikTok without any editing.",
+                  desc: "No content available? No problem. Our platform generates short-form video creatives tailored to your vacancy. Ready to launch on TikTok without any editing.",
                 },
                 {
                   icon: Smartphone,
