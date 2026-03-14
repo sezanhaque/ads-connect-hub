@@ -127,7 +127,7 @@ const MetaJobAds = () => {
             {[
             { emoji: "📊", title: "Reach passive candidates", sub: "73% aren't actively searching" },
             { emoji: "⚡", title: "Launch in minutes", sub: "No marketing expertise needed" },
-            { emoji: "🛡️", title: "0% markup", sub: "on ad spend — ever" }].
+            { emoji: "🛡️", title: "0% markup", sub: "on advertising spend" }].
             map((item, i) =>
             <div key={i} className="flex flex-col items-center gap-1">
                 <span className="text-2xl">{item.emoji}</span>
