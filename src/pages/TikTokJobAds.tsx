@@ -280,7 +280,7 @@ const TikTokJobAds = () => {
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               Ready to attract talent that job boards will never reach?
             </h2>
-            <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-muted-foreground font-now max-w-2xl mx-auto font-light">
               Choose a plan that fits your team. Full features on every tier, ATS integration included, and zero markup
               on your ad spend.
             </p>
