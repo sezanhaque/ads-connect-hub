@@ -69,7 +69,7 @@ const MetaJobAds = () => {
                 On Meta.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">Turn your vacancies into targeted Facebook & Instagram campaigns that deliver a steady flow of new applicants.<br />No advertising expertise needed. No agency required.</p>
+            <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed max-w-xl font-light">Turn your vacancies into targeted Facebook & Instagram campaigns that deliver a steady flow of new applicants.<br />No advertising expertise needed. No agency required.</p>
 
             {/* Trust proof */}
             <div className="flex items-center gap-3">
@@ -126,10 +126,10 @@ const MetaJobAds = () => {
               beyond the job boards
             </span>
           </h2>
-          <p className="text-lg text-muted-foreground font-now leading-relaxed">
+          <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed font-light">
             The majority of your ideal candidates are not browsing job boards. They are spending time on platforms such as Facebook and Instagram. Meta advertising allows your vacancies to appear directly in their daily feed, with the right message at the right moment, turning scrollers into applicants.
           </p>
-          <p className="text-lg text-muted-foreground font-now leading-relaxed">
+          <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed font-light">
             With Twenty Twenty Solutions, you can run these campaigns directly through our platform without relying on agencies. You stay in full control of your budget and can track your results in real time.
           </p>
         </motion.div>
