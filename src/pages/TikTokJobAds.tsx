@@ -181,14 +181,13 @@ const TikTokJobAds = () => {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground font-now leading-relaxed">
-            TikTok is the fastest-growing platform among working-age adults. Your next hire isn't scrolling job boards —
-            they're watching short-form videos during their commute, on break, or after work. TikTok ads appear natively
-            in their feed, making your vacancy feel like content, not an advertisement.
+            TikTok is one of the fastest-growing platforms among working-age professionals. Your next hire is unlikely to be browsing job boards. Instead, they are watching short-form videos during their commute, on a break, or at home after work.
           </p>
           <p className="text-lg text-muted-foreground font-now leading-relaxed">
-            With Twenty Twenty Solutions, you launch TikTok recruitment campaigns directly from our platform.
-            AI-generated video creatives mean you don't need a production team — just pick your vacancy, set your budget,
-            and go live.
+            TikTok advertising allows your vacancy to appear directly in their feed, in a format that feels natural to the platform and captures attention.
+          </p>
+          <p className="text-lg text-muted-foreground font-now leading-relaxed">
+            With Twenty Twenty Solutions, you can launch TikTok recruitment campaigns directly from our platform. Simply select your vacancy, define your budget, and reach new talent where they already spend their time.
           </p>
         </motion.div>
       </section>
