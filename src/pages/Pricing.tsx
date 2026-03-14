@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/components/ui/logo";
 import { MobileNav } from "@/components/MobileNav";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import Footer from "@/components/layout/Footer";
 import {
   Check,
