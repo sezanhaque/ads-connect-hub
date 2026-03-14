@@ -198,11 +198,7 @@ const Pricing = () => {
       </header>
 
       {/* ─── HERO ─── */}
-      <section
-        className="relative overflow-hidden"
-        style={{
-          background: `linear-gradient(180deg, hsl(var(--hero-bg-top)) 0%, hsl(var(--hero-bg-bottom)) 100%)`
-        }}>
+      <section className="relative overflow-hidden">
         
         {/* Decorative blobs */}
         <div
