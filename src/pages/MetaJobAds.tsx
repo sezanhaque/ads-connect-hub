@@ -12,6 +12,7 @@ import avatar2 from "@/assets/avatar-2.png";
 import avatar3 from "@/assets/avatar-3.png";
 import avatar4 from "@/assets/avatar-4.png";
 import MetaLogo from "@/components/icons/MetaLogo";
+import metaHeroPhones from "@/assets/meta-hero-phones.png";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -93,31 +94,9 @@ No marketing expertise needed. No agency required.
             </Button>
           </motion.div>
 
-          {/* Right — Stylised ad mockup */}
+          {/* Right — Phone mockups */}
           <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.15 }}>
-            <div className="bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 rounded-2xl p-6 md:p-8 shadow-xl">
-              {/* Fake phone / social card */}
-              <div className="bg-card rounded-xl border shadow-sm overflow-hidden max-w-sm mx-auto">
-                <div className="flex items-center gap-2 px-4 py-3 border-b">
-                  <div className="w-8 h-8 rounded-full bg-[#1877F2] flex items-center justify-center text-white text-xs font-bold">f</div>
-                  <div>
-                    <p className="text-sm font-now font-semibold text-foreground">Your Company</p>
-                    <p className="text-xs text-muted-foreground font-now">Sponsored · 📍 Amsterdam</p>
-                  </div>
-                </div>
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/20 to-accent/30 flex items-center justify-center">
-                  <div className="text-center space-y-2 px-6">
-                    <p className="text-lg font-now font-bold text-foreground">We're Hiring 🎯</p>
-                    <p className="text-sm text-muted-foreground font-now">Senior Full-Stack Developer</p>
-                    <p className="text-xs text-muted-foreground font-now">€65k – €85k · Remote-first</p>
-                  </div>
-                </div>
-                <div className="px-4 py-3 border-t">
-                  <Button size="sm" className="w-full text-primary-foreground">Learn more</Button>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -z-10 top-8 right-8 w-full h-full bg-accent/20 rounded-2xl blur-xl" />
+            <img src={metaHeroPhones} alt="Recruitment ads on Facebook and Instagram shown on mobile phones" className="w-full max-w-lg mx-auto" />
           </motion.div>
         </div>
       </section>
