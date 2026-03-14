@@ -181,7 +181,7 @@ const PilotPartner = () => {
       </section>
 
       {/* Section 3: Solution Snapshot */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
+      <section className="section-padding bg-muted/30">
         <div className="max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12">
           <div className="text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
