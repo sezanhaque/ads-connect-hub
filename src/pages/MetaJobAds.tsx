@@ -230,7 +230,7 @@ No marketing expertise needed. No agency required.
             {...fadeUp}>
             
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
-              Ready to reach candidates who aren't looking?
+              Ready to attract talent that job boards will never reach.
             </h2>
             <p className="text-lg text-muted-foreground font-now max-w-2xl mx-auto">
               Start with a plan that fits your team. Every plan includes full features, ATS integration, and zero markup on ad spend.
