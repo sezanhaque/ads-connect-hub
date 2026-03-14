@@ -67,14 +67,15 @@ const MetaJobAds = () => {
                 On Meta.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">Turn your vacancies into targeted Facebook & Instagram campaigns with AI-generated images and videos — that deliver a steady flow of applicants. No marketing expertise needed. No agency required.</p>
+            <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">Turn your vacancies into targeted Facebook & Instagram campaigns that deliver a steady flow of new applicants.
+
+No marketing expertise needed. No agency required.
+            </p>
 
             {/* Trust proof */}
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {[avatar1, avatar2, avatar3, avatar4].map((src, i) =>
-                <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-background object-cover object-top" />
-                )}
+                {[avatar1, avatar2, avatar3, avatar4].map((src, i) => <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-background object-cover object-top" />)}
               </div>
               <p className="text-xs text-muted-foreground text-left">
                 <span className="font-semibold text-foreground">Trusted by recruitment teams</span>
@@ -124,8 +125,7 @@ const MetaJobAds = () => {
       <section className="bg-muted/50 border-y">
         <div className="container mx-auto px-4 py-6">
           <div className="grid sm:grid-cols-3 gap-6 text-center">
-            {[
-            { emoji: "📊", title: "Reach passive candidates", sub: "73% aren't actively searching" },
+            {[{ emoji: "📊", title: "Reach passive candidates", sub: "73% aren't actively searching" },
             { emoji: "⚡", title: "Launch in minutes", sub: "No marketing expertise needed" },
             { emoji: "🛡️", title: "0% markup", sub: "on advertising spend" }].
             map((item, i) =>
