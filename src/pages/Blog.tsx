@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import Logo from "@/components/ui/logo";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
