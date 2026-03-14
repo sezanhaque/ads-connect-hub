@@ -509,7 +509,7 @@ const Pricing = () => {
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Frequently asked questions
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-6">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6 font-light">
                 Here you'll find answers to the most frequently asked questions about Twenty Twenty Solutions. Have more questions? Feel free to get in touch with us.
               </p>
               <Button variant="outline" onClick={handleDemoRequest} className="group">
