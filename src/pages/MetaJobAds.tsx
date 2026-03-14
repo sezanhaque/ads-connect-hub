@@ -29,7 +29,7 @@ const navLinks = [
 
 const MetaJobAds = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen page-bg">
       {/* SEO */}
       <title>Meta Job Ads — Recruitment Advertising on Facebook & Instagram | TwentyTwentySolutions.io</title>
       <meta name="description" content="Reach passive candidates with targeted recruitment campaigns on Facebook and Instagram. Launch in minutes, track cost per applicant in real time. No agency needed." />

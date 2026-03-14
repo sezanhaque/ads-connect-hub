@@ -57,7 +57,7 @@ const PilotPartner = () => {
     { to: "/", label: isEnglish ? "Home" : "Home" },
   ];
 
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen page-bg">
       {/* Navigation */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
