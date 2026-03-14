@@ -465,7 +465,7 @@ const PilotPartner = () => {
 
       {/* Section 8: FAQ */}
       <section className="section-padding">
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="max-w-3xl mx-auto space-y-6 container mx-auto px-4">
           <div className="text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               {isEnglish 
