@@ -117,8 +117,8 @@ const PilotPartner = () => {
       </section>
 
       {/* Section 2: Problem + Vision */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto space-y-12">
+      <section className="section-padding">
+        <div className="max-w-4xl mx-auto space-y-10 container mx-auto px-4">
           <div className="text-center space-y-4">
             <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
               {isEnglish 
