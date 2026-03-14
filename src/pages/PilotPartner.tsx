@@ -104,8 +104,8 @@ const PilotPartner = () => {
               : "Sluit je aan bij onze eerste 10 pilotbedrijven en test de toekomst van job advertising. Zonder platformkosten en mét echte resultaten."}
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button size="lg" variant="accent" className="text-foreground" asChild>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
+            <Button size="lg" className="text-primary-foreground w-full sm:w-auto" asChild>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
                 {isEnglish ? "Apply to Pilot Program" : "Meld je snel aan"}
                 <ArrowRight className="ml-2 h-5 w-5" />
