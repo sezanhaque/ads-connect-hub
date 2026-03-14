@@ -225,7 +225,7 @@ const Pricing = () => {
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">
+              <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed max-w-xl font-light">
                 No hidden fees. No feature gating. No markup on ad spend. Just one clear price for everything you need.
               </p>
 
