@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { ArrowRight, Mail, Phone, Handshake, CheckCircle, Users, Zap, Building2, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
 import { posthog } from "@/lib/posthog";
