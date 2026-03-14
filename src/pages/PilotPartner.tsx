@@ -98,7 +98,7 @@ const PilotPartner = () => {
             {isEnglish ? "Let's improve recruitment." : "Recruitment advertising, maar dan slimmer."}
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
             {isEnglish 
               ? "Be among the first 10 companies to Test, Rethink and Evolve recruitment advertising. No costs. Full support. Real impact."
               : "Sluit je aan bij onze eerste 10 pilotbedrijven en test de toekomst van job advertising. Zonder platformkosten en mét echte resultaten."}
