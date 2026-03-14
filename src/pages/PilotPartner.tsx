@@ -343,7 +343,7 @@ const PilotPartner = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-lg p-6 space-y-4 border border-border">
+            <div className="unified-card space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
                   <Shield className="h-5 w-5 text-secondary" />
