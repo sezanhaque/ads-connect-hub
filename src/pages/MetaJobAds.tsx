@@ -122,7 +122,7 @@ No marketing expertise needed. No agency required.
       {/* ─── THE PROBLEM ─── */}
       <section className="py-16 md:py-24">
         <motion.div className="container mx-auto px-4 max-w-2xl text-center space-y-6" {...fadeUp}>
-          <span className="text-sm font-now font-semibold text-primary tracking-wide uppercase">Why Meta?</span>
+          
           <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
             Reach talent beyond the job boards
           </h2>
