@@ -196,7 +196,7 @@ const PilotPartner = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
