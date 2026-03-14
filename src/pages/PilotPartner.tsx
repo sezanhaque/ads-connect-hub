@@ -433,7 +433,7 @@ const PilotPartner = () => {
             </span>
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
             {isEnglish 
               ? "Join the Next Step in Advertising"
               : "Doe mee aan de volgende stap in advertising"}
