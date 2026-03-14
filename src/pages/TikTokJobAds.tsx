@@ -108,7 +108,7 @@ const TikTokJobAds = () => {
                 On TikTok.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground font-now leading-relaxed max-w-xl">
+            <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed max-w-xl font-light">
               Turn your vacancies into short-form video campaigns on TikTok that grab attention and drive applicants.
               <br />
               No video skills needed. No agency required.
