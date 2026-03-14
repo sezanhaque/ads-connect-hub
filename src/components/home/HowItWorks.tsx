@@ -43,7 +43,7 @@ interface HowItWorksProps {
   steps?: HowItWorksStep[];
 }
 
-const HowItWorks = ({ onDemoClick }: HowItWorksProps) => {
+const HowItWorks = ({ onDemoClick, steps = defaultSteps }: HowItWorksProps) => {
   return (
     <section className="section-padding bg-muted/30 relative overflow-hidden">
       {/* Decorative background elements */}
