@@ -36,6 +36,7 @@ import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import TopUp from "./pages/TopUp";
 import TopUpSuccess from "./pages/TopUpSuccess";
 import NotFound from "./pages/NotFound";
+import MetaJobAds from "./pages/MetaJobAds";
 import AuthRecoveryListener from "@/components/AuthRecoveryListener";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => {
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/meta-job-ads" element={<MetaJobAds />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                   path="/dashboard"
