@@ -37,6 +37,7 @@ import TopUp from "./pages/TopUp";
 import TopUpSuccess from "./pages/TopUpSuccess";
 import NotFound from "./pages/NotFound";
 import MetaJobAds from "./pages/MetaJobAds";
+import TikTokJobAds from "./pages/TikTokJobAds";
 import AuthRecoveryListener from "@/components/AuthRecoveryListener";
 import ScrollToTop from "@/components/ScrollToTop";
 
