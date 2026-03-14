@@ -320,7 +320,7 @@ const Pricing = () => {
             <span className="text-foreground">Find your </span>
             <span className="text-foreground">perfect plan</span>
           </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-lg mx-auto font-light">
             Same platform, same features, every tier. Support level scales with your plan.
           </p>
         </motion.div>
