@@ -511,7 +511,7 @@ const Pricing = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}>
               
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Frequently asked questions
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
