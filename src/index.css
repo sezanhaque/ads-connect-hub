@@ -182,8 +182,8 @@ All colors MUST be HSL.
     @apply max-w-4xl mx-auto text-center space-y-5 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-6 md:p-12 border border-primary/20;
   }
 
-  /* Unified public page background — subtle top-to-bottom gradient */
+  /* Unified public page background — white with subtle gradient accent */
   .page-bg {
-    background: linear-gradient(180deg, hsl(var(--hero-bg-top)) 0%, hsl(var(--hero-bg-bottom)) 100%);
+    background: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(214 32% 98%) 40%, hsl(0 0% 100%) 100%);
   }
 }
