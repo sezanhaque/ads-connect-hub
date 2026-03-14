@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
-import { ArrowRight, Link2, Rocket, BarChart3, Users, Image, Film, Activity, Plug } from "lucide-react";
+import { ArrowRight, Link2, Megaphone, BarChart3, Users, Image, Film, Activity, Plug } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
 import { ProductDropdown } from "@/components/ProductDropdown";
