@@ -210,7 +210,7 @@ const Pricing = () => {
           style={{ background: `hsl(var(--usp-gradient-mid) / 0.04)` }} />
         
 
-        <div className="container mx-auto px-4 pt-8 pb-8 md:pt-16 md:pb-16">
+        <div className="container mx-auto px-4 pt-12 md:pt-20 pb-16 md:pb-20">
           <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-8 md:gap-16 items-center max-w-6xl mx-auto">
             {/* Left column — text */}
             <motion.div
@@ -310,7 +310,7 @@ const Pricing = () => {
       </section>
 
       {/* ─── PRICING CARDS ─── */}
-      <section id="pricing-plans" className="container mx-auto px-4 section-padding scroll-mt-8">
+      <section id="pricing-plans" className="container mx-auto px-4 py-16 md:py-24 scroll-mt-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -499,7 +499,7 @@ const Pricing = () => {
 
       {/* ─── FAQ ─── */}
       <section className="bg-muted/30">
-        <div className="container mx-auto px-4 section-padding">
+        <div className="container mx-auto px-4 py-16 md:py-24">
           <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-8 md:gap-16 items-start">
             {/* Left side text */}
             <motion.div
