@@ -67,7 +67,8 @@ const MetaJobAds = () => {
               </span>
             </h1>
             <p className="text-base md:text-lg text-muted-foreground font-now leading-relaxed max-w-xl">
-              Turn your vacancies into targeted Facebook & Instagram campaigns that deliver a steady flow of applicants. No marketing expertise needed. No agency required.
+              Turn your vacancies into targeted Facebook & Instagram campaigns that deliver a steady flow of applicants.<br />
+              No marketing expertise needed. No agency required.
             </p>
 
             {/* Trust proof */}
