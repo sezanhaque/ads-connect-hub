@@ -156,54 +156,7 @@ No marketing expertise needed. No agency required.
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="bg-muted/40 py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <motion.div className="text-center mb-14 space-y-3" {...fadeUp}>
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">How it works</h2>
-            <p className="text-lg text-muted-foreground font-now">From vacancy to applicant in three steps.</p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-            {
-              icon: Link2,
-              step: "01",
-              title: "Connect",
-              desc: "Connect your ATS and import your vacancies. Your jobs sync automatically — when you pause or close a vacancy, the campaign stops too.",
-              color: "primary"
-            },
-            {
-              icon: Rocket,
-              step: "02",
-              title: "Create & Launch",
-              desc: "Choose between image or video ad formats — or let our platform generate them for you using AI. Our guided flow handles targeting, budget, and creative so you can launch a complete campaign in minutes, without needing a marketing background or design skills.",
-              color: "secondary"
-            },
-            {
-              icon: BarChart3,
-              step: "03",
-              title: "Track",
-              desc: "See exactly what every applicant costs. Real-time dashboards show spend, clicks, and cost-per-applicant per vacancy. Fully transparent, no hidden fees.",
-              color: "success"
-            }].
-            map((s, i) =>
-            <motion.div
-              key={i}
-              className="bg-card rounded-xl border p-6 space-y-4 shadow-sm"
-              {...fadeUp}
-              transition={{ duration: 0.5, delay: i * 0.1 }}>
-              
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-lg bg-${s.color}/10`}>
-                  <s.icon className={`h-7 w-7 text-${s.color}`} />
-                </div>
-                <p className="text-xs font-now font-semibold text-muted-foreground tracking-widest uppercase">Step {s.step}</p>
-                <h3 className="text-xl font-now font-bold text-foreground">{s.title}</h3>
-                <p className="text-sm text-muted-foreground font-now leading-relaxed">{s.desc}</p>
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
 
       {/* ─── KEY BENEFITS ─── */}
       <section className="py-16 md:py-24">
