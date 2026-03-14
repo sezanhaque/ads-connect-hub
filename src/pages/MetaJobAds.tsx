@@ -168,34 +168,49 @@ const MetaJobAds = () => {
               {
                 icon: Link2,
                 step: "01",
-                title: "Connect",
-                desc: "Connect your ATS and import your vacancies. Your jobs sync automatically — when you pause or close a vacancy, the campaign stops too.",
+                title: "Connect your ATS",
+                desc: "Connect your ATS or upload a vacancy manually. The platform is designed to fit seamlessly into existing recruitment workflows and supports a growing number of ATS integrations.",
+                gradient: "from-primary via-primary/80 to-primary/60",
+                bgGlow: "bg-primary/20",
               },
               {
-                icon: Rocket,
+                icon: Megaphone,
                 step: "02",
-                title: "Create & Launch",
-                desc: "Choose between image or video ad formats — or let our platform generate them for you using AI. Our guided flow handles targeting, budget, and creative so you can launch a complete campaign in minutes.",
+                title: "Launch ads across channels",
+                desc: "Create and launch recruitment advertising campaigns in minutes. Select your target audience, channels, and budget without dealing with complex advertising setups.",
+                gradient: "from-secondary via-secondary/80 to-secondary/60",
+                bgGlow: "bg-secondary/20",
               },
               {
                 icon: BarChart3,
                 step: "03",
-                title: "Track",
-                desc: "See exactly what every applicant costs. Real-time dashboards show spend, clicks, and cost-per-applicant per vacancy. Fully transparent, no hidden fees.",
+                title: "Track all your preferred KPI's",
+                desc: "Monitor spend, performance, and results in real time from one central dashboard. Full financial transparency with no markups or black boxes.",
+                gradient: "from-accent via-accent/80 to-accent/60",
+                bgGlow: "bg-accent/30",
               },
             ].map((s, i) => (
               <motion.div
                 key={i}
-                className="unified-card space-y-4"
+                className="relative group"
                 {...fadeUp}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10">
-                  <s.icon className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-xs font-now font-semibold text-muted-foreground tracking-widest uppercase">Step {s.step}</p>
-                <h3 className="text-lg font-now font-bold text-foreground">{s.title}</h3>
-                <p className="text-sm text-muted-foreground font-now leading-relaxed">{s.desc}</p>
+                <motion.div
+                  className="h-full p-5 md:p-7 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  <div className={`absolute -top-20 -right-20 w-40 h-40 ${s.bgGlow} rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className="absolute top-4 right-4 text-5xl font-now font-bold text-muted/20 select-none">{s.step}</div>
+                  <div className="relative z-10 space-y-4">
+                    <div className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center shadow-lg`}>
+                      <s.icon className="h-7 w-7 text-white" />
+                    </div>
+                    <h3 className="text-lg font-now font-bold text-foreground">{s.title}</h3>
+                    <p className="text-muted-foreground font-now leading-relaxed text-sm">{s.desc}</p>
+                  </div>
+                </motion.div>
               </motion.div>
             ))}
           </div>
