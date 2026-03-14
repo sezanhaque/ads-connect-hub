@@ -277,7 +277,7 @@ const PilotPartner = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="bg-card rounded-lg p-6 space-y-4 border border-primary/20">
+            <div className="unified-card space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Sparkles className="h-5 w-5 text-primary" />
