@@ -264,7 +264,7 @@ const PilotPartner = () => {
       <section className="section-padding">
         <div className="max-w-5xl mx-auto space-y-10 container mx-auto px-4">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
               {isEnglish 
                 ? "What You Get as a Pilot Partner"
                 : "Wat je krijgt als pilotpartner"}
