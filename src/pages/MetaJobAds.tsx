@@ -64,8 +64,7 @@ const MetaJobAds = () => {
           {/* Left */}
           <motion.div className="space-y-6" {...fadeUp}>
             <h1 className="font-now font-bold tracking-tight text-[clamp(2rem,5vw,3.5rem)] leading-tight">
-              Attract talent that job<br />
-              boards will never reach.<br />
+              Attract talent that job boards will never reach.{" "}
               <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
                 On Meta.
               </span>
