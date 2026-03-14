@@ -223,7 +223,7 @@ const Pricing = () => {
               transition={{ duration: 0.6 }}
               className="text-center md:text-left">
               
-              <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(1.75rem,5vw,3.5rem)] mb-4 md:mb-5">
+               <h1 className="font-now font-extrabold tracking-tight leading-[1.1] text-[clamp(1.75rem,5vw,3.5rem)] mb-4 md:mb-5">
                 <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
                   Simple, transparent pricing
                 </span>
@@ -314,14 +314,14 @@ const Pricing = () => {
       </section>
 
       {/* ─── PRICING CARDS ─── */}
-      <section id="pricing-plans" className="container mx-auto px-4 py-10 md:py-28 scroll-mt-8">
+      <section id="pricing-plans" className="container mx-auto px-4 section-padding scroll-mt-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center mb-8 md:mb-14">
           
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
             <span className="text-foreground">Find your </span>
             <span className="text-foreground">perfect plan</span>
           </h2>
@@ -335,7 +335,7 @@ const Pricing = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 max-w-7xl mx-auto">
           
           {tiers.map((tier, idx) => {
             // Each non-highlighted card gets a unique subtle gradient accent
@@ -503,7 +503,7 @@ const Pricing = () => {
 
       {/* ─── FAQ ─── */}
       <section className="bg-muted/30">
-        <div className="container mx-auto px-4 py-12 md:py-28">
+        <div className="container mx-auto px-4 section-padding">
           <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.5fr] gap-8 md:gap-16 items-start">
             {/* Left side text */}
             <motion.div
@@ -511,7 +511,7 @@ const Pricing = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}>
               
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Frequently asked questions
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-6">

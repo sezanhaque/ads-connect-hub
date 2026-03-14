@@ -23,10 +23,10 @@ const faqs = [
 
 const HomeFAQ = () => {
   return (
-    <section className="py-16 md:py-24 bg-muted/30">
+    <section className="section-padding bg-muted/30">
       <div className="container mx-auto px-4">
-        <motion.h2 
-          className="text-3xl md:text-4xl font-now font-bold text-center mb-12"
+        <motion.h2
+          className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -34,8 +34,8 @@ const HomeFAQ = () => {
         >
           Frequently asked questions
         </motion.h2>
-        
-        <motion.div 
+
+        <motion.div
           className="max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -48,7 +48,7 @@ const HomeFAQ = () => {
                 <AccordionTrigger className="text-left font-now font-semibold text-foreground hover:text-primary hover:no-underline py-4">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground font-now leading-relaxed pb-4">
+                <AccordionContent className="text-muted-foreground font-now leading-relaxed pb-4 text-sm">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

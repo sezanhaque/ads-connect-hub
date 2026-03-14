@@ -57,7 +57,7 @@ const PilotPartner = () => {
     { to: "/", label: isEnglish ? "Home" : "Home" },
   ];
 
-  return <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+  return <div className="min-h-screen bg-background">
       {/* Navigation */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -90,22 +90,22 @@ const PilotPartner = () => {
       </header>
 
       {/* Section 1: Hero */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-5xl mx-auto text-center space-y-6 md:space-y-8">
+      <section className="container mx-auto px-4 hero-padding">
+        <div className="max-w-5xl mx-auto text-center space-y-5">
           
           
-          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(2rem,5vw,3.5rem)]">
+          <h1 className="font-now font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight text-[clamp(1.75rem,5vw,3.5rem)]">
             {isEnglish ? "Let's improve recruitment." : "Recruitment advertising, maar dan slimmer."}
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed font-now max-w-3xl mx-auto">
             {isEnglish 
               ? "Be among the first 10 companies to Test, Rethink and Evolve recruitment advertising. No costs. Full support. Real impact."
               : "Sluit je aan bij onze eerste 10 pilotbedrijven en test de toekomst van job advertising. Zonder platformkosten en mét echte resultaten."}
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button size="lg" variant="accent" className="text-foreground" asChild>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
+            <Button size="lg" className="text-primary-foreground w-full sm:w-auto" asChild>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
                 {isEnglish ? "Apply to Pilot Program" : "Meld je snel aan"}
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -117,10 +117,10 @@ const PilotPartner = () => {
       </section>
 
       {/* Section 2: Problem + Vision */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto space-y-12">
+      <section className="section-padding">
+        <div className="max-w-4xl mx-auto space-y-10 container mx-auto px-4">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
               {isEnglish 
                 ? "Why Recruitment Advertising Needs More Clarity"
                 : "Waarom recruitment advertising meer duidelijkheid verdient"}
@@ -128,8 +128,8 @@ const PilotPartner = () => {
             
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="unified-card space-y-3">
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Clock className="h-6 w-6 text-primary" />
               </div>
@@ -143,7 +143,7 @@ const PilotPartner = () => {
               </p>
             </div>
 
-            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
+            <div className="unified-card space-y-3">
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-secondary" />
               </div>
@@ -157,7 +157,7 @@ const PilotPartner = () => {
               </p>
             </div>
 
-            <div className="bg-card rounded-lg p-6 space-y-3 border border-border">
+            <div className="unified-card space-y-3">
               <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
                 <Target className="h-6 w-6 text-success" />
               </div>
@@ -181,10 +181,10 @@ const PilotPartner = () => {
       </section>
 
       {/* Section 3: Solution Snapshot */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12">
+      <section className="section-padding bg-muted/30">
+        <div className="max-w-5xl mx-auto space-y-10 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-6 md:p-10 container mx-auto px-4">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
               {isEnglish 
                 ? "Meet 20/20: Recruitment Advertising Seen Clearly"
                 : "Maak kennis met 20/20 Solutions"}
@@ -196,7 +196,7 @@ const PilotPartner = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
@@ -261,10 +261,10 @@ const PilotPartner = () => {
       </section>
 
       {/* Section 4: Pilot Program Details */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-5xl mx-auto space-y-12">
+      <section className="section-padding">
+        <div className="max-w-5xl mx-auto space-y-10 container mx-auto px-4">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
               {isEnglish 
                 ? "What You Get as a Pilot Partner"
                 : "Wat je krijgt als pilotpartner"}
@@ -276,8 +276,8 @@ const PilotPartner = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-card rounded-lg p-6 space-y-4 border border-primary/20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="unified-card space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Sparkles className="h-5 w-5 text-primary" />
@@ -343,7 +343,7 @@ const PilotPartner = () => {
               </div>
             </div>
 
-            <div className="bg-card rounded-lg p-6 space-y-4 border border-border">
+            <div className="unified-card space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
                   <Shield className="h-5 w-5 text-secondary" />
@@ -421,8 +421,9 @@ const PilotPartner = () => {
       
 
       {/* Section 7: CTA Repetition + Urgency */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+        <div className="cta-banner">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background border border-primary/20">
             <Users className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium font-now">
@@ -432,7 +433,7 @@ const PilotPartner = () => {
             </span>
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
             {isEnglish 
               ? "Join the Next Step in Advertising"
               : "Doe mee aan de volgende stap in advertising"}
@@ -445,7 +446,7 @@ const PilotPartner = () => {
           </p>
 
           <div className="pt-4">
-            <Button size="lg" variant="accent" className="text-foreground" asChild>
+            <Button size="lg" className="text-primary-foreground w-full sm:w-auto" asChild>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSezhcUt78O1jBEkLDAKYb9BnRT5p1Vks38n5LDViBMn0PY-Ew/viewform?usp=sharing&ouid=110010414237314376062" target="_blank" rel="noopener noreferrer" onClick={() => posthog.capture('pilot_application_started')}>
                 {isEnglish ? "Apply to Program Now" : "Meld je nu aan voor het programma"}
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -459,13 +460,14 @@ const PilotPartner = () => {
               : "Beoordeling van aanmelding duurt 1-2 werkdagen"}
           </p>
         </div>
+        </div>
       </section>
 
       {/* Section 8: FAQ */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-3xl mx-auto space-y-8">
+      <section className="section-padding">
+        <div className="max-w-3xl mx-auto space-y-6 container mx-auto px-4">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-now font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground">
               {isEnglish 
                 ? "Frequently Asked Questions"
                 : "Veelgestelde vragen"}
