@@ -65,6 +65,7 @@ const App = () => {
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/meta-job-ads" element={<MetaJobAds />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                   path="/dashboard"
