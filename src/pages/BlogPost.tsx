@@ -1,6 +1,7 @@
 import { Link, useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { ArrowLeft, Calendar, Clock, User, Share2, Linkedin, Twitter, Facebook, Link as LinkIcon, Check } from "lucide-react";
 import { MobileNav } from "@/components/MobileNav";
 import Footer from "@/components/layout/Footer";
