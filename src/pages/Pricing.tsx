@@ -27,11 +27,9 @@ import { posthog } from "@/lib/posthog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const navLinks = [
-{ to: "/platform-overview", label: "Product" },
 { to: "/become-partner", label: "Become a partner" },
 { to: "/pricing", label: "Pricing" },
 { to: "/blog", label: "Blog" }];
-
 
 const tiers = [
 {
