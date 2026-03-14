@@ -61,9 +61,6 @@ const MetaJobAds = () => {
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left */}
           <motion.div className="space-y-6" {...fadeUp}>
-            <span className="inline-block text-sm font-now font-semibold text-primary tracking-wide uppercase">
-              Meta Advertising for Recruitment
-            </span>
             <h1 className="font-now font-bold tracking-tight text-[clamp(2rem,5vw,3.5rem)] leading-tight">
               Reach Candidates Who Aren't Looking.{" "}
               <span className="bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent">
