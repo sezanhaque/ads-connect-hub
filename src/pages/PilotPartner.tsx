@@ -421,8 +421,9 @@ const PilotPartner = () => {
       
 
       {/* Section 7: CTA Repetition + Urgency */}
-      <section className="container mx-auto px-4 py-10 md:py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-6 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl p-8 md:p-12 border border-primary/20">
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+        <div className="cta-banner">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background border border-primary/20">
             <Users className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium font-now">
