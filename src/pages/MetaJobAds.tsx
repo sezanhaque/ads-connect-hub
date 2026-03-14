@@ -113,7 +113,7 @@ const MetaJobAds = () => {
                   </div>
                 </div>
                 <div className="px-4 py-3 border-t">
-                  <Button size="sm" className="w-full text-primary-foreground">Apply now</Button>
+                  <Button size="sm" className="w-full text-primary-foreground">Learn more</Button>
                 </div>
               </div>
             </div>
