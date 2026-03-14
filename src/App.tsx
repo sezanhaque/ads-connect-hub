@@ -55,6 +55,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <AuthRecoveryListener />
               <Routes>
                 <Route path="/" element={<Index />} />
