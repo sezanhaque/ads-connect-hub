@@ -210,7 +210,7 @@ const Pricing = () => {
           style={{ background: `hsl(var(--usp-gradient-mid) / 0.04)` }} />
         
 
-        <div className="container mx-auto px-4 pt-8 pb-8 md:pt-16 md:pb-16">
+        <div className="container mx-auto px-4 pt-12 md:pt-20 pb-16 md:pb-20">
           <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-8 md:gap-16 items-center max-w-6xl mx-auto">
             {/* Left column — text */}
             <motion.div
