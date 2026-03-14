@@ -59,7 +59,7 @@ const tiktokSteps: HowItWorksStep[] = [
 
 const TikTokJobAds = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen page-bg">
       {/* SEO */}
       <title>TikTok Job Ads — Recruitment Advertising on TikTok | TwentyTwentySolutions.io</title>
       <meta
