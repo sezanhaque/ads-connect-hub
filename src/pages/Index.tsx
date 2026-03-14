@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/logo";
 import { ArrowRight } from "lucide-react";
+import { ProductDropdown } from "@/components/ProductDropdown";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
