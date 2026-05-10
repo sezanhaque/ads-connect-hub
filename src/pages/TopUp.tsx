@@ -66,6 +66,7 @@ export default function TopUp() {
         supabase
           .from("topups")
           .select("*")
+          .eq("user_id", user!.id)
           .order("created_at", { ascending: false })
           .limit(20),
       ]);
