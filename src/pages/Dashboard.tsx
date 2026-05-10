@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
 import { posthog } from "@/lib/posthog";
-import { Plus, Target, Briefcase, Euro, Eye, Users } from "lucide-react";
+import { Plus, Target, Briefcase, Euro, Eye, Users, Wallet } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 interface DashboardStats {
   totalCampaigns: number;
