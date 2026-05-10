@@ -74,11 +74,21 @@ const Dashboard = () => {
 
     posthog.capture("dashboard_viewed");
     fetchDashboardData();
+    fetchBalance();
     autoSyncMetaCampaigns();
     autoSyncTikTokCampaigns();
     // Trigger refresh for campaign dashboards
     setRefreshTrigger((prev) => prev + 1);
   }, [profile?.user_id]);
+
+  const fetchBalance = async () => {
+    try {
+      const { data } = await supabase.functions.invoke("get-balance");
+      if (data?.balance !== undefined) setBalance(Number(data.balance));
+    } catch (e) {
+      console.error("Failed to load balance", e);
+    }
+  };
   const autoSyncMetaCampaigns = async () => {
     if (!isConnected || !integration) return;
     try {
