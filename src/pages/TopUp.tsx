@@ -35,6 +35,7 @@ export default function TopUp() {
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
+  const [totalSpend, setTotalSpend] = useState<number | null>(null);
   const [topups, setTopups] = useState<Topup[]>([]);
   const [loadingBalance, setLoadingBalance] = useState(true);
 
@@ -62,6 +63,7 @@ export default function TopUp() {
           .limit(20),
       ]);
       if (bal?.balance !== undefined) setBalance(Number(bal.balance));
+      if (bal?.totalCosts !== undefined) setTotalSpend(Number(bal.totalCosts));
       setTopups(((topupRows as any[]) || []) as Topup[]);
     } catch (e) {
       console.error(e);
@@ -119,17 +121,32 @@ export default function TopUp() {
           <p className="text-muted-foreground">Top up your account balance via Mollie.</p>
         </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {loadingBalance ? "…" : `€${(balance ?? 0).toFixed(2)}`}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
+              <Wallet className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {loadingBalance ? "…" : `€${(balance ?? 0).toFixed(2)}`}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">All-time spend</CardTitle>
+              <TrendingDown className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">
+                {loadingBalance ? "…" : `€${(totalSpend ?? 0).toFixed(2)}`}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Across all campaigns</p>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader>
