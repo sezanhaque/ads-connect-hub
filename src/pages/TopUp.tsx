@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Euro, Loader2, Wallet, History, TrendingDown } from "lucide-react";
 import { format } from "date-fns";
@@ -30,6 +31,7 @@ interface Topup {
 
 export default function TopUp() {
   const { toast } = useToast();
+  const { session, loading: authLoading } = useAuth();
   const [selectedPreset, setSelectedPreset] = useState<number | null>(50);
   const [customAmount, setCustomAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -48,8 +50,13 @@ export default function TopUp() {
       : null;
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!session) {
+      setLoadingBalance(false);
+      return;
+    }
     loadData();
-  }, []);
+  }, [authLoading, session?.access_token]);
 
   const loadData = async () => {
     setLoadingBalance(true);
