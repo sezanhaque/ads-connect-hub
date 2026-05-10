@@ -265,7 +265,8 @@ serve(async (req) => {
 
       // Fetch campaign insights (last 30 days)
       const endDate = new Date().toISOString().split('T')[0];
-      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      // Fetch up to ~2 years of history so the ledger captures all-time spend (idempotent per-day upserts).
+      const startDate = new Date(Date.now() - 730 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       try {
         const insightsResponse = await fetch(
