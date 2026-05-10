@@ -333,6 +333,7 @@ serve(async (req) => {
             for (const insight of insightsData.data.list) {
               const metricData: TikTokInsight = insight.dimensions;
               const metrics = insight.metrics;
+              const spendEur = parseFloat(metrics.spend || '0') / 100; // TikTok returns spend in cents
 
               await supabase
                 .from('metrics')
@@ -341,9 +342,27 @@ serve(async (req) => {
                   date: metricData.stat_time_day,
                   impressions: parseInt(metrics.impressions || '0'),
                   clicks: parseInt(metrics.clicks || '0'),
-                  spend: parseFloat(metrics.spend || '0') / 100, // TikTok returns spend in cents
+                  spend: spendEur,
                   leads: parseInt(metrics.conversion || '0'),
                 });
+
+              // Mirror per-day spend into the balance ledger (idempotent via unique source_ref).
+              if (spendEur > 0) {
+                const { error: ledgerError } = await supabase
+                  .from('balance_transactions')
+                  .upsert({
+                    org_id,
+                    source_type: 'campaign_spend',
+                    source_ref: `tiktok:${campaignRecord.id}:${metricData.stat_time_day}`,
+                    amount: -spendEur,
+                    currency: 'EUR',
+                    occurred_at: new Date(metricData.stat_time_day).toISOString(),
+                    description: `TikTok spend: ${campaignData.campaign_name}`,
+                  }, { onConflict: 'source_type,source_ref' });
+                if (ledgerError) {
+                  console.error('Error upserting TikTok ledger debit:', ledgerError);
+                }
+              }
             }
           }
         } else {
