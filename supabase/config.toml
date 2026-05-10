@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.get-balance]
 verify_jwt = true
+
+[functions.backfill-spend-ledger]
+verify_jwt = false
