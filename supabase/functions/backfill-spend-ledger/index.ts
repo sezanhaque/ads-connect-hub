@@ -18,7 +18,23 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Page through metrics joined with campaigns to get org_id + platform.
+    // Load all campaigns once (id -> { org_id, platform, name }).
+    const campaignMap = new Map<string, { org_id: string; platform: string; name: string }>();
+    let cFrom = 0;
+    while (true) {
+      const { data, error } = await supabase
+        .from("campaigns")
+        .select("id, org_id, platform, name")
+        .range(cFrom, cFrom + 999);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      for (const c of data) {
+        if (c.org_id) campaignMap.set(c.id, { org_id: c.org_id, platform: (c.platform || "meta").toLowerCase(), name: c.name || "campaign" });
+      }
+      if (data.length < 1000) break;
+      cFrom += 1000;
+    }
+
     let from = 0;
     const pageSize = 1000;
     let processed = 0;
@@ -28,36 +44,32 @@ serve(async (req) => {
     while (true) {
       const { data, error } = await supabase
         .from("metrics")
-        .select("id, campaign_id, date, spend, campaigns!inner(name, org_id, platform)")
+        .select("id, campaign_id, date, spend")
         .gt("spend", 0)
         .range(from, from + pageSize - 1);
 
       if (error) throw error;
       if (!data || data.length === 0) break;
 
-      for (const row of data as any[]) {
+      for (const row of data) {
         processed++;
-        const orgId = row.campaigns?.org_id;
-        const platform = (row.campaigns?.platform || "meta").toLowerCase();
-        const name = row.campaigns?.name || "campaign";
-        if (!orgId) { skipped++; continue; }
+        const c = campaignMap.get(row.campaign_id);
+        if (!c) { skipped++; continue; }
 
-        // Meta sync stores a single aggregated row per campaign; use date-less ref.
-        // TikTok stores per-day; include date in ref.
-        const sourceRef = platform === "meta"
+        const sourceRef = c.platform === "meta"
           ? `meta:${row.campaign_id}`
           : `tiktok:${row.campaign_id}:${row.date}`;
 
         const { error: upErr } = await supabase
           .from("balance_transactions")
           .upsert({
-            org_id: orgId,
+            org_id: c.org_id,
             source_type: "campaign_spend",
             source_ref: sourceRef,
             amount: -Number(row.spend),
             currency: "EUR",
             occurred_at: new Date(row.date).toISOString(),
-            description: `${platform === "meta" ? "Meta" : "TikTok"} spend: ${name}`,
+            description: `${c.platform === "meta" ? "Meta" : "TikTok"} spend: ${c.name}`,
           }, { onConflict: "source_type,source_ref" });
 
         if (upErr) {
