@@ -125,44 +125,26 @@ serve(async (req) => {
       .eq("org_id", orgId)
       .maybeSingle();
 
-    // All-time spend: only campaigns from THIS user's connected Meta/TikTok integrations.
+    // All-time spend: lifetime spend from THIS user's active connected Meta/TikTok ad accounts.
     const { data: userIntegrations } = await admin
       .from("integrations")
-      .select("org_id, integration_type")
+      .select("integration_type, access_token, ad_account_id")
       .eq("user_id", userId)
       .eq("status", "active")
       .in("integration_type", ["meta", "tiktok"]);
 
     let totalCosts = 0;
     if (userIntegrations && userIntegrations.length > 0) {
-      // Build (org_id, platform) pairs from user's own integrations.
-      const platformsByOrg = new Map<string, Set<string>>();
       for (const i of userIntegrations as any[]) {
-        if (!i.org_id) continue;
-        const set = platformsByOrg.get(i.org_id) ?? new Set<string>();
-        set.add(i.integration_type);
-        platformsByOrg.set(i.org_id, set);
-      }
-
-      // Fetch campaigns the user created in those orgs, restricted to integrated platforms.
-      const campaignIds: string[] = [];
-      for (const [oid, platforms] of platformsByOrg.entries()) {
-        const { data: camps } = await admin
-          .from("campaigns")
-          .select("id, platform")
-          .eq("org_id", oid)
-          .eq("created_by", userId)
-          .in("platform", Array.from(platforms));
-        if (camps) for (const c of camps as any[]) campaignIds.push(c.id);
-      }
-
-      if (campaignIds.length > 0) {
-        const [{ data: m1 }, { data: m2 }] = await Promise.all([
-          admin.from("metrics").select("spend").in("campaign_id", campaignIds),
-          admin.from("campaign_metrics").select("spend").in("campaign_id", campaignIds),
-        ]);
-        for (const r of (m1 || []) as any[]) totalCosts += Number(r?.spend ?? 0);
-        for (const r of (m2 || []) as any[]) totalCosts += Number(r?.spend ?? 0);
+        if (!i.access_token) continue;
+        for (const accountId of normalizeAccountIds(i.ad_account_id)) {
+          if (i.integration_type === "meta") {
+            totalCosts += await fetchMetaLifetimeSpend(i.access_token, accountId);
+          }
+          if (i.integration_type === "tiktok") {
+            totalCosts += await fetchTikTokLifetimeSpend(i.access_token, accountId);
+          }
+        }
       }
     }
 
