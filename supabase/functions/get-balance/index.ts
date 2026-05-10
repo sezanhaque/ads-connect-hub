@@ -6,6 +6,78 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const normalizeAccountIds = (value: unknown) => {
+  const ids = Array.isArray(value) ? value : value ? [value] : [];
+  return [...new Set(ids.map((id) => String(id).trim()).filter(Boolean))];
+};
+
+const addDays = (date: Date, days: number) => {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+};
+
+const toDateParam = (date: Date) => date.toISOString().split("T")[0];
+
+const fetchMetaLifetimeSpend = async (accessToken: string, adAccountId: string) => {
+  let spend = 0;
+  let nextUrl: string | null = `https://graph.facebook.com/v19.0/${adAccountId}/insights?access_token=${encodeURIComponent(accessToken)}&fields=spend&date_preset=maximum&level=account&limit=100`;
+
+  while (nextUrl) {
+    const response = await fetch(nextUrl);
+    const payload = await response.json();
+
+    if (!response.ok || payload.error) {
+      console.error("Meta lifetime spend fetch failed", adAccountId, payload.error || payload);
+      return 0;
+    }
+
+    for (const row of payload.data || []) spend += Number(row?.spend ?? 0);
+    nextUrl = payload.paging?.next || null;
+  }
+
+  return spend;
+};
+
+const fetchTikTokLifetimeSpend = async (accessToken: string, advertiserId: string) => {
+  let spend = 0;
+  let start = new Date(Date.UTC(2018, 0, 1));
+  const today = new Date();
+
+  while (start <= today) {
+    const end = addDays(start, 364) > today ? today : addDays(start, 364);
+    const params = new URLSearchParams({
+      advertiser_id: advertiserId,
+      service_type: "AUCTION",
+      report_type: "BASIC",
+      data_level: "AUCTION_CAMPAIGN",
+      dimensions: JSON.stringify(["campaign_id"]),
+      metrics: JSON.stringify(["spend"]),
+      start_date: toDateParam(start),
+      end_date: toDateParam(end),
+    });
+
+    const response = await fetch(`https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    });
+    const payload = await response.json();
+
+    if (!response.ok || payload.code !== 0) {
+      console.error("TikTok lifetime spend fetch failed", advertiserId, payload.message || payload);
+      return spend;
+    }
+
+    for (const row of payload.data?.list || []) spend += Number(row?.metrics?.spend ?? 0);
+    start = addDays(end, 1);
+  }
+
+  return spend;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -53,44 +125,26 @@ serve(async (req) => {
       .eq("org_id", orgId)
       .maybeSingle();
 
-    // All-time spend: only campaigns from THIS user's connected Meta/TikTok integrations.
+    // All-time spend: lifetime spend from THIS user's active connected Meta/TikTok ad accounts.
     const { data: userIntegrations } = await admin
       .from("integrations")
-      .select("org_id, integration_type")
+      .select("integration_type, access_token, ad_account_id")
       .eq("user_id", userId)
       .eq("status", "active")
       .in("integration_type", ["meta", "tiktok"]);
 
     let totalCosts = 0;
     if (userIntegrations && userIntegrations.length > 0) {
-      // Build (org_id, platform) pairs from user's own integrations.
-      const platformsByOrg = new Map<string, Set<string>>();
       for (const i of userIntegrations as any[]) {
-        if (!i.org_id) continue;
-        const set = platformsByOrg.get(i.org_id) ?? new Set<string>();
-        set.add(i.integration_type);
-        platformsByOrg.set(i.org_id, set);
-      }
-
-      // Fetch campaigns the user created in those orgs, restricted to integrated platforms.
-      const campaignIds: string[] = [];
-      for (const [oid, platforms] of platformsByOrg.entries()) {
-        const { data: camps } = await admin
-          .from("campaigns")
-          .select("id, platform")
-          .eq("org_id", oid)
-          .eq("created_by", userId)
-          .in("platform", Array.from(platforms));
-        if (camps) for (const c of camps as any[]) campaignIds.push(c.id);
-      }
-
-      if (campaignIds.length > 0) {
-        const [{ data: m1 }, { data: m2 }] = await Promise.all([
-          admin.from("metrics").select("spend").in("campaign_id", campaignIds),
-          admin.from("campaign_metrics").select("spend").in("campaign_id", campaignIds),
-        ]);
-        for (const r of (m1 || []) as any[]) totalCosts += Number(r?.spend ?? 0);
-        for (const r of (m2 || []) as any[]) totalCosts += Number(r?.spend ?? 0);
+        if (!i.access_token) continue;
+        for (const accountId of normalizeAccountIds(i.ad_account_id)) {
+          if (i.integration_type === "meta") {
+            totalCosts += await fetchMetaLifetimeSpend(i.access_token, accountId);
+          }
+          if (i.integration_type === "tiktok") {
+            totalCosts += await fetchTikTokLifetimeSpend(i.access_token, accountId);
+          }
+        }
       }
     }
 
