@@ -46,7 +46,6 @@ serve(async (req) => {
     const primary = members.find((m: any) => m.role === "owner") ||
       members.find((m: any) => m.role === "admin") || members[0];
     const orgId = primary.org_id;
-    const orgIds = [...new Set(members.map((m: any) => m.org_id).filter(Boolean))];
 
     const { data: row } = await admin
       .from("client_balances")
@@ -54,15 +53,46 @@ serve(async (req) => {
       .eq("org_id", orgId)
       .maybeSingle();
 
-    const { data: orgBalanceRows } = await admin
-      .from("client_balances")
-      .select("total_costs")
-      .in("org_id", orgIds);
+    // All-time spend: only campaigns from THIS user's connected Meta/TikTok integrations.
+    const { data: userIntegrations } = await admin
+      .from("integrations")
+      .select("org_id, integration_type")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .in("integration_type", ["meta", "tiktok"]);
 
-    const totalCosts = (orgBalanceRows || []).reduce(
-      (sum: number, balanceRow: any) => sum + Number(balanceRow?.total_costs ?? 0),
-      0,
-    );
+    let totalCosts = 0;
+    if (userIntegrations && userIntegrations.length > 0) {
+      // Build (org_id, platform) pairs from user's own integrations.
+      const platformsByOrg = new Map<string, Set<string>>();
+      for (const i of userIntegrations as any[]) {
+        if (!i.org_id) continue;
+        const set = platformsByOrg.get(i.org_id) ?? new Set<string>();
+        set.add(i.integration_type);
+        platformsByOrg.set(i.org_id, set);
+      }
+
+      // Fetch campaigns the user created in those orgs, restricted to integrated platforms.
+      const campaignIds: string[] = [];
+      for (const [oid, platforms] of platformsByOrg.entries()) {
+        const { data: camps } = await admin
+          .from("campaigns")
+          .select("id, platform")
+          .eq("org_id", oid)
+          .eq("created_by", userId)
+          .in("platform", Array.from(platforms));
+        if (camps) for (const c of camps as any[]) campaignIds.push(c.id);
+      }
+
+      if (campaignIds.length > 0) {
+        const [{ data: m1 }, { data: m2 }] = await Promise.all([
+          admin.from("metrics").select("spend").in("campaign_id", campaignIds),
+          admin.from("campaign_metrics").select("spend").in("campaign_id", campaignIds),
+        ]);
+        for (const r of (m1 || []) as any[]) totalCosts += Number(r?.spend ?? 0);
+        for (const r of (m2 || []) as any[]) totalCosts += Number(r?.spend ?? 0);
+      }
+    }
 
     return new Response(
       JSON.stringify({
