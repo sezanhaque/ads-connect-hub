@@ -326,7 +326,7 @@ serve(async (req) => {
     for (const campaign of campaigns) {
       try {
         console.log(`Fetching insights for campaign: ${campaign.name}`);
-        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${actualAccessToken}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=last_30d`;
+        const insightsUrl = `https://graph.facebook.com/v19.0/${campaign.id}/insights?access_token=${actualAccessToken}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=maximum`;
         const insightsResponse = await fetch(insightsUrl);
         const insightsData = await insightsResponse.json();
 
