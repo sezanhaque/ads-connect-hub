@@ -31,7 +31,7 @@ interface Topup {
 
 export default function TopUp() {
   const { toast } = useToast();
-  const { session, loading: authLoading } = useAuth();
+  const { session, user, loading: authLoading } = useAuth();
   const [selectedPreset, setSelectedPreset] = useState<number | null>(50);
   const [customAmount, setCustomAmount] = useState("");
   const [description, setDescription] = useState("");
