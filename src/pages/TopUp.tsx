@@ -151,7 +151,7 @@ export default function TopUp() {
               <div className="text-3xl font-bold">
                 {loadingBalance ? "…" : `€${(totalSpend ?? 0).toFixed(2)}`}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Across all campaigns</p>
+              <p className="text-xs text-muted-foreground mt-1">From connected Meta/TikTok accounts</p>
             </CardContent>
           </Card>
         </div>
