@@ -6,6 +6,78 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const normalizeAccountIds = (value: unknown) => {
+  const ids = Array.isArray(value) ? value : value ? [value] : [];
+  return [...new Set(ids.map((id) => String(id).trim()).filter(Boolean))];
+};
+
+const addDays = (date: Date, days: number) => {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+};
+
+const toDateParam = (date: Date) => date.toISOString().split("T")[0];
+
+const fetchMetaLifetimeSpend = async (accessToken: string, adAccountId: string) => {
+  let spend = 0;
+  let nextUrl: string | null = `https://graph.facebook.com/v19.0/${adAccountId}/insights?access_token=${encodeURIComponent(accessToken)}&fields=spend&date_preset=maximum&level=account&limit=100`;
+
+  while (nextUrl) {
+    const response = await fetch(nextUrl);
+    const payload = await response.json();
+
+    if (!response.ok || payload.error) {
+      console.error("Meta lifetime spend fetch failed", adAccountId, payload.error || payload);
+      return 0;
+    }
+
+    for (const row of payload.data || []) spend += Number(row?.spend ?? 0);
+    nextUrl = payload.paging?.next || null;
+  }
+
+  return spend;
+};
+
+const fetchTikTokLifetimeSpend = async (accessToken: string, advertiserId: string) => {
+  let spend = 0;
+  let start = new Date(Date.UTC(2018, 0, 1));
+  const today = new Date();
+
+  while (start <= today) {
+    const end = addDays(start, 364) > today ? today : addDays(start, 364);
+    const params = new URLSearchParams({
+      advertiser_id: advertiserId,
+      service_type: "AUCTION",
+      report_type: "BASIC",
+      data_level: "AUCTION_CAMPAIGN",
+      dimensions: JSON.stringify(["campaign_id"]),
+      metrics: JSON.stringify(["spend"]),
+      start_date: toDateParam(start),
+      end_date: toDateParam(end),
+    });
+
+    const response = await fetch(`https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    });
+    const payload = await response.json();
+
+    if (!response.ok || payload.code !== 0) {
+      console.error("TikTok lifetime spend fetch failed", advertiserId, payload.message || payload);
+      return spend;
+    }
+
+    for (const row of payload.data?.list || []) spend += Number(row?.metrics?.spend ?? 0);
+    start = addDays(end, 1);
+  }
+
+  return spend;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
