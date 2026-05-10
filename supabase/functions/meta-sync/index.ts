@@ -453,6 +453,27 @@ serve(async (req) => {
           console.error('Error inserting metrics:', insertError);
         }
 
+        // Mirror spend into the balance ledger so Current Balance reflects ad spend.
+        // Meta sync stores a single aggregated row per campaign (rolling 30 days),
+        // so we use a date-less source_ref to keep it idempotent across re-syncs.
+        const spendAmount = parseFloat(insight.spend) || 0;
+        if (spendAmount > 0) {
+          const { error: ledgerError } = await supabase
+            .from('balance_transactions')
+            .upsert({
+              org_id,
+              source_type: 'campaign_spend',
+              source_ref: `meta:${campaignId}`,
+              amount: -spendAmount,
+              currency: 'EUR',
+              occurred_at: new Date().toISOString(),
+              description: `Meta spend: ${insight.campaign_name}`,
+            }, { onConflict: 'source_type,source_ref' });
+          if (ledgerError) {
+            console.error('Error upserting balance ledger debit:', ledgerError);
+          }
+        }
+
         syncedCount++;
       } catch (error) {
         console.error('Error saving campaign/metrics:', error);
