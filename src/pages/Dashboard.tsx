@@ -263,6 +263,29 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Balance Card */}
+      <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
+          <Wallet className="h-4 w-4 text-success" />
+        </CardHeader>
+        <CardContent className="flex items-end justify-between">
+          <div>
+            <div className="text-3xl font-bold">
+              €{(balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+            {balance !== null && balance < 10 && (
+              <p className="text-xs text-destructive mt-1">Low balance — consider topping up</p>
+            )}
+          </div>
+          <Button asChild size="sm">
+            <Link to="/top-up">
+              <Plus className="mr-1 h-4 w-4" /> Top Up
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
