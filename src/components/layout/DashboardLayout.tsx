@@ -27,8 +27,8 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
   { name: 'Campaigns', href: '/campaigns', icon: Target },
   { name: 'Jobs', href: '/jobs', icon: Briefcase },
-  // { name: 'Top Up', href: '/top-up', icon: CreditCard }, // Hidden for now
   { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Top Up', href: '/top-up', icon: CreditCard },
 ];
 
 const adminNavigation = [

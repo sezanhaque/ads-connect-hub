@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      balance_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          occurred_at: string
+          org_id: string
+          source_ref: string
+          source_type: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          occurred_at?: string
+          org_id: string
+          source_ref: string
+          source_type: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          occurred_at?: string
+          org_id?: string
+          source_ref?: string
+          source_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       campaign_metrics: {
         Row: {
           campaign_id: string
@@ -459,6 +498,48 @@ export type Database = {
         }
         Relationships: []
       }
+      topups: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          mollie_payment_id: string
+          org_id: string
+          paid_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          mollie_payment_id: string
+          org_id: string
+          paid_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          mollie_payment_id?: string
+          org_id?: string
+          paid_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -564,7 +645,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      client_balances: {
+        Row: {
+          currency: string | null
+          current_balance: number | null
+          org_id: string | null
+          total_costs: number | null
+          total_topups: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       app_create_org_if_missing: {

@@ -42,14 +42,11 @@ verify_jwt = true
 [functions.send-auth-email]
 verify_jwt = false
 
-[functions.create-topup-session]
+[functions.create-mollie-payment]
 verify_jwt = true
 
-[functions.stripe-webhook]
+[functions.mollie-webhook]
 verify_jwt = false
 
-[functions.get-wallet-balance]
-verify_jwt = true
-
-[functions.create-virtual-card]
+[functions.get-balance]
 verify_jwt = true

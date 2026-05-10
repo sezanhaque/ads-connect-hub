@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
 import { posthog } from "@/lib/posthog";
-import { Plus, Target, Briefcase, Euro, Eye, Users } from "lucide-react";
+import { Plus, Target, Briefcase, Euro, Eye, Users, Wallet } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 interface DashboardStats {
   totalCampaigns: number;
@@ -65,6 +65,7 @@ const Dashboard = () => {
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState<number | null>(null);
   useEffect(() => {
     // Don't fetch if profile isn't ready yet
     if (!profile?.user_id) {
@@ -73,11 +74,21 @@ const Dashboard = () => {
 
     posthog.capture("dashboard_viewed");
     fetchDashboardData();
+    fetchBalance();
     autoSyncMetaCampaigns();
     autoSyncTikTokCampaigns();
     // Trigger refresh for campaign dashboards
     setRefreshTrigger((prev) => prev + 1);
   }, [profile?.user_id]);
+
+  const fetchBalance = async () => {
+    try {
+      const { data } = await supabase.functions.invoke("get-balance");
+      if (data?.balance !== undefined) setBalance(Number(data.balance));
+    } catch (e) {
+      console.error("Failed to load balance", e);
+    }
+  };
   const autoSyncMetaCampaigns = async () => {
     if (!isConnected || !integration) return;
     try {
@@ -251,6 +262,29 @@ const Dashboard = () => {
           </Button>
         </div>
       </div>
+
+      {/* Balance Card */}
+      <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
+          <Wallet className="h-4 w-4 text-success" />
+        </CardHeader>
+        <CardContent className="flex items-end justify-between">
+          <div>
+            <div className="text-3xl font-bold">
+              €{(balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+            {balance !== null && balance < 10 && (
+              <p className="text-xs text-destructive mt-1">Low balance — consider topping up</p>
+            )}
+          </div>
+          <Button asChild size="sm">
+            <Link to="/top-up">
+              <Plus className="mr-1 h-4 w-4" /> Top Up
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
