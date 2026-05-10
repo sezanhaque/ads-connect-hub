@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Euro, Loader2, Wallet, History } from "lucide-react";
+import { Euro, Loader2, Wallet, History, TrendingDown } from "lucide-react";
 import { format } from "date-fns";
 
 const PRESETS = [50, 100];
