@@ -46,6 +46,7 @@ serve(async (req) => {
     const primary = members.find((m: any) => m.role === "owner") ||
       members.find((m: any) => m.role === "admin") || members[0];
     const orgId = primary.org_id;
+    const orgIds = [...new Set(members.map((m: any) => m.org_id).filter(Boolean))];
 
     const { data: row } = await admin
       .from("client_balances")
@@ -53,12 +54,22 @@ serve(async (req) => {
       .eq("org_id", orgId)
       .maybeSingle();
 
+    const { data: orgBalanceRows } = await admin
+      .from("client_balances")
+      .select("total_costs")
+      .in("org_id", orgIds);
+
+    const totalCosts = (orgBalanceRows || []).reduce(
+      (sum: number, balanceRow: any) => sum + Number(balanceRow?.total_costs ?? 0),
+      0,
+    );
+
     return new Response(
       JSON.stringify({
         orgId,
         balance: Number(row?.current_balance ?? 0),
         totalTopups: Number(row?.total_topups ?? 0),
-        totalCosts: Number(row?.total_costs ?? 0),
+        totalCosts,
         currency: row?.currency ?? "EUR",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
