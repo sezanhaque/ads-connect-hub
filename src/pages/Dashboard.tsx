@@ -284,7 +284,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
+        {/* <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Spend</CardTitle>
             <Euro className="h-4 w-4 text-secondary" />
@@ -299,7 +299,7 @@ const Dashboard = () => {
             </div>
             <p className="text-xs text-muted-foreground">In selected period</p>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
