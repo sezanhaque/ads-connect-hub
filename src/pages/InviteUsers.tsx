@@ -31,6 +31,8 @@ interface User {
   user_id: string;
   is_member: boolean;
   connected_platforms: UserPlatforms;
+  balance: number;
+  currency: string;
 }
 
 const InviteUsers = () => {
@@ -129,12 +131,23 @@ const InviteUsers = () => {
         console.error('Error fetching platform connections:', platformError);
       }
 
+      // Fetch each user's wallet balance via RPC (bypasses RLS)
+      const { data: balancesData, error: balancesError } = await supabase
+        .rpc('get_users_balances', { p_user_ids: userIds });
+      if (balancesError) console.error('Error fetching balances:', balancesError);
+
+      const balanceByUser = new Map<string, { balance: number; currency: string }>();
+      (balancesData || []).forEach((b: any) => {
+        balanceByUser.set(b.user_id, { balance: Number(b.balance) || 0, currency: b.currency || 'EUR' });
+      });
+
       console.log('Platform connections:', platformConnections?.length || 0);
 
       // Transform the data to include membership status and connected platforms
       const transformedUsers = profilesData.map(userProfile => {
         const membership = membersData?.find(m => m.user_id === userProfile.user_id);
         const platformData = platformConnections?.find((p: any) => p.user_id === userProfile.user_id);
+        const balanceInfo = balanceByUser.get(userProfile.user_id);
         
         const connected_platforms: UserPlatforms = {
           meta: platformData?.has_meta || false,
@@ -151,6 +164,8 @@ const InviteUsers = () => {
           created_at: userProfile.created_at,
           is_member: !!membership,
           connected_platforms,
+          balance: balanceInfo?.balance ?? 0,
+          currency: balanceInfo?.currency ?? 'EUR',
         };
       });
       
@@ -517,6 +532,7 @@ const InviteUsers = () => {
                       <TableHead>Email</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Connected Platforms</TableHead>
+                      <TableHead>Current Balance</TableHead>
                       <TableHead>Joined</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -524,7 +540,7 @@ const InviteUsers = () => {
                   <TableBody>
                     {filteredUsers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                           <UserX className="h-8 w-8 mx-auto mb-2 opacity-50" />
                           No users found
                         </TableCell>
@@ -554,6 +570,9 @@ const InviteUsers = () => {
                           </TableCell>
                           <TableCell>
                             {renderConnectedPlatforms(user.connected_platforms)}
+                          </TableCell>
+                          <TableCell className="font-medium tabular-nums">
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
                           </TableCell>
                           <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
