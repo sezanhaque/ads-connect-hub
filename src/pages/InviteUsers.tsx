@@ -713,21 +713,31 @@ const InviteUsers = () => {
       <Dialog open={!!balanceUser} onOpenChange={(open) => !open && setBalanceUser(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update balance</DialogTitle>
+            <DialogTitle>Add to balance</DialogTitle>
             <DialogDescription>
-              Set a new current balance for {balanceUser?.email}. This updates their organization's balance.
+              Add an amount to {balanceUser?.email}'s current balance of{' '}
+              {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser?.currency || 'EUR' }).format(Number(balanceUser?.balance ?? 0))}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="balance-input">Balance ({balanceUser?.currency || 'EUR'})</Label>
+            <Label htmlFor="balance-input">Amount to add ({balanceUser?.currency || 'EUR'})</Label>
             <Input
               id="balance-input"
               type="number"
               min="0"
               step="0.01"
+              placeholder="0.00"
               value={balanceInput}
               onChange={(e) => setBalanceInput(e.target.value)}
             />
+            {balanceInput && Number.isFinite(parseFloat(balanceInput)) && parseFloat(balanceInput) > 0 && (
+              <p className="text-sm text-muted-foreground">
+                New total:{' '}
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser?.currency || 'EUR' }).format(
+                  Number(balanceUser?.balance ?? 0) + parseFloat(balanceInput)
+                )}
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBalanceUser(null)} disabled={savingBalance}>
