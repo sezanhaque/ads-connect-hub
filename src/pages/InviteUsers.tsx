@@ -571,6 +571,9 @@ const InviteUsers = () => {
                           <TableCell>
                             {renderConnectedPlatforms(user.connected_platforms)}
                           </TableCell>
+                          <TableCell className="font-medium tabular-nums">
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
+                          </TableCell>
                           <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
