@@ -47,6 +47,9 @@ const InviteUsers = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>(null);
+  const [balanceUser, setBalanceUser] = useState<User | null>(null);
+  const [balanceInput, setBalanceInput] = useState('');
+  const [savingBalance, setSavingBalance] = useState(false);
   const { toast } = useToast();
   const { profile } = useAuth();
 
