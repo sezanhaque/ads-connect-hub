@@ -318,29 +318,36 @@ const InviteUsers = () => {
 
   const handleOpenBalance = (user: User) => {
     setBalanceUser(user);
-    setBalanceInput(String(user.balance ?? 0));
+    setBalanceInput('');
   };
 
   const handleSaveBalance = async () => {
     if (!balanceUser) return;
-    const amount = parseFloat(balanceInput);
-    if (!Number.isFinite(amount) || amount < 0) {
-      toast({ title: 'Invalid amount', description: 'Enter a non-negative number.', variant: 'destructive' });
+    const addAmount = parseFloat(balanceInput);
+    if (!Number.isFinite(addAmount) || addAmount <= 0) {
+      toast({ title: 'Invalid amount', description: 'Enter a positive number to add.', variant: 'destructive' });
       return;
     }
+    const currency = balanceUser.currency || 'EUR';
+    const currentBalance = Number(balanceUser.balance ?? 0);
+    const newBalance = currentBalance + addAmount;
+    const confirmed = window.confirm(
+      `Add ${addAmount.toFixed(2)} ${currency} to ${balanceUser.email}?\n\nCurrent: ${currentBalance.toFixed(2)} ${currency}\nNew total: ${newBalance.toFixed(2)} ${currency}`
+    );
+    if (!confirmed) return;
     setSavingBalance(true);
     try {
       const { data, error } = await supabase.functions.invoke('admin-set-balance', {
         body: {
           target_user_id: balanceUser.user_id,
-          balance: amount,
-          currency: balanceUser.currency || 'EUR',
+          balance: newBalance,
+          currency,
         },
       });
       if (error || !data?.success) {
         throw new Error(error?.message || data?.error || 'Failed to update balance');
       }
-      toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${amount}.` });
+      toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${newBalance.toFixed(2)} ${currency}.` });
       setBalanceUser(null);
       fetchUsers();
     } catch (err: any) {
@@ -706,21 +713,31 @@ const InviteUsers = () => {
       <Dialog open={!!balanceUser} onOpenChange={(open) => !open && setBalanceUser(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update balance</DialogTitle>
+            <DialogTitle>Add to balance</DialogTitle>
             <DialogDescription>
-              Set a new current balance for {balanceUser?.email}. This updates their organization's balance.
+              Add an amount to {balanceUser?.email}'s current balance of{' '}
+              {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser?.currency || 'EUR' }).format(Number(balanceUser?.balance ?? 0))}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="balance-input">Balance ({balanceUser?.currency || 'EUR'})</Label>
+            <Label htmlFor="balance-input">Amount to add ({balanceUser?.currency || 'EUR'})</Label>
             <Input
               id="balance-input"
               type="number"
               min="0"
               step="0.01"
+              placeholder="0.00"
               value={balanceInput}
               onChange={(e) => setBalanceInput(e.target.value)}
             />
+            {balanceInput && Number.isFinite(parseFloat(balanceInput)) && parseFloat(balanceInput) > 0 && (
+              <p className="text-sm text-muted-foreground">
+                New total:{' '}
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser?.currency || 'EUR' }).format(
+                  Number(balanceUser?.balance ?? 0) + parseFloat(balanceInput)
+                )}
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBalanceUser(null)} disabled={savingBalance}>
