@@ -13,8 +13,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
 import { posthog } from "@/lib/posthog";
-import { Plus, Target, Briefcase, Euro, Eye, Users, Wallet } from "lucide-react";
+import { Plus, Target, Briefcase, Euro, Eye, Users, Wallet, TrendingDown, AlertTriangle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 interface DashboardStats {
   totalCampaigns: number;
   activeCampaigns: number;
@@ -66,6 +67,8 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState<number | null>(null);
+  const [allTimeSpend, setAllTimeSpend] = useState<number | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
   useEffect(() => {
     // Don't fetch if profile isn't ready yet
     if (!profile?.user_id) {
@@ -82,11 +85,15 @@ const Dashboard = () => {
   }, [profile?.user_id]);
 
   const fetchBalance = async () => {
+    setBalanceLoading(true);
     try {
       const { data } = await supabase.functions.invoke("get-balance");
       if (data?.balance !== undefined) setBalance(Number(data.balance));
+      if (data?.totalCosts !== undefined) setAllTimeSpend(Number(data.totalCosts));
     } catch (e) {
       console.error("Failed to load balance", e);
+    } finally {
+      setBalanceLoading(false);
     }
   };
   const autoSyncMetaCampaigns = async () => {
@@ -263,28 +270,54 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Balance Card */}
-      <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
-          <Wallet className="h-4 w-4 text-success" />
-        </CardHeader>
-        <CardContent className="flex items-end justify-between">
-          <div>
-            <div className="text-3xl font-bold">
-              €{(balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      {/* Balance & Spend Overview */}
+      <div className="space-y-3">
+        <Card className="overflow-hidden border-success/20">
+          <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+            <div className="p-6 bg-gradient-to-br from-success/10 to-success/5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-muted-foreground">Current Balance</span>
+                <Wallet className="h-4 w-4 text-success" />
+              </div>
+              <div className="flex items-end justify-between gap-3">
+                <div className="text-3xl font-bold tracking-tight">
+                  {balanceLoading
+                    ? "…"
+                    : `€${(balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                </div>
+                <Button asChild size="sm">
+                  <Link to="/top-up">
+                    <Plus className="mr-1 h-4 w-4" /> Top Up
+                  </Link>
+                </Button>
+              </div>
             </div>
-            {balance !== null && balance < 10 && (
-              <p className="text-xs text-destructive mt-1">Low balance — consider topping up</p>
-            )}
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-muted-foreground">All-time Spend</span>
+                <TrendingDown className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="text-3xl font-bold tracking-tight">
+                {balanceLoading
+                  ? "…"
+                  : `€${(allTimeSpend ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">From connected Meta/TikTok accounts</p>
+            </div>
           </div>
-          <Button asChild size="sm">
-            <Link to="/top-up">
-              <Plus className="mr-1 h-4 w-4" /> Top Up
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+        </Card>
+
+        {!balanceLoading && balance !== null && allTimeSpend !== null && balance < allTimeSpend && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Low balance</AlertTitle>
+            <AlertDescription>
+              Your current balance (€{balance.toFixed(2)}) is lower than your all-time spend
+              (€{allTimeSpend.toFixed(2)}). Top up to keep your campaigns running.
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
