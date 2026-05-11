@@ -47,6 +47,9 @@ const InviteUsers = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>(null);
+  const [balanceUser, setBalanceUser] = useState<User | null>(null);
+  const [balanceInput, setBalanceInput] = useState('');
+  const [savingBalance, setSavingBalance] = useState(false);
   const { toast } = useToast();
   const { profile } = useAuth();
 
@@ -313,6 +316,40 @@ const InviteUsers = () => {
     setCurrentAdAccountId('');
   };
 
+  const handleOpenBalance = (user: User) => {
+    setBalanceUser(user);
+    setBalanceInput(String(user.balance ?? 0));
+  };
+
+  const handleSaveBalance = async () => {
+    if (!balanceUser) return;
+    const amount = parseFloat(balanceInput);
+    if (!Number.isFinite(amount) || amount < 0) {
+      toast({ title: 'Invalid amount', description: 'Enter a non-negative number.', variant: 'destructive' });
+      return;
+    }
+    setSavingBalance(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-set-balance', {
+        body: {
+          target_user_id: balanceUser.user_id,
+          balance: amount,
+          currency: balanceUser.currency || 'EUR',
+        },
+      });
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Failed to update balance');
+      }
+      toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${amount}.` });
+      setBalanceUser(null);
+      fetchUsers();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Failed to update balance', variant: 'destructive' });
+    } finally {
+      setSavingBalance(false);
+    }
+  };
+
   const handleOpenDialog = async (user: User) => {
     setSelectedUser(user);
     setSelectedPlatform(null);
@@ -572,7 +609,14 @@ const InviteUsers = () => {
                             {renderConnectedPlatforms(user.connected_platforms)}
                           </TableCell>
                           <TableCell className="font-medium tabular-nums">
-                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenBalance(user)}
+                              className="rounded-md border border-transparent px-2 py-1 hover:border-border hover:bg-muted transition-colors text-left"
+                              title="Click to edit balance"
+                            >
+                              {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
+                            </button>
                           </TableCell>
                           <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
@@ -658,6 +702,36 @@ const InviteUsers = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!balanceUser} onOpenChange={(open) => !open && setBalanceUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update balance</DialogTitle>
+            <DialogDescription>
+              Set a new current balance for {balanceUser?.email}. This updates their organization's balance.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="balance-input">Balance ({balanceUser?.currency || 'EUR'})</Label>
+            <Input
+              id="balance-input"
+              type="number"
+              min="0"
+              step="0.01"
+              value={balanceInput}
+              onChange={(e) => setBalanceInput(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBalanceUser(null)} disabled={savingBalance}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveBalance} disabled={savingBalance}>
+              {savingBalance ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
