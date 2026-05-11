@@ -532,6 +532,7 @@ const InviteUsers = () => {
                       <TableHead>Email</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Connected Platforms</TableHead>
+                      <TableHead>Current Balance</TableHead>
                       <TableHead>Joined</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -539,7 +540,7 @@ const InviteUsers = () => {
                   <TableBody>
                     {filteredUsers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                           <UserX className="h-8 w-8 mx-auto mb-2 opacity-50" />
                           No users found
                         </TableCell>
