@@ -76,37 +76,19 @@ serve(async (req) => {
       targetMemberships[0];
     const orgId = primary.org_id;
 
-    // Read existing balance to compute delta for ledger
+    // client_balances is a VIEW aggregated from balance_transactions.
+    // To "set" the balance, insert an adjustment row equal to (newBalance - currentBalance).
     const { data: existing } = await admin
       .from("client_balances")
-      .select("current_balance, total_topups")
+      .select("current_balance")
       .eq("org_id", orgId)
       .maybeSingle();
 
     const previousBalance = Number(existing?.current_balance ?? 0);
     const delta = newBalance - previousBalance;
 
-    const newTotalTopups = Number(existing?.total_topups ?? 0) + (delta > 0 ? delta : 0);
-
-    let upsertErr: any = null;
-    if (existing) {
-      const { error } = await admin
-        .from("client_balances")
-        .update({ current_balance: newBalance, currency, total_topups: newTotalTopups })
-        .eq("org_id", orgId);
-      upsertErr = error;
-    } else {
-      const { error } = await admin
-        .from("client_balances")
-        .insert({ org_id: orgId, current_balance: newBalance, currency, total_topups: newTotalTopups });
-      upsertErr = error;
-    }
-
-    if (upsertErr) throw upsertErr;
-
-    // Log to ledger
     if (delta !== 0) {
-      await admin.from("balance_transactions").insert({
+      const { error: txErr } = await admin.from("balance_transactions").insert({
         org_id: orgId,
         user_id: callerId,
         amount: delta,
@@ -115,6 +97,7 @@ serve(async (req) => {
         source_ref: `admin:${callerId}`,
         description: `Admin set balance to ${newBalance}`,
       });
+      if (txErr) throw txErr;
     }
 
     return new Response(
