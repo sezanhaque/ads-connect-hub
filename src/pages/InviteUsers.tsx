@@ -153,7 +153,7 @@ const InviteUsers = () => {
           email: userProfile.email || 'No email',
           first_name: userProfile.first_name,
           last_name: userProfile.last_name,
-          role: membership ? membership.role : null,
+          role: highestRoleByUser.get(userProfile.user_id) || (membership ? membership.role : null),
           created_at: userProfile.created_at,
           is_member: !!membership,
           connected_platforms,
