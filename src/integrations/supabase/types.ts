@@ -691,6 +691,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_users_highest_role: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          role: string
+          user_id: string
+        }[]
+      }
       is_org_member: {
         Args: { p_org_id: string; p_user_id?: string }
         Returns: boolean
