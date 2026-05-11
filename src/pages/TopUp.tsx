@@ -130,19 +130,7 @@ export default function TopUp() {
           <p className="text-muted-foreground">Top up your account balance via Mollie.</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {loadingBalance ? "…" : `€${(balance ?? 0).toFixed(2)}`}
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">All-time spend</CardTitle>
