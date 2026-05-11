@@ -63,18 +63,11 @@ export default function TopUp() {
   const loadData = async () => {
     setLoadingBalance(true);
     try {
-      const [{ data: bal }, { data: topupRows }] = await Promise.all([
-        supabase.functions.invoke("get-balance"),
-        supabase
-          .from("topups")
-          .select("*")
-          .eq("user_id", user!.id)
-          .order("created_at", { ascending: false })
-          .limit(20),
-      ]);
+      const { data: bal } = await supabase.functions.invoke("get-balance");
       if (bal?.balance !== undefined) setBalance(Number(bal.balance));
       if (bal?.totalCosts !== undefined) setTotalSpend(Number(bal.totalCosts));
-      setTopups(((topupRows as any[]) || []) as Topup[]);
+      setTopups(((bal?.topups as any[]) || []) as Topup[]);
+      setSharedUserCount(Array.isArray(bal?.groupUserIds) ? bal.groupUserIds.length : 1);
     } catch (e) {
       console.error(e);
     } finally {
