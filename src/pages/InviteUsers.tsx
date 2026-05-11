@@ -349,6 +349,8 @@ const InviteUsers = () => {
       setSavingBalance(false);
     }
   };
+
+  const handleOpenDialog = async (user: User) => {
     setSelectedUser(user);
     setSelectedPlatform(null);
     setAdAccountIds([]);
