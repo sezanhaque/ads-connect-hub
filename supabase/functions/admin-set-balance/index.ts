@@ -86,17 +86,21 @@ serve(async (req) => {
     const previousBalance = Number(existing?.current_balance ?? 0);
     const delta = newBalance - previousBalance;
 
-    const { error: upsertErr } = await admin
-      .from("client_balances")
-      .upsert(
-        {
-          org_id: orgId,
-          current_balance: newBalance,
-          currency,
-          total_topups: Number(existing?.total_topups ?? 0) + (delta > 0 ? delta : 0),
-        },
-        { onConflict: "org_id" },
-      );
+    const newTotalTopups = Number(existing?.total_topups ?? 0) + (delta > 0 ? delta : 0);
+
+    let upsertErr: any = null;
+    if (existing) {
+      const { error } = await admin
+        .from("client_balances")
+        .update({ current_balance: newBalance, currency, total_topups: newTotalTopups })
+        .eq("org_id", orgId);
+      upsertErr = error;
+    } else {
+      const { error } = await admin
+        .from("client_balances")
+        .insert({ org_id: orgId, current_balance: newBalance, currency, total_topups: newTotalTopups });
+      upsertErr = error;
+    }
 
     if (upsertErr) throw upsertErr;
 
