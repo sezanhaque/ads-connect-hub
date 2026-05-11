@@ -67,6 +67,8 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState<number | null>(null);
+  const [allTimeSpend, setAllTimeSpend] = useState<number | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
   useEffect(() => {
     // Don't fetch if profile isn't ready yet
     if (!profile?.user_id) {
@@ -83,11 +85,15 @@ const Dashboard = () => {
   }, [profile?.user_id]);
 
   const fetchBalance = async () => {
+    setBalanceLoading(true);
     try {
       const { data } = await supabase.functions.invoke("get-balance");
       if (data?.balance !== undefined) setBalance(Number(data.balance));
+      if (data?.totalCosts !== undefined) setAllTimeSpend(Number(data.totalCosts));
     } catch (e) {
       console.error("Failed to load balance", e);
+    } finally {
+      setBalanceLoading(false);
     }
   };
   const autoSyncMetaCampaigns = async () => {
