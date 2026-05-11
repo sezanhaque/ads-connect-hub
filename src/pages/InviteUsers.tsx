@@ -131,12 +131,23 @@ const InviteUsers = () => {
         console.error('Error fetching platform connections:', platformError);
       }
 
+      // Fetch each user's wallet balance via RPC (bypasses RLS)
+      const { data: balancesData, error: balancesError } = await supabase
+        .rpc('get_users_balances', { p_user_ids: userIds });
+      if (balancesError) console.error('Error fetching balances:', balancesError);
+
+      const balanceByUser = new Map<string, { balance: number; currency: string }>();
+      (balancesData || []).forEach((b: any) => {
+        balanceByUser.set(b.user_id, { balance: Number(b.balance) || 0, currency: b.currency || 'EUR' });
+      });
+
       console.log('Platform connections:', platformConnections?.length || 0);
 
       // Transform the data to include membership status and connected platforms
       const transformedUsers = profilesData.map(userProfile => {
         const membership = membersData?.find(m => m.user_id === userProfile.user_id);
         const platformData = platformConnections?.find((p: any) => p.user_id === userProfile.user_id);
+        const balanceInfo = balanceByUser.get(userProfile.user_id);
         
         const connected_platforms: UserPlatforms = {
           meta: platformData?.has_meta || false,
@@ -153,6 +164,8 @@ const InviteUsers = () => {
           created_at: userProfile.created_at,
           is_member: !!membership,
           connected_platforms,
+          balance: balanceInfo?.balance ?? 0,
+          currency: balanceInfo?.currency ?? 'EUR',
         };
       });
       
