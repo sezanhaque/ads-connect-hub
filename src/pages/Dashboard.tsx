@@ -284,6 +284,28 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
+        <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Remaining Balance</CardTitle>
+            <Euro className="h-4 w-4 text-secondary" />
+          </CardHeader>
+          <CardContent>
+            <div
+              className={`text-2xl font-bold ${
+                !balanceLoading && (balance ?? 0) - (allTimeSpend ?? 0) < 0 ? "text-destructive" : ""
+              }`}
+            >
+              {balanceLoading
+                ? "…"
+                : `€${((balance ?? 0) - (allTimeSpend ?? 0)).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}`}
+            </div>
+            <p className="text-xs text-muted-foreground">Balance minus all-time spend</p>
+          </CardContent>
+        </Card>
+
         {/* <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Spend</CardTitle>
