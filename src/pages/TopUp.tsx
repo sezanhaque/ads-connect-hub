@@ -157,6 +157,17 @@ export default function TopUp() {
           </Card>
         </div>
 
+        {!loadingBalance && balance !== null && totalSpend !== null && balance < totalSpend && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Low balance</AlertTitle>
+            <AlertDescription>
+              Your current balance (€{balance.toFixed(2)}) is lower than your all-time spend
+              (€{totalSpend.toFixed(2)}). Top up to keep your campaigns running.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Top Up Balance</CardTitle>
