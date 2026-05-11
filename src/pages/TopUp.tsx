@@ -11,7 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Euro, Loader2, Wallet, History, TrendingDown } from "lucide-react";
+import { Euro, Loader2, Wallet, History, TrendingDown, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { format } from "date-fns";
 
 const PRESETS = [50, 100];
@@ -155,6 +156,17 @@ export default function TopUp() {
             </CardContent>
           </Card>
         </div>
+
+        {!loadingBalance && balance !== null && totalSpend !== null && balance < totalSpend && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Low balance</AlertTitle>
+            <AlertDescription>
+              Your current balance (€{balance.toFixed(2)}) is lower than your all-time spend
+              (€{totalSpend.toFixed(2)}). Top up to keep your campaigns running.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card>
           <CardHeader>
