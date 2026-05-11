@@ -250,6 +250,11 @@ export default function TopUp() {
             <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5" /> Recent Top-Ups
             </CardTitle>
+            {sharedUserCount > 1 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Shared with {sharedUserCount - 1} other team member{sharedUserCount - 1 === 1 ? "" : "s"} on the same ad account.
+              </p>
+            )}
           </CardHeader>
           <CardContent>
             {topups.length === 0 ? (
