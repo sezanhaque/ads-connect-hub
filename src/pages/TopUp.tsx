@@ -41,6 +41,7 @@ export default function TopUp() {
   const [totalSpend, setTotalSpend] = useState<number | null>(null);
   const [topups, setTopups] = useState<Topup[]>([]);
   const [loadingBalance, setLoadingBalance] = useState(true);
+  const [sharedUserCount, setSharedUserCount] = useState(1);
 
   const amount = selectedPreset ?? Number(customAmount || 0);
   const error =
