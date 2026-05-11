@@ -31,6 +31,8 @@ interface User {
   user_id: string;
   is_member: boolean;
   connected_platforms: UserPlatforms;
+  balance: number;
+  currency: string;
 }
 
 const InviteUsers = () => {

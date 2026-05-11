@@ -691,6 +691,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_users_balances: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          balance: number
+          currency: string
+          user_id: string
+        }[]
+      }
       get_users_highest_role: {
         Args: { p_user_ids: string[] }
         Returns: {
