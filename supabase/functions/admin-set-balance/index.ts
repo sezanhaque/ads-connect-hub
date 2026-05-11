@@ -94,7 +94,7 @@ serve(async (req) => {
         amount: delta,
         currency,
         source_type: "admin_adjustment",
-        source_ref: `admin:${callerId}`,
+        source_ref: `admin:${callerId}:${targetUserId}:${Date.now()}`,
         description: `Admin set balance to ${newBalance}`,
       });
       if (txErr) throw txErr;
