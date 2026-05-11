@@ -702,6 +702,36 @@ const InviteUsers = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!balanceUser} onOpenChange={(open) => !open && setBalanceUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update balance</DialogTitle>
+            <DialogDescription>
+              Set a new current balance for {balanceUser?.email}. This updates their organization's balance.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="balance-input">Balance ({balanceUser?.currency || 'EUR'})</Label>
+            <Input
+              id="balance-input"
+              type="number"
+              min="0"
+              step="0.01"
+              value={balanceInput}
+              onChange={(e) => setBalanceInput(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBalanceUser(null)} disabled={savingBalance}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveBalance} disabled={savingBalance}>
+              {savingBalance ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
