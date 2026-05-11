@@ -540,7 +540,7 @@ const InviteUsers = () => {
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
-                            {user.is_member ? (
+                            {user.role ? (
                               <Badge variant={user.role === 'admin' || user.role === 'owner' ? 'default' : 'secondary'} className="flex items-center gap-1 w-fit">
                                 {(user.role === 'admin' || user.role === 'owner') && <Shield className="h-3 w-3" />}
                                 {user.role === 'owner' ? 'Owner' : user.role === 'admin' ? 'Admin' : 'Member'}
