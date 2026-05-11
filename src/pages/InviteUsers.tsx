@@ -97,12 +97,28 @@ const InviteUsers = () => {
       // Get all user IDs to check their membership status
       const userIds = profilesData.map(profile => profile.user_id);
 
-      // Check which users are already members of this organization
+      // Membership in current org (controls is_member / invite actions)
       const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('user_id, role')
         .eq('org_id', profile.organization_id)
         .in('user_id', userIds);
+
+      // Global roles across any org (controls the displayed Admin/Owner badge)
+      const { data: allRolesData, error: allRolesError } = await supabase
+        .from('members')
+        .select('user_id, role')
+        .in('user_id', userIds);
+      if (allRolesError) console.error('Error fetching global roles:', allRolesError);
+
+      const rolePriority: Record<string, number> = { owner: 3, admin: 2, member: 1 };
+      const highestRoleByUser = new Map<string, string>();
+      (allRolesData || []).forEach(r => {
+        const current = highestRoleByUser.get(r.user_id);
+        if (!current || (rolePriority[r.role] || 0) > (rolePriority[current] || 0)) {
+          highestRoleByUser.set(r.user_id, r.role);
+        }
+      });
 
       if (membersError) {
         console.error('Error fetching members:', membersError);
@@ -137,7 +153,7 @@ const InviteUsers = () => {
           email: userProfile.email || 'No email',
           first_name: userProfile.first_name,
           last_name: userProfile.last_name,
-          role: membership ? membership.role : null,
+          role: highestRoleByUser.get(userProfile.user_id) || (membership ? membership.role : null),
           created_at: userProfile.created_at,
           is_member: !!membership,
           connected_platforms,
