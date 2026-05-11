@@ -609,7 +609,14 @@ const InviteUsers = () => {
                             {renderConnectedPlatforms(user.connected_platforms)}
                           </TableCell>
                           <TableCell className="font-medium tabular-nums">
-                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenBalance(user)}
+                              className="rounded-md border border-transparent px-2 py-1 hover:border-border hover:bg-muted transition-colors text-left"
+                              title="Click to edit balance"
+                            >
+                              {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
+                            </button>
                           </TableCell>
                           <TableCell>
                             {new Date(user.created_at).toLocaleDateString()}
