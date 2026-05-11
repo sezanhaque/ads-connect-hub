@@ -318,29 +318,36 @@ const InviteUsers = () => {
 
   const handleOpenBalance = (user: User) => {
     setBalanceUser(user);
-    setBalanceInput(String(user.balance ?? 0));
+    setBalanceInput('');
   };
 
   const handleSaveBalance = async () => {
     if (!balanceUser) return;
-    const amount = parseFloat(balanceInput);
-    if (!Number.isFinite(amount) || amount < 0) {
-      toast({ title: 'Invalid amount', description: 'Enter a non-negative number.', variant: 'destructive' });
+    const addAmount = parseFloat(balanceInput);
+    if (!Number.isFinite(addAmount) || addAmount <= 0) {
+      toast({ title: 'Invalid amount', description: 'Enter a positive number to add.', variant: 'destructive' });
       return;
     }
+    const currency = balanceUser.currency || 'EUR';
+    const currentBalance = Number(balanceUser.balance ?? 0);
+    const newBalance = currentBalance + addAmount;
+    const confirmed = window.confirm(
+      `Add ${addAmount.toFixed(2)} ${currency} to ${balanceUser.email}?\n\nCurrent: ${currentBalance.toFixed(2)} ${currency}\nNew total: ${newBalance.toFixed(2)} ${currency}`
+    );
+    if (!confirmed) return;
     setSavingBalance(true);
     try {
       const { data, error } = await supabase.functions.invoke('admin-set-balance', {
         body: {
           target_user_id: balanceUser.user_id,
-          balance: amount,
-          currency: balanceUser.currency || 'EUR',
+          balance: newBalance,
+          currency,
         },
       });
       if (error || !data?.success) {
         throw new Error(error?.message || data?.error || 'Failed to update balance');
       }
-      toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${amount}.` });
+      toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${newBalance.toFixed(2)} ${currency}.` });
       setBalanceUser(null);
       fetchUsers();
     } catch (err: any) {
