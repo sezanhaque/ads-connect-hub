@@ -41,6 +41,7 @@ export default function TopUp() {
   const [totalSpend, setTotalSpend] = useState<number | null>(null);
   const [topups, setTopups] = useState<Topup[]>([]);
   const [loadingBalance, setLoadingBalance] = useState(true);
+  const [sharedUserCount, setSharedUserCount] = useState(1);
 
   const amount = selectedPreset ?? Number(customAmount || 0);
   const error =
@@ -62,18 +63,11 @@ export default function TopUp() {
   const loadData = async () => {
     setLoadingBalance(true);
     try {
-      const [{ data: bal }, { data: topupRows }] = await Promise.all([
-        supabase.functions.invoke("get-balance"),
-        supabase
-          .from("topups")
-          .select("*")
-          .eq("user_id", user!.id)
-          .order("created_at", { ascending: false })
-          .limit(20),
-      ]);
+      const { data: bal } = await supabase.functions.invoke("get-balance");
       if (bal?.balance !== undefined) setBalance(Number(bal.balance));
       if (bal?.totalCosts !== undefined) setTotalSpend(Number(bal.totalCosts));
-      setTopups(((topupRows as any[]) || []) as Topup[]);
+      setTopups(((bal?.topups as any[]) || []) as Topup[]);
+      setSharedUserCount(Array.isArray(bal?.groupUserIds) ? bal.groupUserIds.length : 1);
     } catch (e) {
       console.error(e);
     } finally {
@@ -256,6 +250,11 @@ export default function TopUp() {
             <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5" /> Recent Top-Ups
             </CardTitle>
+            {sharedUserCount > 1 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Shared with {sharedUserCount - 1} other team member{sharedUserCount - 1 === 1 ? "" : "s"} on the same ad account.
+              </p>
+            )}
           </CardHeader>
           <CardContent>
             {topups.length === 0 ? (

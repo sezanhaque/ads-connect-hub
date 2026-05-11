@@ -111,7 +111,7 @@ serve(async (req) => {
 
     if (!members || members.length === 0) {
       return new Response(
-        JSON.stringify({ balance: 0, totalTopups: 0, totalCosts: 0, currency: "EUR" }),
+        JSON.stringify({ balance: 0, totalTopups: 0, totalCosts: 0, currency: "EUR", topups: [], groupUserIds: [userId] }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -119,42 +119,113 @@ serve(async (req) => {
       members.find((m: any) => m.role === "admin") || members[0];
     const orgId = primary.org_id;
 
-    const { data: row } = await admin
-      .from("client_balances")
-      .select("*")
-      .eq("org_id", orgId)
-      .maybeSingle();
-
-    // All-time spend: lifetime spend from THIS user's active connected Meta/TikTok ad accounts.
+    // ---- Build account group ----
+    // Step 1: Current user's active Meta/TikTok integrations
     const { data: userIntegrations } = await admin
       .from("integrations")
-      .select("integration_type, access_token, ad_account_id")
+      .select("integration_type, access_token, ad_account_id, user_id, org_id")
       .eq("user_id", userId)
       .eq("status", "active")
       .in("integration_type", ["meta", "tiktok"]);
 
-    let totalCosts = 0;
-    if (userIntegrations && userIntegrations.length > 0) {
-      for (const i of userIntegrations as any[]) {
-        if (!i.access_token) continue;
-        for (const accountId of normalizeAccountIds(i.ad_account_id)) {
-          if (i.integration_type === "meta") {
-            totalCosts += await fetchMetaLifetimeSpend(i.access_token, accountId);
-          }
-          if (i.integration_type === "tiktok") {
-            totalCosts += await fetchTikTokLifetimeSpend(i.access_token, accountId);
+    // Collect this user's account IDs per platform
+    const myAccountsByPlatform: Record<string, Set<string>> = { meta: new Set(), tiktok: new Set() };
+    for (const i of (userIntegrations as any[]) || []) {
+      for (const acc of normalizeAccountIds(i.ad_account_id)) {
+        myAccountsByPlatform[i.integration_type]?.add(acc);
+      }
+    }
+
+    // Step 2: Find all integrations sharing any of those ad_account_ids
+    const groupUserIds = new Set<string>([userId]);
+    const groupOrgIds = new Set<string>([orgId]);
+    // Map of "platform:accountId" -> { platform, accountId, accessToken }
+    const groupAccounts = new Map<string, { platform: string; accountId: string; accessToken: string }>();
+
+    // Seed group accounts with the current user's
+    for (const i of (userIntegrations as any[]) || []) {
+      if (!i.access_token) continue;
+      for (const acc of normalizeAccountIds(i.ad_account_id)) {
+        const key = `${i.integration_type}:${acc}`;
+        if (!groupAccounts.has(key)) {
+          groupAccounts.set(key, { platform: i.integration_type, accountId: acc, accessToken: i.access_token });
+        }
+      }
+    }
+
+    for (const platform of ["meta", "tiktok"] as const) {
+      const accs = [...myAccountsByPlatform[platform]];
+      if (accs.length === 0) continue;
+      const { data: matches, error: matchErr } = await admin
+        .from("integrations")
+        .select("integration_type, access_token, ad_account_id, user_id, org_id")
+        .eq("status", "active")
+        .eq("integration_type", platform)
+        .overlaps("ad_account_id", accs);
+      if (matchErr) {
+        console.error("integrations overlap query failed", platform, matchErr);
+        continue;
+      }
+      for (const m of (matches as any[]) || []) {
+        if (m.user_id) groupUserIds.add(m.user_id);
+        if (m.org_id) groupOrgIds.add(m.org_id);
+        if (!m.access_token) continue;
+        for (const acc of normalizeAccountIds(m.ad_account_id)) {
+          // Only add accounts that overlap with the seed set (avoid pulling unrelated accounts of shared users)
+          if (!myAccountsByPlatform[platform].has(acc)) continue;
+          const key = `${platform}:${acc}`;
+          if (!groupAccounts.has(key)) {
+            groupAccounts.set(key, { platform, accountId: acc, accessToken: m.access_token });
           }
         }
       }
     }
 
+    // ---- Aggregate balance + totalTopups across all group orgs ----
+    const orgIdList = [...groupOrgIds];
+    const { data: balanceRows } = await admin
+      .from("client_balances")
+      .select("current_balance, total_topups, currency")
+      .in("org_id", orgIdList);
+
+    let balance = 0;
+    let totalTopups = 0;
+    let currency = "EUR";
+    for (const r of (balanceRows as any[]) || []) {
+      balance += Number(r.current_balance ?? 0);
+      totalTopups += Number(r.total_topups ?? 0);
+      if (r.currency) currency = r.currency;
+    }
+
+    // ---- All-time spend across unique ad accounts ----
+    let totalCosts = 0;
+    for (const { platform, accountId, accessToken } of groupAccounts.values()) {
+      if (platform === "meta") {
+        totalCosts += await fetchMetaLifetimeSpend(accessToken, accountId);
+      } else if (platform === "tiktok") {
+        totalCosts += await fetchTikTokLifetimeSpend(accessToken, accountId);
+      }
+    }
+
+    // ---- Pooled top-ups history ----
+    const userIdList = [...groupUserIds];
+    const { data: topupRows } = await admin
+      .from("topups")
+      .select("id, amount, currency, status, description, paid_at, created_at, mollie_payment_id, user_id")
+      .in("user_id", userIdList)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
     return new Response(
       JSON.stringify({
         orgId,
-        balance: Number(row?.current_balance ?? 0),
-        totalTopups: Number(row?.total_topups ?? 0),
+        balance,
+        totalTopups,
         totalCosts,
-        currency: row?.currency ?? "EUR",
+        currency,
+        topups: topupRows || [],
+        groupUserIds: userIdList,
+        groupOrgIds: orgIdList,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
