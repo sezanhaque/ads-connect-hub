@@ -316,7 +316,39 @@ const InviteUsers = () => {
     setCurrentAdAccountId('');
   };
 
-  const handleOpenDialog = async (user: User) => {
+  const handleOpenBalance = (user: User) => {
+    setBalanceUser(user);
+    setBalanceInput(String(user.balance ?? 0));
+  };
+
+  const handleSaveBalance = async () => {
+    if (!balanceUser) return;
+    const amount = parseFloat(balanceInput);
+    if (!Number.isFinite(amount) || amount < 0) {
+      toast({ title: 'Invalid amount', description: 'Enter a non-negative number.', variant: 'destructive' });
+      return;
+    }
+    setSavingBalance(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-set-balance', {
+        body: {
+          target_user_id: balanceUser.user_id,
+          balance: amount,
+          currency: balanceUser.currency || 'EUR',
+        },
+      });
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Failed to update balance');
+      }
+      toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${amount}.` });
+      setBalanceUser(null);
+      fetchUsers();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Failed to update balance', variant: 'destructive' });
+    } finally {
+      setSavingBalance(false);
+    }
+  };
     setSelectedUser(user);
     setSelectedPlatform(null);
     setAdAccountIds([]);
