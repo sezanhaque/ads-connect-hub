@@ -106,18 +106,12 @@ const InviteUsers = () => {
 
       // Global roles across any org (controls the displayed Admin/Owner badge)
       const { data: allRolesData, error: allRolesError } = await supabase
-        .from('members')
-        .select('user_id, role')
-        .in('user_id', userIds);
+        .rpc('get_users_highest_role', { p_user_ids: userIds });
       if (allRolesError) console.error('Error fetching global roles:', allRolesError);
 
-      const rolePriority: Record<string, number> = { owner: 3, admin: 2, member: 1 };
       const highestRoleByUser = new Map<string, string>();
-      (allRolesData || []).forEach(r => {
-        const current = highestRoleByUser.get(r.user_id);
-        if (!current || (rolePriority[r.role] || 0) > (rolePriority[current] || 0)) {
-          highestRoleByUser.set(r.user_id, r.role);
-        }
+      (allRolesData || []).forEach((r: any) => {
+        highestRoleByUser.set(r.user_id, r.role);
       });
 
       if (membersError) {
