@@ -270,54 +270,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Balance & Spend Overview */}
-      <div className="space-y-3">
-        <Card className="overflow-hidden border-success/20">
-          <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
-            <div className="p-6 bg-gradient-to-br from-success/10 to-success/5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-muted-foreground">Current Balance</span>
-                <Wallet className="h-4 w-4 text-success" />
-              </div>
-              <div className="flex items-end justify-between gap-3">
-                <div className="text-3xl font-bold tracking-tight">
-                  {balanceLoading
-                    ? "…"
-                    : `€${(balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                </div>
-                <Button asChild size="sm">
-                  <Link to="/top-up">
-                    <Plus className="mr-1 h-4 w-4" /> Top Up
-                  </Link>
-                </Button>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-muted-foreground">All-time Spend</span>
-                <TrendingDown className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="text-3xl font-bold tracking-tight">
-                {balanceLoading
-                  ? "…"
-                  : `€${(allTimeSpend ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">From connected Meta/TikTok accounts</p>
-            </div>
-          </div>
-        </Card>
-
-        {!balanceLoading && balance !== null && allTimeSpend !== null && balance < allTimeSpend && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Low balance</AlertTitle>
-            <AlertDescription>
-              Your current balance (€{balance.toFixed(2)}) is lower than your all-time spend
-              (€{allTimeSpend.toFixed(2)}). Top up to keep your campaigns running.
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
