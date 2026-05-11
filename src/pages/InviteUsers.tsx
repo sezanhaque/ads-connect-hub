@@ -753,6 +753,37 @@ const InviteUsers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={confirmBalanceOpen} onOpenChange={(open) => !savingBalance && setConfirmBalanceOpen(open)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm balance top-up</AlertDialogTitle>
+            <AlertDialogDescription>
+              {balanceUser && balanceInput && (
+                <>
+                  Add{' '}
+                  <strong>
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser.currency || 'EUR' }).format(parseFloat(balanceInput) || 0)}
+                  </strong>{' '}
+                  to <strong>{balanceUser.email}</strong>? Their new balance will be{' '}
+                  <strong>
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser.currency || 'EUR' }).format(
+                      Number(balanceUser.balance ?? 0) + (parseFloat(balanceInput) || 0)
+                    )}
+                  </strong>
+                  .
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={savingBalance}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => { e.preventDefault(); handleConfirmBalance(); }} disabled={savingBalance}>
+              {savingBalance ? 'Saving...' : 'Confirm'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
