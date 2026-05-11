@@ -323,20 +323,21 @@ const InviteUsers = () => {
     setBalanceInput('');
   };
 
-  const handleSaveBalance = async () => {
+  const handleSaveBalance = () => {
     if (!balanceUser) return;
     const addAmount = parseFloat(balanceInput);
     if (!Number.isFinite(addAmount) || addAmount <= 0) {
       toast({ title: 'Invalid amount', description: 'Enter a positive number to add.', variant: 'destructive' });
       return;
     }
+    setConfirmBalanceOpen(true);
+  };
+
+  const handleConfirmBalance = async () => {
+    if (!balanceUser) return;
+    const addAmount = parseFloat(balanceInput);
     const currency = balanceUser.currency || 'EUR';
-    const currentBalance = Number(balanceUser.balance ?? 0);
-    const newBalance = currentBalance + addAmount;
-    const confirmed = window.confirm(
-      `Add ${addAmount.toFixed(2)} ${currency} to ${balanceUser.email}?\n\nCurrent: ${currentBalance.toFixed(2)} ${currency}\nNew total: ${newBalance.toFixed(2)} ${currency}`
-    );
-    if (!confirmed) return;
+    const newBalance = Number(balanceUser.balance ?? 0) + addAmount;
     setSavingBalance(true);
     try {
       const { data, error } = await supabase.functions.invoke('admin-set-balance', {
@@ -350,6 +351,7 @@ const InviteUsers = () => {
         throw new Error(error?.message || data?.error || 'Failed to update balance');
       }
       toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${newBalance.toFixed(2)} ${currency}.` });
+      setConfirmBalanceOpen(false);
       setBalanceUser(null);
       fetchUsers();
     } catch (err: any) {
