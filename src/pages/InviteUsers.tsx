@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -50,6 +51,7 @@ const InviteUsers = () => {
   const [balanceUser, setBalanceUser] = useState<User | null>(null);
   const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
+  const [confirmBalanceOpen, setConfirmBalanceOpen] = useState(false);
   const { toast } = useToast();
   const { profile } = useAuth();
 
@@ -321,20 +323,21 @@ const InviteUsers = () => {
     setBalanceInput('');
   };
 
-  const handleSaveBalance = async () => {
+  const handleSaveBalance = () => {
     if (!balanceUser) return;
     const addAmount = parseFloat(balanceInput);
     if (!Number.isFinite(addAmount) || addAmount <= 0) {
       toast({ title: 'Invalid amount', description: 'Enter a positive number to add.', variant: 'destructive' });
       return;
     }
+    setConfirmBalanceOpen(true);
+  };
+
+  const handleConfirmBalance = async () => {
+    if (!balanceUser) return;
+    const addAmount = parseFloat(balanceInput);
     const currency = balanceUser.currency || 'EUR';
-    const currentBalance = Number(balanceUser.balance ?? 0);
-    const newBalance = currentBalance + addAmount;
-    const confirmed = window.confirm(
-      `Add ${addAmount.toFixed(2)} ${currency} to ${balanceUser.email}?\n\nCurrent: ${currentBalance.toFixed(2)} ${currency}\nNew total: ${newBalance.toFixed(2)} ${currency}`
-    );
-    if (!confirmed) return;
+    const newBalance = Number(balanceUser.balance ?? 0) + addAmount;
     setSavingBalance(true);
     try {
       const { data, error } = await supabase.functions.invoke('admin-set-balance', {
@@ -348,6 +351,7 @@ const InviteUsers = () => {
         throw new Error(error?.message || data?.error || 'Failed to update balance');
       }
       toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${newBalance.toFixed(2)} ${currency}.` });
+      setConfirmBalanceOpen(false);
       setBalanceUser(null);
       fetchUsers();
     } catch (err: any) {
@@ -749,6 +753,37 @@ const InviteUsers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={confirmBalanceOpen} onOpenChange={(open) => !savingBalance && setConfirmBalanceOpen(open)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm balance top-up</AlertDialogTitle>
+            <AlertDialogDescription>
+              {balanceUser && balanceInput && (
+                <>
+                  Add{' '}
+                  <strong>
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser.currency || 'EUR' }).format(parseFloat(balanceInput) || 0)}
+                  </strong>{' '}
+                  to <strong>{balanceUser.email}</strong>? Their new balance will be{' '}
+                  <strong>
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser.currency || 'EUR' }).format(
+                      Number(balanceUser.balance ?? 0) + (parseFloat(balanceInput) || 0)
+                    )}
+                  </strong>
+                  .
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={savingBalance}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => { e.preventDefault(); handleConfirmBalance(); }} disabled={savingBalance}>
+              {savingBalance ? 'Saving...' : 'Confirm'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
