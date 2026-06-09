@@ -124,11 +124,29 @@ export function SupportTicketButton() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="support-category">Category</Label>
+              <Select
+                required
+                value={form.category}
+                onValueChange={(value) => setForm((f) => ({ ...f, category: value }))}
+              >
+                <SelectTrigger id="support-category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bug">Bug</SelectItem>
+                  <SelectItem value="Question">Question</SelectItem>
+                  <SelectItem value="Feature Request">Feature Request</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="support-description">Description</Label>
               <Textarea
                 id="support-description"
                 required
-                rows={5}
+                rows={4}
                 maxLength={5000}
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
