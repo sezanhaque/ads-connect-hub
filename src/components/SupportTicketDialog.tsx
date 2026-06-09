@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const SUPPORT_ENDPOINT = "https://zuhdtjmlpyvvosxdybbw.supabase.co/functions/v1/receive-ticket";
 
@@ -16,6 +17,7 @@ export function SupportTicketButton() {
   const { profile, user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [orgName, setOrgName] = useState<string>("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -28,6 +30,29 @@ export function SupportTicketButton() {
     setForm({ name: "", email: "", subject: "", category: "", description: "" });
     setError(null);
   };
+
+  useEffect(() => {
+    const fetchOrgName = async () => {
+      if (!profile?.organization_id) {
+        setOrgName("");
+        return;
+      }
+      const { data, error } = await supabase
+        .from("organizations")
+        .select("name")
+        .eq("id", profile.organization_id)
+        .single();
+      if (error) {
+        console.error("Error fetching organization name:", error);
+        setOrgName("");
+      } else {
+        setOrgName(data?.name || "");
+      }
+    };
+    if (open) {
+      fetchOrgName();
+    }
+  }, [open, profile?.organization_id]);
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
@@ -63,7 +88,7 @@ export function SupportTicketButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          client_name: "Twenty Twenty Solutions",
+          client_name: orgName || "Twenty Twenty Solutions",
           reply_to_email: form.email,
           subject: form.subject,
           category: categoryMap[form.category] ?? form.category.toLowerCase().replace(/\s+/g, "_"),
