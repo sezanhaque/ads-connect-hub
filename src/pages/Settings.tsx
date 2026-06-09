@@ -28,6 +28,34 @@ const Settings = () => {
     role: '',
     id: '',
   });
+  const [savingOrg, setSavingOrg] = useState(false);
+  const canEditOrg = organizationData.role === 'owner' || organizationData.role === 'admin';
+
+  const handleOrganizationUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!organizationData.id || !canEditOrg) return;
+    setSavingOrg(true);
+    try {
+      const { error } = await supabase
+        .from('organizations')
+        .update({ name: organizationData.name })
+        .eq('id', organizationData.id);
+      if (error) throw error;
+      toast({
+        title: 'Company updated',
+        description: 'Your company name has been updated successfully.',
+      });
+    } catch (error: any) {
+      console.error('Error updating organization:', error);
+      toast({
+        title: 'Error updating company',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingOrg(false);
+    }
+  };
 
   useEffect(() => {
     if (profile) {
