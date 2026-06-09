@@ -28,6 +28,34 @@ const Settings = () => {
     role: '',
     id: '',
   });
+  const [savingOrg, setSavingOrg] = useState(false);
+  const canEditOrg = organizationData.role === 'owner' || organizationData.role === 'admin';
+
+  const handleOrganizationUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!organizationData.id || !canEditOrg) return;
+    setSavingOrg(true);
+    try {
+      const { error } = await supabase
+        .from('organizations')
+        .update({ name: organizationData.name })
+        .eq('id', organizationData.id);
+      if (error) throw error;
+      toast({
+        title: 'Company updated',
+        description: 'Your company name has been updated successfully.',
+      });
+    } catch (error: any) {
+      console.error('Error updating organization:', error);
+      toast({
+        title: 'Error updating company',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingOrg(false);
+    }
+  };
 
   useEffect(() => {
     if (profile) {
@@ -208,11 +236,23 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-              {organizationData.name ? (
-                <div className="space-y-6">
-                  <div className="p-4 rounded-lg bg-muted/50 border">
-                    <Label className="text-sm font-medium text-muted-foreground">Organization Name</Label>
-                    <p className="text-lg font-semibold mt-1">{organizationData.name}</p>
+              {organizationData.id ? (
+                <form onSubmit={handleOrganizationUpdate} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="company_name" className="text-sm font-medium">Company Name</Label>
+                    <Input
+                      id="company_name"
+                      value={organizationData.name}
+                      onChange={(e) => setOrganizationData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Your company name"
+                      disabled={!canEditOrg}
+                      className="h-11"
+                    />
+                    {!canEditOrg && (
+                      <p className="text-xs text-muted-foreground">
+                        Only organization owners or admins can edit the company name.
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
                     <div>
@@ -224,13 +264,12 @@ const Settings = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="p-4 rounded-lg bg-muted/50 border">
-                    <Label className="text-sm font-medium text-muted-foreground">Organization ID</Label>
-                    <p className="text-sm font-mono text-muted-foreground mt-1 break-all">
-                      {organizationData.id}
-                    </p>
-                  </div>
-                </div>
+                  {canEditOrg && (
+                    <Button type="submit" className="h-11 px-8" disabled={savingOrg}>
+                      {savingOrg ? 'Saving...' : 'Update Company'}
+                    </Button>
+                  )}
+                </form>
               ) : (
                 <div className="text-center py-8">
                   <div className="p-4 rounded-lg bg-muted/50 border border-dashed">
