@@ -23,11 +23,12 @@ export function SupportTicketButton() {
     name: "",
     email: "",
     subject: "",
+    category: "",
     description: "",
   });
 
   const resetForm = () => {
-    setForm({ name: "", email: "", subject: "", description: "" });
+    setForm({ name: "", email: "", subject: "", category: "", description: "" });
     setError(null);
   };
 
