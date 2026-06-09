@@ -9,10 +9,7 @@ import { LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
-const SUPPORT_ENDPOINT = ""; // TODO: provided separately
-const SUPPORT_SECRET_HEADER_KEY = ""; // TODO: provided separately
-const SUPPORT_SECRET_VALUE = ""; // TODO: provided separately
-const CLIENT_ID = "twentytwentysolutions";
+const SUPPORT_ENDPOINT = "https://zuhdtjmlpyvvosxdybbw.supabase.co/functions/v1/receive-ticket";
 
 export function SupportTicketButton() {
   const [open, setOpen] = useState(false);
@@ -48,6 +45,13 @@ export function SupportTicketButton() {
     }
   };
 
+  const categoryMap: Record<string, string> = {
+    Bug: "bug",
+    Question: "question",
+    "Feature Request": "feature_request",
+    Other: "other",
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -57,11 +61,18 @@ export function SupportTicketButton() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(SUPPORT_SECRET_HEADER_KEY ? { [SUPPORT_SECRET_HEADER_KEY]: SUPPORT_SECRET_VALUE } : {}),
         },
-        body: JSON.stringify({ ...form, client_id: CLIENT_ID }),
+        body: JSON.stringify({
+          client_name: "Twenty Twenty Solutions",
+          reply_to_email: form.email,
+          subject: form.subject,
+          category: categoryMap[form.category] ?? form.category.toLowerCase().replace(/\s+/g, "_"),
+          description: form.description,
+        }),
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data = await res.json();
+      if (!data.success) throw new Error("Unexpected response");
       toast.success("Your ticket has been submitted. Our team will get back to you as soon as possible.");
       setOpen(false);
       resetForm();
