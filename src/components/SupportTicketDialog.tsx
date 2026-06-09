@@ -39,6 +39,7 @@ export function SupportTicketButton() {
         name: profile ? `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() : "",
         email: user?.email ?? "",
         subject: "",
+        category: "",
         description: "",
       });
       setError(null);
