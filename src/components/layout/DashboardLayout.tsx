@@ -18,6 +18,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SupportTicketButton } from '@/components/SupportTicketDialog';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -194,6 +195,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <span className="text-sm text-muted-foreground">
               Welcome back, {profile?.first_name}
             </span>
+            <SupportTicketButton />
           </div>
         </div>
 
