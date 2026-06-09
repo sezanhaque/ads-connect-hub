@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,11 +23,12 @@ export function SupportTicketButton() {
     name: "",
     email: "",
     subject: "",
+    category: "",
     description: "",
   });
 
   const resetForm = () => {
-    setForm({ name: "", email: "", subject: "", description: "" });
+    setForm({ name: "", email: "", subject: "", category: "", description: "" });
     setError(null);
   };
 
@@ -37,6 +39,7 @@ export function SupportTicketButton() {
         name: profile ? `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() : "",
         email: user?.email ?? "",
         subject: "",
+        category: "",
         description: "",
       });
       setError(null);
@@ -121,11 +124,29 @@ export function SupportTicketButton() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="support-category">Category</Label>
+              <Select
+                required
+                value={form.category}
+                onValueChange={(value) => setForm((f) => ({ ...f, category: value }))}
+              >
+                <SelectTrigger id="support-category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bug">Bug</SelectItem>
+                  <SelectItem value="Question">Question</SelectItem>
+                  <SelectItem value="Feature Request">Feature Request</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="support-description">Description</Label>
               <Textarea
                 id="support-description"
                 required
-                rows={5}
+                rows={4}
                 maxLength={5000}
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
