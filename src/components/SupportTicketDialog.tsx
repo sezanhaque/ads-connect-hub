@@ -9,10 +9,7 @@ import { LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
-const SUPPORT_ENDPOINT = ""; // TODO: provided separately
-const SUPPORT_SECRET_HEADER_KEY = ""; // TODO: provided separately
-const SUPPORT_SECRET_VALUE = ""; // TODO: provided separately
-const CLIENT_ID = "twentytwentysolutions";
+const SUPPORT_ENDPOINT = "https://zuhdtjmlpyvvosxdybbw.supabase.co/functions/v1/receive-ticket";
 
 export function SupportTicketButton() {
   const [open, setOpen] = useState(false);
