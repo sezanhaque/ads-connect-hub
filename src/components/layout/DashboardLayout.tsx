@@ -190,13 +190,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-4 ml-auto">
             <span className="text-sm text-muted-foreground">
               Welcome back, {profile?.first_name}
             </span>
-            <SupportTicketButton />
           </div>
+          
+          <SupportTicketButton />
         </div>
 
         {/* Page content */}
