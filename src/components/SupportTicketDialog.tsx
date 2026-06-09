@@ -88,7 +88,7 @@ export function SupportTicketButton() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          client_name: "Twenty Twenty Solutions",
+          client_name: orgName || "Twenty Twenty Solutions",
           reply_to_email: form.email,
           subject: form.subject,
           category: categoryMap[form.category] ?? form.category.toLowerCase().replace(/\s+/g, "_"),
