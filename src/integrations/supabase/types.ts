@@ -498,6 +498,111 @@ export type Database = {
         }
         Relationships: []
       }
+      status_connections: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          last_sync_at: string | null
+          response_time_ms: number | null
+          service_key: string
+          service_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          response_time_ms?: number | null
+          service_key: string
+          service_name: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          response_time_ms?: number | null
+          service_key?: string
+          service_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      status_incidents: {
+        Row: {
+          affected_service: string
+          created_at: string
+          description: string | null
+          id: string
+          resolved_at: string | null
+          started_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_service: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          resolved_at?: string | null
+          started_at?: string
+          status: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_service?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          resolved_at?: string | null
+          started_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      status_maintenance: {
+        Row: {
+          affected_services: string[]
+          created_at: string
+          duration_minutes: number
+          id: string
+          scheduled_at: string
+          timezone: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_services?: string[]
+          created_at?: string
+          duration_minutes: number
+          id?: string
+          scheduled_at: string
+          timezone?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_services?: string[]
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          scheduled_at?: string
+          timezone?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       topups: {
         Row: {
           amount: number

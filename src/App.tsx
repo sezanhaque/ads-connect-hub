@@ -27,6 +27,7 @@ import Jobs from "./pages/Jobs";
 import CreateJob from "./pages/CreateJob";
 import Settings from "./pages/Settings";
 import OrganizationSettings from "./pages/OrganizationSettings";
+import StatusPage from "./pages/StatusPage";
 import MetaConnection from "./pages/MetaConnection";
 import TikTokConnection from "./pages/TikTokConnection";
 import InviteUsers from "./pages/InviteUsers";
@@ -132,6 +133,14 @@ const App = () => {
                   element={
                     <DashboardLayout>
                       <OrganizationSettings />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/settings/status"
+                  element={
+                    <DashboardLayout>
+                      <StatusPage />
                     </DashboardLayout>
                   }
                 />
