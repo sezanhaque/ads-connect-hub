@@ -70,9 +70,9 @@ Deno.serve(async (req) => {
     )
   }
 
-  if (!action || !['create', 'update', 'delete'].includes(action)) {
+  if (!action || !['create', 'update', 'delete', 'list'].includes(action)) {
     return new Response(
-      JSON.stringify({ error: 'action must be one of: create, update, delete' }),
+      JSON.stringify({ error: 'action must be one of: create, update, delete, list' }),
       { status: 400, headers: JSON_HEADERS },
     )
   }
