@@ -12,6 +12,7 @@ import {
   User,
   Building,
   ArrowRight,
+  Activity,
   Settings as SettingsIcon
 } from 'lucide-react';
 
