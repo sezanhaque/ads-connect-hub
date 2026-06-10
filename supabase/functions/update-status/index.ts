@@ -14,18 +14,24 @@ const CORS_HEADERS = {
 
 const JSON_HEADERS = { ...CORS_HEADERS, 'Content-Type': 'application/json' }
 
-const TABLES: Record<string, { name: string; allowedFields: string[] }> = {
+const TABLES: Record<string, { name: string; allowedFields: string[]; orderBy: string; orderDir: 'asc' | 'desc' }> = {
   incidents: {
     name: 'status_incidents',
     allowedFields: ['title', 'affected_service', 'status', 'description', 'started_at', 'resolved_at'],
+    orderBy: 'started_at',
+    orderDir: 'desc',
   },
   connections: {
     name: 'status_connections',
     allowedFields: ['service_key', 'service_name', 'category', 'status', 'last_sync_at', 'response_time_ms'],
+    orderBy: 'service_name',
+    orderDir: 'asc',
   },
   maintenance: {
     name: 'status_maintenance',
     allowedFields: ['title', 'affected_services', 'scheduled_at', 'duration_minutes', 'timezone'],
+    orderBy: 'scheduled_at',
+    orderDir: 'desc',
   },
 }
 
@@ -70,19 +76,34 @@ Deno.serve(async (req) => {
     )
   }
 
-  if (!action || !['create', 'update', 'delete'].includes(action)) {
+  if (!action || !['create', 'update', 'delete', 'list'].includes(action)) {
     return new Response(
-      JSON.stringify({ error: 'action must be one of: create, update, delete' }),
+      JSON.stringify({ error: 'action must be one of: create, update, delete, list' }),
       { status: 400, headers: JSON_HEADERS },
     )
   }
 
-  const { name: tableName, allowedFields } = TABLES[table]
+  const { name: tableName, allowedFields, orderBy, orderDir } = TABLES[table]
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
+
+  if (action === 'list') {
+    const { data: rows, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .order(orderBy, { ascending: orderDir === 'asc' })
+
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: JSON_HEADERS,
+      })
+    }
+    return new Response(JSON.stringify({ data: rows }), { headers: JSON_HEADERS })
+  }
 
   if (action === 'create') {
     if (!data) {
