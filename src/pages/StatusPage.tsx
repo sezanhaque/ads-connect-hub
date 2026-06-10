@@ -218,7 +218,7 @@ const StatusPage = () => {
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Status</h1>
             <p className="text-muted-foreground text-lg">
-              Live status of platform services, incidents, and scheduled maintenance
+              Live status of platform services, incidents, and scheduled maintenance. Incidents and maintenance windows above apply platform-wide.
             </p>
           </div>
         </div>
@@ -326,9 +326,6 @@ const StatusPage = () => {
                 })}
               </div>
             )}
-            <p className="text-xs text-muted-foreground mt-4 italic">
-              Incidents and maintenance windows above apply platform-wide.
-            </p>
           </CardContent>
         </Card>
 
