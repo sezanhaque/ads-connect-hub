@@ -14,18 +14,21 @@ const CORS_HEADERS = {
 
 const JSON_HEADERS = { ...CORS_HEADERS, 'Content-Type': 'application/json' }
 
-const TABLES: Record<string, { name: string; allowedFields: string[] }> = {
+const TABLES: Record<string, { name: string; allowedFields: string[]; orderBy: string }> = {
   incidents: {
     name: 'status_incidents',
     allowedFields: ['title', 'affected_service', 'status', 'description', 'started_at', 'resolved_at'],
+    orderBy: 'started_at',
   },
   connections: {
     name: 'status_connections',
     allowedFields: ['service_key', 'service_name', 'category', 'status', 'last_sync_at', 'response_time_ms'],
+    orderBy: 'service_name',
   },
   maintenance: {
     name: 'status_maintenance',
     allowedFields: ['title', 'affected_services', 'scheduled_at', 'duration_minutes', 'timezone'],
+    orderBy: 'scheduled_at',
   },
 }
 
