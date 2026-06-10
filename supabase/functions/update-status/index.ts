@@ -83,12 +83,27 @@ Deno.serve(async (req) => {
     )
   }
 
-  const { name: tableName, allowedFields } = TABLES[table]
+  const { name: tableName, allowedFields, orderBy, orderDir } = TABLES[table]
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
+
+  if (action === 'list') {
+    const { data: rows, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .order(orderBy, { ascending: orderDir === 'asc' })
+
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: JSON_HEADERS,
+      })
+    }
+    return new Response(JSON.stringify({ data: rows }), { headers: JSON_HEADERS })
+  }
 
   if (action === 'create') {
     if (!data) {
