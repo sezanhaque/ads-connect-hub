@@ -286,6 +286,31 @@ const Settings = () => {
           </Card>
         </div>
 
+        {/* Platform Status link */}
+        <div className="mt-8">
+          <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Activity className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Platform status</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Live status of services, incidents, and scheduled maintenance.
+                  </p>
+                </div>
+              </div>
+              <Button asChild className="h-11 px-6">
+                <Link to="/settings/status" className="flex items-center gap-2">
+                  View status
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Organization Management - Full Width */}
         {/* <div className="mt-8">
           <Card className="shadow-xl border-0 bg-gradient-to-r from-primary/5 to-primary/10 backdrop-blur-sm">
