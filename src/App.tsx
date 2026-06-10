@@ -137,6 +137,14 @@ const App = () => {
                   }
                 />
                 <Route
+                  path="/settings/status"
+                  element={
+                    <DashboardLayout>
+                      <StatusPage />
+                    </DashboardLayout>
+                  }
+                />
+                <Route
                   path="/meta-connection"
                   element={
                     <DashboardLayout>
