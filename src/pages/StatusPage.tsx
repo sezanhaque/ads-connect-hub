@@ -37,6 +37,16 @@ type Connection = {
   response_time_ms: number | null;
 };
 
+type UserConnection = {
+  id: string;
+  service_key: string;
+  service_name: string;
+  account_name: string | null;
+  userStatus: 'connected' | 'token_expired' | 'disconnected';
+  last_sync_at: string | null;
+  global?: Connection;
+};
+
 type Maintenance = {
   id: string;
   title: string;
@@ -57,15 +67,33 @@ const incidentVariant = (status: Incident['status']) => {
   }
 };
 
-const connectionStyle = (status: Connection['status']) => {
+const userStatusStyle = (status: UserConnection['userStatus']) => {
   switch (status) {
     case 'connected':
       return { label: 'Connected', cls: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', dot: 'bg-emerald-500' };
-    case 'degraded':
-      return { label: 'Degraded', cls: 'bg-amber-500/10 text-amber-600 border-amber-500/20', dot: 'bg-amber-500' };
+    case 'token_expired':
+      return { label: 'Token expired', cls: 'bg-amber-500/10 text-amber-600 border-amber-500/20', dot: 'bg-amber-500' };
     case 'disconnected':
       return { label: 'Disconnected', cls: 'bg-red-500/10 text-red-600 border-red-500/20', dot: 'bg-red-500' };
   }
+};
+
+const globalOverrideLabel = (g?: Connection) => {
+  if (!g) return null;
+  if (g.status === 'degraded') return `${g.service_name} is currently degraded platform-wide`;
+  if (g.status === 'disconnected') return `${g.service_name} is currently down platform-wide`;
+  return null;
+};
+
+const integrationTypeToService = (type: string): { key: string; name: string } => {
+  const t = (type || '').toLowerCase();
+  if (t === 'meta' || t === 'meta_ads') return { key: 'meta_ads', name: 'Meta Ads API' };
+  if (t === 'tiktok' || t === 'tiktok_ads') return { key: 'tiktok_ads', name: 'TikTok Ads API' };
+  if (t.startsWith('ats_') || t.startsWith('ats-')) {
+    const slug = t.replace(/^ats[_-]/, '').replace('-', '_');
+    return { key: `ats_${slug}`, name: `ATS — ${slug.charAt(0).toUpperCase() + slug.slice(1)}` };
+  }
+  return { key: t, name: type };
 };
 
 const formatDateTime = (iso: string) =>
@@ -95,9 +123,8 @@ const StatusPage = () => {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]);
+  const [userConnections, setUserConnections] = useState<UserConnection[]>([]);
   const [maintenance, setMaintenance] = useState<Maintenance[]>([]);
-  const [hasAts, setHasAts] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -111,7 +138,7 @@ const StatusPage = () => {
           .select('*')
           .gte('started_at', since)
           .order('started_at', { ascending: false }),
-        supabase.from('status_connections').select('*').order('category').order('service_name'),
+        supabase.from('status_connections').select('*'),
         supabase
           .from('status_maintenance')
           .select('*')
@@ -119,35 +146,66 @@ const StatusPage = () => {
           .order('scheduled_at', { ascending: true }),
       ]);
 
+      const globalConnections = (connRes.data ?? []) as Connection[];
+      const globalByKey = new Map(globalConnections.map((g) => [g.service_key, g]));
+
       setIncidents((incRes.data ?? []) as Incident[]);
-      setConnections((connRes.data ?? []) as Connection[]);
       setMaintenance((maintRes.data ?? []) as Maintenance[]);
 
-      // Check whether this client has an ATS integration configured
+      // Build the per-user connection list from this client's integrations
+      const built: UserConnection[] = [];
       if (profile?.user_id) {
         const { data: memberships } = await supabase
           .from('members')
           .select('org_id')
           .eq('user_id', profile.user_id);
         const orgIds = (memberships ?? []).map((m: any) => m.org_id).filter(Boolean);
+
         if (orgIds.length) {
-          const { data: ats } = await supabase
+          const { data: integrations } = await supabase
             .from('integrations')
-            .select('id')
-            .in('org_id', orgIds)
-            .eq('status', 'active')
-            .ilike('integration_type', 'ats%')
-            .limit(1);
-          setHasAts(!!ats && ats.length > 0);
+            .select('id, integration_type, status, expires_at, last_sync_at, account_name')
+            .in('org_id', orgIds);
+
+          const now = Date.now();
+          // De-duplicate by service_key (one row per service even if multiple orgs/accounts)
+          const bySvc = new Map<string, UserConnection>();
+          for (const i of integrations ?? []) {
+            const { key, name } = integrationTypeToService((i as any).integration_type);
+            const expired = (i as any).expires_at && new Date((i as any).expires_at).getTime() < now;
+            const active = (i as any).status === 'active';
+            const userStatus: UserConnection['userStatus'] = expired
+              ? 'token_expired'
+              : active
+                ? 'connected'
+                : 'disconnected';
+
+            const existing = bySvc.get(key);
+            // Prefer the "best" status (connected > token_expired > disconnected)
+            const rank = { connected: 2, token_expired: 1, disconnected: 0 } as const;
+            if (!existing || rank[userStatus] > rank[existing.userStatus]) {
+              const g = globalByKey.get(key);
+              bySvc.set(key, {
+                id: (i as any).id,
+                service_key: key,
+                service_name: g?.service_name ?? name,
+                account_name: (i as any).account_name ?? null,
+                userStatus,
+                last_sync_at: (i as any).last_sync_at ?? null,
+                global: g,
+              });
+            }
+          }
+          built.push(...bySvc.values());
+          built.sort((a, b) => a.service_name.localeCompare(b.service_name));
         }
       }
 
+      setUserConnections(built);
       setLoading(false);
     };
     load();
   }, [profile?.user_id]);
-
-  const visibleConnections = connections.filter((c) => c.category === 'core' || hasAts);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
@@ -222,15 +280,20 @@ const StatusPage = () => {
               </div>
               API connections
             </CardTitle>
-            <CardDescription>Current state of integrated platform APIs</CardDescription>
+            <CardDescription>Status of your account's connected platforms</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
               <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : userConnections.length === 0 ? (
+              <div className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
+                You don't have any platform integrations connected yet.
+              </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {visibleConnections.map((c) => {
-                  const s = connectionStyle(c.status);
+                {userConnections.map((c) => {
+                  const s = userStatusStyle(c.userStatus);
+                  const override = globalOverrideLabel(c.global);
                   return (
                     <div key={c.id} className="rounded-lg border bg-background/60 p-4 space-y-3">
                       <div className="flex items-center justify-between gap-2">
@@ -246,20 +309,26 @@ const StatusPage = () => {
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground space-y-1">
+                        {c.account_name && <div className="truncate">Account: {c.account_name}</div>}
                         <div>
                           Last sync:{' '}
                           {c.last_sync_at ? formatDateTime(c.last_sync_at) : '—'}
                         </div>
-                        <div>
-                          Response time:{' '}
-                          {c.response_time_ms != null ? `${c.response_time_ms} ms` : '—'}
-                        </div>
                       </div>
+                      {override && (
+                        <div className="flex items-start gap-2 rounded-md border border-amber-500/20 bg-amber-500/10 px-2.5 py-2 text-xs text-amber-700">
+                          <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                          <span>{override}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
             )}
+            <p className="text-xs text-muted-foreground mt-4 italic">
+              Incidents and maintenance windows above apply platform-wide.
+            </p>
           </CardContent>
         </Card>
 
