@@ -123,9 +123,8 @@ const StatusPage = () => {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]);
+  const [userConnections, setUserConnections] = useState<UserConnection[]>([]);
   const [maintenance, setMaintenance] = useState<Maintenance[]>([]);
-  const [hasAts, setHasAts] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -139,7 +138,7 @@ const StatusPage = () => {
           .select('*')
           .gte('started_at', since)
           .order('started_at', { ascending: false }),
-        supabase.from('status_connections').select('*').order('category').order('service_name'),
+        supabase.from('status_connections').select('*'),
         supabase
           .from('status_maintenance')
           .select('*')
@@ -147,35 +146,66 @@ const StatusPage = () => {
           .order('scheduled_at', { ascending: true }),
       ]);
 
+      const globalConnections = (connRes.data ?? []) as Connection[];
+      const globalByKey = new Map(globalConnections.map((g) => [g.service_key, g]));
+
       setIncidents((incRes.data ?? []) as Incident[]);
-      setConnections((connRes.data ?? []) as Connection[]);
       setMaintenance((maintRes.data ?? []) as Maintenance[]);
 
-      // Check whether this client has an ATS integration configured
+      // Build the per-user connection list from this client's integrations
+      const built: UserConnection[] = [];
       if (profile?.user_id) {
         const { data: memberships } = await supabase
           .from('members')
           .select('org_id')
           .eq('user_id', profile.user_id);
         const orgIds = (memberships ?? []).map((m: any) => m.org_id).filter(Boolean);
+
         if (orgIds.length) {
-          const { data: ats } = await supabase
+          const { data: integrations } = await supabase
             .from('integrations')
-            .select('id')
-            .in('org_id', orgIds)
-            .eq('status', 'active')
-            .ilike('integration_type', 'ats%')
-            .limit(1);
-          setHasAts(!!ats && ats.length > 0);
+            .select('id, integration_type, status, expires_at, last_sync_at, account_name')
+            .in('org_id', orgIds);
+
+          const now = Date.now();
+          // De-duplicate by service_key (one row per service even if multiple orgs/accounts)
+          const bySvc = new Map<string, UserConnection>();
+          for (const i of integrations ?? []) {
+            const { key, name } = integrationTypeToService((i as any).integration_type);
+            const expired = (i as any).expires_at && new Date((i as any).expires_at).getTime() < now;
+            const active = (i as any).status === 'active';
+            const userStatus: UserConnection['userStatus'] = expired
+              ? 'token_expired'
+              : active
+                ? 'connected'
+                : 'disconnected';
+
+            const existing = bySvc.get(key);
+            // Prefer the "best" status (connected > token_expired > disconnected)
+            const rank = { connected: 2, token_expired: 1, disconnected: 0 } as const;
+            if (!existing || rank[userStatus] > rank[existing.userStatus]) {
+              const g = globalByKey.get(key);
+              bySvc.set(key, {
+                id: (i as any).id,
+                service_key: key,
+                service_name: g?.service_name ?? name,
+                account_name: (i as any).account_name ?? null,
+                userStatus,
+                last_sync_at: (i as any).last_sync_at ?? null,
+                global: g,
+              });
+            }
+          }
+          built.push(...bySvc.values());
+          built.sort((a, b) => a.service_name.localeCompare(b.service_name));
         }
       }
 
+      setUserConnections(built);
       setLoading(false);
     };
     load();
   }, [profile?.user_id]);
-
-  const visibleConnections = connections.filter((c) => c.category === 'core' || hasAts);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
