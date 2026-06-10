@@ -37,6 +37,16 @@ type Connection = {
   response_time_ms: number | null;
 };
 
+type UserConnection = {
+  id: string;
+  service_key: string;
+  service_name: string;
+  account_name: string | null;
+  userStatus: 'connected' | 'token_expired' | 'disconnected';
+  last_sync_at: string | null;
+  global?: Connection;
+};
+
 type Maintenance = {
   id: string;
   title: string;
@@ -57,15 +67,33 @@ const incidentVariant = (status: Incident['status']) => {
   }
 };
 
-const connectionStyle = (status: Connection['status']) => {
+const userStatusStyle = (status: UserConnection['userStatus']) => {
   switch (status) {
     case 'connected':
       return { label: 'Connected', cls: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', dot: 'bg-emerald-500' };
-    case 'degraded':
-      return { label: 'Degraded', cls: 'bg-amber-500/10 text-amber-600 border-amber-500/20', dot: 'bg-amber-500' };
+    case 'token_expired':
+      return { label: 'Token expired', cls: 'bg-amber-500/10 text-amber-600 border-amber-500/20', dot: 'bg-amber-500' };
     case 'disconnected':
       return { label: 'Disconnected', cls: 'bg-red-500/10 text-red-600 border-red-500/20', dot: 'bg-red-500' };
   }
+};
+
+const globalOverrideLabel = (g?: Connection) => {
+  if (!g) return null;
+  if (g.status === 'degraded') return `${g.service_name} is currently degraded platform-wide`;
+  if (g.status === 'disconnected') return `${g.service_name} is currently down platform-wide`;
+  return null;
+};
+
+const integrationTypeToService = (type: string): { key: string; name: string } => {
+  const t = (type || '').toLowerCase();
+  if (t === 'meta' || t === 'meta_ads') return { key: 'meta_ads', name: 'Meta Ads API' };
+  if (t === 'tiktok' || t === 'tiktok_ads') return { key: 'tiktok_ads', name: 'TikTok Ads API' };
+  if (t.startsWith('ats_') || t.startsWith('ats-')) {
+    const slug = t.replace(/^ats[_-]/, '').replace('-', '_');
+    return { key: `ats_${slug}`, name: `ATS — ${slug.charAt(0).toUpperCase() + slug.slice(1)}` };
+  }
+  return { key: t, name: type };
 };
 
 const formatDateTime = (iso: string) =>
