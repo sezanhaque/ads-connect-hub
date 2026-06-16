@@ -80,38 +80,6 @@ const Product = () => {
         </div>
       </section>
 
-      {/* Channels */}
-      <section className="section-padding">
-        <div className="container mx-auto px-4">
-          <motion.div className="text-center mb-10 md:mb-12" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground mb-3">Advertise where talent scrolls</h2>
-            <p className="text-base md:text-lg text-muted-foreground font-now max-w-2xl mx-auto">Reach candidates on the platforms they use every day.</p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.1 }} className="rounded-2xl border border-border bg-card p-8 flex flex-col items-start gap-4 hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
-                <MetaLogo size={28} />
-              </div>
-              <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Meta Job Ads</h3>
-              <p className="text-base text-muted-foreground font-now leading-relaxed">Launch high-performance recruitment campaigns across Facebook and Instagram.</p>
-              <Button asChild className="mt-2">
-                <Link to="/meta-job-ads">Learn more <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.2 }} className="rounded-2xl border border-border bg-card p-8 flex flex-col items-start gap-4 hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center">
-                <TikTokLogo size={28} />
-              </div>
-              <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">TikTok Job Ads</h3>
-              <p className="text-base text-muted-foreground font-now leading-relaxed">Tap into the fastest-growing channel for engaging Gen Z and young professionals.</p>
-              <Button asChild className="mt-2">
-                <Link to="/tiktok-job-ads">Learn more <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* How It Works */}
       <section className="section-padding overflow-hidden">
         <div className="container mx-auto px-4">
@@ -159,6 +127,38 @@ const Product = () => {
               </div>
               <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">3. Launch & Track</h3>
               <p className="text-base text-muted-foreground font-now leading-relaxed">Go live in minutes and monitor real-time performance data from one unified dashboard. See exactly what's working and adjust on the fly.</p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Channels */}
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+          <motion.div className="text-center mb-10 md:mb-12" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-now font-bold text-foreground mb-3">Advertise where talent scrolls</h2>
+            <p className="text-base md:text-lg text-muted-foreground font-now max-w-2xl mx-auto">Reach candidates on the platforms they use every day.</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.1 }} className="rounded-2xl border border-border bg-card p-8 flex flex-col items-start gap-4 hover:shadow-lg transition-shadow">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
+                <MetaLogo size={28} />
+              </div>
+              <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">Meta Job Ads</h3>
+              <p className="text-base text-muted-foreground font-now leading-relaxed">Launch high-performance recruitment campaigns across Facebook and Instagram.</p>
+              <Button asChild className="mt-2">
+                <Link to="/meta-job-ads">Learn more <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, delay: 0.2 }} className="rounded-2xl border border-border bg-card p-8 flex flex-col items-start gap-4 hover:shadow-lg transition-shadow">
+              <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center">
+                <TikTokLogo size={28} />
+              </div>
+              <h3 className="text-xl md:text-2xl font-now font-bold text-foreground">TikTok Job Ads</h3>
+              <p className="text-base text-muted-foreground font-now leading-relaxed">Tap into the fastest-growing channel for engaging Gen Z and young professionals.</p>
+              <Button asChild className="mt-2">
+                <Link to="/tiktok-job-ads">Learn more <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
             </motion.div>
           </div>
         </div>
