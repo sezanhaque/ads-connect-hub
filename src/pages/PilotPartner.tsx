@@ -59,35 +59,6 @@ const PilotPartner = () => {
 
   return <div className="min-h-screen page-bg">
       {/* Navigation */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <Link to="/">
-            <Logo />
-          </Link>
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-3 bg-card px-4 py-2 rounded-full border border-border">
-              <Label htmlFor="language-switch" className="text-sm font-medium cursor-pointer">
-                EN
-              </Label>
-              <Switch
-                id="language-switch"
-                checked={!isEnglish}
-                onCheckedChange={(checked) => setIsEnglish(!checked)}
-              />
-              <Label htmlFor="language-switch" className="text-sm font-medium cursor-pointer">
-                NL
-              </Label>
-            </div>
-            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
-              <Link to="/">{isEnglish ? "Home" : "Home"}</Link>
-            </Button>
-            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
-              <Link to="/auth">{isEnglish ? "Sign In" : "Inloggen"}</Link>
-            </Button>
-            <MobileNav links={pilotNavLinks} showDemoButton={false} />
-          </div>
-        </nav>
-      </header>
 
       {/* Section 1: Hero */}
       <section className="container mx-auto px-4 hero-padding">

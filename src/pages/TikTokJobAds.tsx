@@ -68,34 +68,6 @@ const TikTokJobAds = () => {
       />
 
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <Link to="/">
-            <Logo />
-          </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <ProductDropdown />
-            {navLinks.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
-              <Link to="/auth">Sign in</Link>
-            </Button>
-            <Button asChild className="hidden md:inline-flex">
-              <Link to="/pricing">Choose your plan</Link>
-            </Button>
-            <MobileNav showDemoButton={false} />
-          </div>
-        </nav>
-      </header>
 
       {/* ─── HERO ─── */}
       <section className="container mx-auto px-4 pt-12 md:pt-20 pb-16 md:pb-20">
