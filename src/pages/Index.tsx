@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import HowItWorks from "@/components/home/HowItWorks";
 import NewsInsights from "@/components/home/NewsInsights";
 import HomeFAQ from "@/components/home/HomeFAQ";
+import Hero from "@/components/home/Hero";
 
 const Index = () => {
   const { user } = useAuth();
