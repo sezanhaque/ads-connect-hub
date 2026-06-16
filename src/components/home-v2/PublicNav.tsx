@@ -65,12 +65,19 @@ export function PublicNav() {
 
         <div className="flex items-center gap-3">
           <LanguageToggle className="hidden md:inline-flex" />
+          <Link
+            to="/auth"
+            className="hidden md:inline-flex items-center gap-2 border border-border text-foreground hover:bg-muted transition-colors px-4 py-2 rounded-md text-sm font-medium"
+          >
+            {t("nav.login")}
+          </Link>
           <button
             onClick={open}
             className="hidden md:inline-flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary-hover transition-colors px-4 py-2 rounded-md text-sm font-medium"
           >
             {t("nav.cta")}
           </button>
+
           <button
             className="lg:hidden p-2 text-foreground"
             onClick={() => setMobileOpen(true)}
@@ -111,8 +118,15 @@ export function PublicNav() {
               <a href="#contact" onClick={() => setMobileOpen(false)} className="block py-2">{t("nav.contact")}</a>
             </div>
           </div>
-          <div className="border-t border-border p-6 space-y-4">
+          <div className="border-t border-border p-6 space-y-3">
             <LanguageToggle />
+            <Link
+              to="/auth"
+              onClick={() => setMobileOpen(false)}
+              className="w-full inline-flex items-center justify-center border border-border text-foreground hover:bg-muted transition-colors px-4 py-3 rounded-md text-sm font-medium"
+            >
+              {t("nav.login")}
+            </Link>
             <button
               onClick={() => { setMobileOpen(false); open(); }}
               className="w-full bg-primary text-primary-foreground hover:bg-primary-hover transition-colors px-4 py-3 rounded-md text-sm font-medium"
@@ -120,6 +134,7 @@ export function PublicNav() {
               {t("nav.cta")}
             </button>
           </div>
+
         </div>
       )}
     </header>

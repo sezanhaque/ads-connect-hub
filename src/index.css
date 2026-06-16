@@ -187,27 +187,9 @@ All colors MUST be HSL.
     background: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(214 32% 98%) 40%, hsl(0 0% 100%) 100%);
   }
 
-  /* TTS homepage scoped dark palette */
+  /* TTS homepage scope keeps the global light palette */
   .tts-home {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 98%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 62%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --primary: 58 100% 67%;
-    --primary-foreground: 0 0% 4%;
-    --primary-hover: 58 100% 60%;
-    --accent: 58 100% 67%;
-    --accent-foreground: 0 0% 4%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
-    --ring: 58 100% 67%;
-    background: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-background text-foreground;
   }
+
 }
