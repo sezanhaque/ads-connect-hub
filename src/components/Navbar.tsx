@@ -20,48 +20,117 @@ interface NavItem {
   soon?: boolean;
 }
 
-const servicesItems: NavItem[] = [
-  {
-    title: "AI Agents",
-    desc: "Agents die zelfstandig taken uitvoeren in jouw systemen",
-    href: "/diensten/ai-agents",
+const t = {
+  nl: {
+    servicesLabel: "Diensten",
+    productsLabel: "Producten",
+    about: "Over ons",
+    contact: "Contact",
+    login: "Inloggen",
+    cta: "Plan een kennismaking",
+    soon: "Binnenkort",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
   },
-  {
-    title: "AI Automations",
-    desc: "Handmatige processen volledig automatiseren",
-    href: "/diensten/ai-automations",
+  en: {
+    servicesLabel: "Services",
+    productsLabel: "Products",
+    about: "About us",
+    contact: "Contact",
+    login: "Log in",
+    cta: "Book an intro call",
+    soon: "Coming soon",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
   },
-  {
-    title: "Maatwerk AI ontwikkeling",
-    desc: "Een systeem dat jouw losse tools vervangt",
-    href: "/diensten/maatwerk",
-  },
-];
+};
 
-const productItems: NavItem[] = [
-  {
-    title: "SOAP",
-    desc: "Recruitment advertenties op Meta en TikTok, volledig geautomatiseerd",
-    href: "/platform-overview",
-  },
-  {
-    title: "Recruitment AI",
-    desc: "Binnenkort beschikbaar",
-    soon: true,
-  },
-  {
-    title: "Confidence AI",
-    desc: "Binnenkort beschikbaar",
-    soon: true,
-  },
-];
+function getServicesItems(lang: Lang): NavItem[] {
+  if (lang === "en") {
+    return [
+      {
+        title: "AI Agents",
+        desc: "Agents that independently execute tasks in your systems",
+        href: "/diensten/ai-agents",
+      },
+      {
+        title: "AI Automations",
+        desc: "Fully automate manual processes",
+        href: "/diensten/ai-automations",
+      },
+      {
+        title: "Custom AI Development",
+        desc: "One system that replaces your disconnected tools",
+        href: "/diensten/maatwerk",
+      },
+    ];
+  }
+  return [
+    {
+      title: "AI Agents",
+      desc: "Agents die zelfstandig taken uitvoeren in jouw systemen",
+      href: "/diensten/ai-agents",
+    },
+    {
+      title: "AI Automations",
+      desc: "Handmatige processen volledig automatiseren",
+      href: "/diensten/ai-automations",
+    },
+    {
+      title: "Maatwerk AI ontwikkeling",
+      desc: "Een systeem dat jouw losse tools vervangt",
+      href: "/diensten/maatwerk",
+    },
+  ];
+}
+
+function getProductItems(lang: Lang): NavItem[] {
+  if (lang === "en") {
+    return [
+      {
+        title: "SOAP",
+        desc: "Recruitment ads on Meta and TikTok, fully automated",
+        href: "/platform-overview",
+      },
+      {
+        title: "Recruitment AI",
+        desc: "Coming soon",
+        soon: true,
+      },
+      {
+        title: "Confidence AI",
+        desc: "Coming soon",
+        soon: true,
+      },
+    ];
+  }
+  return [
+    {
+      title: "SOAP",
+      desc: "Recruitment advertenties op Meta en TikTok, volledig geautomatiseerd",
+      href: "/platform-overview",
+    },
+    {
+      title: "Recruitment AI",
+      desc: "Binnenkort beschikbaar",
+      soon: true,
+    },
+    {
+      title: "Confidence AI",
+      desc: "Binnenkort beschikbaar",
+      soon: true,
+    },
+  ];
+}
 
 function DesktopDropdown({
   label,
   items,
+  lang,
 }: {
   label: string;
   items: NavItem[];
+  lang: Lang;
 }) {
   const [open, setOpen] = useState(false);
   const timer = useRef<number | null>(null);
@@ -74,6 +143,8 @@ function DesktopDropdown({
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setOpen(false), 120);
   };
+
+  const soonLabel = t[lang].soon;
 
   return (
     <div
@@ -121,7 +192,7 @@ function DesktopDropdown({
                 </div>
                 {it.soon && (
                   <span className="shrink-0 self-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                    Binnenkort
+                    {soonLabel}
                   </span>
                 )}
               </div>
@@ -203,6 +274,10 @@ const Navbar = () => {
   });
   const location = useLocation();
 
+  const tx = t[lang];
+  const servicesItems = getServicesItems(lang);
+  const productItems = getProductItems(lang);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
@@ -249,19 +324,19 @@ const Navbar = () => {
 
           {/* Desktop center */}
           <div className="hidden lg:flex items-center gap-8">
-            <DesktopDropdown label="Diensten" items={servicesItems} />
-            <DesktopDropdown label="Producten" items={productItems} />
+            <DesktopDropdown label={tx.servicesLabel} items={servicesItems} lang={lang} />
+            <DesktopDropdown label={tx.productsLabel} items={productItems} lang={lang} />
             <Link
               to="/over-ons"
               className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors font-now"
             >
-              Over ons
+              {tx.about}
             </Link>
             <Link
               to="/contact"
               className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors font-now"
             >
-              Contact
+              {tx.contact}
             </Link>
           </div>
 
@@ -273,13 +348,13 @@ const Navbar = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                Inloggen
+                {tx.login}
               </a>
             </Button>
             <LangSwitch lang={lang} setLang={setLang} />
             <Button asChild size="sm" className="font-now group">
               <Link to="/contact">
-                Plan een kennismaking
+                {tx.cta}
                 <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </Button>
@@ -290,7 +365,7 @@ const Navbar = () => {
             type="button"
             onClick={() => setMobileOpen(true)}
             className="lg:hidden inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-muted/60 transition-colors"
-            aria-label="Open menu"
+            aria-label={tx.openMenu}
           >
             <Menu className="h-6 w-6" />
           </button>
@@ -313,7 +388,7 @@ const Navbar = () => {
               type="button"
               onClick={() => setMobileOpen(false)}
               className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-muted/60 transition-colors"
-              aria-label="Close menu"
+              aria-label={tx.closeMenu}
             >
               <X className="h-6 w-6" />
             </button>
@@ -323,7 +398,7 @@ const Navbar = () => {
             <Accordion type="multiple" className="w-full">
               <AccordionItem value="diensten" className="border-border/60">
                 <AccordionTrigger className="font-now text-base font-semibold">
-                  Diensten
+                  {tx.servicesLabel}
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col gap-1 pl-1">
@@ -347,7 +422,7 @@ const Navbar = () => {
 
               <AccordionItem value="producten" className="border-border/60">
                 <AccordionTrigger className="font-now text-base font-semibold">
-                  Producten
+                  {tx.productsLabel}
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col gap-1 pl-1">
@@ -371,7 +446,7 @@ const Navbar = () => {
                           </div>
                           {it.soon && (
                             <span className="shrink-0 self-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                              Binnenkort
+                              {tx.soon}
                             </span>
                           )}
                         </div>
@@ -403,13 +478,13 @@ const Navbar = () => {
                 to="/over-ons"
                 className="py-4 border-b border-border/60 font-now text-base font-semibold"
               >
-                Over ons
+                {tx.about}
               </Link>
               <Link
                 to="/contact"
                 className="py-4 border-b border-border/60 font-now text-base font-semibold"
               >
-                Contact
+                {tx.contact}
               </Link>
             </div>
 
@@ -420,7 +495,7 @@ const Navbar = () => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Inloggen
+                  {tx.login}
                 </a>
               </Button>
               <LangSwitch
@@ -430,7 +505,7 @@ const Navbar = () => {
               />
               <Button asChild className="w-full font-now">
                 <Link to="/contact">
-                  Plan een kennismaking
+                  {tx.cta}
                   <ArrowRight className="ml-1.5 h-4 w-4" />
                 </Link>
               </Button>
