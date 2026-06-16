@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PostHogProvider } from "@/hooks/usePostHog";
 import { useEffect } from "react";
@@ -44,6 +45,31 @@ import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
+const HIDE_NAV_PREFIXES = [
+  "/auth",
+  "/dashboard",
+  "/campaigns",
+  "/jobs",
+  "/settings",
+  "/meta-connection",
+  "/tiktok-connection",
+  "/invite-users",
+  "/users",
+  "/top-up",
+  "/accept-invite",
+  "/reset-password",
+  "/auth/google/callback",
+];
+
+const PublicChrome = () => {
+  const { pathname } = useLocation();
+  const hide = HIDE_NAV_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+  if (hide) return null;
+  return <Navbar />;
+};
+
 const App = () => {
   useEffect(() => {
     initPostHog();
@@ -59,6 +85,7 @@ const App = () => {
             <BrowserRouter>
               <ScrollToTop />
               <AuthRecoveryListener />
+              <PublicChrome />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />

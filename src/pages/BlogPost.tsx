@@ -733,33 +733,6 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen page-bg">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <Link to="/">
-            <Logo />
-          </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <ProductDropdown />
-            <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Become a partner
-            </Link>
-            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
-              Pricing
-            </Link>
-            <Link to="/blog" className="text-foreground font-now font-medium">
-              Blog
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
-              <Link to="/auth">Sign in</Link>
-            </Button>
-            <MobileNav
-              showDemoButton={false}
-            />
-          </div>
-        </nav>
-      </header>
 
       {/* Back Link */}
       <div className="container mx-auto px-4 pt-4">
