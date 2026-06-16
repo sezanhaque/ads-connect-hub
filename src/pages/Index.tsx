@@ -14,7 +14,6 @@ import { motion } from "framer-motion";
 import HowItWorks from "@/components/home/HowItWorks";
 import NewsInsights from "@/components/home/NewsInsights";
 import HomeFAQ from "@/components/home/HomeFAQ";
-import Hero from "@/components/home/Hero";
 
 const Index = () => {
   const { user } = useAuth();
@@ -52,9 +51,100 @@ const Index = () => {
   return (
     <div className="min-h-screen page-bg">
       {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <Logo />
+          <div className="hidden md:flex items-center gap-8">
+            <ProductDropdown />
+            <Link to="/become-partner" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Become a partner
+            </Link>
+            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Pricing
+            </Link>
+            <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors font-now font-medium">
+              Blog
+            </Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+            <Button variant="outline" onClick={handleDemoRequest} className="hidden md:inline-flex">
+              Request demo
+            </Button>
+            <MobileNav onDemoClick={handleDemoRequest} />
+          </div>
+        </nav>
+      </header>
 
       {/* Hero Section */}
-      <Hero />
+      <main className="container mx-auto px-4 hero-padding">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 lg:gap-12 items-center">
+          {/* Left: Text Content */}
+          <div className="space-y-6 min-w-0">
+            {/* Three-line headline */}
+            <h1 className="font-now font-extrabold tracking-tight leading-[1.3] text-[clamp(1.75rem,5vw,3.5rem)] text-left">
+              <motion.span
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                Go live in minutes
+              </motion.span>
+              <motion.span
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+              >
+                Full transparency
+              </motion.span>
+              <motion.span
+                className="block bg-gradient-to-r from-[hsl(var(--usp-gradient-start))] via-[hsl(var(--usp-gradient-mid))] to-[hsl(var(--usp-gradient-end))] bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                Expert-led support
+              </motion.span>
+            </h1>
+
+            {/* Subline */}
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed font-now max-w-xl font-light text-left">
+              A central platform for <span className="text-primary font-medium">recruitment teams</span> to manage advertising across channels with full transparency and control.
+            </p>
+
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button size="lg" asChild className="text-primary-foreground w-full sm:w-auto">
+                <Link to="/platform-overview">
+                  See how it works
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Trust note */}
+            <p className="text-sm text-muted-foreground font-now font-medium">
+              No agencies. No long setup. Full control.
+            </p>
+          </div>
+
+          {/* Right: Product Visual */}
+          <div className="relative w-full lg:w-[500px] xl:w-[580px] flex-shrink-0">
+            <div className="bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5 rounded-2xl p-4 md:p-6 shadow-xl">
+              <img
+                src={campaignPreview}
+                alt="Twenty Twenty Solutions dashboard showing campaign performance metrics"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </div>
+            <div className="absolute -z-10 top-8 right-8 w-full h-full bg-accent/20 rounded-2xl blur-xl" />
+          </div>
+        </div>
+      </main>
 
       {/* Demo Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

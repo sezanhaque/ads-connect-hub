@@ -164,6 +164,38 @@ const Pricing = () => {
   return (
     <div className="min-h-screen page-bg">
       {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <Link to="/">
+            <Logo />
+          </Link>
+          <div className="hidden md:flex items-center gap-8">
+            <ProductDropdown />
+            {navLinks.map((link) =>
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`font-now font-medium transition-colors ${
+              link.to === "/pricing" ?
+              "text-foreground" :
+              "text-muted-foreground hover:text-foreground"}`
+              }>
+              
+                {link.label}
+              </Link>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild className="font-semibold hidden md:inline-flex">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+            <Button onClick={handleDemoRequest} className="hidden md:inline-flex">
+              Request demo
+            </Button>
+            <MobileNav onDemoClick={handleDemoRequest} links={navLinks} />
+          </div>
+        </nav>
+      </header>
 
       {/* ─── HERO ─── */}
       <section className="relative overflow-hidden">
