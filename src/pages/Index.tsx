@@ -41,7 +41,7 @@ const Index = () => {
   }
 
   return (
-    <div className="tts-home min-h-screen font-now antialiased">
+    <div className="tts-home page-bg min-h-screen font-now antialiased">
       <DemoDialogProvider>
         <PublicNav />
         <main>
