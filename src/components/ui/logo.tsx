@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '@/assets/logo-new.png';
+import logoAsset from '@/assets/logo-new.png.asset.json';
 import { cn } from '@/lib/utils';
 interface LogoProps {
   className?: string;
@@ -17,7 +17,7 @@ const Logo: React.FC<LogoProps> = ({
     lg: 'h-24'
   };
   return <div className={cn("flex items-center gap-3", className)}>
-      <img src={logo} alt="20/20 Solutions" className={cn(sizeClasses[size], "object-contain")} />
+      <img src={logoAsset.url} alt="20/20 Solutions" className={cn(sizeClasses[size], "object-contain")} />
       {showText && <span className="font-now font-bold text-lg text-sidebar-foreground">
     </span>}
     </div>;
