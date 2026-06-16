@@ -11,8 +11,6 @@ import TikTokLogo from "@/components/icons/TikTokLogo";
 
 const productLinks = [
   { to: "/platform-overview", label: "Platform Overview" },
-  { to: "/meta-job-ads", label: "Meta Job Ads", icon: <MetaLogo size={16} /> },
-  { to: "/tiktok-job-ads", label: "TikTok Job Ads", icon: <TikTokLogo size={16} /> },
 ];
 
 export function ProductDropdown() {
