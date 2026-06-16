@@ -33,13 +33,8 @@ const servicesItems: NavItem[] = [
   },
   {
     title: "Maatwerk AI ontwikkeling",
-    desc: "Eén systeem dat jouw losse tools vervangt",
+    desc: "Een systeem dat jouw losse tools vervangt",
     href: "/diensten/maatwerk",
-  },
-  {
-    title: "AI Consultancy",
-    desc: "Van strategie tot werkende implementatie",
-    href: "/diensten/consultancy",
   },
 ];
 
