@@ -1,0 +1,174 @@
+{
+  "nav": {
+    "services": "Diensten",
+    "products": "Producten",
+    "cases": "Cases",
+    "about": "Over ons",
+    "contact": "Contact",
+    "cta": "Plan een kennismaking",
+    "servicesItems": {
+      "agents": "AI Agents",
+      "automations": "AI Automations",
+      "custom": "Maatwerk AI-ontwikkeling",
+      "consultancy": "AI Consultancy"
+    },
+    "productsItems": {
+      "soap": "SOAP",
+      "recruitment": "Recruitment AI",
+      "confidence": "Confidence AI"
+    }
+  },
+  "hero": {
+    "eyebrow": "AI voor groeiend MKB",
+    "title1": "Wij maken AI",
+    "title2": "toepasbaar voor jouw bedrijf.",
+    "sub": "Groeiende bedrijven lopen vast op losse tools en handmatige processen. Wij vervangen die rommel door AI die wél werkt. Gebouwd voor jouw situatie.",
+    "ctaPrimary": "Plan een kennismaking",
+    "ctaSecondary": "Bekijk onze diensten",
+    "terminal": {
+      "line1": "$ tts init",
+      "line2": "→ Analyseren van workflows...",
+      "line3": "→ 5 SaaS-tools gedetecteerd",
+      "line4": "→ AI-agent geïmplementeerd",
+      "line5": "✓ 12 uur per week bespaard"
+    }
+  },
+  "social": {
+    "caption": "Zij vertrouwen op TTS",
+    "logos": ["Stichting Infra Talenten", "Klant 2", "Klant 3", "Klant 4", "Klant 5"]
+  },
+  "pain": {
+    "eyebrow": "De uitdaging",
+    "title": "Herken jij dit?",
+    "sub": "Als een van deze situaties bekend voorkomt, is TTS de juiste partner.",
+    "cards": [
+      { "n": "01", "t": "Lappendeken aan tools", "d": "Je betaalt voor 5 losse SaaS-abonnementen die niet met elkaar praten. Data zit overal, nergens volledig." },
+      { "n": "02", "t": "Handmatig kopiëren", "d": "Je team besteedt uren per week aan het overzetten van data tussen systemen. Werk dat een AI in seconden doet." },
+      { "n": "03", "t": "AI-pilot mislukt", "d": "Je hebt iets geprobeerd met AI: een tool, een freelancer, een demo. Live is het nooit gegaan." },
+      { "n": "04", "t": "Groeiplafond", "d": "De omzet groeit, maar je processen houden het tempo niet bij. Meer mensen aannemen is niet de oplossing." },
+      { "n": "05", "t": "Recruitment kost te veel", "d": "Vacatures staan te lang open. Advertentiekosten zijn hoog en ondoorzichtig. Je weet niet wat een hire werkelijk kost." },
+      { "n": "06", "t": "Geen tijd voor strategie", "d": "Je zit vast in de operatie. Je weet dat AI kan helpen, maar je weet niet waar te beginnen zonder risico." }
+    ]
+  },
+  "pillars": {
+    "eyebrow": "Hoe wij werken",
+    "title": "Twee manieren om met TTS samen te werken",
+    "products": {
+      "label": "Producten",
+      "title": "Kant-en-klare AI-software",
+      "sub": "Direct inzetbaar. Geen lange trajecten. Onze producten zijn gebouwd voor specifieke uitdagingen in recruitment en HR.",
+      "items": [
+        "SOAP: Recruitment advertentieautomatisering op Meta & TikTok",
+        "Recruitment AI: Volgt",
+        "Confidence AI: Volgt"
+      ],
+      "cta": "Bekijk producten"
+    },
+    "services": {
+      "label": "Diensten",
+      "title": "Maatwerk AI voor jouw situatie",
+      "sub": "Geen generieke software die jij je bedrijf omheen moet bouwen. Wij bouwen het om jouw bedrijf heen.",
+      "items": [
+        "AI Agents: Agents die 24/7 voor je werken",
+        "AI Automations: Handmatige processen automatiseren",
+        "Maatwerk AI-ontwikkeling: Jouw eigen AI-systeem",
+        "AI Consultancy: Strategie tot implementatie"
+      ],
+      "cta": "Bekijk diensten"
+    }
+  },
+  "services": {
+    "eyebrow": "Wat we doen",
+    "title": "Onze diensten",
+    "sub": "Vier manieren om AI toepasbaar te maken in jouw organisatie.",
+    "items": [
+      {
+        "n": "001",
+        "t": "AI Agents",
+        "d": "Agents die verbinding maken met jouw systemen en zelfstandig taken uitvoeren. Zonder dat jij er elke keer bij hoeft te zijn. Van leadkwalificatie tot factuurbeheer.",
+        "tags": ["Automatisering", "24/7 beschikbaar", "Integraties"],
+        "cta": "Meer over AI Agents",
+        "preview": ["agent.run()", "→ lead binnen", "→ gekwalificeerd", "→ doorgezet"]
+      },
+      {
+        "n": "002",
+        "t": "AI Automations",
+        "d": "Workflows die de druk wegnemen bij de afdelingen die je wil laten groeien. Data die automatisch van A naar B gaat. Rapporten die zichzelf schrijven.",
+        "tags": ["Tijdsbesparing", "Foutreductie", "Schaalbaar"],
+        "cta": "Meer over AI Automations",
+        "preview": ["[09:00] sync gestart", "[09:01] 240 rijen", "[09:01] rapport klaar", "✓ verzonden"]
+      },
+      {
+        "n": "003",
+        "t": "Maatwerk AI-ontwikkeling",
+        "d": "Eén systeem dat al jouw losse tools vervangt. Gebouwd voor hoe jouw bedrijf werkt, niet andersom. Van eerste idee tot live platform.",
+        "tags": ["Op maat gebouwd", "Vervangt SaaS-stack", "Eigendom"],
+        "cta": "Meer over maatwerk",
+        "preview": ["// jouw-platform", "modules: 12", "users: 48", "uptime: 99.98%"]
+      },
+      {
+        "n": "004",
+        "t": "AI Consultancy",
+        "d": "Wij worden tijdelijk onderdeel van jouw team. Samen ontdekken we waar AI de meeste impact heeft, bouwen we de roadmap en zorgen we dat het daadwerkelijk live gaat.",
+        "tags": ["Strategie", "Implementatie", "Resultaat"],
+        "cta": "Meer over consultancy",
+        "preview": ["roadmap.md", "Q1: discovery", "Q2: build", "Q3: live"]
+      }
+    ]
+  },
+  "process": {
+    "eyebrow": "Hoe het werkt",
+    "title": "Van eerste gesprek tot werkende AI",
+    "sub": "Een helder traject zonder verrassingen. Wekelijkse updates, geen black box.",
+    "steps": [
+      { "n": "01", "t": "Kennismaking", "time": "1-2 uur", "d": "We verkennen samen waar jouw grootste operationele pijn zit en wat AI realistisch kan oplossen." },
+      { "n": "02", "t": "Plan", "time": "1 week", "d": "We ontwerpen een concrete aanpak: wat bouwen we, hoe snel, wat kost het en wat levert het op." },
+      { "n": "03", "t": "Bouwen", "time": "2-6 weken", "d": "We bouwen en testen. Jij krijgt elke week een update en kan bijsturen. Geen verrassingen bij oplevering." },
+      { "n": "04", "t": "Live + support", "time": "doorlopend", "d": "We leveren op en blijven beschikbaar. Geen project afsluiten en weglopen. Wij blijven erbij." }
+    ]
+  },
+  "cases": {
+    "eyebrow": "Resultaten",
+    "title": "Wat het oplevert",
+    "sub": "Concrete resultaten voor MKB-bedrijven in Nederland.",
+    "all": "Bekijk alle cases",
+    "items": [
+      { "tag": "Recruitment", "t": "Stichting Infra Talenten verlaagde cost-per-hire met 40%", "d": "SOAP automatiseerde de volledige recruitmentcampagne op Meta en TikTok.", "cta": "Lees het verhaal" },
+      { "tag": "Operations", "t": "Bedrijfsnaam bespaart 12 uur per week op handmatige rapportages", "d": "Een AI Automation vervangt het handmatig samenvoegen van drie systemen.", "cta": "Lees het verhaal" },
+      { "tag": "Maatwerk", "t": "Bedrijfsnaam verving 4 losse tools met één AI-platform", "d": "Maatwerksoftware gebouwd in 6 weken. Volledig eigendom van de klant.", "cta": "Lees het verhaal" }
+    ]
+  },
+  "urgency": {
+    "eyebrow": "Waarom nu",
+    "title": "De kosten van wachten zijn niet meer theoretisch.",
+    "blocks": [
+      { "n": "01", "t": "Je concurrenten wachten niet", "d": "MKB-bedrijven die nu AI implementeren, bouwen een operationele voorsprong die moeilijk in te halen is." },
+      { "n": "02", "t": "AI-talent is schaars", "d": "Een intern AI-team bouwen kost een jaar en tonnen. Een partnership met TTS kost een fractie en levert sneller resultaat." },
+      { "n": "03", "t": "Maatwerk is goedkoper dan SaaS", "d": "Wat vroeger €500K kostte, kost nu €50K. Een op maat gebouwde AI-oplossing is goedkoper dan de SaaS-stack die je nu hebt." }
+    ]
+  },
+  "finalCta": {
+    "title": "Klaar om AI toepasbaar te maken?",
+    "sub": "Plan een vrijblijvende kennismaking van 30 minuten. Wij luisteren eerst, dan pas adviseren.",
+    "primary": "Plan een kennismaking",
+    "secondary": "Stuur ons een bericht",
+    "trust": ["AVG-proof", "Gevestigd in Haarlem", "Geen verplichtingen"]
+  },
+  "footer": {
+    "tagline": "We maken AI toepasbaar voor groeiend MKB.",
+    "email": "hello@twentytwentysolutions.io",
+    "linkedin": "LinkedIn",
+    "kvk": "KVK: 00000000",
+    "colServices": "Diensten",
+    "colProducts": "Producten",
+    "colCompany": "Bedrijf",
+    "items": {
+      "about": "Over ons",
+      "cases": "Cases",
+      "contact": "Contact",
+      "privacy": "Privacybeleid",
+      "terms": "Algemene voorwaarden"
+    },
+    "rights": "© 2026 Twenty Twenty Solutions B.V. Alle rechten voorbehouden."
+  }
+}
