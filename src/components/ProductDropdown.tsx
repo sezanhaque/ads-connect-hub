@@ -26,11 +26,7 @@ export function ProductDropdown() {
       <DropdownMenuContent align="start" className="w-52">
         {productLinks.map((link) => (
           <DropdownMenuItem key={link.to} asChild>
-            <Link
-              to={link.to}
-              className="flex items-center gap-2 font-now w-full"
-            >
-              {link.icon && link.icon}
+            <Link to={link.to} className="flex items-center gap-2 font-now w-full">
               {link.label}
             </Link>
           </DropdownMenuItem>
