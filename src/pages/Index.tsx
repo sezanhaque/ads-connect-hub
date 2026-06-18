@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { MobileNav } from "@/components/MobileNav";
+import { SiteNav } from "@/components/SiteNav";
 import Footer from "@/components/layout/Footer";
 import { posthog } from "@/lib/posthog";
 import campaignPreview from "@/assets/campaign-preview.png";
