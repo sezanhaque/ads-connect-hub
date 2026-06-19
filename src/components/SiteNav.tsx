@@ -108,8 +108,10 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
               </span>
               <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50">
                 <div className="bg-white rounded-xl shadow-xl ring-1 ring-black/5 border border-border min-w-[240px] py-2">
-                  {servicesItems.map((item) => (
-                    <DropdownItem key={item}>{item}</DropdownItem>
+                  {servicesItems(lang).map((item) => (
+                    <DropdownItem key={item.label} to={item.to}>
+                      {item.label}
+                    </DropdownItem>
                   ))}
                 </div>
               </div>
