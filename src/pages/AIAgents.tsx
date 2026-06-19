@@ -115,6 +115,31 @@ const COPY = {
       body: "Plan een vrijblijvende kennismaking en ontdek wat een AI Agent voor jouw bedrijf kan doen.",
       cta: "Plan een kennismaking",
     },
+    faq: {
+      title: "Veelgestelde vragen",
+      items: [
+        {
+          q: "Wat kost een AI Agent?",
+          a: "Elke agent heeft een eenmalige opstartfee en daarna een vaste maandelijkse fee. De startprijzen verschillen per agent — je vindt ze bij elk van de drie producten hierboven. De definitieve prijs hangt af van jouw situatie en bespreken we tijdens de kennismaking.",
+        },
+        {
+          q: "Hoe snel is mijn AI Agent live?",
+          a: "Na de kennismaking volgt een korte intake, waarna we de koppeling met jouw systemen opzetten en de agent voor jou inrichten. Bij de meeste agents ben je binnen één tot twee weken live.",
+        },
+        {
+          q: "Wat als het niet goed werkt?",
+          a: "In de eerste maand plannen we een korte check-in om te kijken of alles goed draait en de instellingen kloppen. Daarna staan we voor je klaar zodra je iets wil aanpassen of een vraag hebt.",
+        },
+        {
+          q: "Wat gebeurt er als ik vragen heb na de oplevering?",
+          a: "Je hebt altijd een vast aanspreekpunt bij ons. Loopt er iets niet zoals verwacht, of wil je iets bijstellen, dan ben je bij ons aan het juiste adres.",
+        },
+        {
+          q: "Kan ik op elk moment stoppen?",
+          a: "Onze agents werken met een minimale looptijd van 6 maanden. Dat geeft ons en jou de tijd om de agent goed te laten landen en het effect echt te zien. Daarna is opzeggen maandelijks mogelijk.",
+        },
+      ],
+    },
   },
   en: {
     hero: {
