@@ -42,6 +42,17 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Sync lang from URL when on a localized route (/nl/... or /en/...)
+  useEffect(() => {
+    const match = location.pathname.match(/^\/(nl|en)(\/|$)/);
+    if (match) {
+      const urlLang = match[1] as Lang;
+      if (urlLang !== lang) setLang(urlLang);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   useEffect(() => {
     localStorage.setItem("site-lang", lang);
@@ -53,6 +64,15 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const switchLang = (next: Lang) => {
+    setLang(next);
+    const match = location.pathname.match(/^\/(nl|en)(\/.*)?$/);
+    if (match) {
+      const rest = match[2] || "";
+      navigate(`/${next}${rest}`);
+    }
+  };
 
   const t = copy[lang];
 
