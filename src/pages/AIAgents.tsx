@@ -16,6 +16,12 @@ import {
   Settings,
   Rocket,
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { motion } from "framer-motion";
 import avatar1 from "@/assets/avatar-1.png";
 import avatar2 from "@/assets/avatar-2.png";
@@ -109,6 +115,31 @@ const COPY = {
       body: "Plan een vrijblijvende kennismaking en ontdek wat een AI Agent voor jouw bedrijf kan doen.",
       cta: "Plan een kennismaking",
     },
+    faq: {
+      title: "Veelgestelde vragen",
+      items: [
+        {
+          q: "Wat kost een AI Agent?",
+          a: "Elke agent heeft een eenmalige opstartfee en daarna een vaste maandelijkse fee. De startprijzen verschillen per agent — je vindt ze bij elk van de drie producten hierboven. De definitieve prijs hangt af van jouw situatie en bespreken we tijdens de kennismaking.",
+        },
+        {
+          q: "Hoe snel is mijn AI Agent live?",
+          a: "Na de kennismaking volgt een korte intake, waarna we de koppeling met jouw systemen opzetten en de agent voor jou inrichten. Bij de meeste agents ben je binnen één tot twee weken live.",
+        },
+        {
+          q: "Wat als het niet goed werkt?",
+          a: "In de eerste maand plannen we een korte check-in om te kijken of alles goed draait en de instellingen kloppen. Daarna staan we voor je klaar zodra je iets wil aanpassen of een vraag hebt.",
+        },
+        {
+          q: "Wat gebeurt er als ik vragen heb na de oplevering?",
+          a: "Je hebt altijd een vast aanspreekpunt bij ons. Loopt er iets niet zoals verwacht, of wil je iets bijstellen, dan ben je bij ons aan het juiste adres.",
+        },
+        {
+          q: "Kan ik op elk moment stoppen?",
+          a: "Onze agents werken met een minimale looptijd van 6 maanden. Dat geeft ons en jou de tijd om de agent goed te laten landen en het effect echt te zien. Daarna is opzeggen maandelijks mogelijk.",
+        },
+      ],
+    },
   },
   en: {
     hero: {
@@ -193,6 +224,31 @@ const COPY = {
       title: "Time to hand those tasks off",
       body: "Schedule a no-strings introduction and discover what an AI Agent can do for your business.",
       cta: "Schedule an introduction",
+    },
+    faq: {
+      title: "Frequently asked questions",
+      items: [
+        {
+          q: "What does an AI Agent cost?",
+          a: "Every agent has a one-time setup fee and then a fixed monthly fee. Starting prices differ per agent — you'll find them with each of the three products above. The final price depends on your situation and is discussed during the introduction call.",
+        },
+        {
+          q: "How quickly can my AI Agent go live?",
+          a: "After the introduction, there's a short intake, after which we set up the connection with your systems and configure the agent. For most agents, you're live within one to two weeks.",
+        },
+        {
+          q: "What if it doesn't work properly?",
+          a: "In the first month, we schedule a short check-in to see if everything is running smoothly and the settings are correct. After that, we're here for you whenever you want to adjust something or have a question.",
+        },
+        {
+          q: "What happens if I have questions after delivery?",
+          a: "You always have a dedicated contact with us. If something isn't going as expected, or if you want to make adjustments, you're in the right place with us.",
+        },
+        {
+          q: "Can I cancel at any time?",
+          a: "Our agents work with a minimum term of 6 months. That gives both of us time to let the agent land properly and truly see the effect. After that, cancellation is possible on a monthly basis.",
+        },
+      ],
     },
   },
 } as const;
@@ -603,6 +659,41 @@ const AIAgents = ({ lang }: AIAgentsProps) => {
             </div>
           </div>
         </motion.div>
+      </section>
+
+      {/* ─── FAQ ─── */}
+      <section className="bg-muted/30">
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto text-center space-y-4 mb-12"
+          >
+            <span className="section-label">FAQ</span>
+            <h2 className="font-now font-bold text-3xl md:text-4xl">{t.faq.title}</h2>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto"
+          >
+            <Accordion type="single" collapsible className="w-full">
+              {t.faq.items.map((item, index) => (
+                <AccordionItem key={index} value={`faq-${index}`} className="border-b border-border">
+                  <AccordionTrigger className="text-left font-now font-semibold text-foreground hover:text-primary hover:no-underline py-4">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground font-now leading-relaxed pb-4 text-sm">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
+        </div>
       </section>
 
       <Footer />
