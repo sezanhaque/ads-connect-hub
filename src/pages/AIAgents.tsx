@@ -264,7 +264,7 @@ interface AIAgentsProps {
 
 const AIAgents = ({ lang }: AIAgentsProps) => {
   const t = COPY[lang];
-  const bookingHref = "/pilot-program";
+  const bookingHref = "https://calendar.app.google/x8kxvJehZsahQLRt9";
 
   // Highlight the middle card (index 1)
   const highlightedIdx = 1;
