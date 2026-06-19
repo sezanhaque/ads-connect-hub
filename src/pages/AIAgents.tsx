@@ -144,7 +144,7 @@ const COPY = {
   en: {
     hero: {
       title: "Your digital colleague for the tasks that keep slipping",
-      sub: "AI Agents by Twenty Twenty Solutions take over the overview, the follow-ups and the admin, so you can give your time back to your craft.",
+      sub: "AI Agents from Twenty Twenty Solutions take overview, follow-up, and admin off your plate — so you get your time back for the work that actually matters.",
       cta: "Schedule an introduction",
       trustedBy: "Trusted by SME founders",
       trustedSub: "across the Netherlands",
