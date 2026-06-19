@@ -24,7 +24,11 @@ const copy = {
   },
 };
 
-const servicesItems = ["AI Agent", "AI Automation", "Custom AI Development"];
+const servicesItems = (lang: Lang): { label: string; to?: string }[] => [
+  { label: "AI Agent", to: `/${lang}/ai-agents` },
+  { label: "AI Automation" },
+  { label: "Custom AI Development" },
+];
 
 interface SiteNavProps {
   onCtaClick?: () => void;
