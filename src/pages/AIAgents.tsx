@@ -144,7 +144,7 @@ const COPY = {
   en: {
     hero: {
       title: "Your digital colleague for the tasks that keep slipping",
-      sub: "AI Agents by Twenty Twenty Solutions take over the overview, the follow-ups and the admin, so you can give your time back to your craft.",
+      sub: "AI Agents from Twenty Twenty Solutions take overview, follow-up, and admin off your plate — so you get your time back for the work that actually matters.",
       cta: "Schedule an introduction",
       trustedBy: "Trusted by SME founders",
       trustedSub: "across the Netherlands",
@@ -157,17 +157,17 @@ const COPY = {
     problem: {
       label: "The problem",
       title: "Sound familiar?",
-      body: "You miss an important email between the rest. A client doesn't show up for an appointment. An invoice has been open for weeks and you forget to chase it again. Not because you don't want to, but because there simply aren't enough hours in the day.",
+      body: "An important email gets buried under the rest. A client doesn't show up for their appointment. An invoice has been sitting unpaid for weeks and you keep forgetting to follow up. Not because you don't want to — there just aren't enough hours in the day.",
     },
     bridge:
-      "That's why we build AI Agents that take these tasks off your plate. Three examples below. If your problem is different, we'll build that one just as well.",
+      "That's why we build AI Agents that take these tasks off your hands. Below are three examples — and if your problem looks different, we'll build that too.",
     cardsTitle: "Our AI Agents",
     cardsSub: "Pick an agent that takes work off your plate today, or have us build a custom one.",
     setupLabel: "Setup",
     monthlyLabel: "Monthly",
     from: "From",
     perMonth: "/mo",
-    priceNote: "Starting price. Final price is agreed during the introduction call.",
+    priceNote: "Starting price — we'll discuss the final price during the intro call.",
     learnMore: "Learn more",
     popular: "Most popular",
     cards: [
@@ -182,14 +182,14 @@ const COPY = {
         icon: CalendarCheck,
         name: "No-Show & Appointment Setter",
         promise:
-          "Fewer empty chairs, less missed revenue. Appointments that book themselves and clients who actually show up.",
+          "Fewer empty chairs, less lost revenue — appointments that book themselves, and clients who actually show up.",
         setup: "€795",
         monthly: "€179",
       },
       {
         icon: Wallet,
         name: "Debtor Agent",
-        promise: "Money you've already earned, in faster, without you having to chase it yourself.",
+        promise: "Money you've already earned, in your account faster — without chasing it yourself.",
         setup: "€595",
         monthly: "€199",
       },
@@ -197,13 +197,13 @@ const COPY = {
     catchAll: {
       icon: Sparkles,
       name: "Got a different problem?",
-      promise: "No worries, we'll build that one too. Tell us what's going on and we'll come back with a proposal.",
+      promise: "No worries — we'll build it.",
       cta: "Tell us what's going on",
     },
     trust: {
       label: "Why us",
       title: "Why Twenty Twenty Solutions",
-      body: "We're a Dutch AI and SaaS company based in Haarlem. Not a large, impersonal platform, but a small team that knows exactly what growing business owners are dealing with. Fixed prices, short delivery times, and always a human on the other end of the line.",
+      body: "We're a Dutch AI and SaaS company based in Haarlem. Not a large, impersonal platform — a small team that understands exactly what growing businesses run into. Fixed prices, fast delivery, and always a real person on the other end.",
       pillars: [
         { icon: Shield, title: "Fixed pricing", desc: "No hourly billing. You know upfront what you pay." },
         { icon: Clock, title: "Short delivery", desc: "Your agent goes live within two weeks." },
@@ -214,15 +214,15 @@ const COPY = {
       label: "The process",
       title: "Live in four steps",
       steps: [
-        { n: "01", icon: MessageSquare, t: "Introduction", d: "We discuss what's going on at your business." },
-        { n: "02", icon: Inbox, t: "Intake", d: "We align on exactly what your agent should do." },
-        { n: "03", icon: Settings, t: "Connection & setup", d: "We hook into your systems and configure the agent." },
-        { n: "04", icon: Rocket, t: "Live", d: "Your AI Agent is running, and we stay close for questions." },
+        { n: "01", icon: MessageSquare, t: "Intro call", d: "We talk through what's going on." },
+        { n: "02", icon: Inbox, t: "Intake", d: "We map out exactly what your agent needs to do." },
+        { n: "03", icon: Settings, t: "Connection & setup", d: "We connect to your systems and configure the agent." },
+        { n: "04", icon: Rocket, t: "Live", d: "Your AI Agent is up and running, and we stay close for any questions." },
       ],
     },
     closing: {
       title: "Time to hand those tasks off",
-      body: "Schedule a no-strings introduction and discover what an AI Agent can do for your business.",
+      body: "Schedule a no-obligation introduction and find out what an AI Agent can do for your business.",
       cta: "Schedule an introduction",
     },
     faq: {
@@ -230,23 +230,23 @@ const COPY = {
       items: [
         {
           q: "What does an AI Agent cost?",
-          a: "Every agent has a one-time setup fee and then a fixed monthly fee. Starting prices differ per agent — you'll find them with each of the three products above. The final price depends on your situation and is discussed during the introduction call.",
+          a: "Each agent has a one-time setup fee and a fixed monthly fee after that. Starting prices differ per agent — you'll find them with each of the three products above. The final price depends on your specific situation and is something we'll discuss during the intro call.",
         },
         {
-          q: "How quickly can my AI Agent go live?",
-          a: "After the introduction, there's a short intake, after which we set up the connection with your systems and configure the agent. For most agents, you're live within one to two weeks.",
+          q: "How quickly will my AI Agent be live?",
+          a: "After the intro call, we run a short intake, then connect to your systems and configure the agent for you. Most agents go live within one to two weeks.",
         },
         {
-          q: "What if it doesn't work properly?",
-          a: "In the first month, we schedule a short check-in to see if everything is running smoothly and the settings are correct. After that, we're here for you whenever you want to adjust something or have a question.",
+          q: "What if it doesn't work well for me?",
+          a: "In the first month, we schedule a short check-in to make sure everything is running well and the settings are right. After that, we're here whenever you want to adjust something or have a question.",
         },
         {
-          q: "What happens if I have questions after delivery?",
-          a: "You always have a dedicated contact with us. If something isn't going as expected, or if you want to make adjustments, you're in the right place with us.",
+          q: "What happens if I have questions after setup?",
+          a: "You'll always have a direct point of contact with us. If something isn't working as expected, or you want to tweak something, we're the right people to ask.",
         },
         {
           q: "Can I cancel at any time?",
-          a: "Our agents work with a minimum term of 6 months. That gives both of us time to let the agent land properly and truly see the effect. After that, cancellation is possible on a monthly basis.",
+          a: "Our agents run on a minimum term of 6 months. That gives the agent time to properly settle in and show its effect. After that, you can cancel on a monthly basis.",
         },
       ],
     },
