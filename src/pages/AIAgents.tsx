@@ -661,6 +661,41 @@ const AIAgents = ({ lang }: AIAgentsProps) => {
         </motion.div>
       </section>
 
+      {/* ─── FAQ ─── */}
+      <section className="bg-muted/30">
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto text-center space-y-4 mb-12"
+          >
+            <span className="section-label">FAQ</span>
+            <h2 className="font-now font-bold text-3xl md:text-4xl">{t.faq.title}</h2>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto"
+          >
+            <Accordion type="single" collapsible className="w-full">
+              {t.faq.items.map((item, index) => (
+                <AccordionItem key={index} value={`faq-${index}`} className="border-b border-border">
+                  <AccordionTrigger className="text-left font-now font-semibold text-foreground hover:text-primary hover:no-underline py-4">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground font-now leading-relaxed pb-4 text-sm">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
