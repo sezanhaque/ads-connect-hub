@@ -157,17 +157,17 @@ const COPY = {
     problem: {
       label: "The problem",
       title: "Sound familiar?",
-      body: "You miss an important email between the rest. A client doesn't show up for an appointment. An invoice has been open for weeks and you forget to chase it again. Not because you don't want to, but because there simply aren't enough hours in the day.",
+      body: "An important email gets buried under the rest. A client doesn't show up for their appointment. An invoice has been sitting unpaid for weeks and you keep forgetting to follow up. Not because you don't want to — there just aren't enough hours in the day.",
     },
     bridge:
-      "That's why we build AI Agents that take these tasks off your plate. Three examples below. If your problem is different, we'll build that one just as well.",
+      "That's why we build AI Agents that take these tasks off your hands. Below are three examples — and if your problem looks different, we'll build that too.",
     cardsTitle: "Our AI Agents",
     cardsSub: "Pick an agent that takes work off your plate today, or have us build a custom one.",
     setupLabel: "Setup",
     monthlyLabel: "Monthly",
     from: "From",
     perMonth: "/mo",
-    priceNote: "Starting price. Final price is agreed during the introduction call.",
+    priceNote: "Starting price — we'll discuss the final price during the intro call.",
     learnMore: "Learn more",
     popular: "Most popular",
     cards: [
@@ -182,14 +182,14 @@ const COPY = {
         icon: CalendarCheck,
         name: "No-Show & Appointment Setter",
         promise:
-          "Fewer empty chairs, less missed revenue. Appointments that book themselves and clients who actually show up.",
+          "Fewer empty chairs, less lost revenue — appointments that book themselves, and clients who actually show up.",
         setup: "€795",
         monthly: "€179",
       },
       {
         icon: Wallet,
         name: "Debtor Agent",
-        promise: "Money you've already earned, in faster, without you having to chase it yourself.",
+        promise: "Money you've already earned, in your account faster — without chasing it yourself.",
         setup: "€595",
         monthly: "€199",
       },
@@ -197,13 +197,13 @@ const COPY = {
     catchAll: {
       icon: Sparkles,
       name: "Got a different problem?",
-      promise: "No worries, we'll build that one too. Tell us what's going on and we'll come back with a proposal.",
+      promise: "No worries — we'll build it.",
       cta: "Tell us what's going on",
     },
     trust: {
       label: "Why us",
       title: "Why Twenty Twenty Solutions",
-      body: "We're a Dutch AI and SaaS company based in Haarlem. Not a large, impersonal platform, but a small team that knows exactly what growing business owners are dealing with. Fixed prices, short delivery times, and always a human on the other end of the line.",
+      body: "We're a Dutch AI and SaaS company based in Haarlem. Not a large, impersonal platform — a small team that understands exactly what growing businesses run into. Fixed prices, fast delivery, and always a real person on the other end.",
       pillars: [
         { icon: Shield, title: "Fixed pricing", desc: "No hourly billing. You know upfront what you pay." },
         { icon: Clock, title: "Short delivery", desc: "Your agent goes live within two weeks." },
@@ -222,7 +222,7 @@ const COPY = {
     },
     closing: {
       title: "Time to hand those tasks off",
-      body: "Schedule a no-strings introduction and discover what an AI Agent can do for your business.",
+      body: "Schedule a no-obligation introduction and find out what an AI Agent can do for your business.",
       cta: "Schedule an introduction",
     },
     faq: {
