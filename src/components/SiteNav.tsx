@@ -201,9 +201,22 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
                         {t.services}
                       </div>
                       <ul className="space-y-2">
-                        {servicesItems.map((item) => (
-                          <li key={item} className="py-3 px-3 font-now font-medium text-foreground/80 text-base">
-                            {item}
+                        {servicesItems(lang).map((item) => (
+                          <li key={item.label}>
+                            {item.to ? (
+                              <SheetClose asChild>
+                                <Link
+                                  to={item.to}
+                                  className="block py-3 px-3 rounded-md font-now font-medium text-foreground/80 hover:bg-muted hover:text-foreground transition-colors text-base"
+                                >
+                                  {item.label}
+                                </Link>
+                              </SheetClose>
+                            ) : (
+                              <div className="py-3 px-3 font-now font-medium text-foreground/80 text-base">
+                                {item.label}
+                              </div>
+                            )}
                           </li>
                         ))}
                       </ul>
