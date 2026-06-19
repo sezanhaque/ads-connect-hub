@@ -39,6 +39,7 @@ import TopUpSuccess from "./pages/TopUpSuccess";
 import NotFound from "./pages/NotFound";
 import MetaJobAds from "./pages/MetaJobAds";
 import TikTokJobAds from "./pages/TikTokJobAds";
+import AIAgents from "./pages/AIAgents";
 import AuthRecoveryListener from "@/components/AuthRecoveryListener";
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -71,6 +72,8 @@ const App = () => {
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/meta-job-ads" element={<MetaJobAds />} />
                 <Route path="/tiktok-job-ads" element={<TikTokJobAds />} />
+                <Route path="/nl/ai-agents" element={<AIAgents lang="nl" />} />
+                <Route path="/en/ai-agents" element={<AIAgents lang="en" />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                   path="/dashboard"
