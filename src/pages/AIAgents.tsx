@@ -225,6 +225,31 @@ const COPY = {
       body: "Schedule a no-strings introduction and discover what an AI Agent can do for your business.",
       cta: "Schedule an introduction",
     },
+    faq: {
+      title: "Frequently asked questions",
+      items: [
+        {
+          q: "What does an AI Agent cost?",
+          a: "Every agent has a one-time setup fee and then a fixed monthly fee. Starting prices differ per agent — you'll find them with each of the three products above. The final price depends on your situation and is discussed during the introduction call.",
+        },
+        {
+          q: "How quickly can my AI Agent go live?",
+          a: "After the introduction, there's a short intake, after which we set up the connection with your systems and configure the agent. For most agents, you're live within one to two weeks.",
+        },
+        {
+          q: "What if it doesn't work properly?",
+          a: "In the first month, we schedule a short check-in to see if everything is running smoothly and the settings are correct. After that, we're here for you whenever you want to adjust something or have a question.",
+        },
+        {
+          q: "What happens if I have questions after delivery?",
+          a: "You always have a dedicated contact with us. If something isn't going as expected, or if you want to make adjustments, you're in the right place with us.",
+        },
+        {
+          q: "Can I cancel at any time?",
+          a: "Our agents work with a minimum term of 6 months. That gives both of us time to let the agent land properly and truly see the effect. After that, cancellation is possible on a monthly basis.",
+        },
+      ],
+    },
   },
 } as const;
 
