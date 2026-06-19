@@ -180,7 +180,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
             {/* Language switch */}
             <div className="hidden lg:flex items-center text-xs font-now font-medium border border-border rounded-full overflow-hidden">
               <button
-                onClick={() => setLang("nl")}
+                onClick={() => switchLang("nl")}
                 className={`px-2.5 py-1 transition-colors ${
                   lang === "nl" ? "bg-foreground text-background" : "text-foreground/70 hover:text-foreground"
                 }`}
@@ -189,7 +189,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
                 NL
               </button>
               <button
-                onClick={() => setLang("en")}
+                onClick={() => switchLang("en")}
                 className={`px-2.5 py-1 transition-colors ${
                   lang === "en" ? "bg-foreground text-background" : "text-foreground/70 hover:text-foreground"
                 }`}
@@ -290,7 +290,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
                     )}
                     <div className="flex items-center justify-center text-xs font-now font-medium border border-border rounded-full overflow-hidden w-fit mx-auto">
                       <button
-                        onClick={() => setLang("nl")}
+                        onClick={() => switchLang("nl")}
                         className={`px-3 py-1.5 transition-colors ${
                           lang === "nl" ? "bg-foreground text-background" : "text-foreground/70"
                         }`}
@@ -298,7 +298,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
                         NL
                       </button>
                       <button
-                        onClick={() => setLang("en")}
+                        onClick={() => switchLang("en")}
                         className={`px-3 py-1.5 transition-colors ${
                           lang === "en" ? "bg-foreground text-background" : "text-foreground/70"
                         }`}
