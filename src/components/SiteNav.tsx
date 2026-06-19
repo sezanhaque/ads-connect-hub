@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Menu, ChevronDown } from "lucide-react";
@@ -42,6 +42,17 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Sync lang from URL when on a localized route (/nl/... or /en/...)
+  useEffect(() => {
+    const match = location.pathname.match(/^\/(nl|en)(\/|$)/);
+    if (match) {
+      const urlLang = match[1] as Lang;
+      if (urlLang !== lang) setLang(urlLang);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   useEffect(() => {
     localStorage.setItem("site-lang", lang);
@@ -53,6 +64,15 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const switchLang = (next: Lang) => {
+    setLang(next);
+    const match = location.pathname.match(/^\/(nl|en)(\/.*)?$/);
+    if (match) {
+      const rest = match[2] || "";
+      navigate(`/${next}${rest}`);
+    }
+  };
 
   const t = copy[lang];
 
@@ -160,7 +180,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
             {/* Language switch */}
             <div className="hidden lg:flex items-center text-xs font-now font-medium border border-border rounded-full overflow-hidden">
               <button
-                onClick={() => setLang("nl")}
+                onClick={() => switchLang("nl")}
                 className={`px-2.5 py-1 transition-colors ${
                   lang === "nl" ? "bg-foreground text-background" : "text-foreground/70 hover:text-foreground"
                 }`}
@@ -169,7 +189,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
                 NL
               </button>
               <button
-                onClick={() => setLang("en")}
+                onClick={() => switchLang("en")}
                 className={`px-2.5 py-1 transition-colors ${
                   lang === "en" ? "bg-foreground text-background" : "text-foreground/70 hover:text-foreground"
                 }`}
@@ -270,7 +290,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
                     )}
                     <div className="flex items-center justify-center text-xs font-now font-medium border border-border rounded-full overflow-hidden w-fit mx-auto">
                       <button
-                        onClick={() => setLang("nl")}
+                        onClick={() => switchLang("nl")}
                         className={`px-3 py-1.5 transition-colors ${
                           lang === "nl" ? "bg-foreground text-background" : "text-foreground/70"
                         }`}
@@ -278,7 +298,7 @@ export function SiteNav({ onCtaClick }: SiteNavProps) {
                         NL
                       </button>
                       <button
-                        onClick={() => setLang("en")}
+                        onClick={() => switchLang("en")}
                         className={`px-3 py-1.5 transition-colors ${
                           lang === "en" ? "bg-foreground text-background" : "text-foreground/70"
                         }`}
