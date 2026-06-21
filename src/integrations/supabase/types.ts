@@ -282,47 +282,6 @@ export type Database = {
         }
         Relationships: []
       }
-      invites: {
-        Row: {
-          accepted: boolean | null
-          ad_account_id: string[] | null
-          created_at: string | null
-          email: string
-          id: string
-          org_id: string
-          role: string
-          token: string
-        }
-        Insert: {
-          accepted?: boolean | null
-          ad_account_id?: string[] | null
-          created_at?: string | null
-          email: string
-          id?: string
-          org_id: string
-          role?: string
-          token: string
-        }
-        Update: {
-          accepted?: boolean | null
-          ad_account_id?: string[] | null
-          created_at?: string | null
-          email?: string
-          id?: string
-          org_id?: string
-          role?: string
-          token?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invites_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       jobs: {
         Row: {
           company_name: string | null
