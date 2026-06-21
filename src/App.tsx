@@ -32,7 +32,7 @@ import MetaConnection from "./pages/MetaConnection";
 import TikTokConnection from "./pages/TikTokConnection";
 import InviteUsers from "./pages/InviteUsers";
 import UserManagement from "./pages/UserManagement";
-import AcceptInvite from "./pages/AcceptInvite";
+
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import TopUp from "./pages/TopUp";
 import TopUpSuccess from "./pages/TopUpSuccess";
@@ -187,7 +187,7 @@ const App = () => {
                     </DashboardLayout>
                   }
                 />
-                <Route path="/accept-invite" element={<AcceptInvite />} />
+                
                 <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
                 <Route path="/top-up" element={<TopUp />} />
                 <Route path="/top-up/success" element={<TopUpSuccess />} />
