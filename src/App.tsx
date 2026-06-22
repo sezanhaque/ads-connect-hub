@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { PostHogProvider } from "@/hooks/usePostHog";
 import { useEffect } from "react";
 import { initPostHog } from "@/lib/posthog";
@@ -45,6 +45,20 @@ import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
+const HomeRoute = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="min-h-screen page-bg" />;
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Index />;
+};
+
 const App = () => {
   useEffect(() => {
     initPostHog();
@@ -61,7 +75,7 @@ const App = () => {
               <ScrollToTop />
               <AuthRecoveryListener />
               <Routes>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<HomeRoute />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/platform-overview" element={<PlatformOverview />} />
                 <Route path="/solution" element={<Solution />} />
