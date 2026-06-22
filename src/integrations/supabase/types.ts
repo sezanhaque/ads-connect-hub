@@ -112,6 +112,7 @@ export type Database = {
           audience_targeting: Json
           budget: number
           campaign_assets: Json | null
+          company_id: string | null
           created_at: string
           created_by: string
           creatives: Json | null
@@ -137,6 +138,7 @@ export type Database = {
           audience_targeting?: Json
           budget?: number
           campaign_assets?: Json | null
+          company_id?: string | null
           created_at?: string
           created_by: string
           creatives?: Json | null
@@ -162,6 +164,7 @@ export type Database = {
           audience_targeting?: Json
           budget?: number
           campaign_assets?: Json | null
+          company_id?: string | null
           created_at?: string
           created_by?: string
           creatives?: Json | null
@@ -183,6 +186,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "campaigns_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "campaigns_job_id_fkey"
             columns: ["job_id"]
@@ -393,6 +403,7 @@ export type Database = {
       }
       jobs: {
         Row: {
+          company_id: string | null
           company_name: string | null
           created_at: string
           created_by: string
@@ -408,6 +419,7 @@ export type Database = {
           vacancy_url: string | null
         }
         Insert: {
+          company_id?: string | null
           company_name?: string | null
           created_at?: string
           created_by: string
@@ -423,6 +435,7 @@ export type Database = {
           vacancy_url?: string | null
         }
         Update: {
+          company_id?: string | null
           company_name?: string | null
           created_at?: string
           created_by?: string
@@ -438,6 +451,13 @@ export type Database = {
           vacancy_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobs_org_id_fkey"
             columns: ["org_id"]
@@ -867,24 +887,44 @@ export type Database = {
         Args: { p_email: string; p_name: string; p_user_id: string }
         Returns: string
       }
-      create_campaign: {
-        Args: {
-          p_ad_copy?: string
-          p_budget: number
-          p_creatives?: Json
-          p_cta?: string
-          p_currency?: string
-          p_destination_url?: string
-          p_end_date?: string
-          p_job_id: string
-          p_name: string
-          p_objective: string
-          p_org_id: string
-          p_start_date?: string
-          p_targeting?: Json
-        }
-        Returns: string
-      }
+      create_campaign:
+        | {
+            Args: {
+              p_ad_copy?: string
+              p_budget: number
+              p_creatives?: Json
+              p_cta?: string
+              p_currency?: string
+              p_destination_url?: string
+              p_end_date?: string
+              p_job_id: string
+              p_name: string
+              p_objective: string
+              p_org_id: string
+              p_start_date?: string
+              p_targeting?: Json
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_ad_copy?: string
+              p_budget: number
+              p_company_id?: string
+              p_creatives?: Json
+              p_cta?: string
+              p_currency?: string
+              p_destination_url?: string
+              p_end_date?: string
+              p_job_id: string
+              p_name: string
+              p_objective: string
+              p_org_id: string
+              p_start_date?: string
+              p_targeting?: Json
+            }
+            Returns: string
+          }
       extract_email_domain: { Args: { p_email: string }; Returns: string }
       get_or_create_company_for_email: {
         Args: { p_email: string }
