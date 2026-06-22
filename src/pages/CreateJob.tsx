@@ -94,11 +94,32 @@ const CreateJob = () => {
         return;
       }
 
+      // Dual-write company_id when company mode is enabled
+      let companyId: string | null = null;
+      try {
+        const { data: flag } = await supabase
+          .from('feature_flags')
+          .select('company_mode_enabled')
+          .maybeSingle();
+        if ((flag as any)?.company_mode_enabled) {
+          const { data: cm } = await supabase
+            .from('company_members')
+            .select('company_id')
+            .eq('user_id', profile.user_id)
+            .limit(1)
+            .maybeSingle();
+          companyId = (cm as any)?.company_id ?? null;
+        }
+      } catch (e) {
+        console.warn('company_mode lookup failed', e);
+      }
+
       const { error } = await supabase
         .from('jobs')
         .insert([
           {
             org_id: preferred.org_id,
+            company_id: companyId,
             external_id: formData.job_id.trim() || null,
             title: formData.job_title.trim(),
             description: formData.short_description.trim() || null,
