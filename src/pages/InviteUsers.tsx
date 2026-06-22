@@ -1,38 +1,21 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { UserPlus, Search, Users, Shield, UserX, ArrowLeft, User } from "lucide-react";
-import { MetaLogo, TikTokLogo } from "@/components/icons";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { UserPlus, Search, Users, Shield, UserX, ArrowLeft, User } from 'lucide-react';
+import { MetaLogo, TikTokLogo } from '@/components/icons';
 
-type Platform = "meta" | "tiktok" | null;
+type Platform = 'meta' | 'tiktok' | null;
 
 interface UserPlatforms {
   meta: boolean;
@@ -56,17 +39,17 @@ interface User {
 const InviteUsers = () => {
   const navigate = useNavigate();
   const [adAccountIds, setAdAccountIds] = useState<string[]>([]);
-  const [currentAdAccountId, setCurrentAdAccountId] = useState("");
+  const [currentAdAccountId, setCurrentAdAccountId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>(null);
   const [balanceUser, setBalanceUser] = useState<User | null>(null);
-  const [balanceInput, setBalanceInput] = useState("");
+  const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
   const [confirmBalanceOpen, setConfirmBalanceOpen] = useState(false);
   const { toast } = useToast();
@@ -79,38 +62,39 @@ const InviteUsers = () => {
   }, [profile?.organization_id]);
 
   useEffect(() => {
-    const filtered = users.filter((user) => {
-      const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
-      const email = user.email || "";
+    const filtered = users.filter(user => {
+      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+      const email = user.email || '';
       const searchLower = searchTerm.toLowerCase();
-
-      return email.toLowerCase().includes(searchLower) || fullName.toLowerCase().includes(searchLower);
+      
+      return email.toLowerCase().includes(searchLower) ||
+             fullName.toLowerCase().includes(searchLower);
     });
     setFilteredUsers(filtered);
   }, [users, searchTerm]);
 
   const fetchUsers = async () => {
     if (!profile?.organization_id) {
-      console.log("No organization_id available yet");
+      console.log('No organization_id available yet');
       return;
     }
 
     try {
       setLoadingUsers(true);
-      console.log("Fetching users for org:", profile.organization_id);
-
+      console.log('Fetching users for org:', profile.organization_id);
+      
       // Fetch all users in the app for admin to see and invite
       const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("user_id, email, first_name, last_name, created_at")
-        .order("created_at", { ascending: false });
+        .from('profiles')
+        .select('user_id, email, first_name, last_name, created_at')
+        .order('created_at', { ascending: false });
 
       if (profilesError) {
-        console.error("Error fetching profiles:", profilesError);
+        console.error('Error fetching profiles:', profilesError);
         throw profilesError;
       }
 
-      console.log("Found profiles:", profilesData?.length || 0);
+      console.log('Found profiles:', profilesData?.length || 0);
 
       if (!profilesData || profilesData.length === 0) {
         setUsers([]);
@@ -118,20 +102,19 @@ const InviteUsers = () => {
       }
 
       // Get all user IDs to check their membership status
-      const userIds = profilesData.map((profile) => profile.user_id);
+      const userIds = profilesData.map(profile => profile.user_id);
 
       // Membership in current org (controls is_member / invite actions)
       const { data: membersData, error: membersError } = await supabase
-        .from("members")
-        .select("user_id, role")
-        .eq("org_id", profile.organization_id)
-        .in("user_id", userIds);
+        .from('members')
+        .select('user_id, role')
+        .eq('org_id', profile.organization_id)
+        .in('user_id', userIds);
 
       // Global roles across any org (controls the displayed Admin/Owner badge)
-      const { data: allRolesData, error: allRolesError } = await supabase.rpc("get_users_highest_role", {
-        p_user_ids: userIds,
-      });
-      if (allRolesError) console.error("Error fetching global roles:", allRolesError);
+      const { data: allRolesData, error: allRolesError } = await supabase
+        .rpc('get_users_highest_role', { p_user_ids: userIds });
+      if (allRolesError) console.error('Error fetching global roles:', allRolesError);
 
       const highestRoleByUser = new Map<string, string>();
       (allRolesData || []).forEach((r: any) => {
@@ -139,40 +122,38 @@ const InviteUsers = () => {
       });
 
       if (membersError) {
-        console.error("Error fetching members:", membersError);
+        console.error('Error fetching members:', membersError);
         throw membersError;
       }
 
-      console.log("Found members:", membersData?.length || 0);
+      console.log('Found members:', membersData?.length || 0);
 
       // Use RPC function to get platform connections (bypasses RLS)
-      const { data: platformConnections, error: platformError } = await supabase.rpc("get_user_platform_connections", {
-        p_user_ids: userIds,
-      });
+      const { data: platformConnections, error: platformError } = await supabase
+        .rpc('get_user_platform_connections', { p_user_ids: userIds });
 
       if (platformError) {
-        console.error("Error fetching platform connections:", platformError);
+        console.error('Error fetching platform connections:', platformError);
       }
 
       // Fetch each user's wallet balance via RPC (bypasses RLS)
-      const { data: balancesData, error: balancesError } = await supabase.rpc("get_users_balances", {
-        p_user_ids: userIds,
-      });
-      if (balancesError) console.error("Error fetching balances:", balancesError);
+      const { data: balancesData, error: balancesError } = await supabase
+        .rpc('get_users_balances', { p_user_ids: userIds });
+      if (balancesError) console.error('Error fetching balances:', balancesError);
 
       const balanceByUser = new Map<string, { balance: number; currency: string }>();
       (balancesData || []).forEach((b: any) => {
-        balanceByUser.set(b.user_id, { balance: Number(b.balance) || 0, currency: b.currency || "EUR" });
+        balanceByUser.set(b.user_id, { balance: Number(b.balance) || 0, currency: b.currency || 'EUR' });
       });
 
-      console.log("Platform connections:", platformConnections?.length || 0);
+      console.log('Platform connections:', platformConnections?.length || 0);
 
       // Transform the data to include membership status and connected platforms
-      const transformedUsers = profilesData.map((userProfile) => {
-        const membership = membersData?.find((m) => m.user_id === userProfile.user_id);
+      const transformedUsers = profilesData.map(userProfile => {
+        const membership = membersData?.find(m => m.user_id === userProfile.user_id);
         const platformData = platformConnections?.find((p: any) => p.user_id === userProfile.user_id);
         const balanceInfo = balanceByUser.get(userProfile.user_id);
-
+        
         const connected_platforms: UserPlatforms = {
           meta: platformData?.has_meta || false,
           tiktok: platformData?.has_tiktok || false,
@@ -181,7 +162,7 @@ const InviteUsers = () => {
         return {
           id: userProfile.user_id,
           user_id: userProfile.user_id,
-          email: userProfile.email || "No email",
+          email: userProfile.email || 'No email',
           first_name: userProfile.first_name,
           last_name: userProfile.last_name,
           role: highestRoleByUser.get(userProfile.user_id) || (membership ? membership.role : null),
@@ -189,14 +170,14 @@ const InviteUsers = () => {
           is_member: !!membership,
           connected_platforms,
           balance: balanceInfo?.balance ?? 0,
-          currency: balanceInfo?.currency ?? "EUR",
+          currency: balanceInfo?.currency ?? 'EUR',
         };
       });
-
-      console.log("Transformed users:", transformedUsers.length);
+      
+      console.log('Transformed users:', transformedUsers.length);
       setUsers(transformedUsers);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error('Error fetching users:', error);
       toast({
         title: "Error",
         description: "Failed to load users",
@@ -220,7 +201,7 @@ const InviteUsers = () => {
     if (adAccountIds.length === 0) {
       toast({
         title: "Error",
-        description: `Please provide at least one ${selectedPlatform === "meta" ? "AD Account ID" : "Advertiser ID"}`,
+        description: `Please provide at least one ${selectedPlatform === 'meta' ? 'AD Account ID' : 'Advertiser ID'}`,
         variant: "destructive",
       });
       return;
@@ -231,25 +212,27 @@ const InviteUsers = () => {
     try {
       console.log(`Starting user invitation process for ${selectedPlatform}...`);
 
-      if (selectedPlatform === "meta") {
+      if (selectedPlatform === 'meta') {
         // Automatically add "act_" prefix to all IDs for Meta
-        const finalAdAccountIds = adAccountIds.map((id) => {
+        const finalAdAccountIds = adAccountIds.map(id => {
           const trimmed = id.trim();
-          return trimmed.startsWith("act_") ? trimmed : `act_${trimmed}`;
+          return trimmed.startsWith('act_') ? trimmed : `act_${trimmed}`;
         });
 
         // 1) Ensure the user is a member of the admin org (ignore duplicates)
-        const { error: memberError } = await supabase.from("members").insert({
-          user_id: selectedUser.user_id,
-          org_id: profile.organization_id,
-          role: "member",
-        });
-        if (memberError && memberError.code !== "23505") {
+        const { error: memberError } = await supabase
+          .from('members')
+          .insert({
+            user_id: selectedUser.user_id,
+            org_id: profile.organization_id,
+            role: 'member',
+          });
+        if (memberError && memberError.code !== '23505') {
           throw memberError;
         }
 
         // 2) Securely set up the invited user's own organization integration and sync via Edge Function
-        const { data, error } = await supabase.functions.invoke("member-meta-setup", {
+        const { data, error } = await supabase.functions.invoke('member-meta-setup', {
           body: {
             target_user_id: selectedUser.user_id,
             ad_account_ids: finalAdAccountIds,
@@ -259,29 +242,31 @@ const InviteUsers = () => {
         });
 
         if (error || !data?.success) {
-          throw new Error(error?.message || data?.error || "Failed to set up Meta integration for user");
+          throw new Error(error?.message || data?.error || 'Failed to set up Meta integration for user');
         }
 
         toast({
-          title: "Meta Ad Accounts added successfully!",
+          title: 'Meta Ad Accounts added successfully!',
           description: `${selectedUser.email} now has access to ${finalAdAccountIds.length} new ad account(s). Data has been synced.`,
         });
       } else {
         // TikTok integration
-        const finalAdvertiserIds = adAccountIds.map((id) => id.trim());
+        const finalAdvertiserIds = adAccountIds.map(id => id.trim());
 
         // 1) Ensure the user is a member of the admin org (ignore duplicates)
-        const { error: memberError } = await supabase.from("members").insert({
-          user_id: selectedUser.user_id,
-          org_id: profile.organization_id,
-          role: "member",
-        });
-        if (memberError && memberError.code !== "23505") {
+        const { error: memberError } = await supabase
+          .from('members')
+          .insert({
+            user_id: selectedUser.user_id,
+            org_id: profile.organization_id,
+            role: 'member',
+          });
+        if (memberError && memberError.code !== '23505') {
           throw memberError;
         }
 
         // 2) Set up TikTok integration via Edge Function
-        const { data, error } = await supabase.functions.invoke("member-tiktok-setup", {
+        const { data, error } = await supabase.functions.invoke('member-tiktok-setup', {
           body: {
             target_user_id: selectedUser.user_id,
             advertiser_ids: finalAdvertiserIds,
@@ -291,11 +276,11 @@ const InviteUsers = () => {
         });
 
         if (error || !data?.success) {
-          throw new Error(error?.message || data?.error || "Failed to set up TikTok integration for user");
+          throw new Error(error?.message || data?.error || 'Failed to set up TikTok integration for user');
         }
 
         toast({
-          title: "TikTok Advertiser IDs added successfully!",
+          title: 'TikTok Advertiser IDs added successfully!',
           description: `${selectedUser.email} now has access to ${finalAdvertiserIds.length} new advertiser(s). Data has been synced.`,
         });
       }
@@ -306,18 +291,18 @@ const InviteUsers = () => {
       // Refresh users list
       fetchUsers();
     } catch (error: any) {
-      console.error("Error inviting user:", error);
-      if (error?.code === "23505") {
+      console.error('Error inviting user:', error);
+      if (error?.code === '23505') {
         toast({
-          title: "User already in organization",
-          description: "This user is already a member of your organization",
-          variant: "destructive",
+          title: 'User already in organization',
+          description: 'This user is already a member of your organization',
+          variant: 'destructive',
         });
       } else {
         toast({
-          title: "Error",
-          description: error.message || "Failed to add accounts. Please try again.",
-          variant: "destructive",
+          title: 'Error',
+          description: error.message || 'Failed to add accounts. Please try again.',
+          variant: 'destructive',
         });
       }
     } finally {
@@ -330,19 +315,19 @@ const InviteUsers = () => {
     setSelectedUser(null);
     setSelectedPlatform(null);
     setAdAccountIds([]);
-    setCurrentAdAccountId("");
+    setCurrentAdAccountId('');
   };
 
   const handleOpenBalance = (user: User) => {
     setBalanceUser(user);
-    setBalanceInput("");
+    setBalanceInput('');
   };
 
   const handleSaveBalance = () => {
     if (!balanceUser) return;
     const addAmount = parseFloat(balanceInput);
     if (!Number.isFinite(addAmount) || addAmount <= 0) {
-      toast({ title: "Invalid amount", description: "Enter a positive number to add.", variant: "destructive" });
+      toast({ title: 'Invalid amount', description: 'Enter a positive number to add.', variant: 'destructive' });
       return;
     }
     setConfirmBalanceOpen(true);
@@ -351,11 +336,11 @@ const InviteUsers = () => {
   const handleConfirmBalance = async () => {
     if (!balanceUser) return;
     const addAmount = parseFloat(balanceInput);
-    const currency = balanceUser.currency || "EUR";
+    const currency = balanceUser.currency || 'EUR';
     const newBalance = Number(balanceUser.balance ?? 0) + addAmount;
     setSavingBalance(true);
     try {
-      const { data, error } = await supabase.functions.invoke("admin-set-balance", {
+      const { data, error } = await supabase.functions.invoke('admin-set-balance', {
         body: {
           target_user_id: balanceUser.user_id,
           balance: newBalance,
@@ -363,17 +348,14 @@ const InviteUsers = () => {
         },
       });
       if (error || !data?.success) {
-        throw new Error(error?.message || data?.error || "Failed to update balance");
+        throw new Error(error?.message || data?.error || 'Failed to update balance');
       }
-      toast({
-        title: "Balance updated",
-        description: `${balanceUser.email}'s balance is now ${newBalance.toFixed(2)} ${currency}.`,
-      });
+      toast({ title: 'Balance updated', description: `${balanceUser.email}'s balance is now ${newBalance.toFixed(2)} ${currency}.` });
       setConfirmBalanceOpen(false);
       setBalanceUser(null);
       fetchUsers();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to update balance", variant: "destructive" });
+      toast({ title: 'Error', description: err.message || 'Failed to update balance', variant: 'destructive' });
     } finally {
       setSavingBalance(false);
     }
@@ -383,45 +365,44 @@ const InviteUsers = () => {
     setSelectedUser(user);
     setSelectedPlatform(null);
     setAdAccountIds([]);
-    setCurrentAdAccountId("");
+    setCurrentAdAccountId('');
     setDialogOpen(true);
   };
 
   const handleSelectPlatform = async (platform: Platform) => {
     if (!selectedUser || !platform) return;
-
+    
     setSelectedPlatform(platform);
     setAdAccountIds([]);
-
+    
     // For existing members, fetch their current account IDs for the selected platform
     if (selectedUser.is_member) {
       try {
         const { data: ownerMembership } = await supabase
-          .from("members")
-          .select("org_id")
-          .eq("user_id", selectedUser.user_id)
-          .eq("role", "owner")
+          .from('members')
+          .select('org_id')
+          .eq('user_id', selectedUser.user_id)
+          .eq('role', 'owner')
           .maybeSingle();
 
         if (ownerMembership?.org_id) {
           const { data: integration } = await supabase
-            .from("integrations")
-            .select("ad_account_id")
-            .eq("org_id", ownerMembership.org_id)
-            .eq("integration_type", platform)
-            .eq("user_id", selectedUser.user_id)
+            .from('integrations')
+            .select('ad_account_id')
+            .eq('org_id', ownerMembership.org_id)
+            .eq('integration_type', platform)
+            .eq('user_id', selectedUser.user_id)
             .maybeSingle();
 
           if (integration?.ad_account_id) {
             // Pre-populate with existing IDs (without act_ prefix for Meta display)
-            const existingIds = (integration.ad_account_id as string[]).map((id) =>
-              platform === "meta" ? id.replace(/^act_/, "") : id,
-            );
+            const existingIds = (integration.ad_account_id as string[])
+              .map(id => platform === 'meta' ? id.replace(/^act_/, '') : id);
             setAdAccountIds(existingIds);
           }
         }
       } catch (error) {
-        console.error("Error fetching existing accounts:", error);
+        console.error('Error fetching existing accounts:', error);
       }
     }
   };
@@ -435,7 +416,7 @@ const InviteUsers = () => {
         <Button
           variant="outline"
           className="h-24 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5"
-          onClick={() => handleSelectPlatform("meta")}
+          onClick={() => handleSelectPlatform('meta')}
         >
           <MetaLogo size={32} />
           <span className="font-medium">Meta</span>
@@ -444,7 +425,7 @@ const InviteUsers = () => {
         <Button
           variant="outline"
           className="h-24 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5"
-          onClick={() => handleSelectPlatform("tiktok")}
+          onClick={() => handleSelectPlatform('tiktok')}
         >
           <TikTokLogo size={32} />
           <span className="font-medium">TikTok</span>
@@ -455,12 +436,12 @@ const InviteUsers = () => {
   );
 
   const renderAccountInput = () => {
-    const isMeta = selectedPlatform === "meta";
-    const labelText = isMeta ? "AD Account IDs" : "Advertiser IDs";
-    const placeholder = isMeta ? "971311827719449" : "7123456789012345678";
-    const helpText = isMeta
+    const isMeta = selectedPlatform === 'meta';
+    const labelText = isMeta ? 'AD Account IDs' : 'Advertiser IDs';
+    const placeholder = isMeta ? '971311827719449' : '7123456789012345678';
+    const helpText = isMeta 
       ? 'Enter numbers only - the "act_" prefix will be added automatically. Press Enter or click Add.'
-      : "Enter your TikTok Advertiser IDs. Press Enter or click Add.";
+      : 'Enter your TikTok Advertiser IDs. Press Enter or click Add.';
 
     return (
       <div className="space-y-4">
@@ -473,10 +454,10 @@ const InviteUsers = () => {
           <ArrowLeft className="h-4 w-4" />
           Back to platform selection
         </Button>
-
+        
         <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
           {isMeta ? <MetaLogo size={24} /> : <TikTokLogo size={24} />}
-          <span className="font-medium">{isMeta ? "Meta" : "TikTok"} Integration</span>
+          <span className="font-medium">{isMeta ? 'Meta' : 'TikTok'} Integration</span>
         </div>
 
         <div>
@@ -489,10 +470,10 @@ const InviteUsers = () => {
                 value={currentAdAccountId}
                 onChange={(e) => setCurrentAdAccountId(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && currentAdAccountId.trim()) {
+                  if (e.key === 'Enter' && currentAdAccountId.trim()) {
                     e.preventDefault();
                     setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
-                    setCurrentAdAccountId("");
+                    setCurrentAdAccountId('');
                   }
                 }}
               />
@@ -502,7 +483,7 @@ const InviteUsers = () => {
                 onClick={() => {
                   if (currentAdAccountId.trim()) {
                     setAdAccountIds([...adAccountIds, currentAdAccountId.trim()]);
-                    setCurrentAdAccountId("");
+                    setCurrentAdAccountId('');
                   }
                 }}
               >
@@ -512,11 +493,8 @@ const InviteUsers = () => {
             {adAccountIds.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {adAccountIds.map((id, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm"
-                  >
-                    <span>{isMeta ? (id.startsWith("act_") ? id : `act_${id}`) : id}</span>
+                  <div key={index} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm">
+                    <span>{isMeta ? (id.startsWith('act_') ? id : `act_${id}`) : id}</span>
                     <button
                       type="button"
                       onClick={() => setAdAccountIds(adAccountIds.filter((_, i) => i !== index))}
@@ -539,7 +517,7 @@ const InviteUsers = () => {
     if (!platforms.meta && !platforms.tiktok) {
       return <span className="text-muted-foreground text-sm">None</span>;
     }
-
+    
     return (
       <div className="flex gap-1">
         {platforms.meta && (
@@ -560,7 +538,9 @@ const InviteUsers = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">User Management</h1>
-        <p className="text-muted-foreground">Manage users and invite new team members to your organization.</p>
+        <p className="text-muted-foreground">
+          Manage users and invite new team members to your organization.
+        </p>
       </div>
 
       <div className="grid gap-6">
@@ -571,7 +551,9 @@ const InviteUsers = () => {
               <Users className="h-5 w-5" />
               All Users
             </CardTitle>
-            <CardDescription>View all users in the app and invite them to your organization.</CardDescription>
+            <CardDescription>
+              View all users in the app and invite them to your organization.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
@@ -615,19 +597,17 @@ const InviteUsers = () => {
                       filteredUsers.map((user) => (
                         <TableRow key={user.id}>
                           <TableCell className="font-medium">
-                            {user.first_name || user.last_name
-                              ? `${user.first_name || ""} ${user.last_name || ""}`.trim()
-                              : "No name provided"}
+                            {user.first_name || user.last_name 
+                              ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+                              : 'No name provided'
+                            }
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
                             {user.role ? (
-                              <Badge
-                                variant={user.role === "admin" || user.role === "owner" ? "default" : "secondary"}
-                                className="flex items-center gap-1 w-fit"
-                              >
-                                {(user.role === "admin" || user.role === "owner") && <Shield className="h-3 w-3" />}
-                                {user.role === "owner" ? "Owner" : user.role === "admin" ? "Admin" : "Member"}
+                              <Badge variant={user.role === 'admin' || user.role === 'owner' ? 'default' : 'secondary'} className="flex items-center gap-1 w-fit">
+                                {(user.role === 'admin' || user.role === 'owner') && <Shield className="h-3 w-3" />}
+                                {user.role === 'owner' ? 'Owner' : user.role === 'admin' ? 'Admin' : 'Member'}
                               </Badge>
                             ) : (
                               <Badge variant="outline" className="flex items-center gap-1 w-fit">
@@ -636,7 +616,9 @@ const InviteUsers = () => {
                               </Badge>
                             )}
                           </TableCell>
-                          <TableCell>{renderConnectedPlatforms(user.connected_platforms)}</TableCell>
+                          <TableCell>
+                            {renderConnectedPlatforms(user.connected_platforms)}
+                          </TableCell>
                           <TableCell className="font-medium tabular-nums">
                             <button
                               type="button"
@@ -644,15 +626,15 @@ const InviteUsers = () => {
                               className="rounded-md border border-transparent px-2 py-1 hover:border-border hover:bg-muted transition-colors text-left"
                               title="Click to edit balance"
                             >
-                              {new Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: user.currency || "EUR",
-                              }).format(user.balance || 0)}
+                              {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
                             </button>
                           </TableCell>
-                          <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            {new Date(user.created_at).toLocaleDateString()}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
+                              {/* Hidden for now
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -662,15 +644,12 @@ const InviteUsers = () => {
                                 <User className="h-3 w-3" />
                                 User
                               </Button>
-
-                              <Dialog
-                                open={dialogOpen && selectedUser?.id === user.id}
-                                onOpenChange={(open) => {
-                                  if (!open) {
-                                    resetDialog();
-                                  }
-                                }}
-                              >
+                              */}
+                              <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
+                                if (!open) {
+                                  resetDialog();
+                                }
+                              }}>
                                 <DialogTrigger asChild>
                                   <Button
                                     size="sm"
@@ -679,43 +658,44 @@ const InviteUsers = () => {
                                     className="flex items-center gap-1"
                                   >
                                     <UserPlus className="h-3 w-3" />
-                                    {user.is_member ? "Manage Integrations" : "Invite User"}
+                                    {user.is_member ? 'Manage Integrations' : 'Invite User'}
                                   </Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                   <DialogHeader>
                                     <DialogTitle>
-                                      {!selectedPlatform
-                                        ? "Select Platform"
-                                        : user.is_member
-                                          ? `Manage ${selectedPlatform === "meta" ? "Meta" : "TikTok"} Accounts`
-                                          : `Set Up ${selectedPlatform === "meta" ? "Meta" : "TikTok"} Integration`}
+                                      {!selectedPlatform 
+                                        ? 'Select Platform'
+                                        : user.is_member 
+                                          ? `Manage ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Accounts` 
+                                          : `Set Up ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Integration`
+                                      }
                                     </DialogTitle>
                                     <DialogDescription>
-                                      {!selectedPlatform
+                                      {!selectedPlatform 
                                         ? `Choose which platform to configure for ${user.email}.`
-                                        : user.is_member
-                                          ? `Add or update ${selectedPlatform === "meta" ? "Meta Ad Account" : "TikTok Advertiser"} access for ${user.email}.`
-                                          : `Invite ${user.email} to join your organization with ${selectedPlatform === "meta" ? "Meta" : "TikTok"} integration access.`}
+                                        : user.is_member 
+                                          ? `Add or update ${selectedPlatform === 'meta' ? 'Meta Ad Account' : 'TikTok Advertiser'} access for ${user.email}.`
+                                          : `Invite ${user.email} to join your organization with ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} integration access.`
+                                      }
                                     </DialogDescription>
                                   </DialogHeader>
-
+                                  
                                   {!selectedPlatform ? renderPlatformSelection() : renderAccountInput()}
-
+                                  
                                   {selectedPlatform && (
                                     <DialogFooter>
-                                      <Button variant="outline" onClick={resetDialog}>
+                                      <Button
+                                        variant="outline"
+                                        onClick={resetDialog}
+                                      >
                                         Cancel
                                       </Button>
                                       <Button
                                         onClick={handleInviteUser}
                                         disabled={adAccountIds.length === 0 || isLoading}
                                       >
-                                        {isLoading
-                                          ? "Processing..."
-                                          : selectedUser?.is_member
-                                            ? "Update Accounts"
-                                            : "Invite User"}
+                                        {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Accounts' : 'Invite User')}
                                       </Button>
                                     </DialogFooter>
                                   )}
@@ -739,15 +719,12 @@ const InviteUsers = () => {
           <DialogHeader>
             <DialogTitle>Add to balance</DialogTitle>
             <DialogDescription>
-              Add an amount to {balanceUser?.email}'s current balance of{" "}
-              {new Intl.NumberFormat("en-US", { style: "currency", currency: balanceUser?.currency || "EUR" }).format(
-                Number(balanceUser?.balance ?? 0),
-              )}
-              .
+              Add an amount to {balanceUser?.email}'s current balance of{' '}
+              {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser?.currency || 'EUR' }).format(Number(balanceUser?.balance ?? 0))}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="balance-input">Amount to add ({balanceUser?.currency || "EUR"})</Label>
+            <Label htmlFor="balance-input">Amount to add ({balanceUser?.currency || 'EUR'})</Label>
             <Input
               id="balance-input"
               type="number"
@@ -759,9 +736,9 @@ const InviteUsers = () => {
             />
             {balanceInput && Number.isFinite(parseFloat(balanceInput)) && parseFloat(balanceInput) > 0 && (
               <p className="text-sm text-muted-foreground">
-                New total:{" "}
-                {new Intl.NumberFormat("en-US", { style: "currency", currency: balanceUser?.currency || "EUR" }).format(
-                  Number(balanceUser?.balance ?? 0) + parseFloat(balanceInput),
+                New total:{' '}
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser?.currency || 'EUR' }).format(
+                  Number(balanceUser?.balance ?? 0) + parseFloat(balanceInput)
                 )}
               </p>
             )}
@@ -771,7 +748,7 @@ const InviteUsers = () => {
               Cancel
             </Button>
             <Button onClick={handleSaveBalance} disabled={savingBalance}>
-              {savingBalance ? "Saving..." : "Save"}
+              {savingBalance ? 'Saving...' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -784,19 +761,15 @@ const InviteUsers = () => {
             <AlertDialogDescription>
               {balanceUser && balanceInput && (
                 <>
-                  Add{" "}
+                  Add{' '}
                   <strong>
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: balanceUser.currency || "EUR",
-                    }).format(parseFloat(balanceInput) || 0)}
-                  </strong>{" "}
-                  to <strong>{balanceUser.email}</strong>? Their new balance will be{" "}
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser.currency || 'EUR' }).format(parseFloat(balanceInput) || 0)}
+                  </strong>{' '}
+                  to <strong>{balanceUser.email}</strong>? Their new balance will be{' '}
                   <strong>
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: balanceUser.currency || "EUR",
-                    }).format(Number(balanceUser.balance ?? 0) + (parseFloat(balanceInput) || 0))}
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: balanceUser.currency || 'EUR' }).format(
+                      Number(balanceUser.balance ?? 0) + (parseFloat(balanceInput) || 0)
+                    )}
                   </strong>
                   .
                 </>
@@ -805,14 +778,8 @@ const InviteUsers = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={savingBalance}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleConfirmBalance();
-              }}
-              disabled={savingBalance}
-            >
-              {savingBalance ? "Saving..." : "Confirm"}
+            <AlertDialogAction onClick={(e) => { e.preventDefault(); handleConfirmBalance(); }} disabled={savingBalance}>
+              {savingBalance ? 'Saving...' : 'Confirm'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
