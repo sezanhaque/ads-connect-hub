@@ -485,17 +485,16 @@ const CreateCampaign = () => {
       try {
         const { data: flag } = await supabase
           .from("feature_flags")
-          .select("enabled")
-          .eq("key", "company_mode_enabled")
+          .select("company_mode_enabled")
           .maybeSingle();
-        if (flag?.enabled) {
+        if (flag?.company_mode_enabled) {
           const { data: cm } = await supabase
             .from("company_members")
             .select("company_id")
             .eq("user_id", profile.user_id)
             .limit(1)
             .maybeSingle();
-          companyIdForCampaign = cm?.company_id ?? null;
+          companyIdForCampaign = (cm as any)?.company_id ?? null;
         }
       } catch (e) {
         console.warn("company_id lookup skipped", e);
