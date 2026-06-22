@@ -568,150 +568,223 @@ const InviteUsers = () => {
               />
             </div>
 
-            {loadingUsers ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="mt-2 text-muted-foreground">Loading users...</p>
-              </div>
-            ) : (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Connected Platforms</TableHead>
-                      <TableHead>Current Balance</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                          <UserX className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          No users found
-                        </TableCell>
-                      </TableRow>
+            {(() => {
+              if (loadingUsers) {
+                return (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-muted-foreground">Loading users...</p>
+                  </div>
+                );
+              }
+
+              // Group filtered users by email domain.
+              const companyGroups = new Map<string, User[]>();
+              const personalUsers: User[] = [];
+              for (const u of filteredUsers) {
+                const domain = getEmailDomain(u.email);
+                if (!domain || isPersonalDomain(domain)) {
+                  personalUsers.push(u);
+                } else {
+                  const list = companyGroups.get(domain) ?? [];
+                  list.push(u);
+                  companyGroups.set(domain, list);
+                }
+              }
+              const companies = Array.from(companyGroups.entries())
+                .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+
+              const toggleDomain = (d: string) => {
+                setExpandedDomains((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(d)) next.delete(d); else next.add(d);
+                  return next;
+                });
+              };
+              const allExpanded = companies.length > 0 && companies.every(([d]) => expandedDomains.has(d));
+              const toggleAll = () => {
+                setExpandedDomains(allExpanded ? new Set() : new Set(companies.map(([d]) => d)));
+              };
+
+              const renderUserRow = (user: User) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">
+                    {user.first_name || user.last_name
+                      ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+                      : 'No name provided'}
+                  </TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    {user.role ? (
+                      <Badge variant={user.role === 'admin' || user.role === 'owner' ? 'default' : 'secondary'} className="flex items-center gap-1 w-fit">
+                        {(user.role === 'admin' || user.role === 'owner') && <Shield className="h-3 w-3" />}
+                        {user.role === 'owner' ? 'Owner' : user.role === 'admin' ? 'Admin' : 'Member'}
+                      </Badge>
                     ) : (
-                      filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell className="font-medium">
-                            {user.first_name || user.last_name 
-                              ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
-                              : 'No name provided'
-                            }
-                          </TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>
-                            {user.role ? (
-                              <Badge variant={user.role === 'admin' || user.role === 'owner' ? 'default' : 'secondary'} className="flex items-center gap-1 w-fit">
-                                {(user.role === 'admin' || user.role === 'owner') && <Shield className="h-3 w-3" />}
-                                {user.role === 'owner' ? 'Owner' : user.role === 'admin' ? 'Admin' : 'Member'}
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="flex items-center gap-1 w-fit">
-                                <UserX className="h-3 w-3" />
-                                Not a member
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {renderConnectedPlatforms(user.connected_platforms)}
-                          </TableCell>
-                          <TableCell className="font-medium tabular-nums">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenBalance(user)}
-                              className="rounded-md border border-transparent px-2 py-1 hover:border-border hover:bg-muted transition-colors text-left"
-                              title="Click to edit balance"
-                            >
-                              {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
-                            </button>
-                          </TableCell>
-                          <TableCell>
-                            {new Date(user.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              {/* Hidden for now
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => navigate(`/users/${user.user_id}`)}
-                                className="flex items-center gap-1"
-                              >
-                                <User className="h-3 w-3" />
-                                User
-                              </Button>
-                              */}
-                              <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
-                                if (!open) {
-                                  resetDialog();
-                                }
-                              }}>
-                                <DialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant={user.is_member ? "secondary" : "outline"}
-                                    onClick={() => handleOpenDialog(user)}
-                                    className="flex items-center gap-1"
-                                  >
-                                    <UserPlus className="h-3 w-3" />
-                                    {user.is_member ? 'Manage Integrations' : 'Invite User'}
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>
-                                      {!selectedPlatform 
-                                        ? 'Select Platform'
-                                        : user.is_member 
-                                          ? `Manage ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Accounts` 
-                                          : `Set Up ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Integration`
-                                      }
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                      {!selectedPlatform 
-                                        ? `Choose which platform to configure for ${user.email}.`
-                                        : user.is_member 
-                                          ? `Add or update ${selectedPlatform === 'meta' ? 'Meta Ad Account' : 'TikTok Advertiser'} access for ${user.email}.`
-                                          : `Invite ${user.email} to join your organization with ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} integration access.`
-                                      }
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  
-                                  {!selectedPlatform ? renderPlatformSelection() : renderAccountInput()}
-                                  
-                                  {selectedPlatform && (
-                                    <DialogFooter>
-                                      <Button
-                                        variant="outline"
-                                        onClick={resetDialog}
-                                      >
-                                        Cancel
-                                      </Button>
-                                      <Button
-                                        onClick={handleInviteUser}
-                                        disabled={adAccountIds.length === 0 || isLoading}
-                                      >
-                                        {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Accounts' : 'Invite User')}
-                                      </Button>
-                                    </DialogFooter>
-                                  )}
-                                </DialogContent>
-                              </Dialog>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                        <UserX className="h-3 w-3" />
+                        Not a member
+                      </Badge>
                     )}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+                  </TableCell>
+                  <TableCell>{renderConnectedPlatforms(user.connected_platforms)}</TableCell>
+                  <TableCell className="font-medium tabular-nums">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenBalance(user)}
+                      className="rounded-md border border-transparent px-2 py-1 hover:border-border hover:bg-muted transition-colors text-left"
+                      title="Click to edit balance"
+                    >
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: user.currency || 'EUR' }).format(user.balance || 0)}
+                    </button>
+                  </TableCell>
+                  <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Dialog open={dialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => { if (!open) resetDialog(); }}>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant={user.is_member ? 'secondary' : 'outline'}
+                            onClick={() => handleOpenDialog(user)}
+                            className="flex items-center gap-1"
+                          >
+                            <UserPlus className="h-3 w-3" />
+                            {user.is_member ? 'Manage Integrations' : 'Invite User'}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              {!selectedPlatform
+                                ? 'Select Platform'
+                                : user.is_member
+                                  ? `Manage ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Accounts`
+                                  : `Set Up ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} Integration`}
+                            </DialogTitle>
+                            <DialogDescription>
+                              {!selectedPlatform
+                                ? `Choose which platform to configure for ${user.email}.`
+                                : user.is_member
+                                  ? `Add or update ${selectedPlatform === 'meta' ? 'Meta Ad Account' : 'TikTok Advertiser'} access for ${user.email}.`
+                                  : `Invite ${user.email} to join your organization with ${selectedPlatform === 'meta' ? 'Meta' : 'TikTok'} integration access.`}
+                            </DialogDescription>
+                          </DialogHeader>
+
+                          {!selectedPlatform ? renderPlatformSelection() : renderAccountInput()}
+
+                          {selectedPlatform && (
+                            <DialogFooter>
+                              <Button variant="outline" onClick={resetDialog}>Cancel</Button>
+                              <Button onClick={handleInviteUser} disabled={adAccountIds.length === 0 || isLoading}>
+                                {isLoading ? 'Processing...' : (selectedUser?.is_member ? 'Update Accounts' : 'Invite User')}
+                              </Button>
+                            </DialogFooter>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+
+              const tableHeader = (
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Connected Platforms</TableHead>
+                    <TableHead>Current Balance</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+              );
+
+              return (
+                <div className="space-y-6">
+                  {/* Companies section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                        Companies {companies.length > 0 && <span className="ml-1 text-muted-foreground/70">({companies.length})</span>}
+                      </h3>
+                      {companies.length > 0 && (
+                        <Button variant="ghost" size="sm" onClick={toggleAll}>
+                          {allExpanded ? 'Collapse all' : 'Expand all'}
+                        </Button>
+                      )}
+                    </div>
+                    {companies.length === 0 ? (
+                      <div className="rounded-md border border-dashed py-8 text-center text-sm text-muted-foreground">
+                        <Building2 className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                        No companies yet
+                      </div>
+                    ) : (
+                      <div className="rounded-md border divide-y">
+                        {companies.map(([domain, members]) => {
+                          const expanded = expandedDomains.has(domain);
+                          return (
+                            <div key={domain}>
+                              <button
+                                type="button"
+                                onClick={() => toggleDomain(domain)}
+                                className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors text-left"
+                              >
+                                <div className="flex items-center gap-3">
+                                  {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium">{domain}</span>
+                                </div>
+                                <Badge variant="secondary">{members.length} {members.length === 1 ? 'account' : 'accounts'}</Badge>
+                              </button>
+                              {expanded && (
+                                <div className="border-t bg-muted/20">
+                                  <Table>
+                                    {tableHeader}
+                                    <TableBody>
+                                      {members.map(renderUserRow)}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Personal accounts section */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Personal accounts {personalUsers.length > 0 && <span className="ml-1 text-muted-foreground/70">({personalUsers.length})</span>}
+                    </h3>
+                    {personalUsers.length === 0 ? (
+                      <div className="rounded-md border border-dashed py-8 text-center text-sm text-muted-foreground">
+                        <UserX className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                        No personal accounts
+                      </div>
+                    ) : (
+                      <div className="rounded-md border">
+                        <Table>
+                          {tableHeader}
+                          <TableBody>{personalUsers.map(renderUserRow)}</TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
+
+                  {filteredUsers.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <UserX className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      No users found
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
