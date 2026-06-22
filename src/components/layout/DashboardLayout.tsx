@@ -3,6 +3,7 @@ import { Link, useLocation, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
+import { useCompanyMode } from '@/hooks/useCompanyMode';
 import { 
   BarChart3, 
   Target, 
