@@ -66,7 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           setTimeout(() => {
-            if (isMounted) fetchProfile(session.user.id);
+            if (!isMounted) return;
+            fetchProfile(session.user.id);
+            provisionCompanyMembership(session.user);
           }, 0);
         } else {
           setProfile(null);
