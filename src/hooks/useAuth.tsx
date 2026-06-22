@@ -146,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: flag } = await supabase
         .from('feature_flags')
         .select('company_mode_enabled')
-        .eq('id', 1)
+        .eq('id', true)
         .maybeSingle();
 
       if (flag?.company_mode_enabled) {
