@@ -1,59 +1,106 @@
-## Goal
+# Company-Based Management Migration Plan
 
-Make the TopUp page show a **shared, pooled view** for any users whose active Meta/TikTok integrations have at least one ad account ID in common. Shared scope: balance, all-time spend, AND top-up history. Anyone in a shared group can top up, and every payment counts toward the shared balance.
+Shift from individual user accounts to **company accounts grouped by verified email domain**, while keeping existing production data and flows fully intact behind a feature flag.
 
-## Concept: "Account group"
+---
 
-An account group = the transitive set of users/orgs whose active integrations share at least one `ad_account_id` (per platform). Computed at request time from the `integrations` table.
+## 1. Guiding principles
 
-```
-User A ── meta:[acct_1, acct_2]
-User B ── meta:[acct_2]          → A, B, C all in one group
-User C ── tiktok:[acct_9] + meta:[acct_1]
-```
+- **Zero impact on production users today.** All new logic lives behind a `company_mode` feature flag (off by default). Existing `members` / `organizations` data stays untouched and keeps working.
+- **Domain = company.** A verified `@cocacola.com` user joins the `cocacola.com` company automatically. No owner role — all members are equal.
+- **Verified email required.** No account creation without email confirmation. Personal domains (Gmail, Outlook, Yahoo, iCloud, Proton, etc.) are blocked unless explicitly allow-listed for testing.
+- **Existing accounts can opt-in** to test the new flow even if they use a non-company domain (via a `legacy_test_allowlist`).
 
-The group contributes:
-- a set of `user_ids` (used to query `topups`)
-- a set of `org_ids` (used to aggregate `client_balances`)
-- a deduplicated set of `{platform, ad_account_id, access_token}` (used to fetch lifetime spend)
+---
 
-## Changes
+## 2. Database changes (new tables, no breaking edits)
 
-### 1. `supabase/functions/get-balance/index.ts` — pool the data
+New tables, additive only:
 
-- After loading the current user's active Meta/TikTok integrations, query all integrations (admin client, bypassing RLS) where `integration_type` matches and `ad_account_id` overlaps any of the user's account IDs (use `.overlaps('ad_account_id', [...])` since the column is an array). Repeat per platform.
-- From the matched rows, collect:
-  - `groupUserIds` (union of `user_id` values, plus current user)
-  - `groupOrgIds` (union of `org_id` values, plus current user's primary org)
-  - `groupAccounts` — a map keyed by `${platform}:${accountId}` so each ad account is fetched only once, picking any one valid `access_token` for that account.
-- **Balance / totalTopups**: sum `current_balance` and `total_topups` across `client_balances` rows where `org_id IN groupOrgIds`. (Pooled wallet.)
-- **totalCosts**: iterate `groupAccounts` and call the existing `fetchMetaLifetimeSpend` / `fetchTikTokLifetimeSpend` once per unique account.
-- Return the aggregated values plus `groupUserIds` so the frontend can fetch the shared top-up history (or return the rows directly — see step 2).
+- `companies` — one row per domain. Fields: `domain` (unique), `name`, `display_name`, `created_at`.
+- `company_members` — links `user_id` to `company_id`. No `role` column (all equal). Unique on `(company_id, user_id)`.
+- `company_credits` — shared credit/balance pool per company.
+- `personal_email_domains` — blocklist seed (gmail.com, outlook.com, hotmail.com, yahoo.com, icloud.com, proton.me, protonmail.com, aol.com, live.com, msn.com, gmx.com, mail.com, zoho.com, yandex.com, qq.com, 163.com).
+- `legacy_test_allowlist` — `user_id` of existing users allowed to test company mode with any domain.
+- `feature_flags` — single-row table holding `company_mode_enabled` (default `false`).
 
-### 2. Top-up history — return from the edge function
+Helper functions:
+- `public.extract_email_domain(email text)` — lowercases and returns domain part.
+- `public.is_personal_domain(domain text)` — checks blocklist.
+- `public.get_or_create_company_for_email(email text)` — returns company_id, creates if missing.
+- `public.is_company_member(p_company_id uuid, p_user_id uuid)` — RLS helper (SECURITY DEFINER).
 
-`src/pages/TopUp.tsx` currently queries `topups` directly with `eq("user_id", user.id)`, which RLS enforces anyway. To show the pooled list, extend `get-balance` to also return the recent top-ups for `user_id IN groupUserIds` (limit 20, ordered by `created_at desc`) and have the page render that array instead of querying the table directly. No RLS change needed — service role does the read.
+RLS:
+- All new tables enable RLS. Users can read their own company + members; only service role can insert into `companies` / `company_members` (done via SECURITY DEFINER function called from edge function after email verification).
 
-### 3. `supabase/functions/create-mollie-payment/index.ts` — no behavioral change
+Existing tables (`members`, `organizations`, `client_balances`, etc.) are **not modified**. The two systems coexist; the UI picks one based on the flag.
 
-Still records the top-up under the paying user's own `user_id` / `org_id`. Because aggregation in step 1 unions all orgs in the group, every member's payment automatically increases the shared balance. The existing Mollie webhook (which credits `client_balances` for the payer's org) keeps working as-is.
+---
 
-### 4. `src/pages/TopUp.tsx`
+## 3. Signup / verification flow (new, gated)
 
-- Remove the direct `supabase.from("topups").select(...)` call.
-- Read `topups` from the `get-balance` response.
-- Add a small note under "Recent Top-Ups" like "Shared with N team member(s)" when `groupUserIds.length > 1` (count comes from the function response).
+Two edge functions:
 
-## Things explicitly NOT changing
+1. `validate-signup-email` — called pre-signup. Rejects:
+   - invalid format
+   - personal domain (unless user is in `legacy_test_allowlist`)
+   - disposable domain (basic list)
+2. `provision-company-membership` — called after Supabase email confirmation (auth hook or first authenticated request). Calls `get_or_create_company_for_email(auth.email)` and inserts into `company_members`.
 
-- No DB migrations, no RLS changes, no new tables. The grouping is computed on read using existing data.
-- `client_balances`, `topups`, and the Mollie webhook keep their current per-org/per-user semantics. Sharing is purely a read-side aggregation.
-- Dashboard's "Remaining Balance" card already calls `get-balance`, so it inherits the pooled values automatically.
-- Spend logic (lifetime spend per ad account) is unchanged — only the input set of ad accounts grows.
+Supabase Auth setting: **email confirmation required = true** (only enforced when `company_mode_enabled`; existing users already verified are unaffected). I'll document the dashboard toggle for the user rather than flip it silently.
 
-## Edge cases handled
+Frontend signup page (new variant gated by flag):
+- Client-side domain check + clear error: "Please use your company email address."
+- Show "Verify your email" screen after signup.
+- After confirmation, route to company dashboard.
 
-- Current user has no integrations → group = just themselves (current behavior).
-- Two users share one ad account but are in different orgs → both orgs' `client_balances` are summed; both users' Mollie top-ups appear in the list.
-- Same ad account appears in multiple integration rows with different access tokens → fetched only once, using the first usable token.
-- Inactive integrations are ignored (filtered by `status = 'active'`).
+---
+
+## 4. Admin UI — companies view
+
+New page `/admin/companies` (in addition to existing `/invite-users`, which stays as-is for now):
+
+- Table of companies: `Domain | Display Name | # Members | Total Credits | Created`
+- Expand row → list of member emails, joined date, last sign-in.
+- Search by domain or member email.
+- Per-company actions: rename, adjust shared credits, view activity.
+- When `company_mode_enabled` is on, the admin nav swaps "Users" → "Companies". When off, the current "Invite Users" page is shown.
+
+---
+
+## 5. Shared company data
+
+Behind the flag, the following reads/writes scope to `company_id` instead of `user_id`/`org_id`:
+- Credits / balance → `company_credits`
+- Folders (if/when added)
+- Jobs and campaigns will get an optional `company_id` column (nullable, additive). Existing rows keep using `org_id`. New code path writes both during transition.
+
+This dual-write phase is what makes the rollback safe.
+
+---
+
+## 6. Rollout phases
+
+1. **Phase 0 (this change set):** migrations, edge functions, admin Companies page, signup variant — all hidden behind `company_mode_enabled = false`. Production users see nothing new.
+2. **Phase 1 (testing):** enable flag for internal/test accounts via `legacy_test_allowlist`. QA the full flow.
+3. **Phase 2 (release):** flip `company_mode_enabled = true` for everyone. Existing users keep their data; new signups go through the company flow. Old `/invite-users` page is removed.
+4. **Phase 3 (cleanup, later):** backfill existing users into companies based on their email domain (one-off script, run only after sign-off).
+
+---
+
+## Technical details (for reference)
+
+- All new SQL in a single migration with proper `GRANT` + RLS per Lovable rules.
+- Edge functions: `validate-signup-email`, `provision-company-membership`. Both use `verify_jwt = false` with in-code JWT validation where needed.
+- Frontend: new `useCompanyMode()` hook reads the flag once at app boot; components branch on it. No existing component behavior changes when the flag is off.
+- Personal-domain list stored in DB so it can be tuned without redeploys.
+- No changes to `useAuth`, `App.tsx` routing logic, or existing pages in this phase beyond mounting the new admin route.
+
+---
+
+## Open questions before I start
+
+1. **Phase scope** — do you want me to ship **all of Phase 0** in one go (migrations + edge functions + admin Companies page + gated signup), or just the foundation (migrations + flag + admin page) first and signup flow second?
+2. **Company display name** — when auto-creating `cocacola.com`, should the default display name be `Cocacola` (capitalized domain root) or just the bare domain until an admin renames it?
+3. **Personal-domain list** — happy with the seed list above, or do you want to add/remove any?
+4. **Existing-user backfill** — should I include a *dry-run* report (which existing users would land in which company) in this phase, even though no rows get written?
