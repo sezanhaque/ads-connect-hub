@@ -12,8 +12,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { UserPlus, Search, Users, Shield, UserX, ArrowLeft, User } from 'lucide-react';
+import { UserPlus, Search, Users, Shield, UserX, ArrowLeft, User, ChevronDown, ChevronRight, Building2 } from 'lucide-react';
 import { MetaLogo, TikTokLogo } from '@/components/icons';
+import { getEmailDomain, isPersonalDomain } from '@/lib/email-domain';
 
 type Platform = 'meta' | 'tiktok' | null;
 
