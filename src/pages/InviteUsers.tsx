@@ -53,6 +53,7 @@ const InviteUsers = () => {
   const [balanceInput, setBalanceInput] = useState('');
   const [savingBalance, setSavingBalance] = useState(false);
   const [confirmBalanceOpen, setConfirmBalanceOpen] = useState(false);
+  const [expandedDomains, setExpandedDomains] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const { profile } = useAuth();
 
