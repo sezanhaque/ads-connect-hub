@@ -17,7 +17,7 @@ import NewsInsights from "@/components/home/NewsInsights";
 import HomeFAQ from "@/components/home/HomeFAQ";
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const handleDemoRequest = () => {
@@ -34,6 +34,10 @@ const Index = () => {
       document.body.removeChild(script);
     };
   }, []);
+
+  if (loading) {
+    return <div className="min-h-screen page-bg" />;
+  }
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
