@@ -88,6 +88,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const provisionCompanyMembership = async (authUser: User) => {
+    try {
+      // Only run when user's email is verified.
+      if (!authUser.email_confirmed_at && !(authUser as any).confirmed_at) return;
+
+      const { data: flag } = await supabase
+        .from('feature_flags')
+        .select('company_mode_enabled')
+        .eq('id', true)
+        .maybeSingle();
+
+      if (!flag?.company_mode_enabled) return;
+
+      await supabase.functions.invoke('provision-company-membership', { body: {} });
+    } catch (e) {
+      console.warn('provision-company-membership skipped:', e);
+    }
+  };
+
   const fetchProfile = async (userId: string) => {
     try {
       // 1) Fetch base profile
