@@ -140,7 +140,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string, companyName: string) => {
     const redirectUrl = window.location.origin;
-    
+
+    // If company-mode is enabled, validate the email domain before creating the auth user.
+    try {
+      const { data: flag } = await supabase
+        .from('feature_flags')
+        .select('company_mode_enabled')
+        .eq('id', 1)
+        .maybeSingle();
+
+      if (flag?.company_mode_enabled) {
+        const { data: validation, error: validationError } = await supabase.functions.invoke(
+          'validate-signup-email',
+          { body: { email } }
+        );
+
+        if (validationError || !validation?.ok) {
+          const msg = validation?.error || validationError?.message || 'This email domain is not allowed. Please use your company email.';
+          toast({
+            title: 'Sign up blocked',
+            description: msg,
+            variant: 'destructive',
+          });
+          return { error: { message: msg } };
+        }
+      }
+    } catch (e) {
+      // If the flag lookup fails, fall through to legacy signup (production safe default).
+      console.warn('Company-mode pre-check skipped:', e);
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
