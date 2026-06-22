@@ -15,6 +15,7 @@ import {
   Users,
   Share2,
   UserPlus,
+  Building2,
   CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -36,6 +37,7 @@ const adminNavigation = [
   { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
   { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
   { name: 'Invite Users', href: '/invite-users', icon: UserPlus },
+  { name: 'Companies', href: '/companies', icon: Building2 },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {

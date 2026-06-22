@@ -32,6 +32,7 @@ import MetaConnection from "./pages/MetaConnection";
 import TikTokConnection from "./pages/TikTokConnection";
 import InviteUsers from "./pages/InviteUsers";
 import UserManagement from "./pages/UserManagement";
+import Companies from "./pages/Companies";
 
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import TopUp from "./pages/TopUp";
@@ -197,6 +198,16 @@ const App = () => {
                     <DashboardLayout>
                       <AdminRoute>
                         <UserManagement />
+                      </AdminRoute>
+                    </DashboardLayout>
+                  }
+                />
+                <Route
+                  path="/companies"
+                  element={
+                    <DashboardLayout>
+                      <AdminRoute>
+                        <Companies />
                       </AdminRoute>
                     </DashboardLayout>
                   }
