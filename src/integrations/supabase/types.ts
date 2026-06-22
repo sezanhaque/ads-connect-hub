@@ -268,6 +268,41 @@ export type Database = {
           },
         ]
       }
+      company_integrations: {
+        Row: {
+          ad_account_ids: string[]
+          company_id: string
+          created_at: string
+          id: string
+          integration_type: string
+          updated_at: string
+        }
+        Insert: {
+          ad_account_ids?: string[]
+          company_id: string
+          created_at?: string
+          id?: string
+          integration_type: string
+          updated_at?: string
+        }
+        Update: {
+          ad_account_ids?: string[]
+          company_id?: string
+          created_at?: string
+          id?: string
+          integration_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_integrations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_members: {
         Row: {
           company_id: string
