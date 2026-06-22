@@ -66,7 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           setTimeout(() => {
-            if (isMounted) fetchProfile(session.user.id);
+            if (!isMounted) return;
+            fetchProfile(session.user.id);
+            provisionCompanyMembership(session.user);
           }, 0);
         } else {
           setProfile(null);
@@ -85,6 +87,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
+
+  const provisionCompanyMembership = async (authUser: User) => {
+    try {
+      // Only run when user's email is verified.
+      if (!authUser.email_confirmed_at && !(authUser as any).confirmed_at) return;
+
+      const { data: flag } = await supabase
+        .from('feature_flags')
+        .select('company_mode_enabled')
+        .eq('id', true)
+        .maybeSingle();
+
+      if (!flag?.company_mode_enabled) return;
+
+      await supabase.functions.invoke('provision-company-membership', { body: {} });
+    } catch (e) {
+      console.warn('provision-company-membership skipped:', e);
+    }
+  };
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -140,7 +161,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string, companyName: string) => {
     const redirectUrl = window.location.origin;
-    
+
+    // If company-mode is enabled, validate the email domain before creating the auth user.
+    try {
+      const { data: flag } = await supabase
+        .from('feature_flags')
+        .select('company_mode_enabled')
+        .eq('id', true)
+        .maybeSingle();
+
+      if (flag?.company_mode_enabled) {
+        const { data: validation, error: validationError } = await supabase.functions.invoke(
+          'validate-signup-email',
+          { body: { email } }
+        );
+
+        if (validationError || !validation?.ok) {
+          const msg = validation?.error || validationError?.message || 'This email domain is not allowed. Please use your company email.';
+          toast({
+            title: 'Sign up blocked',
+            description: msg,
+            variant: 'destructive',
+          });
+          return { error: { message: msg } };
+        }
+      }
+    } catch (e) {
+      // If the flag lookup fails, fall through to legacy signup (production safe default).
+      console.warn('Company-mode pre-check skipped:', e);
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
