@@ -34,15 +34,21 @@ const navigation = [
   { name: 'Top Up', href: '/top-up', icon: CreditCard },
 ];
 
-const adminNavigation = [
+const adminNavigationLegacy = [
   { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
   { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
   { name: 'Invite Users', href: '/invite-users', icon: UserPlus },
+];
+
+const adminNavigationCompanyMode = [
+  { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
+  { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
   { name: 'Companies', href: '/companies', icon: Building2 },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, profile, loading, signOut } = useAuth();
+  const { enabled: companyMode } = useCompanyMode();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
