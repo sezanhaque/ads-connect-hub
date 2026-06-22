@@ -479,7 +479,27 @@ const CreateCampaign = () => {
       // Create campaign
       const budgetValue = getBudgetValue();
       const endDate = getEndDate();
-      
+
+      // Optional dual-write of company_id when company mode is enabled
+      let companyIdForCampaign: string | null = null;
+      try {
+        const { data: flag } = await supabase
+          .from("feature_flags")
+          .select("company_mode_enabled")
+          .maybeSingle();
+        if (flag?.company_mode_enabled) {
+          const { data: cm } = await supabase
+            .from("company_members")
+            .select("company_id")
+            .eq("user_id", profile.user_id)
+            .limit(1)
+            .maybeSingle();
+          companyIdForCampaign = (cm as any)?.company_id ?? null;
+        }
+      } catch (e) {
+        console.warn("company_id lookup skipped", e);
+      }
+
       const { data: campaignId, error } = await supabase.rpc("create_campaign", {
         p_org_id: preferred.org_id,
         p_job_id: campaignData.jobId,
@@ -504,6 +524,7 @@ const CreateCampaign = () => {
         p_ad_copy: campaignData.adCopy,
         p_cta: campaignData.ctaButton !== 'none' ? campaignData.ctaButton.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : null,
         p_destination_url: null,
+        p_company_id: companyIdForCampaign,
       });
 
       // Update campaign platform

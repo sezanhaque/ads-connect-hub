@@ -3,6 +3,7 @@ import { Link, useLocation, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
+import { useCompanyMode } from '@/hooks/useCompanyMode';
 import { 
   BarChart3, 
   Target, 
@@ -33,15 +34,21 @@ const navigation = [
   { name: 'Top Up', href: '/top-up', icon: CreditCard },
 ];
 
-const adminNavigation = [
+const adminNavigationLegacy = [
   { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
   { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
   { name: 'Invite Users', href: '/invite-users', icon: UserPlus },
+];
+
+const adminNavigationCompanyMode = [
+  { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
+  { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
   { name: 'Companies', href: '/companies', icon: Building2 },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, profile, loading, signOut } = useAuth();
+  const { enabled: companyMode } = useCompanyMode();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -144,7 +151,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <div className="px-3 py-2">
                   <div className="h-px bg-sidebar-border" />
                 </div>
-                {adminNavigation.map((item) => {
+                {(companyMode ? adminNavigationCompanyMode : adminNavigationLegacy).map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
                     <Link

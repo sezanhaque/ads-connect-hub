@@ -104,6 +104,46 @@ serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceKey);
 
+    // Company mode: if feature flag is on and the user is a company member,
+    // return the shared company balance instead of the org-based balance.
+    try {
+      const { data: flag } = await admin
+        .from("feature_flags")
+        .select("company_mode_enabled")
+        .maybeSingle();
+      if (flag?.company_mode_enabled) {
+        const { data: cm } = await admin
+          .from("company_members")
+          .select("company_id")
+          .eq("user_id", userId)
+          .limit(1)
+          .maybeSingle();
+        if (cm?.company_id) {
+          const { data: credits } = await admin
+            .from("company_credits")
+            .select("current_balance, total_topups, currency")
+            .eq("company_id", cm.company_id)
+            .maybeSingle();
+          return new Response(
+            JSON.stringify({
+              companyId: cm.company_id,
+              balance: Number(credits?.current_balance ?? 0),
+              totalTopups: Number(credits?.total_topups ?? 0),
+              totalCosts: 0,
+              currency: credits?.currency || "EUR",
+              topups: [],
+              groupUserIds: [userId],
+              companyMode: true,
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+    } catch (e) {
+      console.warn("company mode balance lookup skipped", e);
+    }
+
+
     const { data: members } = await admin
       .from("members")
       .select("org_id, role")
