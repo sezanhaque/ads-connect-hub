@@ -51,3 +51,10 @@ verify_jwt = false
 
 [functions.update-status]
 verify_jwt = false
+
+[functions.validate-signup-email]
+verify_jwt = false
+
+[functions.provision-company-membership]
+verify_jwt = false
+
