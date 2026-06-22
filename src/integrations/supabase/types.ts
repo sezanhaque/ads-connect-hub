@@ -199,6 +199,97 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          created_at: string
+          display_name: string
+          domain: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          domain: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          domain?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      company_credits: {
+        Row: {
+          balance: number
+          company_id: string
+          created_at: string
+          currency: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          company_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          company_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_credits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_members: {
+        Row: {
+          company_id: string
+          created_at: string
+          email: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          email: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_campaign_spend: {
         Row: {
           amount: number
@@ -236,6 +327,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feature_flags: {
+        Row: {
+          company_mode_enabled: boolean
+          id: boolean
+          updated_at: string
+        }
+        Insert: {
+          company_mode_enabled?: boolean
+          id?: boolean
+          updated_at?: string
+        }
+        Update: {
+          company_mode_enabled?: boolean
+          id?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       integrations: {
         Row: {
@@ -338,6 +447,24 @@ export type Database = {
           },
         ]
       }
+      legacy_test_allowlist: {
+        Row: {
+          created_at: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           created_at: string | null
@@ -421,6 +548,21 @@ export type Database = {
           google_sheet_id?: string | null
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      personal_email_domains: {
+        Row: {
+          created_at: string
+          domain: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
         }
         Relationships: []
       }
@@ -743,6 +885,11 @@ export type Database = {
         }
         Returns: string
       }
+      extract_email_domain: { Args: { p_email: string }; Returns: string }
+      get_or_create_company_for_email: {
+        Args: { p_email: string }
+        Returns: string
+      }
       get_user_org_role: {
         Args: { p_org_id: string; p_user_id?: string }
         Returns: string
@@ -770,6 +917,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      is_company_member: {
+        Args: { p_company_id: string; p_user_id?: string }
+        Returns: boolean
+      }
       is_org_member: {
         Args: { p_org_id: string; p_user_id?: string }
         Returns: boolean
@@ -778,6 +929,7 @@ export type Database = {
         Args: { p_org_id: string; p_user_id?: string }
         Returns: boolean
       }
+      is_personal_domain: { Args: { p_domain: string }; Returns: boolean }
       publish_campaign: {
         Args: { p_campaign_id: string; p_requester: string }
         Returns: boolean
