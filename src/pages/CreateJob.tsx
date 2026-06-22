@@ -99,16 +99,16 @@ const CreateJob = () => {
       try {
         const { data: flag } = await supabase
           .from('feature_flags')
-          .select('enabled')
-          .eq('key', 'company_mode_enabled')
+          .select('company_mode_enabled')
           .maybeSingle();
-        if (flag?.enabled) {
+        if ((flag as any)?.company_mode_enabled) {
           const { data: cm } = await supabase
             .from('company_members')
             .select('company_id')
             .eq('user_id', profile.user_id)
+            .limit(1)
             .maybeSingle();
-          companyId = cm?.company_id ?? null;
+          companyId = (cm as any)?.company_id ?? null;
         }
       } catch (e) {
         console.warn('company_mode lookup failed', e);
