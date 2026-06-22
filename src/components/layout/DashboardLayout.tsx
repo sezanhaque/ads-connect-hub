@@ -151,7 +151,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <div className="px-3 py-2">
                   <div className="h-px bg-sidebar-border" />
                 </div>
-                {adminNavigation.map((item) => {
+                {(companyMode ? adminNavigationCompanyMode : adminNavigationLegacy).map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
                     <Link
