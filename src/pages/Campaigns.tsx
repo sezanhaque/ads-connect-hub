@@ -25,6 +25,9 @@ interface Campaign {
   created_at: string;
   platform: string | null;
   currency?: string | null;
+  created_by?: string | null;
+  created_by_name?: string | null;
+  created_by_email?: string | null;
 }
 
 const Campaigns = () => {
