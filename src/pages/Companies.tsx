@@ -339,6 +339,8 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
   const [tiktokToken, setTiktokToken] = useState('');
   const [tiktokBusy, setTiktokBusy] = useState(false);
   const [tiktokSyncBusy, setTiktokSyncBusy] = useState(false);
+  const [roleBusyFor, setRoleBusyFor] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!company) return;
