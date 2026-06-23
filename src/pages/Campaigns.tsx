@@ -387,6 +387,14 @@ const Campaigns = () => {
                           </span>
                         </div>
                       )}
+                      {(campaign.created_by_name || campaign.created_by_email) && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs">Created by</span>
+                          <span className="font-medium">
+                            {campaign.created_by_name || campaign.created_by_email}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
