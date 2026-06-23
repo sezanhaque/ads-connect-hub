@@ -9,6 +9,7 @@ import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const { user, loading, signIn, signUp, resetPassword } = useAuth();
@@ -58,7 +59,22 @@ const Auth = () => {
       setIsLoading(false);
       return;
     }
-    
+
+    // Block personal email domains for new signups (existing users grandfathered)
+    const domain = email.split('@')[1]?.toLowerCase().trim();
+    if (domain) {
+      const { data: isPersonal } = await supabase.rpc('is_personal_domain', { p_domain: domain });
+      if (isPersonal) {
+        toast({
+          title: "Work email required",
+          description: "Please sign up with your work email address. Personal email providers (e.g. Gmail, Outlook) are not allowed.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
     await signUp(email, password, firstName, lastName, companyName);
     setIsLoading(false);
   };
