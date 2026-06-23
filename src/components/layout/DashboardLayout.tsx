@@ -38,11 +38,13 @@ const adminNavigationLegacy = [
   { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
   { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
   { name: 'Invite Users', href: '/invite-users', icon: UserPlus },
+  { name: 'Companies', href: '/companies', icon: Building2 },
 ];
 
 const adminNavigationCompanyMode = [
   { name: 'Meta Connection', href: '/meta-connection', icon: Share2 },
   { name: 'TikTok Connection', href: '/tiktok-connection', icon: Share2 },
+  { name: 'Invite Users', href: '/invite-users', icon: UserPlus },
   { name: 'Companies', href: '/companies', icon: Building2 },
 ];
 
