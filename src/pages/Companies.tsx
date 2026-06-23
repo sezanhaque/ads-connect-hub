@@ -281,12 +281,21 @@ const Companies = () => {
                                     key={m.user_id}
                                     className="flex items-center justify-between text-sm py-1 border-b last:border-b-0"
                                   >
-                                    <span>{m.email}</span>
+                                    <span className="flex items-center gap-2">
+                                      {m.email}
+                                      <Badge
+                                        variant={m.role === 'owner' ? 'default' : m.role === 'admin' ? 'secondary' : 'outline'}
+                                        className="text-[10px] uppercase"
+                                      >
+                                        {m.role}
+                                      </Badge>
+                                    </span>
                                     <span className="text-xs text-muted-foreground">
                                       Joined {new Date(m.created_at).toLocaleDateString()}
                                     </span>
                                   </div>
                                 ))}
+
                               </div>
                             )}
                           </TableCell>
