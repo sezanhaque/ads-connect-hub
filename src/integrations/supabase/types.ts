@@ -270,27 +270,36 @@ export type Database = {
       }
       company_integrations: {
         Row: {
+          access_token: string | null
+          account_name: string | null
           ad_account_ids: string[]
           company_id: string
           created_at: string
           id: string
           integration_type: string
+          last_sync_at: string | null
           updated_at: string
         }
         Insert: {
+          access_token?: string | null
+          account_name?: string | null
           ad_account_ids?: string[]
           company_id: string
           created_at?: string
           id?: string
           integration_type: string
+          last_sync_at?: string | null
           updated_at?: string
         }
         Update: {
+          access_token?: string | null
+          account_name?: string | null
           ad_account_ids?: string[]
           company_id?: string
           created_at?: string
           id?: string
           integration_type?: string
+          last_sync_at?: string | null
           updated_at?: string
         }
         Relationships: [
