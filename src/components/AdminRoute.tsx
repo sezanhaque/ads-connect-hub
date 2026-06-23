@@ -17,26 +17,26 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     const checkAdminStatus = async () => {
       if (authLoading) return;
 
-      if (!user || !profile?.organization_id) {
+      if (!user) {
         setIsAdmin(false);
         setCheckingRole(false);
         return;
       }
 
       try {
-        // Check role from members table for the user's organization
+        // Admin = owner/admin role in any company (company_members table)
         const { data, error } = await supabase
-          .from('members')
+          .from('company_members')
           .select('role')
           .eq('user_id', user.id)
-          .eq('org_id', profile.organization_id)
-          .single();
+          .in('role', ['owner', 'admin'])
+          .limit(1);
 
         if (error) {
           console.error('Error checking admin status:', error);
           setIsAdmin(false);
         } else {
-          setIsAdmin(data?.role === 'admin' || data?.role === 'owner');
+          setIsAdmin((data?.length ?? 0) > 0);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -48,6 +48,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 
     checkAdminStatus();
   }, [user, profile, authLoading]);
+
 
   // Show loading state while checking authentication and role
   if (authLoading || checkingRole) {
