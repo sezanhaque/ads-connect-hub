@@ -309,10 +309,14 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
   const [topupBusy, setTopupBusy] = useState(false);
   const [metaIds, setMetaIds] = useState<string[]>([]);
   const [metaInput, setMetaInput] = useState('');
+  const [metaToken, setMetaToken] = useState('');
   const [metaBusy, setMetaBusy] = useState(false);
+  const [metaSyncBusy, setMetaSyncBusy] = useState(false);
   const [tiktokIds, setTiktokIds] = useState<string[]>([]);
   const [tiktokInput, setTiktokInput] = useState('');
+  const [tiktokToken, setTiktokToken] = useState('');
   const [tiktokBusy, setTiktokBusy] = useState(false);
+  const [tiktokSyncBusy, setTiktokSyncBusy] = useState(false);
 
   useEffect(() => {
     if (!company) return;
@@ -320,6 +324,8 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
     const tiktok = company.integrations.find((i) => i.integration_type === 'tiktok');
     setMetaIds((meta?.ad_account_ids ?? []).map((id) => id.replace(/^act_/, '')));
     setTiktokIds(tiktok?.ad_account_ids ?? []);
+    setMetaToken(meta?.access_token ?? '');
+    setTiktokToken(tiktok?.access_token ?? '');
     setTopupAmount('');
     setMetaInput('');
     setTiktokInput('');
@@ -347,18 +353,34 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
     onChanged();
   };
 
-  const savePlatform = async (platform: 'meta' | 'tiktok', ids: string[]) => {
+  const savePlatform = async (platform: 'meta' | 'tiktok', ids: string[], accessToken: string) => {
     const setBusy = platform === 'meta' ? setMetaBusy : setTiktokBusy;
     setBusy(true);
     const { data, error } = await supabase.functions.invoke('company-platform-setup', {
-      body: { company_id: company.id, platform, ad_account_ids: ids },
+      body: { company_id: company.id, platform, ad_account_ids: ids, access_token: accessToken },
     });
     setBusy(false);
     if (error || !data?.success) {
       toast({ title: 'Error', description: error?.message || data?.error || 'Failed to save', variant: 'destructive' });
       return;
     }
-    toast({ title: `${platform === 'meta' ? 'Meta' : 'TikTok'} ad accounts saved`, description: `${data.count} account(s) shared with this company.` });
+    toast({ title: `${platform === 'meta' ? 'Meta' : 'TikTok'} saved`, description: `${data.count} account(s) shared${data.has_token ? ' with token' : ''}.` });
+    onChanged();
+  };
+
+  const syncPlatform = async (platform: 'meta' | 'tiktok') => {
+    const setBusy = platform === 'meta' ? setMetaSyncBusy : setTiktokSyncBusy;
+    setBusy(true);
+    const fn = platform === 'meta' ? 'company-meta-sync' : 'company-tiktok-sync';
+    const { data, error } = await supabase.functions.invoke(fn, {
+      body: { company_id: company.id },
+    });
+    setBusy(false);
+    if (error || !data?.success) {
+      toast({ title: 'Sync failed', description: error?.message || data?.error || 'Sync error', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Sync complete', description: `${data.synced_count}/${data.total_campaigns} campaigns synced.` });
     onChanged();
   };
 
@@ -463,9 +485,24 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
               Numbers only; the "act_" prefix is added automatically. Press Enter or click Add.
             </p>
             {renderIdList(metaIds, setMetaIds, metaInput, setMetaInput, '971311827719449')}
-            <DialogFooter>
-              <Button onClick={() => savePlatform('meta', metaIds)} disabled={metaBusy}>
-                {metaBusy ? 'Saving…' : 'Save Meta accounts'}
+            <div className="pt-2">
+              <Label>Shared Meta access token</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Long-lived token (starts with <code>EAA</code>). Used to pull data for all company members.
+              </p>
+              <Input
+                type="password"
+                placeholder="EAA…"
+                value={metaToken}
+                onChange={(e) => setMetaToken(e.target.value)}
+              />
+            </div>
+            <DialogFooter className="gap-2 sm:gap-2">
+              <Button variant="outline" onClick={() => syncPlatform('meta')} disabled={metaSyncBusy}>
+                {metaSyncBusy ? 'Syncing…' : 'Sync now'}
+              </Button>
+              <Button onClick={() => savePlatform('meta', metaIds, metaToken)} disabled={metaBusy}>
+                {metaBusy ? 'Saving…' : 'Save Meta'}
               </Button>
             </DialogFooter>
           </TabsContent>
@@ -478,9 +515,24 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
             <Label>Advertiser IDs</Label>
             <p className="text-xs text-muted-foreground">Press Enter or click Add.</p>
             {renderIdList(tiktokIds, setTiktokIds, tiktokInput, setTiktokInput, '7123456789012345678')}
-            <DialogFooter>
-              <Button onClick={() => savePlatform('tiktok', tiktokIds)} disabled={tiktokBusy}>
-                {tiktokBusy ? 'Saving…' : 'Save TikTok accounts'}
+            <div className="pt-2">
+              <Label>Shared TikTok access token</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Long-lived TikTok Business API access token. Used for all company members.
+              </p>
+              <Input
+                type="password"
+                placeholder="Access token"
+                value={tiktokToken}
+                onChange={(e) => setTiktokToken(e.target.value)}
+              />
+            </div>
+            <DialogFooter className="gap-2 sm:gap-2">
+              <Button variant="outline" onClick={() => syncPlatform('tiktok')} disabled={tiktokSyncBusy}>
+                {tiktokSyncBusy ? 'Syncing…' : 'Sync now'}
+              </Button>
+              <Button onClick={() => savePlatform('tiktok', tiktokIds, tiktokToken)} disabled={tiktokBusy}>
+                {tiktokBusy ? 'Saving…' : 'Save TikTok'}
               </Button>
             </DialogFooter>
           </TabsContent>
