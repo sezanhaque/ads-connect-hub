@@ -410,6 +410,7 @@ const Jobs = () => {
                   <TableHead>Location</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Created by</TableHead>
                   <TableHead>Campaign</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
