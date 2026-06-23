@@ -8,17 +8,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, ChevronDown, ChevronRight, Search, Settings2, Users, X } from 'lucide-react';
+import { Building2, ChevronDown, ChevronRight, Search, Settings2, Shield, Users, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useCompanyMode } from '@/hooks/useCompanyMode';
 import { MetaLogo, TikTokLogo } from '@/components/icons';
 
+type CompanyMemberRole = 'owner' | 'admin' | 'member';
+
 interface CompanyMemberRow {
+  id: string;
   user_id: string;
   email: string;
   created_at: string;
+  role: CompanyMemberRole;
 }
+
 
 interface CompanyIntegrationRow {
   integration_type: 'meta' | 'tiktok';
