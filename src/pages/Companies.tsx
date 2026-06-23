@@ -67,9 +67,16 @@ const Companies = () => {
     const membersByCompany = new Map<string, CompanyMemberRow[]>();
     (members ?? []).forEach((m: any) => {
       const list = membersByCompany.get(m.company_id) ?? [];
-      list.push({ user_id: m.user_id, email: m.email, created_at: m.created_at });
+      list.push({
+        id: m.id,
+        user_id: m.user_id,
+        email: m.email,
+        created_at: m.created_at,
+        role: (m.role as CompanyMemberRole) ?? 'member',
+      });
       membersByCompany.set(m.company_id, list);
     });
+
 
     const creditsByCompany = new Map<string, { balance: number; currency: string }>();
     (credits ?? []).forEach((c: any) =>
