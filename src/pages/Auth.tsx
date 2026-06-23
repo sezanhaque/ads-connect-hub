@@ -9,6 +9,7 @@ import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const { user, loading, signIn, signUp, resetPassword } = useAuth();
