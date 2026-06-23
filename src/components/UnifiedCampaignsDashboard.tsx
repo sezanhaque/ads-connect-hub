@@ -105,20 +105,23 @@ export const UnifiedCampaignsDashboard = ({
           memberships.find((m: { role: string }) => m.role === "member") ||
           memberships[0];
 
-        // Always fetch Supabase campaigns as fallback/base data
-        const { data: supabaseCampaigns, error: supabaseError } = await supabase
+        // Resolve company membership (additive: company-mode lets all members see the same campaigns)
+        const { data: companyMembership } = await supabase
+          .from("company_members")
+          .select("company_id")
+          .eq("user_id", user.id)
+          .limit(1)
+          .maybeSingle();
+        const companyId = companyMembership?.company_id ?? null;
+
+        // Always fetch Supabase campaigns as fallback/base data — by org OR by shared company
+        const campaignsQuery = supabase
           .from("campaigns")
-          .select(
-            `
-            id,
-            name,
-            status,
-            objective,
-            platform,
-            budget
-          `,
-          )
-          .eq("org_id", primaryOrg.org_id);
+          .select(`id, name, status, objective, platform, budget`);
+        const filter = companyId
+          ? `org_id.eq.${primaryOrg.org_id},company_id.eq.${companyId}`
+          : `org_id.eq.${primaryOrg.org_id}`;
+        const { data: supabaseCampaigns, error: supabaseError } = await campaignsQuery.or(filter);
 
         // Fetch metrics for Supabase campaigns
         let supabaseCampaignsWithMetrics: UnifiedCampaign[] = [];
