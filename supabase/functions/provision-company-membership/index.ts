@@ -68,12 +68,31 @@ Deno.serve(async (req) => {
       return json({ ok: false, reason: "company_create_failed", message: rpcErr?.message }, 500);
     }
 
-    const { error: insErr } = await admin
+    const isInternal = domain === "twentytwentysolutions.io";
+    const desiredRole = isInternal ? "admin" : "member";
+
+    // Check existing membership
+    const { data: existing } = await admin
       .from("company_members")
-      .upsert(
-        { company_id: companyId, user_id: user.id, email },
-        { onConflict: "company_id,user_id", ignoreDuplicates: true },
-      );
+      .select("role")
+      .eq("company_id", companyId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    let insErr: any = null;
+    if (!existing) {
+      const { error } = await admin
+        .from("company_members")
+        .insert({ company_id: companyId, user_id: user.id, email, role: desiredRole });
+      insErr = error;
+    } else if (isInternal && existing.role !== "admin") {
+      const { error } = await admin
+        .from("company_members")
+        .update({ role: "admin" })
+        .eq("company_id", companyId)
+        .eq("user_id", user.id);
+      insErr = error;
+    }
 
     if (insErr) {
       return json({ ok: false, reason: "membership_insert_failed", message: insErr.message }, 500);
