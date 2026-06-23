@@ -24,19 +24,41 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
       }
 
       try {
-        // Admin = owner/admin role in any company (company_members table)
-        const { data, error } = await supabase
-          .from('company_members')
-          .select('role')
-          .eq('user_id', user.id)
-          .in('role', ['owner', 'admin'])
-          .limit(1);
+        // Read feature flag to decide which table drives admin access
+        const { data: flag } = await supabase
+          .from('feature_flags')
+          .select('company_mode_enabled')
+          .eq('id', true)
+          .maybeSingle();
 
-        if (error) {
-          console.error('Error checking admin status:', error);
-          setIsAdmin(false);
-        } else {
+        const companyMode = flag?.company_mode_enabled === true;
+
+        if (companyMode) {
+          // Company mode: admin = owner/admin in company_members
+          const { data, error } = await supabase
+            .from('company_members')
+            .select('role')
+            .eq('user_id', user.id)
+            .in('role', ['owner', 'admin'])
+            .limit(1);
+
+          if (error) throw error;
           setIsAdmin((data?.length ?? 0) > 0);
+        } else {
+          // Legacy mode: admin = owner/admin in members table for user's org
+          if (!profile?.organization_id) {
+            setIsAdmin(false);
+          } else {
+            const { data, error } = await supabase
+              .from('members')
+              .select('role')
+              .eq('user_id', user.id)
+              .eq('org_id', profile.organization_id)
+              .single();
+
+            if (error) throw error;
+            setIsAdmin(data?.role === 'admin' || data?.role === 'owner');
+          }
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -48,6 +70,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 
     checkAdminStatus();
   }, [user, profile, authLoading]);
+
 
 
   // Show loading state while checking authentication and role
