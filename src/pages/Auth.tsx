@@ -214,6 +214,7 @@ const Auth = () => {
               <TabsContent value="signin" className="mt-0">
                 <form onSubmit={handleSignIn}>
                   <CardContent className="space-y-4">
+                    <GoogleButton />
                     <div className="space-y-2">
                       <Label htmlFor="signin-email">Email</Label>
                       <Input
