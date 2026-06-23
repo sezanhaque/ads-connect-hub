@@ -25,6 +25,9 @@ interface Campaign {
   created_at: string;
   platform: string | null;
   currency?: string | null;
+  created_by?: string | null;
+  created_by_name?: string | null;
+  created_by_email?: string | null;
 }
 
 const Campaigns = () => {
@@ -127,12 +130,22 @@ const Campaigns = () => {
         }
       }
 
-      // Fetch campaigns from Supabase
-      const { data: supabaseCampaigns, error } = await supabase
-        .from('campaigns')
-        .select('*')
-        .eq('org_id', primaryOrg.org_id)
-        .order('created_at', { ascending: false });
+      // Resolve user's company (shared at company level)
+      const { data: companyMembership } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', profile.user_id)
+        .maybeSingle();
+
+      const companyId = companyMembership?.company_id || null;
+
+      // Fetch campaigns from Supabase (org OR shared company)
+      let dbQuery = supabase.from('campaigns').select('*').order('created_at', { ascending: false });
+      dbQuery = companyId
+        ? dbQuery.or(`org_id.eq.${primaryOrg.org_id},company_id.eq.${companyId}`)
+        : dbQuery.eq('org_id', primaryOrg.org_id);
+
+      const { data: supabaseCampaigns, error } = await dbQuery;
 
       if (error) throw error;
 
@@ -146,6 +159,26 @@ const Campaigns = () => {
           );
           if (!existsInApi) {
             allCampaigns.push(dbCampaign);
+          }
+        });
+      }
+
+      // Resolve creator names for the "Created by" column
+      const creatorIds = Array.from(new Set(allCampaigns.map((c: any) => c.created_by).filter(Boolean)));
+      if (creatorIds.length > 0) {
+        const { data: creators } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name, email')
+          .in('user_id', creatorIds);
+        const map: Record<string, { name: string; email: string }> = {};
+        (creators || []).forEach((p: any) => {
+          const name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim();
+          map[p.user_id] = { name: name || p.email || 'Unknown', email: p.email || '' };
+        });
+        allCampaigns.forEach((c: any) => {
+          if (c.created_by && map[c.created_by]) {
+            c.created_by_name = map[c.created_by].name;
+            c.created_by_email = map[c.created_by].email;
           }
         });
       }
@@ -351,6 +384,14 @@ const Campaigns = () => {
                             {campaign.end_date && 
                               ` - ${new Date(campaign.end_date).toLocaleDateString()}`
                             }
+                          </span>
+                        </div>
+                      )}
+                      {(campaign.created_by_name || campaign.created_by_email) && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs">Created by</span>
+                          <span className="font-medium">
+                            {campaign.created_by_name || campaign.created_by_email}
                           </span>
                         </div>
                       )}
