@@ -408,6 +408,22 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
     onChanged();
   };
 
+  const updateMemberRole = async (memberId: string, role: CompanyMemberRole) => {
+    setRoleBusyFor(memberId);
+    const { error } = await (supabase.from('company_members') as any)
+      .update({ role })
+      .eq('id', memberId);
+    setRoleBusyFor(null);
+    if (error) {
+      toast({ title: 'Could not update role', description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Role updated', description: `Set to ${role}.` });
+    onChanged();
+  };
+
+
+
   const renderIdList = (
     ids: string[],
     setIds: (v: string[]) => void,
