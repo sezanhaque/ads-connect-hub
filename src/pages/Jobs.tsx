@@ -128,15 +128,46 @@ const Jobs = () => {
         return;
       }
 
-      // Fetch jobs only from user's primary organization
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*")
-        .eq("org_id", primaryOrg.org_id)
-        .order("created_at", { ascending: false });
+      // Also resolve the user's company (shared at company level)
+      const { data: companyMembership } = await supabase
+        .from("company_members")
+        .select("company_id")
+        .eq("user_id", profile.user_id)
+        .maybeSingle();
+
+      const companyId = companyMembership?.company_id || null;
+
+      // Fetch jobs for org OR shared company
+      let query = supabase.from("jobs").select("*").order("created_at", { ascending: false });
+      query = companyId
+        ? query.or(`org_id.eq.${primaryOrg.org_id},company_id.eq.${companyId}`)
+        : query.eq("org_id", primaryOrg.org_id);
+
+      const { data, error } = await query;
 
       if (error) throw error;
-      setJobs(data || []);
+
+      // Resolve creator names for the "Created by" column
+      const creatorIds = Array.from(new Set((data || []).map((j: any) => j.created_by).filter(Boolean)));
+      let creatorsMap: Record<string, { name: string; email: string }> = {};
+      if (creatorIds.length > 0) {
+        const { data: creators } = await supabase
+          .from("profiles")
+          .select("user_id, first_name, last_name, email")
+          .in("user_id", creatorIds);
+        (creators || []).forEach((p: any) => {
+          const name = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
+          creatorsMap[p.user_id] = { name: name || p.email || "Unknown", email: p.email || "" };
+        });
+      }
+
+      const enriched = (data || []).map((j: any) => ({
+        ...j,
+        created_by_name: creatorsMap[j.created_by]?.name || null,
+        created_by_email: creatorsMap[j.created_by]?.email || null,
+      }));
+
+      setJobs(enriched);
     } catch (error: any) {
       console.error("Error fetching jobs:", error);
       toast({
