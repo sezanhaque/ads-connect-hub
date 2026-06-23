@@ -32,9 +32,12 @@ interface Job {
   location: string | null;
   vacancy_url: string | null;
   org_id: string;
+  company_id?: string | null;
   created_by: string;
   created_at: string;
   updated_at: string;
+  created_by_name?: string | null;
+  created_by_email?: string | null;
 }
 
 const Jobs = () => {
