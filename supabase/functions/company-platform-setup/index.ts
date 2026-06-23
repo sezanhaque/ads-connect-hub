@@ -39,6 +39,8 @@ serve(async (req) => {
     const companyId = String(body?.company_id || "").trim();
     const platform = String(body?.platform || "").trim();
     const rawIds: unknown = body?.ad_account_ids;
+    const accessToken = body?.access_token ? String(body.access_token).trim() : null;
+    const accountName = body?.account_name ? String(body.account_name).trim() : null;
 
     if (!companyId || !["meta", "tiktok"].includes(platform) || !Array.isArray(rawIds)) {
       return new Response(JSON.stringify({ error: "Invalid input" }), {
@@ -47,7 +49,6 @@ serve(async (req) => {
       });
     }
 
-    // Normalize IDs
     let ids = (rawIds as unknown[])
       .map((v) => String(v ?? "").trim())
       .filter((s) => s.length > 0);
@@ -58,7 +59,6 @@ serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceKey);
 
-    // Caller must be owner/admin in some org
     const { data: callerRoles } = await admin
       .from("members")
       .select("role")
@@ -85,32 +85,44 @@ serve(async (req) => {
 
     const { data: existing } = await admin
       .from("company_integrations")
-      .select("id")
+      .select("id, access_token, account_name")
       .eq("company_id", companyId)
       .eq("integration_type", platform)
       .maybeSingle();
 
     if (existing) {
+      const patch: Record<string, unknown> = {
+        ad_account_ids: ids,
+        updated_at: new Date().toISOString(),
+      };
+      if (accessToken !== null) patch.access_token = accessToken || null;
+      if (accountName !== null) patch.account_name = accountName || null;
       const { error: updErr } = await admin
         .from("company_integrations")
-        .update({ ad_account_ids: ids, updated_at: new Date().toISOString() })
+        .update(patch)
         .eq("id", existing.id);
       if (updErr) throw updErr;
     } else {
       const { error: insErr } = await admin
         .from("company_integrations")
-        .insert({ company_id: companyId, integration_type: platform, ad_account_ids: ids });
+        .insert({
+          company_id: companyId,
+          integration_type: platform,
+          ad_account_ids: ids,
+          access_token: accessToken,
+          account_name: accountName,
+        });
       if (insErr) throw insErr;
     }
 
     return new Response(
-      JSON.stringify({ success: true, company_id: companyId, platform, count: ids.length }),
+      JSON.stringify({ success: true, count: ids.length, has_token: !!accessToken }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (error: any) {
     console.error("company-platform-setup error", error);
     return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
+      status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
