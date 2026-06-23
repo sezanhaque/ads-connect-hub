@@ -486,12 +486,55 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="balance">
+        <Tabs defaultValue="members">
           <TabsList>
+            <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="balance">Top up</TabsTrigger>
             <TabsTrigger value="meta">Meta</TabsTrigger>
             <TabsTrigger value="tiktok">TikTok</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="members" className="space-y-3 pt-4">
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+              <Shield size={18} />
+              <span className="font-medium">Member roles</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Owners and admins of any company are treated as app admins and can manage all companies.
+            </p>
+            {company.members.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">No members in this company yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {company.members.map((m) => (
+                  <div key={m.id} className="flex items-center justify-between gap-3 border rounded-md px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{m.email}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Joined {new Date(m.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Select
+                      value={m.role}
+                      disabled={roleBusyFor === m.id}
+                      onValueChange={(v) => updateMemberRole(m.id, v as CompanyMemberRole)}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="owner">Owner</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+
 
           <TabsContent value="balance" className="space-y-4 pt-4">
             <div>
