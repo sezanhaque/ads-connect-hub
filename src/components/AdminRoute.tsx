@@ -34,18 +34,18 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
         const companyMode = flag?.company_mode_enabled === true;
 
         if (companyMode) {
-          // Company mode: admin = owner/admin in company_members
+          // Company mode: admin = ONLY explicit 'admin' role in company_members
           const { data, error } = await supabase
             .from('company_members')
             .select('role')
             .eq('user_id', user.id)
-            .in('role', ['owner', 'admin'])
+            .eq('role', 'admin')
             .limit(1);
 
           if (error) throw error;
           setIsAdmin((data?.length ?? 0) > 0);
         } else {
-          // Legacy mode: admin = owner/admin in members table for user's org
+          // Legacy mode: admin = ONLY explicit 'admin' role in members table
           if (!profile?.organization_id) {
             setIsAdmin(false);
           } else {
@@ -57,9 +57,10 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
               .single();
 
             if (error) throw error;
-            setIsAdmin(data?.role === 'admin' || data?.role === 'owner');
+            setIsAdmin(data?.role === 'admin');
           }
         }
+
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
