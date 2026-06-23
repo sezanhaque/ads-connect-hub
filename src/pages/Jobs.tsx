@@ -435,6 +435,9 @@ const Jobs = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{new Date(job.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-sm">
+                      {job.created_by_name || job.created_by_email || "-"}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
