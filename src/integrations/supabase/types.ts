@@ -318,6 +318,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          role: Database["public"]["Enums"]["company_role"]
           user_id: string
         }
         Insert: {
@@ -325,6 +326,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          role?: Database["public"]["Enums"]["company_role"]
           user_id: string
         }
         Update: {
@@ -332,6 +334,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          role?: Database["public"]["Enums"]["company_role"]
           user_id?: string
         }
         Relationships: [
@@ -1022,7 +1025,7 @@ export type Database = {
       sync_profile_data: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      company_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1149,6 +1152,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      company_role: ["owner", "admin", "member"],
+    },
   },
 } as const
