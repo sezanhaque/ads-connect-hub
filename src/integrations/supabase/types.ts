@@ -1001,6 +1001,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      is_app_admin: { Args: { p_user_id?: string }; Returns: boolean }
       is_company_member: {
         Args: { p_company_id: string; p_user_id?: string }
         Returns: boolean
