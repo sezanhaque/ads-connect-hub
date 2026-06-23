@@ -8,17 +8,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, ChevronDown, ChevronRight, Search, Settings2, Users, X } from 'lucide-react';
+import { Building2, ChevronDown, ChevronRight, Search, Settings2, Shield, Users, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useCompanyMode } from '@/hooks/useCompanyMode';
 import { MetaLogo, TikTokLogo } from '@/components/icons';
 
+type CompanyMemberRole = 'owner' | 'admin' | 'member';
+
 interface CompanyMemberRow {
+  id: string;
   user_id: string;
   email: string;
   created_at: string;
+  role: CompanyMemberRole;
 }
+
 
 interface CompanyIntegrationRow {
   integration_type: 'meta' | 'tiktok';
@@ -61,9 +67,16 @@ const Companies = () => {
     const membersByCompany = new Map<string, CompanyMemberRow[]>();
     (members ?? []).forEach((m: any) => {
       const list = membersByCompany.get(m.company_id) ?? [];
-      list.push({ user_id: m.user_id, email: m.email, created_at: m.created_at });
+      list.push({
+        id: m.id,
+        user_id: m.user_id,
+        email: m.email,
+        created_at: m.created_at,
+        role: (m.role as CompanyMemberRole) ?? 'member',
+      });
       membersByCompany.set(m.company_id, list);
     });
+
 
     const creditsByCompany = new Map<string, { balance: number; currency: string }>();
     (credits ?? []).forEach((c: any) =>
@@ -268,12 +281,21 @@ const Companies = () => {
                                     key={m.user_id}
                                     className="flex items-center justify-between text-sm py-1 border-b last:border-b-0"
                                   >
-                                    <span>{m.email}</span>
+                                    <span className="flex items-center gap-2">
+                                      {m.email}
+                                      <Badge
+                                        variant={m.role === 'owner' ? 'default' : m.role === 'admin' ? 'secondary' : 'outline'}
+                                        className="text-[10px] uppercase"
+                                      >
+                                        {m.role}
+                                      </Badge>
+                                    </span>
                                     <span className="text-xs text-muted-foreground">
                                       Joined {new Date(m.created_at).toLocaleDateString()}
                                     </span>
                                   </div>
                                 ))}
+
                               </div>
                             )}
                           </TableCell>
@@ -317,6 +339,8 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
   const [tiktokToken, setTiktokToken] = useState('');
   const [tiktokBusy, setTiktokBusy] = useState(false);
   const [tiktokSyncBusy, setTiktokSyncBusy] = useState(false);
+  const [roleBusyFor, setRoleBusyFor] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!company) return;
@@ -384,6 +408,22 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
     onChanged();
   };
 
+  const updateMemberRole = async (memberId: string, role: CompanyMemberRole) => {
+    setRoleBusyFor(memberId);
+    const { error } = await (supabase.from('company_members') as any)
+      .update({ role })
+      .eq('id', memberId);
+    setRoleBusyFor(null);
+    if (error) {
+      toast({ title: 'Could not update role', description: error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Role updated', description: `Set to ${role}.` });
+    onChanged();
+  };
+
+
+
   const renderIdList = (
     ids: string[],
     setIds: (v: string[]) => void,
@@ -446,12 +486,55 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="balance">
+        <Tabs defaultValue="members">
           <TabsList>
+            <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="balance">Top up</TabsTrigger>
             <TabsTrigger value="meta">Meta</TabsTrigger>
             <TabsTrigger value="tiktok">TikTok</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="members" className="space-y-3 pt-4">
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+              <Shield size={18} />
+              <span className="font-medium">Member roles</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Owners and admins of any company are treated as app admins and can manage all companies.
+            </p>
+            {company.members.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">No members in this company yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {company.members.map((m) => (
+                  <div key={m.id} className="flex items-center justify-between gap-3 border rounded-md px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{m.email}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Joined {new Date(m.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Select
+                      value={m.role}
+                      disabled={roleBusyFor === m.id}
+                      onValueChange={(v) => updateMemberRole(m.id, v as CompanyMemberRole)}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="owner">Owner</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+
 
           <TabsContent value="balance" className="space-y-4 pt-4">
             <div>
