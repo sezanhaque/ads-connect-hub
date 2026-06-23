@@ -129,31 +129,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 2) Fetch memberships (may be multiple)
-      const { data: memberships, error: membersErr } = await supabase
+      // 2) Check feature flag to decide which table is the source of truth for role
+      const { data: flag } = await supabase
+        .from('feature_flags')
+        .select('company_mode_enabled')
+        .eq('id', true)
+        .maybeSingle();
+      const companyMode = flag?.company_mode_enabled === true;
+
+      // 3) Fetch memberships from both tables
+      const { data: memberships } = await supabase
         .from('members')
         .select('role, org_id')
         .eq('user_id', userId);
 
-      if (membersErr) {
-        console.error('Error fetching member roles:', membersErr);
-      }
+      const { data: companyMemberships } = await supabase
+        .from('company_members')
+        .select('role, company_id')
+        .eq('user_id', userId);
 
-      // Prefer the highest privilege role: owner > admin > member  
-      const preferred = (() => {
-        if (!memberships || memberships.length === 0) return null;
+      const pickHighest = (rows: any[] | null) => {
+        if (!rows || rows.length === 0) return null;
         return (
-          memberships.find((m: any) => m.role === 'owner') ||
-          memberships.find((m: any) => m.role === 'admin') ||
-          memberships.find((m: any) => m.role === 'member') ||
-          memberships[0]
+          rows.find((m: any) => m.role === 'admin') ||
+          rows.find((m: any) => m.role === 'owner') ||
+          rows.find((m: any) => m.role === 'member') ||
+          rows[0]
         );
-      })();
+      };
 
-      const normalizedRole = preferred?.role ?? ensuredProfile?.role ?? 'member';
-      const organizationId = preferred?.org_id ?? null;
+      const legacyPreferred = pickHighest(memberships as any);
+      const companyPreferred = pickHighest(companyMemberships as any);
+
+      // In company mode, role comes from company_members; otherwise from members
+      const normalizedRole =
+        (companyMode ? companyPreferred?.role : legacyPreferred?.role) ??
+        ensuredProfile?.role ??
+        'member';
+      const organizationId = legacyPreferred?.org_id ?? null;
 
       setProfile({ ...(ensuredProfile as any), role: normalizedRole, organization_id: organizationId } as any);
+
     } catch (error) {
       console.error('Error fetching/creating profile:', error);
     }
