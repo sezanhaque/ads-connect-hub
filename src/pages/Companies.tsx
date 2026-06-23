@@ -23,6 +23,9 @@ interface CompanyMemberRow {
 interface CompanyIntegrationRow {
   integration_type: 'meta' | 'tiktok';
   ad_account_ids: string[];
+  access_token: string | null;
+  account_name: string | null;
+  last_sync_at: string | null;
 }
 
 interface CompanyRow {
@@ -70,7 +73,13 @@ const Companies = () => {
     const integrationsByCompany = new Map<string, CompanyIntegrationRow[]>();
     (integrations ?? []).forEach((i: any) => {
       const list = integrationsByCompany.get(i.company_id) ?? [];
-      list.push({ integration_type: i.integration_type, ad_account_ids: i.ad_account_ids ?? [] });
+      list.push({
+        integration_type: i.integration_type,
+        ad_account_ids: i.ad_account_ids ?? [],
+        access_token: i.access_token ?? null,
+        account_name: i.account_name ?? null,
+        last_sync_at: i.last_sync_at ?? null,
+      });
       integrationsByCompany.set(i.company_id, list);
     });
 
