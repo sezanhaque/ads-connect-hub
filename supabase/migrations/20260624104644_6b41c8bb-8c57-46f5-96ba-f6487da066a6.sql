@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.create_campaign(uuid, uuid, text, text, numeric, text, date, date, jsonb, jsonb, text, text, text, uuid);
