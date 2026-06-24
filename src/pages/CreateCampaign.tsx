@@ -500,7 +500,7 @@ const CreateCampaign = () => {
         console.warn("company_id lookup skipped", e);
       }
 
-      const { data: campaignId, error } = await supabase.rpc("create_campaign", {
+      const { data: campaignId, error } = await supabase.rpc("create_campaign_v2" as any, {
         p_org_id: preferred.org_id,
         p_job_id: campaignData.jobId,
         p_name: campaignData.name,
