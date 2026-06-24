@@ -934,44 +934,24 @@ export type Database = {
         Args: { p_email: string; p_name: string; p_user_id: string }
         Returns: string
       }
-      create_campaign:
-        | {
-            Args: {
-              p_ad_copy?: string
-              p_budget: number
-              p_creatives?: Json
-              p_cta?: string
-              p_currency?: string
-              p_destination_url?: string
-              p_end_date?: string
-              p_job_id: string
-              p_name: string
-              p_objective: string
-              p_org_id: string
-              p_start_date?: string
-              p_targeting?: Json
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              p_ad_copy?: string
-              p_budget: number
-              p_company_id?: string
-              p_creatives?: Json
-              p_cta?: string
-              p_currency?: string
-              p_destination_url?: string
-              p_end_date?: string
-              p_job_id: string
-              p_name: string
-              p_objective: string
-              p_org_id: string
-              p_start_date?: string
-              p_targeting?: Json
-            }
-            Returns: string
-          }
+      create_campaign: {
+        Args: {
+          p_ad_copy?: string
+          p_budget: number
+          p_creatives?: Json
+          p_cta?: string
+          p_currency?: string
+          p_destination_url?: string
+          p_end_date?: string
+          p_job_id: string
+          p_name: string
+          p_objective: string
+          p_org_id: string
+          p_start_date?: string
+          p_targeting?: Json
+        }
+        Returns: string
+      }
       create_campaign_v2: {
         Args: {
           p_ad_copy?: string
