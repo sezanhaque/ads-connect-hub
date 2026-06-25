@@ -329,9 +329,70 @@ const Companies = () => {
 
       <ManageCompanyDialog
         company={manageCompany}
+        profiles={profiles}
+        companies={companies}
         onClose={() => setManageCompany(null)}
         onChanged={fetchData}
       />
+
+      <Dialog open={newOpen} onOpenChange={setNewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create company</DialogTitle>
+            <DialogDescription>
+              Add a company manually. Users can then be assigned to it from the Manage dialog.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Display name</Label>
+              <Input
+                placeholder="Acme Inc."
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Email domain</Label>
+              <Input
+                placeholder="acme.com"
+                value={newDomain}
+                onChange={(e) => setNewDomain(e.target.value.toLowerCase().trim())}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Lowercase, no <code>@</code>. Used for grouping and search.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
+            <Button
+              disabled={newBusy || !newDomain || !newName}
+              onClick={async () => {
+                setNewBusy(true);
+                const { data: created, error } = await supabase
+                  .from('companies')
+                  .insert({ domain: newDomain, display_name: newName })
+                  .select('id')
+                  .single();
+                if (!error && created) {
+                  await supabase.from('company_credits').insert({ company_id: created.id }).then(() => {});
+                }
+                setNewBusy(false);
+                if (error) {
+                  toast({ title: 'Could not create', description: error.message, variant: 'destructive' });
+                  return;
+                }
+                toast({ title: 'Company created' });
+                setNewOpen(false);
+                fetchData();
+              }}
+            >
+              {newBusy ? 'Creating…' : 'Create company'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
