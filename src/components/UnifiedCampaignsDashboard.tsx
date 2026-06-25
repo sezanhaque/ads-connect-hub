@@ -342,7 +342,7 @@ export const UnifiedCampaignsDashboard = ({
         setInitialLoadComplete(true);
       }
     },
-    [user, isMetaConnected, isTikTokConnected, dateRange, toast, integrationsLoading],
+    [user, isMetaConnected, isTikTokConnected, dateRange, toast, integrationsLoading, companyModeEnabled],
   );
 
   useEffect(() => {
