@@ -157,6 +157,19 @@ export const UnifiedCampaignsDashboard = ({
             return;
           }
           allowedPlatforms = platforms;
+
+          const start_date = currentDateRange.from.toISOString().split("T")[0];
+          const end_date = currentDateRange.to.toISOString().split("T")[0];
+          const syncTasks: Promise<unknown>[] = [];
+
+          if (allowedPlatforms.includes("meta")) {
+            syncTasks.push(supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId, start_date, end_date } }));
+          }
+          if (allowedPlatforms.includes("tiktok")) {
+            syncTasks.push(supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId, start_date, end_date } }));
+          }
+
+          await Promise.allSettled(syncTasks);
         }
 
         // Fetch Supabase campaigns (synced + manually created)

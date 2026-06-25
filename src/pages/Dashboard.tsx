@@ -82,8 +82,6 @@ const Dashboard = () => {
     fetchBalance();
     // In strict company mode, only company-level syncs run; skip personal syncs.
     runAutoSyncs();
-    // Trigger refresh for campaign dashboards
-    setRefreshTrigger((prev) => prev + 1);
   }, [profile?.user_id]);
 
   const runAutoSyncs = async () => {
@@ -98,8 +96,8 @@ const Dashboard = () => {
     const inCompany = !!cm?.company_id;
 
     if (companyModeEnabled && inCompany) {
-      // Strict: only company-level
-      autoSyncCompanyIntegrations();
+      // Strict company data is synced inside UnifiedCampaignsDashboard with the active date filter.
+      return;
     } else {
       // Legacy: personal syncs + (additive) company syncs if member
       autoSyncMetaCampaigns();
@@ -425,8 +423,6 @@ const Dashboard = () => {
         dateRange={dateRange}
         onDateRangeChange={(r) => {
           setDateRange(r);
-          // Re-sync company data for the new window so metrics match the filter
-          autoSyncCompanyIntegrations(r);
         }}
         onAggregatesChange={setCampaignAggregates}
       />
