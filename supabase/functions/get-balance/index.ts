@@ -122,7 +122,7 @@ serve(async (req) => {
           const companyId = cm.company_id;
           const { data: credits } = await admin
             .from("company_credits")
-            .select("current_balance, total_topups, currency")
+            .select("balance, currency")
             .eq("company_id", companyId)
             .maybeSingle();
 
