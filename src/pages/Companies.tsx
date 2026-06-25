@@ -355,10 +355,9 @@ const Companies = () => {
               .join('') || 'N';
             const domainTaken = !!newDomain && companies.some((c) => (c.domain ?? '').toLowerCase() === newDomain);
             const nameTaken = !!newName.trim() && companies.some((c) => c.display_name.toLowerCase() === newName.trim().toLowerCase());
-            const assignedIds = new Set(companies.flatMap((c) => c.members.map((m) => m.user_id)));
-            const availableProfiles = profiles
-              .filter((p) => !assignedIds.has(p.user_id))
-              .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
+            const companyByUser = new Map<string, string>();
+            companies.forEach((c) => c.members.forEach((m) => companyByUser.set(m.user_id, c.display_name)));
+            const availableProfiles = [...profiles].sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
             const toggleMember = (id: string) =>
               setNewInitialMembers((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
