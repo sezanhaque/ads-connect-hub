@@ -129,29 +129,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 2) Check feature flag to decide which table is the source of truth for role
-      const { data: flag } = await supabase
-        .from('feature_flags')
-        .select('company_mode_enabled')
-        .eq('id', true)
-        .maybeSingle();
-      const companyMode = flag?.company_mode_enabled === true;
-
-      // 3) Fetch memberships from both tables
+      // 2) Fetch memberships (for organization_id) and global role from user_roles
       const { data: memberships } = await supabase
         .from('members')
         .select('role, org_id')
         .eq('user_id', userId);
 
-      const { data: companyMemberships } = await supabase
-        .from('company_members')
-        .select('role, company_id')
+      const { data: roleRows } = await supabase
+        .from('user_roles')
+        .select('role')
         .eq('user_id', userId);
+
+      const isAdmin = (roleRows ?? []).some((r: any) => r.role === 'admin');
 
       const pickHighest = (rows: any[] | null) => {
         if (!rows || rows.length === 0) return null;
         return (
-          rows.find((m: any) => m.role === 'admin') ||
           rows.find((m: any) => m.role === 'owner') ||
           rows.find((m: any) => m.role === 'member') ||
           rows[0]
@@ -159,13 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       const legacyPreferred = pickHighest(memberships as any);
-      const companyPreferred = pickHighest(companyMemberships as any);
 
-      // In company mode, role comes from company_members; otherwise from members
-      const normalizedRole =
-        (companyMode ? companyPreferred?.role : legacyPreferred?.role) ??
-        ensuredProfile?.role ??
-        'member';
+      const normalizedRole = isAdmin
+        ? 'admin'
+        : legacyPreferred?.role ?? ensuredProfile?.role ?? 'member';
       const organizationId = legacyPreferred?.org_id ?? null;
 
       setProfile({ ...(ensuredProfile as any), role: normalizedRole, organization_id: organizationId } as any);
