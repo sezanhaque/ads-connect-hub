@@ -813,6 +813,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -1003,6 +1024,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_app_admin: { Args: { p_user_id?: string }; Returns: boolean }
       is_company_member: {
         Args: { p_company_id: string; p_user_id?: string }
@@ -1024,6 +1052,7 @@ export type Database = {
       sync_profile_data: { Args: never; Returns: undefined }
     }
     Enums: {
+      app_role: "admin" | "member"
       company_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
@@ -1152,6 +1181,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "member"],
       company_role: ["owner", "admin", "member"],
     },
   },
