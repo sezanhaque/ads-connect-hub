@@ -889,7 +889,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <p className="text-xs text-muted-foreground">
               Numbers only; the "act_" prefix is added automatically. Press Enter or click Add.
             </p>
-            {renderIdList(metaIds, setMetaIds, metaInput, setMetaInput, '971311827719449')}
+            {renderIdList(metaIds, setMetaIds, metaInput, setMetaInput, '971311827719449', 'meta')}
             <DialogFooter className="gap-2 sm:gap-2">
               <Button onClick={() => savePlatform('meta', metaIds, '')} disabled={metaBusy}>
                 {metaBusy ? 'Saving…' : 'Save Meta'}
