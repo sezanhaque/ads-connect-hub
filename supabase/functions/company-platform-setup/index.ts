@@ -115,8 +115,27 @@ serve(async (req) => {
       if (insErr) throw insErr;
     }
 
+    // Auto-trigger sync so dashboard reflects the new ad accounts immediately
+    let syncResult: any = null;
+    if (ids.length > 0) {
+      try {
+        const syncFn = platform === "meta" ? "company-meta-sync" : "company-tiktok-sync";
+        const syncRes = await fetch(`${supabaseUrl}/functions/v1/${syncFn}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authHeader,
+          },
+          body: JSON.stringify({ company_id: companyId }),
+        });
+        syncResult = await syncRes.json().catch(() => null);
+      } catch (e) {
+        console.error("auto-sync after setup failed", e);
+      }
+    }
+
     return new Response(
-      JSON.stringify({ success: true, count: ids.length, has_token: !!accessToken }),
+      JSON.stringify({ success: true, count: ids.length, has_token: !!accessToken, sync: syncResult }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (error: any) {
