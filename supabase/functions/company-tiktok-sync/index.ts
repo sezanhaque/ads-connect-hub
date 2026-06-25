@@ -122,6 +122,38 @@ serve(async (req) => {
       const campaigns = (campJson.data?.list || []) as Array<{ campaign_id: string; campaign_name: string; status: string; objective_type: string; budget: number }>;
       totalCampaigns += campaigns.length;
 
+      const endDate = new Date().toISOString().split("T")[0];
+      // Same pattern as the previous working live TikTok dashboard: one
+      // campaign-level report per advertiser, then match rows by campaign_id.
+      const startDate = new Date(Date.now() - 29 * 86400000).toISOString().split("T")[0];
+      const reportParams = new URLSearchParams({
+        advertiser_id: advertiserId,
+        service_type: "AUCTION",
+        report_type: "BASIC",
+        data_level: "AUCTION_CAMPAIGN",
+        dimensions: JSON.stringify(["campaign_id"]),
+        metrics: JSON.stringify(["spend", "impressions", "clicks", "conversion", "ctr", "cpc"]),
+        start_date: startDate,
+        end_date: endDate,
+      });
+
+      const insightsRes = await fetch(`https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?${reportParams.toString()}`, {
+        method: "GET",
+        headers: { "Access-Token": accessToken, "Content-Type": "application/json" },
+      });
+      const insightsJson = await safeJson(insightsRes);
+      const insightsByCampaign = new Map<string, any>();
+      if (insightsJson.code === 0 && insightsJson.data?.list) {
+        console.log(`TikTok report rows for ${advertiserId}: ${insightsJson.data.list.length}`);
+        for (const row of insightsJson.data.list) {
+          const campaignId = row?.dimensions?.campaign_id;
+          if (campaignId) insightsByCampaign.set(String(campaignId), row.metrics || {});
+        }
+      } else if (insightsJson.code !== 0) {
+        console.error(`TikTok report error for ${advertiserId}:`, insightsJson.message);
+        errors.push({ advertiser_id: advertiserId, stage: "report/get", message: String(insightsJson.message ?? "unknown") });
+      }
+
       for (const c of campaigns) {
         const status = STATUS_MAP[c.status] || "paused";
 
@@ -158,50 +190,21 @@ serve(async (req) => {
           campaignId = created.id;
         }
 
-        const endDate = new Date().toISOString().split("T")[0];
-        const startDate = new Date(Date.now() - 730 * 86400000).toISOString().split("T")[0];
-        let insightsRes: Response;
-        try {
-          const reportParams = new URLSearchParams({
-            advertiser_id: advertiserId,
-            service_type: "AUCTION",
-            report_type: "BASIC",
-            data_level: "AUCTION_CAMPAIGN",
-            dimensions: JSON.stringify(["campaign_id", "stat_time_day"]),
-            metrics: JSON.stringify(["spend", "impressions", "clicks", "conversion"]),
-            start_date: startDate,
-            end_date: endDate,
-            filters: JSON.stringify([{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }]),
-          });
-
-          insightsRes = await fetch(`https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?${reportParams.toString()}`, {
-            method: "GET",
-            headers: { "Access-Token": accessToken, "Content-Type": "application/json" },
-          });
-        } catch (e: any) {
-          errors.push({ advertiser_id: advertiserId, stage: "report/fetch", message: e?.message ?? String(e) });
-          syncedCount++;
-          continue;
-        }
-        const insightsJson = await safeJson(insightsRes);
-        if (insightsJson.code === 0 && insightsJson.data?.list) {
+        const metrics = insightsByCampaign.get(String(c.campaign_id));
+        if (metrics) {
           await admin.from("metrics").delete().eq("campaign_id", campaignId);
-          for (const row of insightsJson.data.list) {
-            const dim = row.dimensions;
-            const m = row.metrics;
-            const spendEur = parseFloat(m.spend || "0") / 100;
-            await admin.from("metrics").insert({
-              campaign_id: campaignId,
-              date: dim.stat_time_day,
-              impressions: parseInt(m.impressions || "0"),
-              clicks: parseInt(m.clicks || "0"),
-              spend: spendEur,
-              leads: parseInt(m.conversion || "0"),
-            });
+          const { error: metricInsertError } = await admin.from("metrics").insert({
+            campaign_id: campaignId,
+            date: endDate,
+            impressions: parseInt(metrics.impressions || "0"),
+            clicks: parseInt(metrics.clicks || "0"),
+            spend: parseFloat(metrics.spend || "0"),
+            leads: parseInt(metrics.conversion || "0"),
+          });
+          if (metricInsertError) {
+            console.error(`TikTok metric insert error for ${campaignId}:`, metricInsertError.message);
+            errors.push({ advertiser_id: advertiserId, stage: "metrics/insert", message: metricInsertError.message });
           }
-        } else if (insightsJson.code !== 0) {
-          console.error(`TikTok report error for ${advertiserId}/${c.campaign_id}:`, insightsJson.message);
-          errors.push({ advertiser_id: advertiserId, stage: "report/get", message: String(insightsJson.message ?? "unknown") });
         }
 
         syncedCount++;
