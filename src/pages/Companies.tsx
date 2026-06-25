@@ -558,12 +558,10 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
   const [topupBusy, setTopupBusy] = useState(false);
   const [metaIds, setMetaIds] = useState<string[]>([]);
   const [metaInput, setMetaInput] = useState('');
-  const [metaToken, setMetaToken] = useState('');
   const [metaBusy, setMetaBusy] = useState(false);
   const [metaSyncBusy, setMetaSyncBusy] = useState(false);
   const [tiktokIds, setTiktokIds] = useState<string[]>([]);
   const [tiktokInput, setTiktokInput] = useState('');
-  const [tiktokToken, setTiktokToken] = useState('');
   const [tiktokBusy, setTiktokBusy] = useState(false);
   const [tiktokSyncBusy, setTiktokSyncBusy] = useState(false);
   
@@ -575,8 +573,6 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
     const tiktok = company.integrations.find((i) => i.integration_type === 'tiktok');
     setMetaIds((meta?.ad_account_ids ?? []).map((id) => id.replace(/^act_/, '')));
     setTiktokIds(tiktok?.ad_account_ids ?? []);
-    setMetaToken(meta?.access_token ?? '');
-    setTiktokToken(tiktok?.access_token ?? '');
     setTopupAmount('');
     setMetaInput('');
     setTiktokInput('');
