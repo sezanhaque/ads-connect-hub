@@ -144,6 +144,7 @@ serve(async (req) => {
       const insightsJson = await safeJson(insightsRes);
       const insightsByCampaign = new Map<string, any>();
       if (insightsJson.code === 0 && insightsJson.data?.list) {
+        console.log(`TikTok report rows for ${advertiserId}: ${insightsJson.data.list.length}`);
         for (const row of insightsJson.data.list) {
           const campaignId = row?.dimensions?.campaign_id;
           if (campaignId) insightsByCampaign.set(String(campaignId), row.metrics || {});
@@ -192,7 +193,7 @@ serve(async (req) => {
         const metrics = insightsByCampaign.get(String(c.campaign_id));
         if (metrics) {
           await admin.from("metrics").delete().eq("campaign_id", campaignId);
-          await admin.from("metrics").insert({
+          const { error: metricInsertError } = await admin.from("metrics").insert({
             campaign_id: campaignId,
             date: endDate,
             impressions: parseInt(metrics.impressions || "0"),
@@ -200,6 +201,10 @@ serve(async (req) => {
             spend: parseFloat(metrics.spend || "0"),
             leads: parseInt(metrics.conversion || "0"),
           });
+          if (metricInsertError) {
+            console.error(`TikTok metric insert error for ${campaignId}:`, metricInsertError.message);
+            errors.push({ advertiser_id: advertiserId, stage: "metrics/insert", message: metricInsertError.message });
+          }
         }
 
         syncedCount++;
