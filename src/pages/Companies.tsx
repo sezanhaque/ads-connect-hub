@@ -600,11 +600,30 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
     onChanged();
   };
 
+  const validateIds = (platform: 'meta' | 'tiktok', ids: string[]): string | null => {
+    if (ids.length === 0) {
+      return `Add at least one ${platform === 'meta' ? 'Meta ad account' : 'TikTok advertiser'} ID before saving.`;
+    }
+    const bad = ids
+      .map((id) => id.trim().replace(/^act_/, ''))
+      .filter((id) => !/^\d{8,20}$/.test(id));
+    if (bad.length > 0) {
+      return `Invalid ${platform === 'meta' ? 'Meta' : 'TikTok'} ID(s): ${bad.join(', ')}. Must be numeric (8-20 digits).`;
+    }
+    return null;
+  };
+
   const savePlatform = async (platform: 'meta' | 'tiktok', ids: string[], accessToken: string) => {
+    const cleaned = ids.map((s) => s.trim()).filter(Boolean);
+    const err = validateIds(platform, cleaned);
+    if (err) {
+      toast({ title: 'Validation error', description: err, variant: 'destructive' });
+      return;
+    }
     const setBusy = platform === 'meta' ? setMetaBusy : setTiktokBusy;
     setBusy(true);
     const { data, error } = await supabase.functions.invoke('company-platform-setup', {
-      body: { company_id: company.id, platform, ad_account_ids: ids, access_token: accessToken },
+      body: { company_id: company.id, platform, ad_account_ids: cleaned, access_token: accessToken },
     });
     setBusy(false);
     if (error || !data?.success) {
@@ -640,51 +659,66 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
     input: string,
     setInput: (v: string) => void,
     placeholder: string,
-  ) => (
-    <>
-      <div className="flex gap-2">
-        <Input
-          placeholder={placeholder}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && input.trim()) {
-              e.preventDefault();
-              setIds([...ids, input.trim()]);
-              setInput('');
-            }
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            if (!input.trim()) return;
-            setIds([...ids, input.trim()]);
-            setInput('');
-          }}
-        >
-          Add
-        </Button>
-      </div>
-      {ids.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {ids.map((id, idx) => (
-            <Badge key={`${id}-${idx}`} variant="secondary" className="gap-1">
-              {id}
-              <button
-                type="button"
-                onClick={() => setIds(ids.filter((_, i) => i !== idx))}
-                className="hover:text-destructive"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
+    platform: 'meta' | 'tiktok' = 'meta',
+  ) => {
+    const tryAdd = () => {
+      const raw = input.trim().replace(/^act_/, '');
+      if (!raw) {
+        toast({ title: 'Empty ID', description: 'Please enter an ID.', variant: 'destructive' });
+        return;
+      }
+      if (!/^\d{8,20}$/.test(raw)) {
+        toast({
+          title: 'Invalid ID',
+          description: `${platform === 'meta' ? 'Meta ad account' : 'TikTok advertiser'} IDs must be numeric (8-20 digits).`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (ids.includes(raw)) {
+        toast({ title: 'Duplicate', description: 'That ID is already in the list.', variant: 'destructive' });
+        return;
+      }
+      setIds([...ids, raw]);
+      setInput('');
+    };
+    return (
+      <>
+        <div className="flex gap-2">
+          <Input
+            placeholder={placeholder}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                tryAdd();
+              }
+            }}
+          />
+          <Button type="button" variant="outline" onClick={tryAdd}>
+            Add
+          </Button>
         </div>
-      )}
-    </>
-  );
+        {ids.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {ids.map((id, idx) => (
+              <Badge key={`${id}-${idx}`} variant="secondary" className="gap-1">
+                {id}
+                <button
+                  type="button"
+                  onClick={() => setIds(ids.filter((_, i) => i !== idx))}
+                  className="hover:text-destructive"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <Dialog open={!!company} onOpenChange={(o) => !o && onClose()}>
@@ -855,7 +889,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <p className="text-xs text-muted-foreground">
               Numbers only; the "act_" prefix is added automatically. Press Enter or click Add.
             </p>
-            {renderIdList(metaIds, setMetaIds, metaInput, setMetaInput, '971311827719449')}
+            {renderIdList(metaIds, setMetaIds, metaInput, setMetaInput, '971311827719449', 'meta')}
             <DialogFooter className="gap-2 sm:gap-2">
               <Button onClick={() => savePlatform('meta', metaIds, '')} disabled={metaBusy}>
                 {metaBusy ? 'Saving…' : 'Save Meta'}
@@ -871,7 +905,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             </div>
             <Label>Advertiser IDs</Label>
             <p className="text-xs text-muted-foreground">Press Enter or click Add.</p>
-            {renderIdList(tiktokIds, setTiktokIds, tiktokInput, setTiktokInput, '7123456789012345678')}
+            {renderIdList(tiktokIds, setTiktokIds, tiktokInput, setTiktokInput, '7123456789012345678', 'tiktok')}
             <DialogFooter className="gap-2 sm:gap-2">
               <Button onClick={() => savePlatform('tiktok', tiktokIds, '')} disabled={tiktokBusy}>
                 {tiktokBusy ? 'Saving…' : 'Save TikTok'}
