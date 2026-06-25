@@ -65,6 +65,7 @@ const Companies = () => {
   const [newDomainTouched, setNewDomainTouched] = useState(false);
   const [newName, setNewName] = useState('');
   const [newInitialMembers, setNewInitialMembers] = useState<string[]>([]);
+  const [memberSearch, setMemberSearch] = useState('');
   const [newBusy, setNewBusy] = useState(false);
   const { enabled: companyMode } = useCompanyMode();
   const { toast } = useToast();
