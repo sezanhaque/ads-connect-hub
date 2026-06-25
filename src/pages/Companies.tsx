@@ -171,19 +171,8 @@ const Companies = () => {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Company mode</CardTitle>
-          <CardDescription>
-            Master switch. While off, signups behave the way they do today. When on, new signups must use a company email (verified),
-            and accounts get grouped by domain.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center gap-3">
-          <Switch checked={companyMode} disabled={flagBusy} onCheckedChange={toggleCompanyMode} />
-          <span className="text-sm">{companyMode ? 'Enabled' : 'Disabled'}</span>
-        </CardContent>
-      </Card>
+
+
 
       <Card>
         <CardHeader>
