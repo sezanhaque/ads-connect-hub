@@ -62,7 +62,9 @@ const Companies = () => {
   const [manageCompany, setManageCompany] = useState<CompanyRow | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   const [newDomain, setNewDomain] = useState('');
+  const [newDomainTouched, setNewDomainTouched] = useState(false);
   const [newName, setNewName] = useState('');
+  const [newInitialMembers, setNewInitialMembers] = useState<string[]>([]);
   const [newBusy, setNewBusy] = useState(false);
   const { enabled: companyMode } = useCompanyMode();
   const { toast } = useToast();
