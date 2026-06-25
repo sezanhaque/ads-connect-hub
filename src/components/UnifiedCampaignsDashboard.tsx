@@ -262,8 +262,8 @@ export const UnifiedCampaignsDashboard = ({
           }
         }
 
-        // Fetch TikTok campaigns if connected
-        if (isTikTokConnected) {
+        // Fetch TikTok campaigns if connected (skip in strict company mode — only company-level data)
+        if (isTikTokConnected && !useStrictCompany) {
           let tiktokDateRangeParam = "last_7d";
           if (daysDiff <= 7) {
             tiktokDateRangeParam = "last_7d";
