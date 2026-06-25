@@ -160,17 +160,91 @@ export const UnifiedCampaignsDashboard = ({
 
           const start_date = currentDateRange.from.toISOString().split("T")[0];
           const end_date = currentDateRange.to.toISOString().split("T")[0];
-          const syncTasks: Promise<unknown>[] = [];
+
+          const liveResults: UnifiedCampaign[] = [];
+          let liveMetaOk = false;
+          let liveTikTokOk = false;
 
           if (allowedPlatforms.includes("meta")) {
-            syncTasks.push(supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId, start_date, end_date } }));
+            try {
+              const { data, error } = await supabase.functions.invoke("company-meta-sync", {
+                body: { company_id: companyId, start_date, end_date },
+              });
+              if (!error && data?.success && Array.isArray(data.campaigns)) {
+                liveMetaOk = true;
+                for (const c of data.campaigns) {
+                  liveResults.push({
+                    id: c.id,
+                    name: c.name,
+                    status: (c.status || "unknown").toLowerCase(),
+                    objective: c.objective || "unknown",
+                    impressions: c.impressions || 0,
+                    clicks: c.clicks || 0,
+                    ctr: c.ctr || 0,
+                    spend: c.spend || 0,
+                    cpc: c.cpc || 0,
+                    platform: "meta",
+                  });
+                }
+              } else {
+                console.warn("company-meta-sync live failed, will fall back to DB", error);
+              }
+            } catch (e) {
+              console.warn("company-meta-sync threw, will fall back to DB", e);
+            }
           }
           if (allowedPlatforms.includes("tiktok")) {
-            syncTasks.push(supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId, start_date, end_date } }));
+            try {
+              const { data, error } = await supabase.functions.invoke("company-tiktok-sync", {
+                body: { company_id: companyId, start_date, end_date },
+              });
+              if (!error && data?.success && Array.isArray(data.campaigns)) {
+                liveTikTokOk = true;
+                for (const c of data.campaigns) {
+                  liveResults.push({
+                    id: c.id,
+                    name: c.name,
+                    status: (c.status || "unknown").toLowerCase(),
+                    objective: c.objective || "unknown",
+                    impressions: c.impressions || 0,
+                    clicks: c.clicks || 0,
+                    ctr: c.ctr || 0,
+                    spend: c.spend || 0,
+                    cpc: c.cpc || 0,
+                    platform: "tiktok",
+                  });
+                }
+              } else {
+                console.warn("company-tiktok-sync live failed, will fall back to DB", error);
+              }
+            } catch (e) {
+              console.warn("company-tiktok-sync threw, will fall back to DB", e);
+            }
           }
 
-          await Promise.allSettled(syncTasks);
+          // If every requested platform returned live data, use it directly (skip DB read).
+          const allLiveOk =
+            (!allowedPlatforms.includes("meta") || liveMetaOk) &&
+            (!allowedPlatforms.includes("tiktok") || liveTikTokOk);
+
+          if (allLiveOk) {
+            setCampaigns(liveResults);
+            if (onAggregatesChange) {
+              onAggregatesChange({
+                totalSpend: liveResults.reduce((s, c) => s + c.spend, 0),
+                totalImpressions: liveResults.reduce((s, c) => s + c.impressions, 0),
+                totalClicks: liveResults.reduce((s, c) => s + c.clicks, 0),
+                totalCampaigns: liveResults.length,
+                activeCampaigns: liveResults.filter((c) => c.status === "active").length,
+              });
+            }
+            setLoading(false);
+            setInitialLoadComplete(true);
+            return;
+          }
+          // else: fall through to DB read below as fallback
         }
+
 
         // Fetch Supabase campaigns (synced + manually created)
         const campaignsQuery = supabase

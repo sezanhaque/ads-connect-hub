@@ -107,6 +107,18 @@ serve(async (req) => {
 
     let syncedCount = 0;
     let totalCampaigns = 0;
+    const liveCampaigns: Array<{
+      id: string;
+      name: string;
+      status: string;
+      objective: string;
+      impressions: number;
+      clicks: number;
+      spend: number;
+      ctr: number;
+      cpc: number;
+      platform: "meta";
+    }> = [];
 
     for (const adAccountId of adAccountIds) {
       const campaignsUrl = `https://graph.facebook.com/v19.0/${adAccountId}/campaigns?access_token=${encodeURIComponent(accessToken)}&fields=id,name,status,objective`;
@@ -123,11 +135,10 @@ serve(async (req) => {
         const dateRangeParam = bodyStart && bodyEnd
           ? `&time_range=${encodeURIComponent(JSON.stringify({ since: bodyStart, until: bodyEnd }))}`
           : `&date_preset=maximum`;
-        const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${encodeURIComponent(accessToken)}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions${dateRangeParam}`;
+        const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${encodeURIComponent(accessToken)}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions,inline_link_clicks,ctr,cpc${dateRangeParam}`;
         const insightsRes = await fetch(insightsUrl);
         const insightsJson = await insightsRes.json();
         const insight = (insightsJson.data || [])[0] || { impressions: "0", clicks: "0", spend: "0", actions: [] };
-
 
         const { data: existing } = await admin
           .from("campaigns")
@@ -165,14 +176,33 @@ serve(async (req) => {
         const leads = insight.actions?.find((a: any) => a.action_type === "lead")?.value || "0";
         const metricDate = bodyEnd || new Date().toISOString().split("T")[0];
 
+        const impressions = parseInt(insight.impressions) || 0;
+        const clicks = parseInt(insight.inline_link_clicks ?? insight.clicks) || 0;
+        const spend = parseFloat(insight.spend) || 0;
+        const ctr = insight.ctr != null ? parseFloat(insight.ctr) || 0 : (impressions > 0 ? (clicks / impressions) * 100 : 0);
+        const cpc = insight.cpc != null ? parseFloat(insight.cpc) || 0 : (clicks > 0 ? spend / clicks : 0);
+
         await admin.from("metrics").delete().eq("campaign_id", campaignId);
         await admin.from("metrics").insert({
           campaign_id: campaignId,
           date: metricDate,
-          impressions: parseInt(insight.impressions) || 0,
-          clicks: parseInt(insight.clicks) || 0,
-          spend: parseFloat(insight.spend) || 0,
+          impressions,
+          clicks,
+          spend,
           leads: parseInt(leads) || 0,
+        });
+
+        liveCampaigns.push({
+          id: campaignId,
+          name: c.name,
+          status: mapStatus(c.status),
+          objective: (c.objective || "OUTCOME_TRAFFIC").replace("OUTCOME_", "").replace(/_/g, " ").toLowerCase(),
+          impressions,
+          clicks,
+          spend,
+          ctr,
+          cpc,
+          platform: "meta",
         });
 
         syncedCount++;
@@ -186,9 +216,10 @@ serve(async (req) => {
       .eq("company_id", companyId)
       .eq("integration_type", "meta");
 
-    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId }), {
+    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId, campaigns: liveCampaigns }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (error: any) {
     console.error("company-meta-sync error", error);
     return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
