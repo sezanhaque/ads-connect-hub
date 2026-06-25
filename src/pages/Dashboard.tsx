@@ -120,7 +120,7 @@ const Dashboard = () => {
       setBalanceLoading(false);
     }
   };
-  const autoSyncCompanyIntegrations = async () => {
+  const autoSyncCompanyIntegrations = async (range?: DateRange) => {
     if (!profile?.user_id) return;
     try {
       const { data: cm } = await supabase
@@ -140,12 +140,16 @@ const Dashboard = () => {
       const hasMeta = integrations?.some((i) => i.integration_type === "meta" && (i.ad_account_ids ?? []).length > 0);
       const hasTikTok = integrations?.some((i) => i.integration_type === "tiktok" && (i.ad_account_ids ?? []).length > 0);
 
+      const r = range || dateRange;
+      const start_date = r.from.toISOString().split("T")[0];
+      const end_date = r.to.toISOString().split("T")[0];
+
       const tasks: Promise<unknown>[] = [];
       if (hasMeta) {
-        tasks.push(supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId } }));
+        tasks.push(supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId, start_date, end_date } }));
       }
       if (hasTikTok) {
-        tasks.push(supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId } }));
+        tasks.push(supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId, start_date, end_date } }));
       }
       if (tasks.length === 0) return;
       await Promise.allSettled(tasks);
@@ -155,6 +159,7 @@ const Dashboard = () => {
       console.error("company auto-sync failed", e);
     }
   };
+
   const autoSyncMetaCampaigns = async () => {
     if (!isConnected || !integration) return;
     try {
@@ -418,9 +423,14 @@ const Dashboard = () => {
       <UnifiedCampaignsDashboard
         refreshTrigger={refreshTrigger}
         dateRange={dateRange}
-        onDateRangeChange={setDateRange}
+        onDateRangeChange={(r) => {
+          setDateRange(r);
+          // Re-sync company data for the new window so metrics match the filter
+          autoSyncCompanyIntegrations(r);
+        }}
         onAggregatesChange={setCampaignAggregates}
       />
+
 
       {/* Recent Jobs */}
       <Card>

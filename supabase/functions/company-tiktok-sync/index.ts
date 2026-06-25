@@ -35,6 +35,8 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     let companyId: string | null = body?.company_id ? String(body.company_id) : null;
+    const bodyStart: string | null = body?.start_date ? String(body.start_date) : null;
+    const bodyEnd: string | null = body?.end_date ? String(body.end_date) : null;
     if (!companyId) {
       const { data: cm } = await admin
         .from("company_members")
@@ -47,6 +49,7 @@ serve(async (req) => {
     if (!companyId) {
       return new Response(JSON.stringify({ success: false, error: "No company linked to this user" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
 
     const { data: membership } = await admin
       .from("company_members")
@@ -122,10 +125,11 @@ serve(async (req) => {
       const campaigns = (campJson.data?.list || []) as Array<{ campaign_id: string; campaign_name: string; status: string; objective_type: string; budget: number }>;
       totalCampaigns += campaigns.length;
 
-      const endDate = new Date().toISOString().split("T")[0];
+      const endDate = bodyEnd || new Date().toISOString().split("T")[0];
       // Same pattern as the previous working live TikTok dashboard: one
       // campaign-level report per advertiser, then match rows by campaign_id.
-      const startDate = new Date(Date.now() - 29 * 86400000).toISOString().split("T")[0];
+      const startDate = bodyStart || new Date(Date.now() - 29 * 86400000).toISOString().split("T")[0];
+
       const reportParams = new URLSearchParams({
         advertiser_id: advertiserId,
         service_type: "AUCTION",
