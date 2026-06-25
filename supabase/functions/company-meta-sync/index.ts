@@ -177,7 +177,7 @@ serve(async (req) => {
       .eq("company_id", companyId)
       .eq("integration_type", "meta");
 
-    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: campaigns.length, company_id: companyId }), {
+    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
