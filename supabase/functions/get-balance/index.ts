@@ -119,20 +119,69 @@ serve(async (req) => {
           .limit(1)
           .maybeSingle();
         if (cm?.company_id) {
+          const companyId = cm.company_id;
           const { data: credits } = await admin
             .from("company_credits")
             .select("current_balance, total_topups, currency")
-            .eq("company_id", cm.company_id)
+            .eq("company_id", companyId)
             .maybeSingle();
+
+          // Pooled top-ups: every top-up attached to this company
+          const { data: companyTopups } = await admin
+            .from("topups")
+            .select("id, amount, currency, status, description, paid_at, created_at, mollie_payment_id, user_id")
+            .eq("company_id", companyId)
+            .order("created_at", { ascending: false })
+            .limit(50);
+
+          // Member list (for the "shared with N teammates" hint)
+          const { data: memberRows } = await admin
+            .from("company_members")
+            .select("user_id")
+            .eq("company_id", companyId);
+          const memberIds = (memberRows || []).map((m: any) => m.user_id);
+
+          // Aggregate paid top-ups as the effective shared balance baseline
+          // (falls back to company_credits.current_balance if populated)
+          let paidTopupsTotal = 0;
+          for (const t of (companyTopups as any[]) || []) {
+            if (t.status === "paid") paidTopupsTotal += Number(t.amount ?? 0);
+          }
+          const balanceValue = Number(credits?.current_balance ?? 0) || paidTopupsTotal;
+
+          // Sum lifetime spend across all company-shared Meta/TikTok integrations
+          const { data: companyIntegrations } = await admin
+            .from("company_integrations")
+            .select("integration_type, access_token, ad_account_id")
+            .eq("company_id", companyId)
+            .eq("status", "active")
+            .in("integration_type", ["meta", "tiktok"]);
+
+          let totalCosts = 0;
+          const seen = new Set<string>();
+          for (const i of (companyIntegrations as any[]) || []) {
+            if (!i.access_token) continue;
+            for (const acc of normalizeAccountIds(i.ad_account_id)) {
+              const key = `${i.integration_type}:${acc}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+              if (i.integration_type === "meta") {
+                totalCosts += await fetchMetaLifetimeSpend(i.access_token, acc);
+              } else if (i.integration_type === "tiktok") {
+                totalCosts += await fetchTikTokLifetimeSpend(i.access_token, acc);
+              }
+            }
+          }
+
           return new Response(
             JSON.stringify({
-              companyId: cm.company_id,
-              balance: Number(credits?.current_balance ?? 0),
-              totalTopups: Number(credits?.total_topups ?? 0),
-              totalCosts: 0,
+              companyId,
+              balance: balanceValue,
+              totalTopups: Number(credits?.total_topups ?? 0) || paidTopupsTotal,
+              totalCosts,
               currency: credits?.currency || "EUR",
-              topups: [],
-              groupUserIds: [userId],
+              topups: companyTopups || [],
+              groupUserIds: memberIds.length ? memberIds : [userId],
               companyMode: true,
             }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" } },
