@@ -52,8 +52,27 @@ serve(async (req) => {
     let ids = (rawIds as unknown[])
       .map((v) => String(v ?? "").trim())
       .filter((s) => s.length > 0);
+
+    // Validate format: digits only, sensible length
+    const stripped = ids.map((id) => id.replace(/^act_/, ""));
+    const invalid = stripped.filter((id) => !/^\d{8,20}$/.test(id));
+    if (ids.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "At least one ad account ID is required." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    if (invalid.length > 0) {
+      return new Response(
+        JSON.stringify({ error: `Invalid ${platform} ID(s): ${invalid.join(", ")}. IDs must be numeric (8-20 digits).` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     if (platform === "meta") {
-      ids = ids.map((id) => (id.startsWith("act_") ? id : `act_${id}`));
+      ids = stripped.map((id) => `act_${id}`);
+    } else {
+      ids = stripped;
     }
     ids = Array.from(new Set(ids));
 
