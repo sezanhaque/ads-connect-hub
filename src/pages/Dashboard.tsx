@@ -80,12 +80,33 @@ const Dashboard = () => {
     posthog.capture("dashboard_viewed");
     fetchDashboardData();
     fetchBalance();
-    autoSyncMetaCampaigns();
-    autoSyncTikTokCampaigns();
-    autoSyncCompanyIntegrations();
+    // In strict company mode, only company-level syncs run; skip personal syncs.
+    runAutoSyncs();
     // Trigger refresh for campaign dashboards
     setRefreshTrigger((prev) => prev + 1);
   }, [profile?.user_id]);
+
+  const runAutoSyncs = async () => {
+    if (!profile?.user_id) return;
+    // Check if user is in a company
+    const { data: cm } = await supabase
+      .from("company_members")
+      .select("company_id")
+      .eq("user_id", profile.user_id)
+      .limit(1)
+      .maybeSingle();
+    const inCompany = !!cm?.company_id;
+
+    if (companyModeEnabled && inCompany) {
+      // Strict: only company-level
+      autoSyncCompanyIntegrations();
+    } else {
+      // Legacy: personal syncs + (additive) company syncs if member
+      autoSyncMetaCampaigns();
+      autoSyncTikTokCampaigns();
+      autoSyncCompanyIntegrations();
+    }
+  };
 
   const fetchBalance = async () => {
     setBalanceLoading(true);
