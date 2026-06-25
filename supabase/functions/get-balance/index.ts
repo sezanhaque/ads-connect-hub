@@ -141,12 +141,12 @@ serve(async (req) => {
             .eq("company_id", companyId);
           const memberIds = (memberRows || []).map((m: any) => m.user_id);
 
-          const creditsBalance = Number(credits?.balance ?? 0);
-          const balanceValue = paidTopupsTotal + creditsBalance;
+          let paidTopupsTotal = 0;
           for (const t of (companyTopups as any[]) || []) {
             if (t.status === "paid") paidTopupsTotal += Number(t.amount ?? 0);
           }
-          const balanceValue = Number(credits?.current_balance ?? 0) || paidTopupsTotal;
+          const creditsBalance = Number(credits?.balance ?? 0);
+          const balanceValue = paidTopupsTotal + creditsBalance;
 
           // Sum lifetime spend across all company-shared Meta/TikTok integrations
           const { data: companyIntegrations } = await admin
