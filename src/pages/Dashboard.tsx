@@ -97,6 +97,41 @@ const Dashboard = () => {
       setBalanceLoading(false);
     }
   };
+  const autoSyncCompanyIntegrations = async () => {
+    if (!profile?.user_id) return;
+    try {
+      const { data: cm } = await supabase
+        .from("company_members")
+        .select("company_id")
+        .eq("user_id", profile.user_id)
+        .limit(1)
+        .maybeSingle();
+      const companyId = cm?.company_id;
+      if (!companyId) return;
+
+      const { data: integrations } = await supabase
+        .from("company_integrations")
+        .select("integration_type, ad_account_ids")
+        .eq("company_id", companyId);
+
+      const hasMeta = integrations?.some((i) => i.integration_type === "meta" && (i.ad_account_ids ?? []).length > 0);
+      const hasTikTok = integrations?.some((i) => i.integration_type === "tiktok" && (i.ad_account_ids ?? []).length > 0);
+
+      const tasks: Promise<unknown>[] = [];
+      if (hasMeta) {
+        tasks.push(supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId } }));
+      }
+      if (hasTikTok) {
+        tasks.push(supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId } }));
+      }
+      if (tasks.length === 0) return;
+      await Promise.allSettled(tasks);
+      setRefreshTrigger((prev) => prev + 1);
+      fetchDashboardData();
+    } catch (e) {
+      console.error("company auto-sync failed", e);
+    }
+  };
   const autoSyncMetaCampaigns = async () => {
     if (!isConnected || !integration) return;
     try {
