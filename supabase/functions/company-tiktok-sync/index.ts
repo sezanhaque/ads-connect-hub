@@ -125,10 +125,11 @@ serve(async (req) => {
       const campaigns = (campJson.data?.list || []) as Array<{ campaign_id: string; campaign_name: string; status: string; objective_type: string; budget: number }>;
       totalCampaigns += campaigns.length;
 
-      const endDate = new Date().toISOString().split("T")[0];
+      const endDate = bodyEnd || new Date().toISOString().split("T")[0];
       // Same pattern as the previous working live TikTok dashboard: one
       // campaign-level report per advertiser, then match rows by campaign_id.
-      const startDate = new Date(Date.now() - 29 * 86400000).toISOString().split("T")[0];
+      const startDate = bodyStart || new Date(Date.now() - 29 * 86400000).toISOString().split("T")[0];
+
       const reportParams = new URLSearchParams({
         advertiser_id: advertiserId,
         service_type: "AUCTION",
