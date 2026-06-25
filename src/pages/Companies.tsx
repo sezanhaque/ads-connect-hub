@@ -564,7 +564,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
         <DialogHeader>
           <DialogTitle>{company.display_name}</DialogTitle>
           <DialogDescription>
-            @{company.domain} · {company.members.length} member(s) · Shared balance {company.balance.toFixed(2)} {company.currency}
+            {company.domain ? `@${company.domain} · ` : ''}{company.members.length} member(s) · Shared balance {company.balance.toFixed(2)} {company.currency}
           </DialogDescription>
         </DialogHeader>
 
