@@ -580,7 +580,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <div>
               <Label>Assign user to this company</Label>
               <p className="text-xs text-muted-foreground mt-1 mb-2">
-                Pick a registered user. Users already in another company are hidden.
+                Any registered user can be added, regardless of their email domain. Users already in another company are hidden.
               </p>
               {(() => {
                 const assignedIds = new Set(
