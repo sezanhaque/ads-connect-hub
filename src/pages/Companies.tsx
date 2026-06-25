@@ -45,13 +45,25 @@ interface CompanyRow {
   integrations: CompanyIntegrationRow[];
 }
 
+interface ProfileRow {
+  user_id: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+}
+
 const Companies = () => {
   const [companies, setCompanies] = useState<CompanyRow[]>([]);
+  const [profiles, setProfiles] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [flagBusy, setFlagBusy] = useState(false);
   const [manageCompany, setManageCompany] = useState<CompanyRow | null>(null);
+  const [newOpen, setNewOpen] = useState(false);
+  const [newDomain, setNewDomain] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newBusy, setNewBusy] = useState(false);
   const { enabled: companyMode } = useCompanyMode();
   const { toast } = useToast();
 
