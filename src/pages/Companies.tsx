@@ -69,12 +69,14 @@ const Companies = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [{ data: comps }, { data: members }, { data: credits }, { data: integrations }] = await Promise.all([
+    const [{ data: comps }, { data: members }, { data: credits }, { data: integrations }, { data: profs }] = await Promise.all([
       supabase.from('companies').select('*').order('created_at', { ascending: false }),
       supabase.from('company_members').select('*'),
       supabase.from('company_credits').select('*'),
       supabase.from('company_integrations').select('*'),
+      supabase.from('profiles').select('user_id, email, first_name, last_name'),
     ]);
+    setProfiles((profs ?? []) as ProfileRow[]);
 
     const membersByCompany = new Map<string, CompanyMemberRow[]>();
     (members ?? []).forEach((m: any) => {
