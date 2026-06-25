@@ -211,7 +211,7 @@ const Companies = () => {
             <div className="text-center py-12 text-muted-foreground">
               <Building2 className="h-10 w-10 mx-auto mb-2 opacity-50" />
               <p>No companies yet.</p>
-              <p className="text-xs mt-1">Companies appear as soon as a user signs up with a verified company email.</p>
+              <p className="text-xs mt-1">Click "New company" to create the first one.</p>
             </div>
           ) : (
             <Table>
