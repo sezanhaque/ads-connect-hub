@@ -61,6 +61,20 @@ serve(async (req) => {
       members.find((m: any) => m.role === "admin") || members[0];
     const orgId = primary.org_id;
 
+    // Resolve company_id (if user belongs to one) so top-ups are shared
+    let companyId: string | null = null;
+    try {
+      const { data: cm } = await admin
+        .from("company_members")
+        .select("company_id")
+        .eq("user_id", userId)
+        .limit(1)
+        .maybeSingle();
+      companyId = cm?.company_id ?? null;
+    } catch (e) {
+      console.warn("company_members lookup skipped", e);
+    }
+
     const finalDescription = description || `Top-up by ${userEmail}`;
     const redirectUrl = `${origin}/top-up/success`;
     const webhookUrl = `${supabaseUrl}/functions/v1/mollie-webhook`;
@@ -77,7 +91,7 @@ serve(async (req) => {
         description: finalDescription,
         redirectUrl,
         webhookUrl,
-        metadata: { user_id: userId, org_id: orgId },
+        metadata: { user_id: userId, org_id: orgId, company_id: companyId },
       }),
     });
 
@@ -94,6 +108,7 @@ serve(async (req) => {
     const { error: insertErr } = await admin.from("topups").insert({
       user_id: userId,
       org_id: orgId,
+      company_id: companyId,
       mollie_payment_id: molliePaymentId,
       amount,
       currency: "EUR",
