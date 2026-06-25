@@ -745,50 +745,69 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
                     if (c.id !== company.id) companyByUser.set(m.user_id, c.display_name);
                   }),
                 );
+                const q = assignSearch.trim().toLowerCase();
                 const available = profiles
                   .filter((p) => !inThisCompany.has(p.user_id))
+                  .filter((p) => !q || (p.email ?? '').toLowerCase().includes(q) || `${p.first_name ?? ''} ${p.last_name ?? ''}`.toLowerCase().includes(q))
                   .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
+                const handleAdd = async (userId: string) => {
+                  const profile = profiles.find((p) => p.user_id === userId);
+                  if (!profile) return;
+                  setAssignBusy(true);
+                  setAssignUserId(userId);
+                  const { error } = await (supabase.from('company_members') as any).insert({
+                    company_id: company.id,
+                    user_id: userId,
+                    email: profile.email,
+                    role: 'member',
+                  });
+                  setAssignBusy(false);
+                  setAssignUserId('');
+                  if (error) {
+                    toast({ title: 'Could not assign', description: error.message, variant: 'destructive' });
+                    return;
+                  }
+                  toast({ title: 'Member added' });
+                  onChanged();
+                };
                 return (
-                  <div className="flex gap-2">
-                    <Select value={assignUserId} onValueChange={setAssignUserId}>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder={available.length ? 'Select a user…' : 'All users already added'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {available.map((p) => {
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Search users by name or email…"
+                        value={assignSearch}
+                        onChange={(e) => setAssignSearch(e.target.value)}
+                        className="h-9 pl-8"
+                      />
+                    </div>
+                    {available.length === 0 ? (
+                      <p className="text-xs text-muted-foreground px-1">
+                        {q ? `No users match "${assignSearch}".` : 'All users already added.'}
+                      </p>
+                    ) : (
+                      <div className="max-h-56 overflow-y-auto rounded-md border divide-y">
+                        {available.slice(0, 100).map((p) => {
                           const other = companyByUser.get(p.user_id);
+                          const busy = assignBusy && assignUserId === p.user_id;
                           return (
-                            <SelectItem key={p.user_id} value={p.user_id}>
-                              {p.email ?? p.user_id}{other ? ` — in ${other}` : ''}
-                            </SelectItem>
+                            <div key={p.user_id} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+                              <div className="min-w-0">
+                                <div className="truncate">{p.email ?? p.user_id}</div>
+                                {other && (
+                                  <div className="text-[11px] text-muted-foreground truncate">in {other}</div>
+                                )}
+                              </div>
+                              <Button size="sm" variant="outline" disabled={assignBusy} onClick={() => handleAdd(p.user_id)}>
+                                <UserPlus className="h-3.5 w-3.5 mr-1" /> {busy ? 'Adding…' : 'Add'}
+                              </Button>
+                            </div>
                           );
                         })}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      disabled={!assignUserId || assignBusy}
-                      onClick={async () => {
-                        const profile = profiles.find((p) => p.user_id === assignUserId);
-                        if (!profile) return;
-                        setAssignBusy(true);
-                        const { error } = await (supabase.from('company_members') as any).insert({
-                          company_id: company.id,
-                          user_id: assignUserId,
-                          email: profile.email,
-                          role: 'member',
-                        });
-                        setAssignBusy(false);
-                        if (error) {
-                          toast({ title: 'Could not assign', description: error.message, variant: 'destructive' });
-                          return;
-                        }
-                        toast({ title: 'Member added' });
-                        setAssignUserId('');
-                        onChanged();
-                      }}
-                    >
-                      <UserPlus className="h-4 w-4 mr-1" /> Add
-                    </Button>
+                      </div>
+                    )}
+                  </div>
+                );
                   </div>
                 );
               })()}
