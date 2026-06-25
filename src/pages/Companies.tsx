@@ -399,11 +399,15 @@ const Companies = () => {
 
 interface ManageProps {
   company: CompanyRow | null;
+  profiles: ProfileRow[];
+  companies: CompanyRow[];
   onClose: () => void;
   onChanged: () => void;
 }
 
-const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
+const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged }: ManageProps) => {
+  const [assignUserId, setAssignUserId] = useState<string>('');
+  const [assignBusy, setAssignBusy] = useState(false);
   const { toast } = useToast();
   const [topupAmount, setTopupAmount] = useState('');
   const [topupBusy, setTopupBusy] = useState(false);
