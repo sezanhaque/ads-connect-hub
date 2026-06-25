@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
 
     const { data: existing } = await admin
       .from("company_members")
-      .select("company_id, role")
+      .select("company_id")
       .eq("user_id", user.id)
       .maybeSingle();
 
