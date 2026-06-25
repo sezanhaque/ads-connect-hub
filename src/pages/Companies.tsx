@@ -600,11 +600,30 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
     onChanged();
   };
 
+  const validateIds = (platform: 'meta' | 'tiktok', ids: string[]): string | null => {
+    if (ids.length === 0) {
+      return `Add at least one ${platform === 'meta' ? 'Meta ad account' : 'TikTok advertiser'} ID before saving.`;
+    }
+    const bad = ids
+      .map((id) => id.trim().replace(/^act_/, ''))
+      .filter((id) => !/^\d{8,20}$/.test(id));
+    if (bad.length > 0) {
+      return `Invalid ${platform === 'meta' ? 'Meta' : 'TikTok'} ID(s): ${bad.join(', ')}. Must be numeric (8-20 digits).`;
+    }
+    return null;
+  };
+
   const savePlatform = async (platform: 'meta' | 'tiktok', ids: string[], accessToken: string) => {
+    const cleaned = ids.map((s) => s.trim()).filter(Boolean);
+    const err = validateIds(platform, cleaned);
+    if (err) {
+      toast({ title: 'Validation error', description: err, variant: 'destructive' });
+      return;
+    }
     const setBusy = platform === 'meta' ? setMetaBusy : setTiktokBusy;
     setBusy(true);
     const { data, error } = await supabase.functions.invoke('company-platform-setup', {
-      body: { company_id: company.id, platform, ad_account_ids: ids, access_token: accessToken },
+      body: { company_id: company.id, platform, ad_account_ids: cleaned, access_token: accessToken },
     });
     setBusy(false);
     if (error || !data?.success) {
