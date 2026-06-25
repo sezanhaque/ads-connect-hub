@@ -659,51 +659,66 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
     input: string,
     setInput: (v: string) => void,
     placeholder: string,
-  ) => (
-    <>
-      <div className="flex gap-2">
-        <Input
-          placeholder={placeholder}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && input.trim()) {
-              e.preventDefault();
-              setIds([...ids, input.trim()]);
-              setInput('');
-            }
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            if (!input.trim()) return;
-            setIds([...ids, input.trim()]);
-            setInput('');
-          }}
-        >
-          Add
-        </Button>
-      </div>
-      {ids.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {ids.map((id, idx) => (
-            <Badge key={`${id}-${idx}`} variant="secondary" className="gap-1">
-              {id}
-              <button
-                type="button"
-                onClick={() => setIds(ids.filter((_, i) => i !== idx))}
-                className="hover:text-destructive"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
+    platform: 'meta' | 'tiktok' = 'meta',
+  ) => {
+    const tryAdd = () => {
+      const raw = input.trim().replace(/^act_/, '');
+      if (!raw) {
+        toast({ title: 'Empty ID', description: 'Please enter an ID.', variant: 'destructive' });
+        return;
+      }
+      if (!/^\d{8,20}$/.test(raw)) {
+        toast({
+          title: 'Invalid ID',
+          description: `${platform === 'meta' ? 'Meta ad account' : 'TikTok advertiser'} IDs must be numeric (8-20 digits).`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (ids.includes(raw)) {
+        toast({ title: 'Duplicate', description: 'That ID is already in the list.', variant: 'destructive' });
+        return;
+      }
+      setIds([...ids, raw]);
+      setInput('');
+    };
+    return (
+      <>
+        <div className="flex gap-2">
+          <Input
+            placeholder={placeholder}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                tryAdd();
+              }
+            }}
+          />
+          <Button type="button" variant="outline" onClick={tryAdd}>
+            Add
+          </Button>
         </div>
-      )}
-    </>
-  );
+        {ids.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {ids.map((id, idx) => (
+              <Badge key={`${id}-${idx}`} variant="secondary" className="gap-1">
+                {id}
+                <button
+                  type="button"
+                  onClick={() => setIds(ids.filter((_, i) => i !== idx))}
+                  className="hover:text-destructive"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <Dialog open={!!company} onOpenChange={(o) => !o && onClose()}>
