@@ -131,10 +131,36 @@ export const UnifiedCampaignsDashboard = ({
           return;
         }
 
+        // In strict company mode, only show data from platforms the company has integrated.
+        // If no Meta/TikTok IDs are configured on the company, the dashboard must be empty.
+        let allowedPlatforms: Array<"meta" | "tiktok"> = ["meta", "tiktok"];
+        if (useStrictCompany) {
+          const { data: integ } = await supabase
+            .from("company_integrations")
+            .select("meta_ad_account_id, tiktok_advertiser_id")
+            .eq("company_id", companyId)
+            .maybeSingle();
+          const platforms: Array<"meta" | "tiktok"> = [];
+          if (integ?.meta_ad_account_id) platforms.push("meta");
+          if (integ?.tiktok_advertiser_id) platforms.push("tiktok");
+          if (platforms.length === 0) {
+            console.log("Strict company mode: no platform integrations configured for this company");
+            setCampaigns([]);
+            if (onAggregatesChange) {
+              onAggregatesChange({ totalSpend: 0, totalImpressions: 0, totalClicks: 0, totalCampaigns: 0, activeCampaigns: 0 });
+            }
+            setLoading(false);
+            setInitialLoadComplete(true);
+            return;
+          }
+          allowedPlatforms = platforms;
+        }
+
         // Fetch Supabase campaigns (synced + manually created)
         const campaignsQuery = supabase
           .from("campaigns")
-          .select(`id, name, status, objective, platform, budget`);
+          .select(`id, name, status, objective, platform, budget`)
+          .in("platform", allowedPlatforms);
         const filter = useStrictCompany
           ? `company_id.eq.${companyId}`
           : companyId
