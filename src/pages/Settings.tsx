@@ -220,39 +220,34 @@ const Settings = () => {
             </CardHeader>
             <CardContent className="pt-0">
               {organizationData.id ? (
-                <form onSubmit={handleOrganizationUpdate} className="space-y-6">
+                <div className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="company_name" className="text-sm font-medium">Company Name</Label>
                     <Input
                       id="company_name"
                       value={organizationData.name}
-                      onChange={(e) => setOrganizationData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Your company name"
-                      disabled={!canEditOrg}
+                      readOnly
+                      disabled
                       className="h-11"
                     />
-                    {!canEditOrg && (
-                      <p className="text-xs text-muted-foreground">
-                        Only organization owners or admins can edit the company name.
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Your company is managed by an administrator and cannot be edited here.
+                    </p>
                   </div>
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Your Role</Label>
-                      <div className="mt-2">
-                        <Badge variant="secondary" className="text-sm px-3 py-1">
-                          {organizationData.role}
-                        </Badge>
+                  {organizationData.role && (
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Your Role</Label>
+                        <div className="mt-2">
+                          <Badge variant="secondary" className="text-sm px-3 py-1">
+                            {organizationData.role}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {canEditOrg && (
-                    <Button type="submit" className="h-11 px-8" disabled={savingOrg}>
-                      {savingOrg ? 'Saving...' : 'Update Company'}
-                    </Button>
                   )}
-                </form>
+                </div>
+
               ) : (
                 <div className="text-center py-8">
                   <div className="p-4 rounded-lg bg-muted/50 border border-dashed">
