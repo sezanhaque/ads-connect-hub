@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
+import { useCompanyMode } from "@/hooks/useCompanyMode";
 import { posthog } from "@/lib/posthog";
 import { Plus, Target, Briefcase, Euro, Eye, Users, Wallet, TrendingDown, AlertTriangle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -41,6 +42,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { integration, isConnected } = useMetaIntegrationStatus();
   const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
+  const { enabled: companyModeEnabled } = useCompanyMode();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: subDays(new Date(), 7),
@@ -78,12 +80,33 @@ const Dashboard = () => {
     posthog.capture("dashboard_viewed");
     fetchDashboardData();
     fetchBalance();
-    autoSyncMetaCampaigns();
-    autoSyncTikTokCampaigns();
-    autoSyncCompanyIntegrations();
+    // In strict company mode, only company-level syncs run; skip personal syncs.
+    runAutoSyncs();
     // Trigger refresh for campaign dashboards
     setRefreshTrigger((prev) => prev + 1);
   }, [profile?.user_id]);
+
+  const runAutoSyncs = async () => {
+    if (!profile?.user_id) return;
+    // Check if user is in a company
+    const { data: cm } = await supabase
+      .from("company_members")
+      .select("company_id")
+      .eq("user_id", profile.user_id)
+      .limit(1)
+      .maybeSingle();
+    const inCompany = !!cm?.company_id;
+
+    if (companyModeEnabled && inCompany) {
+      // Strict: only company-level
+      autoSyncCompanyIntegrations();
+    } else {
+      // Legacy: personal syncs + (additive) company syncs if member
+      autoSyncMetaCampaigns();
+      autoSyncTikTokCampaigns();
+      autoSyncCompanyIntegrations();
+    }
+  };
 
   const fetchBalance = async () => {
     setBalanceLoading(true);

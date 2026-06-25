@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
+import { useCompanyMode } from "@/hooks/useCompanyMode";
 import { useToast } from "@/hooks/use-toast";
 import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
 import { TrendingUp, Eye, MousePointer, Euro, RefreshCw, Link as LinkIcon } from "lucide-react";
@@ -67,9 +68,10 @@ export const UnifiedCampaignsDashboard = ({
     loading: tiktokLoading,
   } = useTikTokIntegrationStatus();
   const { toast } = useToast();
+  const { enabled: companyModeEnabled, loading: companyModeLoading } = useCompanyMode();
 
   // Wait for integration status to be determined before fetching campaigns
-  const integrationsLoading = metaLoading || tiktokLoading;
+  const integrationsLoading = metaLoading || tiktokLoading || companyModeLoading;
 
   const fetchCampaigns = useCallback(
     async (dateFilter?: DateRange) => {
@@ -85,27 +87,20 @@ export const UnifiedCampaignsDashboard = ({
       const apiCampaigns: UnifiedCampaign[] = [];
 
       try {
-        // Determine the user's primary organization
-        const { data: memberships, error: membershipError } = await supabase
+        // Determine the user's primary organization (still needed for legacy non-company mode)
+        const { data: memberships } = await supabase
           .from("members")
           .select("org_id, role")
           .eq("user_id", user.id)
           .order("role", { ascending: true });
 
-        if (membershipError || !memberships || memberships.length === 0) {
-          console.log("No organizations found for user");
-          setCampaigns([]);
-          setLoading(false);
-          return;
-        }
-
         const primaryOrg =
-          memberships.find((m: { role: string }) => m.role === "owner") ||
-          memberships.find((m: { role: string }) => m.role === "admin") ||
-          memberships.find((m: { role: string }) => m.role === "member") ||
-          memberships[0];
+          memberships?.find((m: { role: string }) => m.role === "owner") ||
+          memberships?.find((m: { role: string }) => m.role === "admin") ||
+          memberships?.find((m: { role: string }) => m.role === "member") ||
+          memberships?.[0];
 
-        // Resolve company membership (additive: company-mode lets all members see the same campaigns)
+        // Resolve company membership
         const { data: companyMembership } = await supabase
           .from("company_members")
           .select("company_id")
@@ -114,13 +109,37 @@ export const UnifiedCampaignsDashboard = ({
           .maybeSingle();
         const companyId = companyMembership?.company_id ?? null;
 
-        // Always fetch Supabase campaigns as fallback/base data — by org OR by shared company
+        // STRICT company mode: when enabled, users in a company ONLY see company data.
+        // Users not in any company see nothing.
+        if (companyModeEnabled && !companyId) {
+          setCampaigns([]);
+          if (onAggregatesChange) {
+            onAggregatesChange({ totalSpend: 0, totalImpressions: 0, totalClicks: 0, totalCampaigns: 0, activeCampaigns: 0 });
+          }
+          setLoading(false);
+          setInitialLoadComplete(true);
+          return;
+        }
+
+        // In strict company mode + company → only company scope (no org_id fallback)
+        // In legacy mode → org OR company (additive)
+        const useStrictCompany = companyModeEnabled && !!companyId;
+        if (!useStrictCompany && !primaryOrg) {
+          console.log("No organizations found for user");
+          setCampaigns([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch Supabase campaigns (synced + manually created)
         const campaignsQuery = supabase
           .from("campaigns")
           .select(`id, name, status, objective, platform, budget`);
-        const filter = companyId
-          ? `org_id.eq.${primaryOrg.org_id},company_id.eq.${companyId}`
-          : `org_id.eq.${primaryOrg.org_id}`;
+        const filter = useStrictCompany
+          ? `company_id.eq.${companyId}`
+          : companyId
+            ? `org_id.eq.${primaryOrg.org_id},company_id.eq.${companyId}`
+            : `org_id.eq.${primaryOrg.org_id}`;
         const { data: supabaseCampaigns, error: supabaseError } = await campaignsQuery.or(filter);
 
         // Fetch metrics for Supabase campaigns
@@ -176,8 +195,8 @@ export const UnifiedCampaignsDashboard = ({
           (currentDateRange.to.getTime() - currentDateRange.from.getTime()) / (1000 * 60 * 60 * 24),
         );
 
-        // Fetch Meta campaigns if connected
-        if (isMetaConnected) {
+        // Fetch Meta campaigns if connected (skip in strict company mode — only company-level data)
+        if (isMetaConnected && !useStrictCompany) {
           let metaDateRangeParam = "last_7d";
           if (daysDiff === 0) {
             const today = new Date();
@@ -243,8 +262,8 @@ export const UnifiedCampaignsDashboard = ({
           }
         }
 
-        // Fetch TikTok campaigns if connected
-        if (isTikTokConnected) {
+        // Fetch TikTok campaigns if connected (skip in strict company mode — only company-level data)
+        if (isTikTokConnected && !useStrictCompany) {
           let tiktokDateRangeParam = "last_7d";
           if (daysDiff <= 7) {
             tiktokDateRangeParam = "last_7d";
@@ -323,7 +342,7 @@ export const UnifiedCampaignsDashboard = ({
         setInitialLoadComplete(true);
       }
     },
-    [user, isMetaConnected, isTikTokConnected, dateRange, toast, integrationsLoading],
+    [user, isMetaConnected, isTikTokConnected, dateRange, toast, integrationsLoading, companyModeEnabled],
   );
 
   useEffect(() => {
@@ -342,42 +361,65 @@ export const UnifiedCampaignsDashboard = ({
     setSyncing(true);
 
     try {
-      const { data: memberships, error: membershipError } = await supabase
-        .from("members")
-        .select("org_id, role")
+      // Resolve company membership first
+      const { data: companyMembership } = await supabase
+        .from("company_members")
+        .select("company_id")
         .eq("user_id", user?.id)
-        .order("role", { ascending: true });
+        .limit(1)
+        .maybeSingle();
+      const companyId = companyMembership?.company_id ?? null;
 
-      if (membershipError || !memberships || memberships.length === 0) {
-        throw new Error("No organization found for user");
-      }
-
-      const primaryOrg =
-        memberships.find((m: { role: string }) => m.role === "owner") ||
-        memberships.find((m: { role: string }) => m.role === "admin") ||
-        memberships.find((m: { role: string }) => m.role === "member") ||
-        memberships[0];
-
-      const userOrgId = primaryOrg.org_id;
       let syncedCount = 0;
 
-      // Sync Meta if connected
-      if (isMetaConnected && metaIntegration) {
-        const { data: metaData, error: metaError } = await supabase.functions.invoke("meta-sync", {
-          body: { org_id: userOrgId, save_connection: false },
-        });
-        if (!metaError && metaData?.success) {
-          syncedCount += metaData.synced_count || 0;
+      if (companyModeEnabled && companyId) {
+        // Strict company mode → only company-level syncs
+        const [metaRes, tiktokRes] = await Promise.allSettled([
+          supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId } }),
+          supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId } }),
+        ]);
+        if (metaRes.status === "fulfilled" && metaRes.value.data?.success) {
+          syncedCount += metaRes.value.data.synced_count || 0;
         }
-      }
+        if (tiktokRes.status === "fulfilled" && tiktokRes.value.data?.success) {
+          syncedCount += tiktokRes.value.data.synced_count || 0;
+        }
+      } else {
+        // Legacy per-user syncs
+        const { data: memberships, error: membershipError } = await supabase
+          .from("members")
+          .select("org_id, role")
+          .eq("user_id", user?.id)
+          .order("role", { ascending: true });
 
-      // Sync TikTok if connected
-      if (isTikTokConnected && tiktokIntegration) {
-        const { data: tiktokData, error: tiktokError } = await supabase.functions.invoke("tiktok-sync", {
-          body: { org_id: userOrgId, save_connection: false },
-        });
-        if (!tiktokError && tiktokData?.success) {
-          syncedCount += tiktokData.synced_count || 0;
+        if (membershipError || !memberships || memberships.length === 0) {
+          throw new Error("No organization found for user");
+        }
+
+        const primaryOrg =
+          memberships.find((m: { role: string }) => m.role === "owner") ||
+          memberships.find((m: { role: string }) => m.role === "admin") ||
+          memberships.find((m: { role: string }) => m.role === "member") ||
+          memberships[0];
+
+        const userOrgId = primaryOrg.org_id;
+
+        if (isMetaConnected && metaIntegration) {
+          const { data: metaData, error: metaError } = await supabase.functions.invoke("meta-sync", {
+            body: { org_id: userOrgId, save_connection: false },
+          });
+          if (!metaError && metaData?.success) {
+            syncedCount += metaData.synced_count || 0;
+          }
+        }
+
+        if (isTikTokConnected && tiktokIntegration) {
+          const { data: tiktokData, error: tiktokError } = await supabase.functions.invoke("tiktok-sync", {
+            body: { org_id: userOrgId, save_connection: false },
+          });
+          if (!tiktokError && tiktokData?.success) {
+            syncedCount += tiktokData.synced_count || 0;
+          }
         }
       }
 
