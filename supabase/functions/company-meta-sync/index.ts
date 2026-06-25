@@ -163,10 +163,12 @@ serve(async (req) => {
         }
 
         const leads = insight.actions?.find((a: any) => a.action_type === "lead")?.value || "0";
+        const metricDate = bodyEnd || new Date().toISOString().split("T")[0];
 
         await admin.from("metrics").delete().eq("campaign_id", campaignId);
         await admin.from("metrics").insert({
           campaign_id: campaignId,
+          date: metricDate,
           impressions: parseInt(insight.impressions) || 0,
           clicks: parseInt(insight.clicks) || 0,
           spend: parseFloat(insight.spend) || 0,

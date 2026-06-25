@@ -42,7 +42,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { integration, isConnected } = useMetaIntegrationStatus();
   const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
-  const { enabled: companyModeEnabled } = useCompanyMode();
+  const { enabled: companyModeEnabled, loading: companyModeLoading } = useCompanyMode();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: subDays(new Date(), 7),
@@ -73,7 +73,7 @@ const Dashboard = () => {
   const [balanceLoading, setBalanceLoading] = useState(true);
   useEffect(() => {
     // Don't fetch if profile isn't ready yet
-    if (!profile?.user_id) {
+    if (!profile?.user_id || companyModeLoading) {
       return;
     }
 
@@ -82,9 +82,7 @@ const Dashboard = () => {
     fetchBalance();
     // In strict company mode, only company-level syncs run; skip personal syncs.
     runAutoSyncs();
-    // Trigger refresh for campaign dashboards
-    setRefreshTrigger((prev) => prev + 1);
-  }, [profile?.user_id]);
+  }, [profile?.user_id, companyModeLoading, companyModeEnabled]);
 
   const runAutoSyncs = async () => {
     if (!profile?.user_id) return;
@@ -98,8 +96,8 @@ const Dashboard = () => {
     const inCompany = !!cm?.company_id;
 
     if (companyModeEnabled && inCompany) {
-      // Strict: only company-level
-      autoSyncCompanyIntegrations();
+      // Strict company data is synced inside UnifiedCampaignsDashboard with the active date filter.
+      return;
     } else {
       // Legacy: personal syncs + (additive) company syncs if member
       autoSyncMetaCampaigns();
@@ -425,8 +423,6 @@ const Dashboard = () => {
         dateRange={dateRange}
         onDateRangeChange={(r) => {
           setDateRange(r);
-          // Re-sync company data for the new window so metrics match the filter
-          autoSyncCompanyIntegrations(r);
         }}
         onAggregatesChange={setCampaignAggregates}
       />
