@@ -250,7 +250,7 @@ const Auth = () => {
               <TabsContent value="signin" className="mt-0">
                 <form onSubmit={handleSignIn}>
                   <CardContent className="space-y-4">
-                    <GoogleButton />
+                    {/* <GoogleButton /> */}
                     <div className="space-y-2">
                       <Label htmlFor="signin-email">Email</Label>
                       <Input id="signin-email" name="email" type="email" required placeholder="Enter your email" />
@@ -297,7 +297,7 @@ const Auth = () => {
               <TabsContent value="signup" className="mt-0">
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
-                    <GoogleButton />
+                    {/* <GoogleButton /> */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="firstName">First Name</Label>
