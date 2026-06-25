@@ -64,21 +64,35 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Load shared Meta integration
+    // Load shared Meta integration (ad account IDs for the company)
     const { data: integ } = await admin
       .from("company_integrations")
-      .select("access_token, ad_account_ids, account_name")
+      .select("ad_account_ids")
       .eq("company_id", companyId)
       .eq("integration_type", "meta")
       .maybeSingle();
 
-    const accessToken = integ?.access_token;
-    const adAccountId = (integ?.ad_account_ids ?? [])[0];
-    if (!accessToken || !adAccountId) {
-      return new Response(JSON.stringify({ success: false, error: "Company Meta token or ad account not configured" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const adAccountIds: string[] = integ?.ad_account_ids ?? [];
+    if (adAccountIds.length === 0) {
+      return new Response(JSON.stringify({ success: false, error: "No Meta ad accounts configured for this company" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Resolve a fallback org_id for the caller (campaigns.org_id is required by older paths)
+    // Source access token from any active admin-org Meta integration (shared platform token)
+    const { data: tokenRow } = await admin
+      .from("integrations")
+      .select("access_token")
+      .eq("integration_type", "meta")
+      .eq("status", "active")
+      .not("access_token", "is", null)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const accessToken = tokenRow?.access_token;
+    if (!accessToken) {
+      return new Response(JSON.stringify({ success: false, error: "No shared Meta access token available. An admin must connect Meta first." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const { data: callerMember } = await admin
       .from("members")
       .select("org_id, role")
@@ -88,70 +102,74 @@ serve(async (req) => {
       .maybeSingle();
     const orgId = callerMember?.org_id ?? null;
 
-    // Fetch campaigns
-    const campaignsUrl = `https://graph.facebook.com/v19.0/${adAccountId}/campaigns?access_token=${encodeURIComponent(accessToken)}&fields=id,name,status,objective`;
-    const campaignsRes = await fetch(campaignsUrl);
-    const campaignsJson = await campaignsRes.json();
-    if (campaignsJson.error) {
-      return new Response(JSON.stringify({ success: false, error: `Meta API: ${campaignsJson.error.message}` }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    const campaigns = (campaignsJson.data || []) as Array<{ id: string; name: string; status: string; objective: string }>;
-
     let syncedCount = 0;
-    for (const c of campaigns) {
-      // Insights
-      const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${encodeURIComponent(accessToken)}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=maximum`;
-      const insightsRes = await fetch(insightsUrl);
-      const insightsJson = await insightsRes.json();
-      const insight = (insightsJson.data || [])[0] || { impressions: "0", clicks: "0", spend: "0", actions: [] };
+    let totalCampaigns = 0;
 
-      // Upsert campaign by (company_id, platform, name)
-      const { data: existing } = await admin
-        .from("campaigns")
-        .select("id")
-        .eq("company_id", companyId)
-        .eq("platform", "meta")
-        .eq("name", c.name)
-        .maybeSingle();
-
-      let campaignId: string;
-      if (existing) {
-        await admin.from("campaigns").update({
-          status: mapStatus(c.status),
-          objective: c.objective || "OUTCOME_TRAFFIC",
-          updated_at: new Date().toISOString(),
-        }).eq("id", existing.id);
-        campaignId = existing.id;
-      } else {
-        const { data: created, error: insErr } = await admin.from("campaigns").insert({
-          name: c.name,
-          company_id: companyId,
-          org_id: orgId,
-          platform: "meta",
-          status: mapStatus(c.status),
-          objective: c.objective || "OUTCOME_TRAFFIC",
-          budget: 0,
-          created_by: userId,
-          location_targeting: {},
-          audience_targeting: {},
-        }).select("id").single();
-        if (insErr || !created) { console.error("insert campaign", insErr); continue; }
-        campaignId = created.id;
+    for (const adAccountId of adAccountIds) {
+      const campaignsUrl = `https://graph.facebook.com/v19.0/${adAccountId}/campaigns?access_token=${encodeURIComponent(accessToken)}&fields=id,name,status,objective`;
+      const campaignsRes = await fetch(campaignsUrl);
+      const campaignsJson = await campaignsRes.json();
+      if (campaignsJson.error) {
+        console.error(`Meta API error for ${adAccountId}:`, campaignsJson.error.message);
+        continue;
       }
+      const campaigns = (campaignsJson.data || []) as Array<{ id: string; name: string; status: string; objective: string }>;
+      totalCampaigns += campaigns.length;
 
-      const leads = insight.actions?.find((a: any) => a.action_type === "lead")?.value || "0";
+      for (const c of campaigns) {
+        const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${encodeURIComponent(accessToken)}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=maximum`;
+        const insightsRes = await fetch(insightsUrl);
+        const insightsJson = await insightsRes.json();
+        const insight = (insightsJson.data || [])[0] || { impressions: "0", clicks: "0", spend: "0", actions: [] };
 
-      await admin.from("metrics").delete().eq("campaign_id", campaignId);
-      await admin.from("metrics").insert({
-        campaign_id: campaignId,
-        impressions: parseInt(insight.impressions) || 0,
-        clicks: parseInt(insight.clicks) || 0,
-        spend: parseFloat(insight.spend) || 0,
-        leads: parseInt(leads) || 0,
-      });
+        const { data: existing } = await admin
+          .from("campaigns")
+          .select("id")
+          .eq("company_id", companyId)
+          .eq("platform", "meta")
+          .eq("name", c.name)
+          .maybeSingle();
 
-      syncedCount++;
+        let campaignId: string;
+        if (existing) {
+          await admin.from("campaigns").update({
+            status: mapStatus(c.status),
+            objective: c.objective || "OUTCOME_TRAFFIC",
+            updated_at: new Date().toISOString(),
+          }).eq("id", existing.id);
+          campaignId = existing.id;
+        } else {
+          const { data: created, error: insErr } = await admin.from("campaigns").insert({
+            name: c.name,
+            company_id: companyId,
+            org_id: orgId,
+            platform: "meta",
+            status: mapStatus(c.status),
+            objective: c.objective || "OUTCOME_TRAFFIC",
+            budget: 0,
+            created_by: userId,
+            location_targeting: {},
+            audience_targeting: {},
+          }).select("id").single();
+          if (insErr || !created) { console.error("insert campaign", insErr); continue; }
+          campaignId = created.id;
+        }
+
+        const leads = insight.actions?.find((a: any) => a.action_type === "lead")?.value || "0";
+
+        await admin.from("metrics").delete().eq("campaign_id", campaignId);
+        await admin.from("metrics").insert({
+          campaign_id: campaignId,
+          impressions: parseInt(insight.impressions) || 0,
+          clicks: parseInt(insight.clicks) || 0,
+          spend: parseFloat(insight.spend) || 0,
+          leads: parseInt(leads) || 0,
+        });
+
+        syncedCount++;
+      }
     }
+
 
     await admin
       .from("company_integrations")
