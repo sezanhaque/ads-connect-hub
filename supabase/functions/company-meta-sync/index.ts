@@ -40,6 +40,8 @@ serve(async (req) => {
     // Resolve company: from body, or from the caller's company_members row
     const body = await req.json().catch(() => ({}));
     let companyId: string | null = body?.company_id ? String(body.company_id) : null;
+    const bodyStart: string | null = body?.start_date ? String(body.start_date) : null;
+    const bodyEnd: string | null = body?.end_date ? String(body.end_date) : null;
     if (!companyId) {
       const { data: cm } = await admin
         .from("company_members")
@@ -52,6 +54,7 @@ serve(async (req) => {
     if (!companyId) {
       return new Response(JSON.stringify({ success: false, error: "No company linked to this user" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
 
     // Verify caller is a member of that company
     const { data: membership } = await admin
