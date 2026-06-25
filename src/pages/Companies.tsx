@@ -808,8 +808,6 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
                     )}
                   </div>
                 );
-                  </div>
-                );
               })()}
             </div>
 
