@@ -195,8 +195,8 @@ export const UnifiedCampaignsDashboard = ({
           (currentDateRange.to.getTime() - currentDateRange.from.getTime()) / (1000 * 60 * 60 * 24),
         );
 
-        // Fetch Meta campaigns if connected
-        if (isMetaConnected) {
+        // Fetch Meta campaigns if connected (skip in strict company mode — only company-level data)
+        if (isMetaConnected && !useStrictCompany) {
           let metaDateRangeParam = "last_7d";
           if (daysDiff === 0) {
             const today = new Date();
