@@ -170,7 +170,7 @@ const Companies = () => {
             Admins create companies and assign users to them. Signing up no longer creates a company automatically.
           </p>
         </div>
-        <Button onClick={() => { setNewDomain(''); setNewDomainTouched(false); setNewName(''); setNewInitialMembers([]); setNewOpen(true); }}>
+        <Button onClick={() => { setNewDomain(''); setNewDomainTouched(false); setNewName(''); setNewInitialMembers([]); setMemberSearch(''); setNewOpen(true); }}>
           <Plus className="h-4 w-4 mr-1" /> New company
         </Button>
       </div>
