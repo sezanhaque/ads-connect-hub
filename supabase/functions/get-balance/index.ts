@@ -141,9 +141,8 @@ serve(async (req) => {
             .eq("company_id", companyId);
           const memberIds = (memberRows || []).map((m: any) => m.user_id);
 
-          // Aggregate paid top-ups as the effective shared balance baseline
-          // (falls back to company_credits.current_balance if populated)
-          let paidTopupsTotal = 0;
+          const creditsBalance = Number(credits?.balance ?? 0);
+          const balanceValue = paidTopupsTotal + creditsBalance;
           for (const t of (companyTopups as any[]) || []) {
             if (t.status === "paid") paidTopupsTotal += Number(t.amount ?? 0);
           }
