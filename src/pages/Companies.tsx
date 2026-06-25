@@ -355,10 +355,9 @@ const Companies = () => {
               .join('') || 'N';
             const domainTaken = !!newDomain && companies.some((c) => (c.domain ?? '').toLowerCase() === newDomain);
             const nameTaken = !!newName.trim() && companies.some((c) => c.display_name.toLowerCase() === newName.trim().toLowerCase());
-            const assignedIds = new Set(companies.flatMap((c) => c.members.map((m) => m.user_id)));
-            const availableProfiles = profiles
-              .filter((p) => !assignedIds.has(p.user_id))
-              .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
+            const companyByUser = new Map<string, string>();
+            companies.forEach((c) => c.members.forEach((m) => companyByUser.set(m.user_id, c.display_name)));
+            const availableProfiles = [...profiles].sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
             const toggleMember = (id: string) =>
               setNewInitialMembers((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
@@ -444,12 +443,13 @@ const Companies = () => {
                     Add members now <span className="text-muted-foreground font-normal">· optional</span>
                   </Label>
                   {availableProfiles.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">No unassigned users available.</p>
+                    <p className="text-xs text-muted-foreground">No registered users found.</p>
                   ) : (
                     <>
                       <div className="max-h-44 overflow-y-auto rounded-md border divide-y">
-                        {availableProfiles.slice(0, 50).map((p) => {
+                        {availableProfiles.slice(0, 100).map((p) => {
                           const selected = newInitialMembers.includes(p.user_id);
+                          const currentCompany = companyByUser.get(p.user_id);
                           return (
                             <button
                               type="button"
@@ -460,13 +460,20 @@ const Companies = () => {
                               }`}
                             >
                               <span className="truncate">{p.email ?? p.user_id}</span>
-                              {selected && <Badge variant="secondary" className="text-[10px]">Added</Badge>}
+                              <span className="flex items-center gap-2 shrink-0">
+                                {currentCompany && (
+                                  <Badge variant="outline" className="text-[10px] font-normal">
+                                    in {currentCompany}
+                                  </Badge>
+                                )}
+                                {selected && <Badge variant="secondary" className="text-[10px]">Added</Badge>}
+                              </span>
                             </button>
                           );
                         })}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {newInitialMembers.length} selected. You can add more from the Manage dialog later.
+                        {newInitialMembers.length} selected. Users already in another company will also become members here.
                       </p>
                     </>
                   )}
@@ -712,27 +719,34 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <div>
               <Label>Assign user to this company</Label>
               <p className="text-xs text-muted-foreground mt-1 mb-2">
-                Any registered user can be added, regardless of their email domain. Users already in another company are hidden.
+                Any registered user can be added, regardless of their email domain or current company.
               </p>
               {(() => {
-                const assignedIds = new Set(
-                  companies.flatMap((c) => c.members.map((m) => m.user_id)),
+                const inThisCompany = new Set(company.members.map((m) => m.user_id));
+                const companyByUser = new Map<string, string>();
+                companies.forEach((c) =>
+                  c.members.forEach((m) => {
+                    if (c.id !== company.id) companyByUser.set(m.user_id, c.display_name);
+                  }),
                 );
                 const available = profiles
-                  .filter((p) => !assignedIds.has(p.user_id))
+                  .filter((p) => !inThisCompany.has(p.user_id))
                   .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
                 return (
                   <div className="flex gap-2">
                     <Select value={assignUserId} onValueChange={setAssignUserId}>
                       <SelectTrigger className="flex-1">
-                        <SelectValue placeholder={available.length ? 'Select a user…' : 'No unassigned users'} />
+                        <SelectValue placeholder={available.length ? 'Select a user…' : 'All users already added'} />
                       </SelectTrigger>
                       <SelectContent>
-                        {available.map((p) => (
-                          <SelectItem key={p.user_id} value={p.user_id}>
-                            {p.email ?? p.user_id}
-                          </SelectItem>
-                        ))}
+                        {available.map((p) => {
+                          const other = companyByUser.get(p.user_id);
+                          return (
+                            <SelectItem key={p.user_id} value={p.user_id}>
+                              {p.email ?? p.user_id}{other ? ` — in ${other}` : ''}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <Button
