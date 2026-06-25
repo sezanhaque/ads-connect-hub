@@ -120,10 +120,14 @@ serve(async (req) => {
       totalCampaigns += campaigns.length;
 
       for (const c of campaigns) {
-        const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${encodeURIComponent(accessToken)}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions&date_preset=maximum`;
+        const dateRangeParam = bodyStart && bodyEnd
+          ? `&time_range=${encodeURIComponent(JSON.stringify({ since: bodyStart, until: bodyEnd }))}`
+          : `&date_preset=maximum`;
+        const insightsUrl = `https://graph.facebook.com/v19.0/${c.id}/insights?access_token=${encodeURIComponent(accessToken)}&fields=campaign_id,campaign_name,impressions,clicks,spend,actions${dateRangeParam}`;
         const insightsRes = await fetch(insightsUrl);
         const insightsJson = await insightsRes.json();
         const insight = (insightsJson.data || [])[0] || { impressions: "0", clicks: "0", spend: "0", actions: [] };
+
 
         const { data: existing } = await admin
           .from("campaigns")
