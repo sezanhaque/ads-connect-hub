@@ -97,15 +97,26 @@ serve(async (req) => {
 
     let syncedCount = 0;
     let totalCampaigns = 0;
+    const errors: Array<{ advertiser_id: string; stage: string; message: string }> = [];
+
+    const safeJson = async (res: Response): Promise<any> => {
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch {
+        return { code: -1, message: `Non-JSON response (HTTP ${res.status}): ${text.slice(0, 300)}` };
+      }
+    };
 
     for (const advertiserId of advertiserIds) {
       const campRes = await fetch(
         `https://business-api.tiktok.com/open_api/v1.3/campaign/get/?advertiser_id=${advertiserId}&page_size=100`,
         { headers: { "Access-Token": accessToken, "Content-Type": "application/json" } },
       );
-      const campJson = await campRes.json();
+      const campJson = await safeJson(campRes);
       if (campJson.code !== 0) {
-        console.error(`TikTok API error for ${advertiserId}:`, campJson.message);
+        console.error(`TikTok campaign/get error for ${advertiserId}:`, campJson.message);
+        errors.push({ advertiser_id: advertiserId, stage: "campaign/get", message: String(campJson.message ?? "unknown") });
         continue;
       }
       const campaigns = (campJson.data?.list || []) as Array<{ campaign_id: string; campaign_name: string; status: string; objective_type: string; budget: number }>;
@@ -149,22 +160,29 @@ serve(async (req) => {
 
         const endDate = new Date().toISOString().split("T")[0];
         const startDate = new Date(Date.now() - 730 * 86400000).toISOString().split("T")[0];
-        const insightsRes = await fetch("https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/", {
-          method: "POST",
-          headers: { "Access-Token": accessToken, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            advertiser_id: advertiserId,
-            service_type: "AUCTION",
-            report_type: "BASIC",
-            data_level: "AUCTION_CAMPAIGN",
-            dimensions: ["campaign_id", "stat_time_day"],
-            metrics: ["spend", "impressions", "clicks", "conversion"],
-            start_date: startDate,
-            end_date: endDate,
-            filters: [{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }],
-          }),
-        });
-        const insightsJson = await insightsRes.json().catch(() => ({}));
+        let insightsRes: Response;
+        try {
+          insightsRes = await fetch("https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/", {
+            method: "POST",
+            headers: { "Access-Token": accessToken, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              advertiser_id: advertiserId,
+              service_type: "AUCTION",
+              report_type: "BASIC",
+              data_level: "AUCTION_CAMPAIGN",
+              dimensions: ["campaign_id", "stat_time_day"],
+              metrics: ["spend", "impressions", "clicks", "conversion"],
+              start_date: startDate,
+              end_date: endDate,
+              filters: [{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }],
+            }),
+          });
+        } catch (e: any) {
+          errors.push({ advertiser_id: advertiserId, stage: "report/fetch", message: e?.message ?? String(e) });
+          syncedCount++;
+          continue;
+        }
+        const insightsJson = await safeJson(insightsRes);
         if (insightsJson.code === 0 && insightsJson.data?.list) {
           await admin.from("metrics").delete().eq("campaign_id", campaignId);
           for (const row of insightsJson.data.list) {
@@ -180,6 +198,9 @@ serve(async (req) => {
               leads: parseInt(m.conversion || "0"),
             });
           }
+        } else if (insightsJson.code !== 0) {
+          console.error(`TikTok report error for ${advertiserId}/${c.campaign_id}:`, insightsJson.message);
+          errors.push({ advertiser_id: advertiserId, stage: "report/get", message: String(insightsJson.message ?? "unknown") });
         }
 
         syncedCount++;
@@ -192,7 +213,7 @@ serve(async (req) => {
       .eq("company_id", companyId)
       .eq("integration_type", "tiktok");
 
-    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId }), {
+    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId, errors }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
