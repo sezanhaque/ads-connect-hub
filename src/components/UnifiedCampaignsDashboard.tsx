@@ -68,9 +68,10 @@ export const UnifiedCampaignsDashboard = ({
     loading: tiktokLoading,
   } = useTikTokIntegrationStatus();
   const { toast } = useToast();
+  const { enabled: companyModeEnabled, loading: companyModeLoading } = useCompanyMode();
 
   // Wait for integration status to be determined before fetching campaigns
-  const integrationsLoading = metaLoading || tiktokLoading;
+  const integrationsLoading = metaLoading || tiktokLoading || companyModeLoading;
 
   const fetchCampaigns = useCallback(
     async (dateFilter?: DateRange) => {
