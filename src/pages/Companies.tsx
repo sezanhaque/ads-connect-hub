@@ -860,23 +860,11 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
               Numbers only; the "act_" prefix is added automatically. Press Enter or click Add.
             </p>
             {renderIdList(metaIds, setMetaIds, metaInput, setMetaInput, '971311827719449')}
-            <div className="pt-2">
-              <Label>Shared Meta access token</Label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Long-lived token (starts with <code>EAA</code>). Used to pull data for all company members.
-              </p>
-              <Input
-                type="password"
-                placeholder="EAA…"
-                value={metaToken}
-                onChange={(e) => setMetaToken(e.target.value)}
-              />
-            </div>
             <DialogFooter className="gap-2 sm:gap-2">
               <Button variant="outline" onClick={() => syncPlatform('meta')} disabled={metaSyncBusy}>
                 {metaSyncBusy ? 'Syncing…' : 'Sync now'}
               </Button>
-              <Button onClick={() => savePlatform('meta', metaIds, metaToken)} disabled={metaBusy}>
+              <Button onClick={() => savePlatform('meta', metaIds, '')} disabled={metaBusy}>
                 {metaBusy ? 'Saving…' : 'Save Meta'}
               </Button>
             </DialogFooter>
@@ -890,23 +878,11 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <Label>Advertiser IDs</Label>
             <p className="text-xs text-muted-foreground">Press Enter or click Add.</p>
             {renderIdList(tiktokIds, setTiktokIds, tiktokInput, setTiktokInput, '7123456789012345678')}
-            <div className="pt-2">
-              <Label>Shared TikTok access token</Label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Long-lived TikTok Business API access token. Used for all company members.
-              </p>
-              <Input
-                type="password"
-                placeholder="Access token"
-                value={tiktokToken}
-                onChange={(e) => setTiktokToken(e.target.value)}
-              />
-            </div>
             <DialogFooter className="gap-2 sm:gap-2">
               <Button variant="outline" onClick={() => syncPlatform('tiktok')} disabled={tiktokSyncBusy}>
                 {tiktokSyncBusy ? 'Syncing…' : 'Sync now'}
               </Button>
-              <Button onClick={() => savePlatform('tiktok', tiktokIds, tiktokToken)} disabled={tiktokBusy}>
+              <Button onClick={() => savePlatform('tiktok', tiktokIds, '')} disabled={tiktokBusy}>
                 {tiktokBusy ? 'Saving…' : 'Save TikTok'}
               </Button>
             </DialogFooter>
