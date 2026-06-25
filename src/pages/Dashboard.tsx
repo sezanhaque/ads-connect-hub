@@ -42,6 +42,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { integration, isConnected } = useMetaIntegrationStatus();
   const { integration: tiktokIntegration, isConnected: isTikTokConnected } = useTikTokIntegrationStatus();
+  const { enabled: companyModeEnabled } = useCompanyMode();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: subDays(new Date(), 7),
