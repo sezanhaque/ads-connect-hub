@@ -52,19 +52,20 @@ const Settings = () => {
       // 1. Prefer assigned company via company_members
       const { data: companyMember } = await supabase
         .from('company_members')
-        .select('role, company_id, companies:company_id ( id, display_name, domain )')
+        .select('company_id, companies:company_id ( id, display_name, domain )')
         .eq('user_id', profile.user_id)
         .maybeSingle();
 
-      if (companyMember?.companies) {
-        const c: any = companyMember.companies;
+      if (companyMember && (companyMember as any).companies) {
+        const c: any = (companyMember as any).companies;
         setOrganizationData({
           name: c.display_name || c.domain || '',
-          role: companyMember.role || '',
+          role: '',
           id: c.id || '',
         });
         return;
       }
+
 
       // 2. Fallback to sign-up organization name
       const { data: memberships, error: memberErr } = await supabase
