@@ -176,7 +176,7 @@ serve(async (req) => {
             JSON.stringify({
               companyId,
               balance: balanceValue,
-              totalTopups: Number(credits?.total_topups ?? 0) || paidTopupsTotal,
+              totalTopups: paidTopupsTotal + creditsBalance,
               totalCosts,
               currency: credits?.currency || "EUR",
               topups: companyTopups || [],
