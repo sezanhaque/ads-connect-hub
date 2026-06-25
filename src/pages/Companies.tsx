@@ -736,7 +736,6 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
                     company_id: company.id,
                     user_id: userId,
                     email: profile.email,
-                    role: 'member',
                   });
                   setAssignBusy(false);
                   setAssignUserId('');
