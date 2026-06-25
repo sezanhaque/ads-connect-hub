@@ -446,8 +446,19 @@ const Companies = () => {
                   <Label>
                     Add members now <span className="text-muted-foreground font-normal">· optional</span>
                   </Label>
-                  {availableProfiles.length === 0 ? (
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Search users by name or email…"
+                      value={memberSearch}
+                      onChange={(e) => setMemberSearch(e.target.value)}
+                      className="h-9 pl-8"
+                    />
+                  </div>
+                  {profiles.length === 0 ? (
                     <p className="text-xs text-muted-foreground">No registered users found.</p>
+                  ) : availableProfiles.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No users match "{memberSearch}".</p>
                   ) : (
                     <>
                       <div className="max-h-44 overflow-y-auto rounded-md border divide-y">
