@@ -562,6 +562,7 @@ interface ManageProps {
 const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged }: ManageProps) => {
   const [assignUserId, setAssignUserId] = useState<string>('');
   const [assignBusy, setAssignBusy] = useState(false);
+  const [assignSearch, setAssignSearch] = useState('');
   const { toast } = useToast();
   const [topupAmount, setTopupAmount] = useState('');
   const [topupBusy, setTopupBusy] = useState(false);
