@@ -62,7 +62,9 @@ const Companies = () => {
   const [manageCompany, setManageCompany] = useState<CompanyRow | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   const [newDomain, setNewDomain] = useState('');
+  const [newDomainTouched, setNewDomainTouched] = useState(false);
   const [newName, setNewName] = useState('');
+  const [newInitialMembers, setNewInitialMembers] = useState<string[]>([]);
   const [newBusy, setNewBusy] = useState(false);
   const { enabled: companyMode } = useCompanyMode();
   const { toast } = useToast();
@@ -150,7 +152,7 @@ const Companies = () => {
   const filtered = q
     ? companies.filter(
         (c) =>
-          c.domain.toLowerCase().includes(q) ||
+          (c.domain ?? '').toLowerCase().includes(q) ||
           c.display_name.toLowerCase().includes(q) ||
           c.members.some((m) => m.email.toLowerCase().includes(q)),
       )
@@ -167,7 +169,7 @@ const Companies = () => {
             Admins create companies and assign users to them. Signing up no longer creates a company automatically.
           </p>
         </div>
-        <Button onClick={() => { setNewDomain(''); setNewName(''); setNewOpen(true); }}>
+        <Button onClick={() => { setNewDomain(''); setNewDomainTouched(false); setNewName(''); setNewInitialMembers([]); setNewOpen(true); }}>
           <Plus className="h-4 w-4 mr-1" /> New company
         </Button>
       </div>
@@ -336,54 +338,184 @@ const Companies = () => {
       />
 
       <Dialog open={newOpen} onOpenChange={setNewOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Create company</DialogTitle>
+            <DialogTitle>Create a new company</DialogTitle>
             <DialogDescription>
-              Add a company manually. Users can then be assigned to it from the Manage dialog.
+              Give it a name, then optionally tie it to a domain and invite the first members. You can change everything later.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <Label>Display name</Label>
-              <Input
-                placeholder="Acme Inc."
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Email domain <span className="text-muted-foreground font-normal">(optional)</span></Label>
-              <Input
-                placeholder="acme.com"
-                value={newDomain}
-                onChange={(e) => setNewDomain(e.target.value.toLowerCase().trim())}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Optional. Members can come from any email domain. Leave blank if the company spans multiple domains.
-              </p>
-            </div>
-          </div>
+
+          {(() => {
+            const initials = (newName || 'New')
+              .split(/\s+/)
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((w) => w[0]?.toUpperCase())
+              .join('') || 'N';
+            const domainTaken = !!newDomain && companies.some((c) => (c.domain ?? '').toLowerCase() === newDomain);
+            const nameTaken = !!newName.trim() && companies.some((c) => c.display_name.toLowerCase() === newName.trim().toLowerCase());
+            const assignedIds = new Set(companies.flatMap((c) => c.members.map((m) => m.user_id)));
+            const availableProfiles = profiles
+              .filter((p) => !assignedIds.has(p.user_id))
+              .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
+            const toggleMember = (id: string) =>
+              setNewInitialMembers((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+            const handleNameChange = (v: string) => {
+              setNewName(v);
+              if (!newDomainTouched) {
+                const guess = v
+                  .toLowerCase()
+                  .replace(/&/g, 'and')
+                  .replace(/[^a-z0-9]+/g, '')
+                  .slice(0, 30);
+                setNewDomain(guess ? `${guess}.com` : '');
+              }
+            };
+
+            return (
+              <div className="space-y-5">
+                {/* Live preview */}
+                <div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground font-semibold text-lg">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{newName || 'Untitled company'}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {newDomain ? `@${newDomain}` : 'No domain set'} ·{' '}
+                      {newInitialMembers.length} member{newInitialMembers.length === 1 ? '' : 's'} to add
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="new-company-name">Company name</Label>
+                  <Input
+                    id="new-company-name"
+                    placeholder="e.g. Acme Inc."
+                    value={newName}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                    autoFocus
+                  />
+                  {nameTaken && (
+                    <p className="text-xs text-amber-600">A company with this name already exists.</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="new-company-domain">
+                      Email domain <span className="text-muted-foreground font-normal">· optional</span>
+                    </Label>
+                    {newDomain && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewDomain('');
+                          setNewDomainTouched(true);
+                        }}
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <Input
+                    id="new-company-domain"
+                    placeholder="acme.com"
+                    value={newDomain}
+                    onChange={(e) => {
+                      setNewDomainTouched(true);
+                      setNewDomain(e.target.value.toLowerCase().trim());
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Members can have any email address. Use this only when the company really maps to a single domain.
+                  </p>
+                  {domainTaken && (
+                    <p className="text-xs text-destructive">This domain is already linked to another company.</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>
+                    Add members now <span className="text-muted-foreground font-normal">· optional</span>
+                  </Label>
+                  {availableProfiles.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No unassigned users available.</p>
+                  ) : (
+                    <>
+                      <div className="max-h-44 overflow-y-auto rounded-md border divide-y">
+                        {availableProfiles.slice(0, 50).map((p) => {
+                          const selected = newInitialMembers.includes(p.user_id);
+                          return (
+                            <button
+                              type="button"
+                              key={p.user_id}
+                              onClick={() => toggleMember(p.user_id)}
+                              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                                selected ? 'bg-primary/10' : 'hover:bg-muted/60'
+                              }`}
+                            >
+                              <span className="truncate">{p.email ?? p.user_id}</span>
+                              {selected && <Badge variant="secondary" className="text-[10px]">Added</Badge>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {newInitialMembers.length} selected. You can add more from the Manage dialog later.
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
             <Button
-              disabled={newBusy || !newName}
+              disabled={newBusy || !newName.trim()}
               onClick={async () => {
                 setNewBusy(true);
                 const { data: created, error } = await supabase
                   .from('companies')
-                  .insert({ domain: newDomain || null, display_name: newName })
+                  .insert({ domain: newDomain || null, display_name: newName.trim() })
                   .select('id')
                   .single();
-                if (!error && created) {
-                  await supabase.from('company_credits').insert({ company_id: created.id }).then(() => {});
-                }
-                setNewBusy(false);
-                if (error) {
-                  toast({ title: 'Could not create', description: error.message, variant: 'destructive' });
+                if (error || !created) {
+                  setNewBusy(false);
+                  toast({ title: 'Could not create', description: error?.message || 'Unknown error', variant: 'destructive' });
                   return;
                 }
-                toast({ title: 'Company created' });
+                await supabase.from('company_credits').insert({ company_id: created.id });
+
+                if (newInitialMembers.length > 0) {
+                  const rows = newInitialMembers
+                    .map((uid) => {
+                      const p = profiles.find((x) => x.user_id === uid);
+                      if (!p) return null;
+                      return { company_id: created.id, user_id: uid, email: p.email, role: 'member' as const };
+                    })
+                    .filter(Boolean) as any[];
+                  if (rows.length > 0) {
+                    const { error: mErr } = await (supabase.from('company_members') as any).insert(rows);
+                    if (mErr) {
+                      toast({ title: 'Company created, but some members failed', description: mErr.message, variant: 'destructive' });
+                    }
+                  }
+                }
+
+                setNewBusy(false);
+                toast({
+                  title: 'Company created',
+                  description: newInitialMembers.length
+                    ? `${newName.trim()} is ready with ${newInitialMembers.length} member(s).`
+                    : `${newName.trim()} is ready. Assign members from the Manage dialog.`,
+                });
                 setNewOpen(false);
                 fetchData();
               }}
