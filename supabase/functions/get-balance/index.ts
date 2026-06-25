@@ -150,9 +150,8 @@ serve(async (req) => {
 
           const { data: companyIntegrations } = await admin
             .from("company_integrations")
-            .select("integration_type, access_token, ad_account_id")
+            .select("integration_type, access_token, ad_account_ids")
             .eq("company_id", companyId)
-            .eq("status", "active")
             .in("integration_type", ["meta", "tiktok"]);
 
           // Shared admin tokens live in public.integrations (most recent active per platform)
@@ -176,7 +175,7 @@ serve(async (req) => {
           for (const i of (companyIntegrations as any[]) || []) {
             const token = i.access_token || sharedTokenByPlatform[i.integration_type];
             if (!token) continue;
-            for (const acc of normalizeAccountIds(i.ad_account_id)) {
+            for (const acc of normalizeAccountIds(i.ad_account_ids)) {
               const key = `${i.integration_type}:${acc}`;
               if (seen.has(key)) continue;
               seen.add(key);
