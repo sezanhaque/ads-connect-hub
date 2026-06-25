@@ -771,6 +771,7 @@ export type Database = {
       topups: {
         Row: {
           amount: number
+          company_id: string | null
           created_at: string
           currency: string
           description: string | null
@@ -784,6 +785,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          company_id?: string | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -797,6 +799,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          company_id?: string | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -808,7 +811,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "topups_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
