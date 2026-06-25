@@ -159,7 +159,9 @@ serve(async (req) => {
         }
 
         const endDate = new Date().toISOString().split("T")[0];
-        const startDate = new Date(Date.now() - 730 * 86400000).toISOString().split("T")[0];
+        // TikTok rejects stat_time_day reports over 30 days. For the company dashboard,
+        // store a campaign-level aggregate for the recent performance window instead.
+        const startDate = new Date(Date.now() - 29 * 86400000).toISOString().split("T")[0];
         let insightsRes: Response;
         try {
           const reportParams = new URLSearchParams({
@@ -167,8 +169,8 @@ serve(async (req) => {
             service_type: "AUCTION",
             report_type: "BASIC",
             data_level: "AUCTION_CAMPAIGN",
-            dimensions: JSON.stringify(["campaign_id", "stat_time_day"]),
-            metrics: JSON.stringify(["spend", "impressions", "clicks", "conversion"]),
+            dimensions: JSON.stringify(["campaign_id"]),
+            metrics: JSON.stringify(["spend", "impressions", "clicks", "conversion", "ctr", "cpc"]),
             start_date: startDate,
             end_date: endDate,
             filters: JSON.stringify([{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }]),
@@ -187,12 +189,11 @@ serve(async (req) => {
         if (insightsJson.code === 0 && insightsJson.data?.list) {
           await admin.from("metrics").delete().eq("campaign_id", campaignId);
           for (const row of insightsJson.data.list) {
-            const dim = row.dimensions;
             const m = row.metrics;
-            const spendEur = parseFloat(m.spend || "0") / 100;
+            const spendEur = parseFloat(m.spend || "0");
             await admin.from("metrics").insert({
               campaign_id: campaignId,
-              date: dim.stat_time_day,
+              date: endDate,
               impressions: parseInt(m.impressions || "0"),
               clicks: parseInt(m.clicks || "0"),
               spend: spendEur,
