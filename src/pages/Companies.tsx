@@ -241,7 +241,7 @@ const Companies = () => {
                       >
                         <TableCell>{open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</TableCell>
                         <TableCell className="font-medium">{c.display_name}</TableCell>
-                        <TableCell className="text-muted-foreground">@{c.domain}</TableCell>
+                        <TableCell className="text-muted-foreground">{c.domain ? `@${c.domain}` : <span className="italic">no domain</span>}</TableCell>
                         <TableCell>
                           <Badge variant="secondary" className="gap-1">
                             <Users className="h-3 w-3" /> {c.members.length}
@@ -353,26 +353,26 @@ const Companies = () => {
               />
             </div>
             <div>
-              <Label>Email domain</Label>
+              <Label>Email domain <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <Input
                 placeholder="acme.com"
                 value={newDomain}
                 onChange={(e) => setNewDomain(e.target.value.toLowerCase().trim())}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Lowercase, no <code>@</code>. Used for grouping and search.
+                Optional. Members can come from any email domain. Leave blank if the company spans multiple domains.
               </p>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
             <Button
-              disabled={newBusy || !newDomain || !newName}
+              disabled={newBusy || !newName}
               onClick={async () => {
                 setNewBusy(true);
                 const { data: created, error } = await supabase
                   .from('companies')
-                  .insert({ domain: newDomain, display_name: newName })
+                  .insert({ domain: newDomain || null, display_name: newName })
                   .select('id')
                   .single();
                 if (!error && created) {
@@ -564,7 +564,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
         <DialogHeader>
           <DialogTitle>{company.display_name}</DialogTitle>
           <DialogDescription>
-            @{company.domain} · {company.members.length} member(s) · Shared balance {company.balance.toFixed(2)} {company.currency}
+            {company.domain ? `@${company.domain} · ` : ''}{company.members.length} member(s) · Shared balance {company.balance.toFixed(2)} {company.currency}
           </DialogDescription>
         </DialogHeader>
 
@@ -580,7 +580,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <div>
               <Label>Assign user to this company</Label>
               <p className="text-xs text-muted-foreground mt-1 mb-2">
-                Pick a registered user. Users already in another company are hidden.
+                Any registered user can be added, regardless of their email domain. Users already in another company are hidden.
               </p>
               {(() => {
                 const assignedIds = new Set(
