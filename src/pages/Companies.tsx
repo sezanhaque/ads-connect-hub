@@ -358,7 +358,10 @@ const Companies = () => {
             const nameTaken = !!newName.trim() && companies.some((c) => c.display_name.toLowerCase() === newName.trim().toLowerCase());
             const companyByUser = new Map<string, string>();
             companies.forEach((c) => c.members.forEach((m) => companyByUser.set(m.user_id, c.display_name)));
-            const availableProfiles = [...profiles].sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
+            const q = memberSearch.trim().toLowerCase();
+            const availableProfiles = [...profiles]
+              .filter((p) => !q || (p.email ?? '').toLowerCase().includes(q) || `${p.first_name ?? ''} ${p.last_name ?? ''}`.toLowerCase().includes(q))
+              .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
             const toggleMember = (id: string) =>
               setNewInitialMembers((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
