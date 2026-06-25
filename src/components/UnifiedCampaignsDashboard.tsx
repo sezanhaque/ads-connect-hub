@@ -361,42 +361,65 @@ export const UnifiedCampaignsDashboard = ({
     setSyncing(true);
 
     try {
-      const { data: memberships, error: membershipError } = await supabase
-        .from("members")
-        .select("org_id, role")
+      // Resolve company membership first
+      const { data: companyMembership } = await supabase
+        .from("company_members")
+        .select("company_id")
         .eq("user_id", user?.id)
-        .order("role", { ascending: true });
+        .limit(1)
+        .maybeSingle();
+      const companyId = companyMembership?.company_id ?? null;
 
-      if (membershipError || !memberships || memberships.length === 0) {
-        throw new Error("No organization found for user");
-      }
-
-      const primaryOrg =
-        memberships.find((m: { role: string }) => m.role === "owner") ||
-        memberships.find((m: { role: string }) => m.role === "admin") ||
-        memberships.find((m: { role: string }) => m.role === "member") ||
-        memberships[0];
-
-      const userOrgId = primaryOrg.org_id;
       let syncedCount = 0;
 
-      // Sync Meta if connected
-      if (isMetaConnected && metaIntegration) {
-        const { data: metaData, error: metaError } = await supabase.functions.invoke("meta-sync", {
-          body: { org_id: userOrgId, save_connection: false },
-        });
-        if (!metaError && metaData?.success) {
-          syncedCount += metaData.synced_count || 0;
+      if (companyModeEnabled && companyId) {
+        // Strict company mode → only company-level syncs
+        const [metaRes, tiktokRes] = await Promise.allSettled([
+          supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId } }),
+          supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId } }),
+        ]);
+        if (metaRes.status === "fulfilled" && metaRes.value.data?.success) {
+          syncedCount += metaRes.value.data.synced_count || 0;
         }
-      }
+        if (tiktokRes.status === "fulfilled" && tiktokRes.value.data?.success) {
+          syncedCount += tiktokRes.value.data.synced_count || 0;
+        }
+      } else {
+        // Legacy per-user syncs
+        const { data: memberships, error: membershipError } = await supabase
+          .from("members")
+          .select("org_id, role")
+          .eq("user_id", user?.id)
+          .order("role", { ascending: true });
 
-      // Sync TikTok if connected
-      if (isTikTokConnected && tiktokIntegration) {
-        const { data: tiktokData, error: tiktokError } = await supabase.functions.invoke("tiktok-sync", {
-          body: { org_id: userOrgId, save_connection: false },
-        });
-        if (!tiktokError && tiktokData?.success) {
-          syncedCount += tiktokData.synced_count || 0;
+        if (membershipError || !memberships || memberships.length === 0) {
+          throw new Error("No organization found for user");
+        }
+
+        const primaryOrg =
+          memberships.find((m: { role: string }) => m.role === "owner") ||
+          memberships.find((m: { role: string }) => m.role === "admin") ||
+          memberships.find((m: { role: string }) => m.role === "member") ||
+          memberships[0];
+
+        const userOrgId = primaryOrg.org_id;
+
+        if (isMetaConnected && metaIntegration) {
+          const { data: metaData, error: metaError } = await supabase.functions.invoke("meta-sync", {
+            body: { org_id: userOrgId, save_connection: false },
+          });
+          if (!metaError && metaData?.success) {
+            syncedCount += metaData.synced_count || 0;
+          }
+        }
+
+        if (isTikTokConnected && tiktokIntegration) {
+          const { data: tiktokData, error: tiktokError } = await supabase.functions.invoke("tiktok-sync", {
+            body: { org_id: userOrgId, save_connection: false },
+          });
+          if (!tiktokError && tiktokData?.success) {
+            syncedCount += tiktokData.synced_count || 0;
+          }
         }
       }
 
