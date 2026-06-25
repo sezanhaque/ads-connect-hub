@@ -423,9 +423,14 @@ const Dashboard = () => {
       <UnifiedCampaignsDashboard
         refreshTrigger={refreshTrigger}
         dateRange={dateRange}
-        onDateRangeChange={setDateRange}
+        onDateRangeChange={(r) => {
+          setDateRange(r);
+          // Re-sync company data for the new window so metrics match the filter
+          autoSyncCompanyIntegrations(r);
+        }}
         onAggregatesChange={setCampaignAggregates}
       />
+
 
       {/* Recent Jobs */}
       <Card>
