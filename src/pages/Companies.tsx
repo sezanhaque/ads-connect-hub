@@ -86,7 +86,6 @@ const Companies = () => {
         user_id: m.user_id,
         email: m.email,
         created_at: m.created_at,
-        role: (m.role as CompanyMemberRole) ?? 'member',
       });
       membersByCompany.set(m.company_id, list);
     });
