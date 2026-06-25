@@ -353,26 +353,26 @@ const Companies = () => {
               />
             </div>
             <div>
-              <Label>Email domain</Label>
+              <Label>Email domain <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <Input
                 placeholder="acme.com"
                 value={newDomain}
                 onChange={(e) => setNewDomain(e.target.value.toLowerCase().trim())}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Lowercase, no <code>@</code>. Used for grouping and search.
+                Optional. Members can come from any email domain. Leave blank if the company spans multiple domains.
               </p>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
             <Button
-              disabled={newBusy || !newDomain || !newName}
+              disabled={newBusy || !newName}
               onClick={async () => {
                 setNewBusy(true);
                 const { data: created, error } = await supabase
                   .from('companies')
-                  .insert({ domain: newDomain, display_name: newName })
+                  .insert({ domain: newDomain || null, display_name: newName })
                   .select('id')
                   .single();
                 if (!error && created) {
