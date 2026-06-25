@@ -510,7 +510,7 @@ const Companies = () => {
                     .map((uid) => {
                       const p = profiles.find((x) => x.user_id === uid);
                       if (!p) return null;
-                      return { company_id: created.id, user_id: uid, email: p.email, role: 'member' as const };
+                      return { company_id: created.id, user_id: uid, email: p.email };
                     })
                     .filter(Boolean) as any[];
                   if (rows.length > 0) {
