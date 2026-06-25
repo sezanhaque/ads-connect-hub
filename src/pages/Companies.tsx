@@ -857,13 +857,11 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             </p>
             {renderIdList(metaIds, setMetaIds, metaInput, setMetaInput, '971311827719449')}
             <DialogFooter className="gap-2 sm:gap-2">
-              <Button variant="outline" onClick={() => syncPlatform('meta')} disabled={metaSyncBusy}>
-                {metaSyncBusy ? 'Syncing…' : 'Sync now'}
-              </Button>
               <Button onClick={() => savePlatform('meta', metaIds, '')} disabled={metaBusy}>
                 {metaBusy ? 'Saving…' : 'Save Meta'}
               </Button>
             </DialogFooter>
+
           </TabsContent>
 
           <TabsContent value="tiktok" className="space-y-3 pt-4">
@@ -875,13 +873,11 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <p className="text-xs text-muted-foreground">Press Enter or click Add.</p>
             {renderIdList(tiktokIds, setTiktokIds, tiktokInput, setTiktokInput, '7123456789012345678')}
             <DialogFooter className="gap-2 sm:gap-2">
-              <Button variant="outline" onClick={() => syncPlatform('tiktok')} disabled={tiktokSyncBusy}>
-                {tiktokSyncBusy ? 'Syncing…' : 'Sync now'}
-              </Button>
               <Button onClick={() => savePlatform('tiktok', tiktokIds, '')} disabled={tiktokBusy}>
                 {tiktokBusy ? 'Saving…' : 'Save TikTok'}
               </Button>
             </DialogFooter>
+
           </TabsContent>
         </Tabs>
       </DialogContent>
