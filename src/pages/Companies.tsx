@@ -568,12 +568,126 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="balance">
+        <Tabs defaultValue="members">
           <TabsList>
+            <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="balance">Top up</TabsTrigger>
             <TabsTrigger value="meta">Meta</TabsTrigger>
             <TabsTrigger value="tiktok">TikTok</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="members" className="space-y-4 pt-4">
+            <div>
+              <Label>Assign user to this company</Label>
+              <p className="text-xs text-muted-foreground mt-1 mb-2">
+                Pick a registered user. Users already in another company are hidden.
+              </p>
+              {(() => {
+                const assignedIds = new Set(
+                  companies.flatMap((c) => c.members.map((m) => m.user_id)),
+                );
+                const available = profiles
+                  .filter((p) => !assignedIds.has(p.user_id))
+                  .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
+                return (
+                  <div className="flex gap-2">
+                    <Select value={assignUserId} onValueChange={setAssignUserId}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder={available.length ? 'Select a user…' : 'No unassigned users'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {available.map((p) => (
+                          <SelectItem key={p.user_id} value={p.user_id}>
+                            {p.email ?? p.user_id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      disabled={!assignUserId || assignBusy}
+                      onClick={async () => {
+                        const profile = profiles.find((p) => p.user_id === assignUserId);
+                        if (!profile) return;
+                        setAssignBusy(true);
+                        const { error } = await (supabase.from('company_members') as any).insert({
+                          company_id: company.id,
+                          user_id: assignUserId,
+                          email: profile.email,
+                          role: 'member',
+                        });
+                        setAssignBusy(false);
+                        if (error) {
+                          toast({ title: 'Could not assign', description: error.message, variant: 'destructive' });
+                          return;
+                        }
+                        toast({ title: 'Member added' });
+                        setAssignUserId('');
+                        onChanged();
+                      }}
+                    >
+                      <UserPlus className="h-4 w-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="border rounded-md divide-y">
+              {company.members.length === 0 ? (
+                <p className="p-3 text-sm text-muted-foreground">No members yet.</p>
+              ) : (
+                company.members.map((m) => (
+                  <div key={m.id} className="flex items-center justify-between gap-2 p-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm truncate">{m.email}</span>
+                      <Badge
+                        variant={m.role === 'owner' ? 'default' : m.role === 'admin' ? 'secondary' : 'outline'}
+                        className="text-[10px] uppercase"
+                      >
+                        {m.role}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={m.role}
+                        onValueChange={(v) => updateMemberRole(m.id, v as CompanyMemberRole)}
+                        disabled={roleBusyFor === m.id}
+                      >
+                        <SelectTrigger className="h-8 w-28 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="owner">owner</SelectItem>
+                          <SelectItem value="admin">admin</SelectItem>
+                          <SelectItem value="member">member</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={async () => {
+                          if (!confirm(`Remove ${m.email} from ${company.display_name}?`)) return;
+                          const { error } = await supabase
+                            .from('company_members')
+                            .delete()
+                            .eq('id', m.id);
+                          if (error) {
+                            toast({ title: 'Could not remove', description: error.message, variant: 'destructive' });
+                            return;
+                          }
+                          toast({ title: 'Member removed' });
+                          onChanged();
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </TabsContent>
+
 
 
 
