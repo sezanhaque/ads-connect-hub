@@ -135,14 +135,17 @@ export const UnifiedCampaignsDashboard = ({
         // If no Meta/TikTok IDs are configured on the company, the dashboard must be empty.
         let allowedPlatforms: Array<"meta" | "tiktok"> = ["meta", "tiktok"];
         if (useStrictCompany) {
-          const { data: integ } = await supabase
+          const { data: integRows } = await supabase
             .from("company_integrations")
-            .select("meta_ad_account_id, tiktok_advertiser_id")
-            .eq("company_id", companyId)
-            .maybeSingle();
+            .select("integration_type, ad_account_ids")
+            .eq("company_id", companyId);
           const platforms: Array<"meta" | "tiktok"> = [];
-          if (integ?.meta_ad_account_id) platforms.push("meta");
-          if (integ?.tiktok_advertiser_id) platforms.push("tiktok");
+          (integRows || []).forEach((row: { integration_type: string; ad_account_ids: string[] | null }) => {
+            const hasIds = Array.isArray(row.ad_account_ids) && row.ad_account_ids.length > 0;
+            if (!hasIds) return;
+            if (row.integration_type === "meta") platforms.push("meta");
+            if (row.integration_type === "tiktok") platforms.push("tiktok");
+          });
           if (platforms.length === 0) {
             console.log("Strict company mode: no platform integrations configured for this company");
             setCampaigns([]);
