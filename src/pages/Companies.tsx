@@ -15,14 +15,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useCompanyMode } from '@/hooks/useCompanyMode';
 import { MetaLogo, TikTokLogo } from '@/components/icons';
 
-type CompanyMemberRole = 'owner' | 'admin' | 'member';
-
 interface CompanyMemberRow {
   id: string;
   user_id: string;
   email: string;
   created_at: string;
-  role: CompanyMemberRole;
 }
 
 
