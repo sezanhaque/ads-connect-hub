@@ -162,20 +162,21 @@ serve(async (req) => {
         const startDate = new Date(Date.now() - 730 * 86400000).toISOString().split("T")[0];
         let insightsRes: Response;
         try {
-          insightsRes = await fetch("https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/", {
-            method: "POST",
+          const reportParams = new URLSearchParams({
+            advertiser_id: advertiserId,
+            service_type: "AUCTION",
+            report_type: "BASIC",
+            data_level: "AUCTION_CAMPAIGN",
+            dimensions: JSON.stringify(["campaign_id", "stat_time_day"]),
+            metrics: JSON.stringify(["spend", "impressions", "clicks", "conversion"]),
+            start_date: startDate,
+            end_date: endDate,
+            filters: JSON.stringify([{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }]),
+          });
+
+          insightsRes = await fetch(`https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?${reportParams.toString()}`, {
+            method: "GET",
             headers: { "Access-Token": accessToken, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              advertiser_id: advertiserId,
-              service_type: "AUCTION",
-              report_type: "BASIC",
-              data_level: "AUCTION_CAMPAIGN",
-              dimensions: ["campaign_id", "stat_time_day"],
-              metrics: ["spend", "impressions", "clicks", "conversion"],
-              start_date: startDate,
-              end_date: endDate,
-              filters: [{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }],
-            }),
           });
         } catch (e: any) {
           errors.push({ advertiser_id: advertiserId, stage: "report/fetch", message: e?.message ?? String(e) });
