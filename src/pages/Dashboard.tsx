@@ -80,6 +80,7 @@ const Dashboard = () => {
     fetchBalance();
     autoSyncMetaCampaigns();
     autoSyncTikTokCampaigns();
+    autoSyncCompanyIntegrations();
     // Trigger refresh for campaign dashboards
     setRefreshTrigger((prev) => prev + 1);
   }, [profile?.user_id]);
