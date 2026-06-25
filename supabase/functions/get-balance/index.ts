@@ -295,12 +295,14 @@ serve(async (req) => {
       }
     }
 
-    // ---- Pooled top-ups history ----
-    const userIdList = [...groupUserIds];
+    // ---- Top-ups history ----
+    // Outside company mode, only show the current user's own top-ups
+    // (avoids leaking teammates' top-ups when the user has no company yet).
+    const userIdList = [userId];
     const { data: topupRows } = await admin
       .from("topups")
       .select("id, amount, currency, status, description, paid_at, created_at, mollie_payment_id, user_id")
-      .in("user_id", userIdList)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(20);
 
@@ -315,6 +317,7 @@ serve(async (req) => {
         groupUserIds: userIdList,
         groupOrgIds: orgIdList,
       }),
+
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (error: any) {
