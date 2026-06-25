@@ -28,58 +28,46 @@ export const useTikTokIntegrationStatus = () => {
       setLoading(true);
       setError(null);
 
-      // Get user's organization - prioritize owner role first
-      const { data: memberships, error: membershipsError } = await supabase
-        .from("members")
-        .select("org_id, role")
+      // Find the user's company
+      const { data: myMembership } = await supabase
+        .from("company_members")
+        .select("company_id")
         .eq("user_id", user.id)
-        .order("role", { ascending: true });
+        .maybeSingle();
 
-      if (membershipsError) {
-        throw new Error("Failed to get user organization");
+      let userIds: string[] = [user.id];
+      if (myMembership?.company_id) {
+        const { data: companyMembers } = await supabase
+          .from("company_members")
+          .select("user_id")
+          .eq("company_id", myMembership.company_id);
+        if (companyMembers && companyMembers.length > 0) {
+          userIds = companyMembers.map((m: any) => m.user_id);
+        }
       }
 
-      if (!memberships || memberships.length === 0) {
-        console.log("No organizations found for user");
+      // Collect all org_ids tied to those users
+      const { data: orgRows } = await supabase
+        .from("members")
+        .select("org_id")
+        .in("user_id", userIds);
+
+      const orgIds = Array.from(new Set((orgRows || []).map((r: any) => r.org_id)));
+      if (orgIds.length === 0) {
         setIntegration(null);
         return;
       }
 
-      // Find organization with highest role
-      let primaryOrg =
-        memberships.find((m: any) => m.role === "owner") ||
-        memberships.find((m: any) => m.role === "admin") ||
-        memberships.find((m: any) => m.role === "member") ||
-        memberships[0];
-
-      // Check for user-specific TikTok integration first, then org-level
-      let { data: tiktokIntegration, error: integrationError } = await supabase
+      // Any active TikTok integration across the company counts as connected
+      const { data: tiktokIntegration, error: integrationError } = await supabase
         .from("integrations")
         .select("*")
-        .eq("org_id", primaryOrg.org_id)
+        .in("org_id", orgIds)
         .eq("integration_type", "tiktok")
         .eq("status", "active")
-        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-
-      // If no user-specific integration, check for org-level integration
-      if (!tiktokIntegration && !integrationError) {
-        const { data: orgIntegration, error: orgError } = await supabase
-          .from("integrations")
-          .select("*")
-          .eq("org_id", primaryOrg.org_id)
-          .eq("integration_type", "tiktok")
-          .eq("status", "active")
-          .is("user_id", null)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        tiktokIntegration = orgIntegration;
-        integrationError = orgError;
-      }
 
       if (integrationError) {
         console.error("Integration fetch error:", integrationError);
