@@ -194,9 +194,10 @@ serve(async (req) => {
           campaignId = created.id;
         }
 
+        await admin.from("metrics").delete().eq("campaign_id", campaignId);
+
         const metrics = insightsByCampaign.get(String(c.campaign_id));
         if (metrics) {
-          await admin.from("metrics").delete().eq("campaign_id", campaignId);
           const { error: metricInsertError } = await admin.from("metrics").insert({
             campaign_id: campaignId,
             date: endDate,
@@ -208,6 +209,19 @@ serve(async (req) => {
           if (metricInsertError) {
             console.error(`TikTok metric insert error for ${campaignId}:`, metricInsertError.message);
             errors.push({ advertiser_id: advertiserId, stage: "metrics/insert", message: metricInsertError.message });
+          }
+        } else {
+          const { error: zeroMetricInsertError } = await admin.from("metrics").insert({
+            campaign_id: campaignId,
+            date: endDate,
+            impressions: 0,
+            clicks: 0,
+            spend: 0,
+            leads: 0,
+          });
+          if (zeroMetricInsertError) {
+            console.error(`TikTok zero metric insert error for ${campaignId}:`, zeroMetricInsertError.message);
+            errors.push({ advertiser_id: advertiserId, stage: "metrics/zero-insert", message: zeroMetricInsertError.message });
           }
         }
 

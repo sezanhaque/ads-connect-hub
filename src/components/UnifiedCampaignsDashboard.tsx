@@ -177,15 +177,22 @@ export const UnifiedCampaignsDashboard = ({
           const campaignIds = supabaseCampaigns.map((c) => c.id);
 
           // Fetch metrics from both tables
+          const fromDate = currentDateRange.from.toISOString().split("T")[0];
+          const toDate = currentDateRange.to.toISOString().split("T")[0];
+
           const { data: metricsData } = await supabase
             .from("metrics")
             .select("campaign_id, impressions, clicks, spend, leads")
-            .in("campaign_id", campaignIds);
+            .in("campaign_id", campaignIds)
+            .gte("date", fromDate)
+            .lte("date", toDate);
 
           const { data: campaignMetricsData } = await supabase
             .from("campaign_metrics")
             .select("campaign_id, impressions, clicks, spend, leads")
-            .in("campaign_id", campaignIds);
+            .in("campaign_id", campaignIds)
+            .gte("day", fromDate)
+            .lte("day", toDate);
 
           // Aggregate metrics by campaign
           const allMetrics = [...(metricsData || []), ...(campaignMetricsData || [])];
@@ -402,10 +409,13 @@ export const UnifiedCampaignsDashboard = ({
       let syncedCount = 0;
 
       if (companyModeEnabled && companyId) {
+        const start_date = dateRange.from.toISOString().split("T")[0];
+        const end_date = dateRange.to.toISOString().split("T")[0];
+
         // Strict company mode → only company-level syncs
         const [metaRes, tiktokRes] = await Promise.allSettled([
-          supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId } }),
-          supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId } }),
+          supabase.functions.invoke("company-meta-sync", { body: { company_id: companyId, start_date, end_date } }),
+          supabase.functions.invoke("company-tiktok-sync", { body: { company_id: companyId, start_date, end_date } }),
         ]);
         if (metaRes.status === "fulfilled" && metaRes.value.data?.success) {
           syncedCount += metaRes.value.data.synced_count || 0;
