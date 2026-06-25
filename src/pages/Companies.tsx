@@ -443,12 +443,13 @@ const Companies = () => {
                     Add members now <span className="text-muted-foreground font-normal">· optional</span>
                   </Label>
                   {availableProfiles.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">No unassigned users available.</p>
+                    <p className="text-xs text-muted-foreground">No registered users found.</p>
                   ) : (
                     <>
                       <div className="max-h-44 overflow-y-auto rounded-md border divide-y">
-                        {availableProfiles.slice(0, 50).map((p) => {
+                        {availableProfiles.slice(0, 100).map((p) => {
                           const selected = newInitialMembers.includes(p.user_id);
+                          const currentCompany = companyByUser.get(p.user_id);
                           return (
                             <button
                               type="button"
@@ -459,13 +460,20 @@ const Companies = () => {
                               }`}
                             >
                               <span className="truncate">{p.email ?? p.user_id}</span>
-                              {selected && <Badge variant="secondary" className="text-[10px]">Added</Badge>}
+                              <span className="flex items-center gap-2 shrink-0">
+                                {currentCompany && (
+                                  <Badge variant="outline" className="text-[10px] font-normal">
+                                    in {currentCompany}
+                                  </Badge>
+                                )}
+                                {selected && <Badge variant="secondary" className="text-[10px]">Added</Badge>}
+                              </span>
                             </button>
                           );
                         })}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {newInitialMembers.length} selected. You can add more from the Manage dialog later.
+                        {newInitialMembers.length} selected. Users already in another company will also become members here.
                       </p>
                     </>
                   )}
