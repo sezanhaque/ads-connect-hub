@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, ChevronDown, ChevronRight, Search, Settings2, Shield, Users, X } from 'lucide-react';
+import { Building2, ChevronDown, ChevronRight, Plus, Search, Settings2, Shield, Trash2, UserPlus, Users, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -45,24 +45,38 @@ interface CompanyRow {
   integrations: CompanyIntegrationRow[];
 }
 
+interface ProfileRow {
+  user_id: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+}
+
 const Companies = () => {
   const [companies, setCompanies] = useState<CompanyRow[]>([]);
+  const [profiles, setProfiles] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [flagBusy, setFlagBusy] = useState(false);
   const [manageCompany, setManageCompany] = useState<CompanyRow | null>(null);
+  const [newOpen, setNewOpen] = useState(false);
+  const [newDomain, setNewDomain] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newBusy, setNewBusy] = useState(false);
   const { enabled: companyMode } = useCompanyMode();
   const { toast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
-    const [{ data: comps }, { data: members }, { data: credits }, { data: integrations }] = await Promise.all([
+    const [{ data: comps }, { data: members }, { data: credits }, { data: integrations }, { data: profs }] = await Promise.all([
       supabase.from('companies').select('*').order('created_at', { ascending: false }),
       supabase.from('company_members').select('*'),
       supabase.from('company_credits').select('*'),
       supabase.from('company_integrations').select('*'),
+      supabase.from('profiles').select('user_id, email, first_name, last_name'),
     ]);
+    setProfiles((profs ?? []) as ProfileRow[]);
 
     const membersByCompany = new Map<string, CompanyMemberRow[]>();
     (members ?? []).forEach((m: any) => {
@@ -150,9 +164,12 @@ const Companies = () => {
             <Building2 className="h-6 w-6" /> Companies
           </h1>
           <p className="text-muted-foreground text-sm">
-            Companies are created automatically from verified company email domains. All members of a company share credits and data.
+            Admins create companies and assign users to them. Signing up no longer creates a company automatically.
           </p>
         </div>
+        <Button onClick={() => { setNewDomain(''); setNewName(''); setNewOpen(true); }}>
+          <Plus className="h-4 w-4 mr-1" /> New company
+        </Button>
       </div>
 
       <Card>
@@ -194,7 +211,7 @@ const Companies = () => {
             <div className="text-center py-12 text-muted-foreground">
               <Building2 className="h-10 w-10 mx-auto mb-2 opacity-50" />
               <p>No companies yet.</p>
-              <p className="text-xs mt-1">Companies appear as soon as a user signs up with a verified company email.</p>
+              <p className="text-xs mt-1">Click "New company" to create the first one.</p>
             </div>
           ) : (
             <Table>
@@ -312,20 +329,85 @@ const Companies = () => {
 
       <ManageCompanyDialog
         company={manageCompany}
+        profiles={profiles}
+        companies={companies}
         onClose={() => setManageCompany(null)}
         onChanged={fetchData}
       />
+
+      <Dialog open={newOpen} onOpenChange={setNewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create company</DialogTitle>
+            <DialogDescription>
+              Add a company manually. Users can then be assigned to it from the Manage dialog.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Display name</Label>
+              <Input
+                placeholder="Acme Inc."
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Email domain</Label>
+              <Input
+                placeholder="acme.com"
+                value={newDomain}
+                onChange={(e) => setNewDomain(e.target.value.toLowerCase().trim())}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Lowercase, no <code>@</code>. Used for grouping and search.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
+            <Button
+              disabled={newBusy || !newDomain || !newName}
+              onClick={async () => {
+                setNewBusy(true);
+                const { data: created, error } = await supabase
+                  .from('companies')
+                  .insert({ domain: newDomain, display_name: newName })
+                  .select('id')
+                  .single();
+                if (!error && created) {
+                  await supabase.from('company_credits').insert({ company_id: created.id }).then(() => {});
+                }
+                setNewBusy(false);
+                if (error) {
+                  toast({ title: 'Could not create', description: error.message, variant: 'destructive' });
+                  return;
+                }
+                toast({ title: 'Company created' });
+                setNewOpen(false);
+                fetchData();
+              }}
+            >
+              {newBusy ? 'Creating…' : 'Create company'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 interface ManageProps {
   company: CompanyRow | null;
+  profiles: ProfileRow[];
+  companies: CompanyRow[];
   onClose: () => void;
   onChanged: () => void;
 }
 
-const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
+const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged }: ManageProps) => {
+  const [assignUserId, setAssignUserId] = useState<string>('');
+  const [assignBusy, setAssignBusy] = useState(false);
   const { toast } = useToast();
   const [topupAmount, setTopupAmount] = useState('');
   const [topupBusy, setTopupBusy] = useState(false);
@@ -486,12 +568,126 @@ const ManageCompanyDialog = ({ company, onClose, onChanged }: ManageProps) => {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="balance">
+        <Tabs defaultValue="members">
           <TabsList>
+            <TabsTrigger value="members">Members</TabsTrigger>
             <TabsTrigger value="balance">Top up</TabsTrigger>
             <TabsTrigger value="meta">Meta</TabsTrigger>
             <TabsTrigger value="tiktok">TikTok</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="members" className="space-y-4 pt-4">
+            <div>
+              <Label>Assign user to this company</Label>
+              <p className="text-xs text-muted-foreground mt-1 mb-2">
+                Pick a registered user. Users already in another company are hidden.
+              </p>
+              {(() => {
+                const assignedIds = new Set(
+                  companies.flatMap((c) => c.members.map((m) => m.user_id)),
+                );
+                const available = profiles
+                  .filter((p) => !assignedIds.has(p.user_id))
+                  .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
+                return (
+                  <div className="flex gap-2">
+                    <Select value={assignUserId} onValueChange={setAssignUserId}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder={available.length ? 'Select a user…' : 'No unassigned users'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {available.map((p) => (
+                          <SelectItem key={p.user_id} value={p.user_id}>
+                            {p.email ?? p.user_id}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      disabled={!assignUserId || assignBusy}
+                      onClick={async () => {
+                        const profile = profiles.find((p) => p.user_id === assignUserId);
+                        if (!profile) return;
+                        setAssignBusy(true);
+                        const { error } = await (supabase.from('company_members') as any).insert({
+                          company_id: company.id,
+                          user_id: assignUserId,
+                          email: profile.email,
+                          role: 'member',
+                        });
+                        setAssignBusy(false);
+                        if (error) {
+                          toast({ title: 'Could not assign', description: error.message, variant: 'destructive' });
+                          return;
+                        }
+                        toast({ title: 'Member added' });
+                        setAssignUserId('');
+                        onChanged();
+                      }}
+                    >
+                      <UserPlus className="h-4 w-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="border rounded-md divide-y">
+              {company.members.length === 0 ? (
+                <p className="p-3 text-sm text-muted-foreground">No members yet.</p>
+              ) : (
+                company.members.map((m) => (
+                  <div key={m.id} className="flex items-center justify-between gap-2 p-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm truncate">{m.email}</span>
+                      <Badge
+                        variant={m.role === 'owner' ? 'default' : m.role === 'admin' ? 'secondary' : 'outline'}
+                        className="text-[10px] uppercase"
+                      >
+                        {m.role}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={m.role}
+                        onValueChange={(v) => updateMemberRole(m.id, v as CompanyMemberRole)}
+                        disabled={roleBusyFor === m.id}
+                      >
+                        <SelectTrigger className="h-8 w-28 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="owner">owner</SelectItem>
+                          <SelectItem value="admin">admin</SelectItem>
+                          <SelectItem value="member">member</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={async () => {
+                          if (!confirm(`Remove ${m.email} from ${company.display_name}?`)) return;
+                          const { error } = await supabase
+                            .from('company_members')
+                            .delete()
+                            .eq('id', m.id);
+                          if (error) {
+                            toast({ title: 'Could not remove', description: error.message, variant: 'destructive' });
+                            return;
+                          }
+                          toast({ title: 'Member removed' });
+                          onChanged();
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </TabsContent>
+
 
 
 
