@@ -101,6 +101,18 @@ serve(async (req) => {
     let syncedCount = 0;
     let totalCampaigns = 0;
     const errors: Array<{ advertiser_id: string; stage: string; message: string }> = [];
+    const liveCampaigns: Array<{
+      id: string;
+      name: string;
+      status: string;
+      objective: string;
+      impressions: number;
+      clicks: number;
+      spend: number;
+      ctr: number;
+      cpc: number;
+      platform: "tiktok";
+    }> = [];
 
     const safeJson = async (res: Response): Promise<any> => {
       const text = await res.text();
@@ -126,8 +138,6 @@ serve(async (req) => {
       totalCampaigns += campaigns.length;
 
       const endDate = bodyEnd || new Date().toISOString().split("T")[0];
-      // Same pattern as the previous working live TikTok dashboard: one
-      // campaign-level report per advertiser, then match rows by campaign_id.
       const startDate = bodyStart || new Date(Date.now() - 29 * 86400000).toISOString().split("T")[0];
 
       const reportParams = new URLSearchParams({
@@ -197,33 +207,38 @@ serve(async (req) => {
         await admin.from("metrics").delete().eq("campaign_id", campaignId);
 
         const metrics = insightsByCampaign.get(String(c.campaign_id));
-        if (metrics) {
-          const { error: metricInsertError } = await admin.from("metrics").insert({
-            campaign_id: campaignId,
-            date: endDate,
-            impressions: parseInt(metrics.impressions || "0"),
-            clicks: parseInt(metrics.clicks || "0"),
-            spend: parseFloat(metrics.spend || "0"),
-            leads: parseInt(metrics.conversion || "0"),
-          });
-          if (metricInsertError) {
-            console.error(`TikTok metric insert error for ${campaignId}:`, metricInsertError.message);
-            errors.push({ advertiser_id: advertiserId, stage: "metrics/insert", message: metricInsertError.message });
-          }
-        } else {
-          const { error: zeroMetricInsertError } = await admin.from("metrics").insert({
-            campaign_id: campaignId,
-            date: endDate,
-            impressions: 0,
-            clicks: 0,
-            spend: 0,
-            leads: 0,
-          });
-          if (zeroMetricInsertError) {
-            console.error(`TikTok zero metric insert error for ${campaignId}:`, zeroMetricInsertError.message);
-            errors.push({ advertiser_id: advertiserId, stage: "metrics/zero-insert", message: zeroMetricInsertError.message });
-          }
+        const impressions = parseInt(metrics?.impressions || "0") || 0;
+        const clicks = parseInt(metrics?.clicks || "0") || 0;
+        const spend = parseFloat(metrics?.spend || "0") || 0;
+        const leads = parseInt(metrics?.conversion || "0") || 0;
+        const ctr = metrics?.ctr != null ? parseFloat(metrics.ctr) || 0 : (impressions > 0 ? (clicks / impressions) * 100 : 0);
+        const cpc = metrics?.cpc != null ? parseFloat(metrics.cpc) || 0 : (clicks > 0 ? spend / clicks : 0);
+
+        const { error: metricInsertError } = await admin.from("metrics").insert({
+          campaign_id: campaignId,
+          date: endDate,
+          impressions,
+          clicks,
+          spend,
+          leads,
+        });
+        if (metricInsertError) {
+          console.error(`TikTok metric insert error for ${campaignId}:`, metricInsertError.message);
+          errors.push({ advertiser_id: advertiserId, stage: "metrics/insert", message: metricInsertError.message });
         }
+
+        liveCampaigns.push({
+          id: campaignId,
+          name: c.campaign_name,
+          status,
+          objective: (c.objective_type || "TRAFFIC").replace(/_/g, " ").toLowerCase(),
+          impressions,
+          clicks,
+          spend,
+          ctr,
+          cpc,
+          platform: "tiktok",
+        });
 
         syncedCount++;
       }
@@ -235,9 +250,10 @@ serve(async (req) => {
       .eq("company_id", companyId)
       .eq("integration_type", "tiktok");
 
-    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId, errors }), {
+    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId, campaigns: liveCampaigns, errors }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (error: any) {
     console.error("company-tiktok-sync error", error);
     return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
