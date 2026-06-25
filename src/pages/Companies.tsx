@@ -164,9 +164,12 @@ const Companies = () => {
             <Building2 className="h-6 w-6" /> Companies
           </h1>
           <p className="text-muted-foreground text-sm">
-            Companies are created automatically from verified company email domains. All members of a company share credits and data.
+            Admins create companies and assign users to them. Signing up no longer creates a company automatically.
           </p>
         </div>
+        <Button onClick={() => { setNewDomain(''); setNewName(''); setNewOpen(true); }}>
+          <Plus className="h-4 w-4 mr-1" /> New company
+        </Button>
       </div>
 
       <Card>
