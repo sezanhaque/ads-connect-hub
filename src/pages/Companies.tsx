@@ -241,7 +241,7 @@ const Companies = () => {
                       >
                         <TableCell>{open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</TableCell>
                         <TableCell className="font-medium">{c.display_name}</TableCell>
-                        <TableCell className="text-muted-foreground">@{c.domain}</TableCell>
+                        <TableCell className="text-muted-foreground">{c.domain ? `@${c.domain}` : <span className="italic">no domain</span>}</TableCell>
                         <TableCell>
                           <Badge variant="secondary" className="gap-1">
                             <Users className="h-3 w-3" /> {c.members.length}
