@@ -60,15 +60,30 @@ serve(async (req) => {
 
     const { data: integ } = await admin
       .from("company_integrations")
-      .select("access_token, ad_account_ids")
+      .select("ad_account_ids")
       .eq("company_id", companyId)
       .eq("integration_type", "tiktok")
       .maybeSingle();
 
-    const accessToken = integ?.access_token;
-    const advertiserId = (integ?.ad_account_ids ?? [])[0];
-    if (!accessToken || !advertiserId) {
-      return new Response(JSON.stringify({ success: false, error: "Company TikTok token or advertiser ID not configured" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const advertiserIds: string[] = integ?.ad_account_ids ?? [];
+    if (advertiserIds.length === 0) {
+      return new Response(JSON.stringify({ success: false, error: "No TikTok advertiser IDs configured for this company" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Source access token from any active admin-org TikTok integration (shared platform token)
+    const { data: tokenRow } = await admin
+      .from("integrations")
+      .select("access_token")
+      .eq("integration_type", "tiktok")
+      .eq("status", "active")
+      .not("access_token", "is", null)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const accessToken = tokenRow?.access_token;
+    if (!accessToken) {
+      return new Response(JSON.stringify({ success: false, error: "No shared TikTok access token available. An admin must connect TikTok first." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const { data: callerMember } = await admin
@@ -80,91 +95,95 @@ serve(async (req) => {
       .maybeSingle();
     const orgId = callerMember?.org_id ?? null;
 
-    // Fetch campaigns
-    const campRes = await fetch(
-      `https://business-api.tiktok.com/open_api/v1.3/campaign/get/?advertiser_id=${advertiserId}&page_size=100`,
-      { headers: { "Access-Token": accessToken, "Content-Type": "application/json" } },
-    );
-    const campJson = await campRes.json();
-    if (campJson.code !== 0) {
-      return new Response(JSON.stringify({ success: false, error: `TikTok API: ${campJson.message}` }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    const campaigns = (campJson.data?.list || []) as Array<{ campaign_id: string; campaign_name: string; status: string; objective_type: string; budget: number }>;
-
     let syncedCount = 0;
-    for (const c of campaigns) {
-      const status = STATUS_MAP[c.status] || "paused";
+    let totalCampaigns = 0;
 
-      const { data: existing } = await admin
-        .from("campaigns")
-        .select("id")
-        .eq("company_id", companyId)
-        .eq("platform", "tiktok")
-        .eq("name", c.campaign_name)
-        .maybeSingle();
-
-      let campaignId: string;
-      if (existing) {
-        await admin.from("campaigns").update({
-          status,
-          objective: c.objective_type || "TRAFFIC",
-          updated_at: new Date().toISOString(),
-        }).eq("id", existing.id);
-        campaignId = existing.id;
-      } else {
-        const { data: created, error: insErr } = await admin.from("campaigns").insert({
-          name: c.campaign_name,
-          company_id: companyId,
-          org_id: orgId,
-          platform: "tiktok",
-          status,
-          objective: c.objective_type || "TRAFFIC",
-          budget: c.budget || 0,
-          created_by: userId,
-          location_targeting: {},
-          audience_targeting: {},
-        }).select("id").single();
-        if (insErr || !created) { console.error("insert campaign", insErr); continue; }
-        campaignId = created.id;
+    for (const advertiserId of advertiserIds) {
+      const campRes = await fetch(
+        `https://business-api.tiktok.com/open_api/v1.3/campaign/get/?advertiser_id=${advertiserId}&page_size=100`,
+        { headers: { "Access-Token": accessToken, "Content-Type": "application/json" } },
+      );
+      const campJson = await campRes.json();
+      if (campJson.code !== 0) {
+        console.error(`TikTok API error for ${advertiserId}:`, campJson.message);
+        continue;
       }
+      const campaigns = (campJson.data?.list || []) as Array<{ campaign_id: string; campaign_name: string; status: string; objective_type: string; budget: number }>;
+      totalCampaigns += campaigns.length;
 
-      // Fetch insights (last 2 years, daily)
-      const endDate = new Date().toISOString().split("T")[0];
-      const startDate = new Date(Date.now() - 730 * 86400000).toISOString().split("T")[0];
-      const insightsRes = await fetch("https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/", {
-        method: "POST",
-        headers: { "Access-Token": accessToken, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          advertiser_id: advertiserId,
-          service_type: "AUCTION",
-          report_type: "BASIC",
-          data_level: "AUCTION_CAMPAIGN",
-          dimensions: ["campaign_id", "stat_time_day"],
-          metrics: ["spend", "impressions", "clicks", "conversion"],
-          start_date: startDate,
-          end_date: endDate,
-          filters: [{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }],
-        }),
-      });
-      const insightsJson = await insightsRes.json().catch(() => ({}));
-      if (insightsJson.code === 0 && insightsJson.data?.list) {
-        await admin.from("metrics").delete().eq("campaign_id", campaignId);
-        for (const row of insightsJson.data.list) {
-          const dim = row.dimensions;
-          const m = row.metrics;
-          const spendEur = parseFloat(m.spend || "0") / 100;
-          await admin.from("metrics").insert({
-            campaign_id: campaignId,
-            date: dim.stat_time_day,
-            impressions: parseInt(m.impressions || "0"),
-            clicks: parseInt(m.clicks || "0"),
-            spend: spendEur,
-            leads: parseInt(m.conversion || "0"),
-          });
+      for (const c of campaigns) {
+        const status = STATUS_MAP[c.status] || "paused";
+
+        const { data: existing } = await admin
+          .from("campaigns")
+          .select("id")
+          .eq("company_id", companyId)
+          .eq("platform", "tiktok")
+          .eq("name", c.campaign_name)
+          .maybeSingle();
+
+        let campaignId: string;
+        if (existing) {
+          await admin.from("campaigns").update({
+            status,
+            objective: c.objective_type || "TRAFFIC",
+            updated_at: new Date().toISOString(),
+          }).eq("id", existing.id);
+          campaignId = existing.id;
+        } else {
+          const { data: created, error: insErr } = await admin.from("campaigns").insert({
+            name: c.campaign_name,
+            company_id: companyId,
+            org_id: orgId,
+            platform: "tiktok",
+            status,
+            objective: c.objective_type || "TRAFFIC",
+            budget: c.budget || 0,
+            created_by: userId,
+            location_targeting: {},
+            audience_targeting: {},
+          }).select("id").single();
+          if (insErr || !created) { console.error("insert campaign", insErr); continue; }
+          campaignId = created.id;
         }
-      }
 
-      syncedCount++;
+        const endDate = new Date().toISOString().split("T")[0];
+        const startDate = new Date(Date.now() - 730 * 86400000).toISOString().split("T")[0];
+        const insightsRes = await fetch("https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/", {
+          method: "POST",
+          headers: { "Access-Token": accessToken, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            advertiser_id: advertiserId,
+            service_type: "AUCTION",
+            report_type: "BASIC",
+            data_level: "AUCTION_CAMPAIGN",
+            dimensions: ["campaign_id", "stat_time_day"],
+            metrics: ["spend", "impressions", "clicks", "conversion"],
+            start_date: startDate,
+            end_date: endDate,
+            filters: [{ field_name: "campaign_ids", filter_type: "IN", filter_value: JSON.stringify([c.campaign_id]) }],
+          }),
+        });
+        const insightsJson = await insightsRes.json().catch(() => ({}));
+        if (insightsJson.code === 0 && insightsJson.data?.list) {
+          await admin.from("metrics").delete().eq("campaign_id", campaignId);
+          for (const row of insightsJson.data.list) {
+            const dim = row.dimensions;
+            const m = row.metrics;
+            const spendEur = parseFloat(m.spend || "0") / 100;
+            await admin.from("metrics").insert({
+              campaign_id: campaignId,
+              date: dim.stat_time_day,
+              impressions: parseInt(m.impressions || "0"),
+              clicks: parseInt(m.clicks || "0"),
+              spend: spendEur,
+              leads: parseInt(m.conversion || "0"),
+            });
+          }
+        }
+
+        syncedCount++;
+      }
     }
 
     await admin
@@ -173,7 +192,7 @@ serve(async (req) => {
       .eq("company_id", companyId)
       .eq("integration_type", "tiktok");
 
-    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: campaigns.length, company_id: companyId }), {
+    return new Response(JSON.stringify({ success: true, synced_count: syncedCount, total_campaigns: totalCampaigns, company_id: companyId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
