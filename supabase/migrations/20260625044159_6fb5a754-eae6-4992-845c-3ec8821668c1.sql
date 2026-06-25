@@ -1,0 +1,1 @@
+ALTER TABLE public.company_members DROP COLUMN IF EXISTS role;

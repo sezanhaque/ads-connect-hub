@@ -15,14 +15,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useCompanyMode } from '@/hooks/useCompanyMode';
 import { MetaLogo, TikTokLogo } from '@/components/icons';
 
-type CompanyMemberRole = 'owner' | 'admin' | 'member';
-
 interface CompanyMemberRow {
   id: string;
   user_id: string;
   email: string;
   created_at: string;
-  role: CompanyMemberRole;
 }
 
 
@@ -89,7 +86,6 @@ const Companies = () => {
         user_id: m.user_id,
         email: m.email,
         created_at: m.created_at,
-        role: (m.role as CompanyMemberRole) ?? 'member',
       });
       membersByCompany.set(m.company_id, list);
     });
@@ -303,12 +299,6 @@ const Companies = () => {
                                   >
                                     <span className="flex items-center gap-2">
                                       {m.email}
-                                      <Badge
-                                        variant={m.role === 'owner' ? 'default' : m.role === 'admin' ? 'secondary' : 'outline'}
-                                        className="text-[10px] uppercase"
-                                      >
-                                        {m.role}
-                                      </Badge>
                                     </span>
                                     <span className="text-xs text-muted-foreground">
                                       Joined {new Date(m.created_at).toLocaleDateString()}
@@ -520,7 +510,7 @@ const Companies = () => {
                     .map((uid) => {
                       const p = profiles.find((x) => x.user_id === uid);
                       if (!p) return null;
-                      return { company_id: created.id, user_id: uid, email: p.email, role: 'member' as const };
+                      return { company_id: created.id, user_id: uid, email: p.email };
                     })
                     .filter(Boolean) as any[];
                   if (rows.length > 0) {
@@ -576,7 +566,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
   const [tiktokToken, setTiktokToken] = useState('');
   const [tiktokBusy, setTiktokBusy] = useState(false);
   const [tiktokSyncBusy, setTiktokSyncBusy] = useState(false);
-  const [roleBusyFor, setRoleBusyFor] = useState<string | null>(null);
+  
 
 
   useEffect(() => {
@@ -645,19 +635,6 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
     onChanged();
   };
 
-  const updateMemberRole = async (memberId: string, role: CompanyMemberRole) => {
-    setRoleBusyFor(memberId);
-    const { error } = await (supabase.from('company_members') as any)
-      .update({ role })
-      .eq('id', memberId);
-    setRoleBusyFor(null);
-    if (error) {
-      toast({ title: 'Could not update role', description: error.message, variant: 'destructive' });
-      return;
-    }
-    toast({ title: 'Role updated', description: `Set to ${role}.` });
-    onChanged();
-  };
 
 
 
@@ -759,7 +736,6 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
                     company_id: company.id,
                     user_id: userId,
                     email: profile.email,
-                    role: 'member',
                   });
                   setAssignBusy(false);
                   setAssignUserId('');
@@ -819,28 +795,8 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
                   <div key={m.id} className="flex items-center justify-between gap-2 p-3">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-sm truncate">{m.email}</span>
-                      <Badge
-                        variant={m.role === 'owner' ? 'default' : m.role === 'admin' ? 'secondary' : 'outline'}
-                        className="text-[10px] uppercase"
-                      >
-                        {m.role}
-                      </Badge>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Select
-                        value={m.role}
-                        onValueChange={(v) => updateMemberRole(m.id, v as CompanyMemberRole)}
-                        disabled={roleBusyFor === m.id}
-                      >
-                        <SelectTrigger className="h-8 w-28 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="owner">owner</SelectItem>
-                          <SelectItem value="admin">admin</SelectItem>
-                          <SelectItem value="member">member</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <Button
                         size="sm"
                         variant="ghost"
