@@ -796,28 +796,8 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
                   <div key={m.id} className="flex items-center justify-between gap-2 p-3">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-sm truncate">{m.email}</span>
-                      <Badge
-                        variant={m.role === 'owner' ? 'default' : m.role === 'admin' ? 'secondary' : 'outline'}
-                        className="text-[10px] uppercase"
-                      >
-                        {m.role}
-                      </Badge>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Select
-                        value={m.role}
-                        onValueChange={(v) => updateMemberRole(m.id, v as CompanyMemberRole)}
-                        disabled={roleBusyFor === m.id}
-                      >
-                        <SelectTrigger className="h-8 w-28 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="owner">owner</SelectItem>
-                          <SelectItem value="admin">admin</SelectItem>
-                          <SelectItem value="member">member</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <Button
                         size="sm"
                         variant="ghost"
