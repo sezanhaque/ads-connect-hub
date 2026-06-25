@@ -719,27 +719,34 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             <div>
               <Label>Assign user to this company</Label>
               <p className="text-xs text-muted-foreground mt-1 mb-2">
-                Any registered user can be added, regardless of their email domain. Users already in another company are hidden.
+                Any registered user can be added, regardless of their email domain or current company.
               </p>
               {(() => {
-                const assignedIds = new Set(
-                  companies.flatMap((c) => c.members.map((m) => m.user_id)),
+                const inThisCompany = new Set(company.members.map((m) => m.user_id));
+                const companyByUser = new Map<string, string>();
+                companies.forEach((c) =>
+                  c.members.forEach((m) => {
+                    if (c.id !== company.id) companyByUser.set(m.user_id, c.display_name);
+                  }),
                 );
                 const available = profiles
-                  .filter((p) => !assignedIds.has(p.user_id))
+                  .filter((p) => !inThisCompany.has(p.user_id))
                   .sort((a, b) => (a.email ?? '').localeCompare(b.email ?? ''));
                 return (
                   <div className="flex gap-2">
                     <Select value={assignUserId} onValueChange={setAssignUserId}>
                       <SelectTrigger className="flex-1">
-                        <SelectValue placeholder={available.length ? 'Select a user…' : 'No unassigned users'} />
+                        <SelectValue placeholder={available.length ? 'Select a user…' : 'All users already added'} />
                       </SelectTrigger>
                       <SelectContent>
-                        {available.map((p) => (
-                          <SelectItem key={p.user_id} value={p.user_id}>
-                            {p.email ?? p.user_id}
-                          </SelectItem>
-                        ))}
+                        {available.map((p) => {
+                          const other = companyByUser.get(p.user_id);
+                          return (
+                            <SelectItem key={p.user_id} value={p.user_id}>
+                              {p.email ?? p.user_id}{other ? ` — in ${other}` : ''}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <Button
