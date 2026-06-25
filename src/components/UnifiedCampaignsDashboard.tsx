@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useMetaIntegrationStatus } from "@/hooks/useMetaIntegrationStatus";
 import { useTikTokIntegrationStatus } from "@/hooks/useTikTokIntegrationStatus";
+import { useCompanyMode } from "@/hooks/useCompanyMode";
 import { useToast } from "@/hooks/use-toast";
 import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
 import { TrendingUp, Eye, MousePointer, Euro, RefreshCw, Link as LinkIcon } from "lucide-react";
