@@ -905,7 +905,7 @@ const ManageCompanyDialog = ({ company, profiles, companies, onClose, onChanged 
             </div>
             <Label>Advertiser IDs</Label>
             <p className="text-xs text-muted-foreground">Press Enter or click Add.</p>
-            {renderIdList(tiktokIds, setTiktokIds, tiktokInput, setTiktokInput, '7123456789012345678')}
+            {renderIdList(tiktokIds, setTiktokIds, tiktokInput, setTiktokInput, '7123456789012345678', 'tiktok')}
             <DialogFooter className="gap-2 sm:gap-2">
               <Button onClick={() => savePlatform('tiktok', tiktokIds, '')} disabled={tiktokBusy}>
                 {tiktokBusy ? 'Saving…' : 'Save TikTok'}
