@@ -28,46 +28,50 @@ export const useMetaIntegrationStatus = () => {
       setLoading(true);
       setError(null);
 
-      // Find the user's company
-      const { data: myMembership } = await supabase
-        .from("company_members")
-        .select("company_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      // App admins see the global shared connection status
+      const { data: isAdmin } = await supabase.rpc("is_app_admin", { p_user_id: user.id });
 
-      let userIds: string[] = [user.id];
-      if (myMembership?.company_id) {
-        const { data: companyMembers } = await supabase
-          .from("company_members")
-          .select("user_id")
-          .eq("company_id", myMembership.company_id);
-        if (companyMembers && companyMembers.length > 0) {
-          userIds = companyMembers.map((m: any) => m.user_id);
-        }
-      }
-
-      // Collect all org_ids tied to those users
-      const { data: orgRows } = await supabase
-        .from("members")
-        .select("org_id")
-        .in("user_id", userIds);
-
-      const orgIds = Array.from(new Set((orgRows || []).map((r: any) => r.org_id)));
-      if (orgIds.length === 0) {
-        setIntegration(null);
-        return;
-      }
-
-      // Any active Meta integration across the company counts as connected
-      const { data: metaIntegration, error: integrationError } = await supabase
+      let metaQuery = supabase
         .from("integrations")
         .select("*")
-        .in("org_id", orgIds)
         .eq("integration_type", "meta")
         .eq("status", "active")
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
+
+      if (!isAdmin) {
+        // Non-admins: scope to their company's members' org_ids
+        const { data: myMembership } = await supabase
+          .from("company_members")
+          .select("company_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        let userIds: string[] = [user.id];
+        if (myMembership?.company_id) {
+          const { data: companyMembers } = await supabase
+            .from("company_members")
+            .select("user_id")
+            .eq("company_id", myMembership.company_id);
+          if (companyMembers && companyMembers.length > 0) {
+            userIds = companyMembers.map((m: any) => m.user_id);
+          }
+        }
+
+        const { data: orgRows } = await supabase
+          .from("members")
+          .select("org_id")
+          .in("user_id", userIds);
+
+        const orgIds = Array.from(new Set((orgRows || []).map((r: any) => r.org_id)));
+        if (orgIds.length === 0) {
+          setIntegration(null);
+          return;
+        }
+        metaQuery = metaQuery.in("org_id", orgIds);
+      }
+
+      const { data: metaIntegration, error: integrationError } = await metaQuery.maybeSingle();
 
       if (integrationError) {
         console.error("Integration fetch error:", integrationError);
