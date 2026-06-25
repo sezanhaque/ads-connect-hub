@@ -155,18 +155,35 @@ serve(async (req) => {
             .eq("status", "active")
             .in("integration_type", ["meta", "tiktok"]);
 
+          // Shared admin tokens live in public.integrations (most recent active per platform)
+          const { data: sharedIntegrations } = await admin
+            .from("integrations")
+            .select("integration_type, access_token, created_at")
+            .eq("status", "active")
+            .in("integration_type", ["meta", "tiktok"])
+            .order("created_at", { ascending: false });
+
+          const sharedTokenByPlatform: Record<string, string> = {};
+          for (const s of (sharedIntegrations as any[]) || []) {
+            if (!s.access_token) continue;
+            if (!sharedTokenByPlatform[s.integration_type]) {
+              sharedTokenByPlatform[s.integration_type] = s.access_token;
+            }
+          }
+
           let totalCosts = 0;
           const seen = new Set<string>();
           for (const i of (companyIntegrations as any[]) || []) {
-            if (!i.access_token) continue;
+            const token = i.access_token || sharedTokenByPlatform[i.integration_type];
+            if (!token) continue;
             for (const acc of normalizeAccountIds(i.ad_account_id)) {
               const key = `${i.integration_type}:${acc}`;
               if (seen.has(key)) continue;
               seen.add(key);
               if (i.integration_type === "meta") {
-                totalCosts += await fetchMetaLifetimeSpend(i.access_token, acc);
+                totalCosts += await fetchMetaLifetimeSpend(token, acc);
               } else if (i.integration_type === "tiktok") {
-                totalCosts += await fetchTikTokLifetimeSpend(i.access_token, acc);
+                totalCosts += await fetchTikTokLifetimeSpend(token, acc);
               }
             }
           }
