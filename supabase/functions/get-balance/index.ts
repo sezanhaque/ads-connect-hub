@@ -104,20 +104,22 @@ serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceKey);
 
-    // Company mode: if feature flag is on and the user is a company member,
-    // return the shared company balance instead of the org-based balance.
+    let companyModeEnabled = false;
     try {
       const { data: flag } = await admin
         .from("feature_flags")
         .select("company_mode_enabled")
         .maybeSingle();
-      if (flag?.company_mode_enabled) {
+      companyModeEnabled = !!flag?.company_mode_enabled;
+
+      if (companyModeEnabled) {
         const { data: cm } = await admin
           .from("company_members")
           .select("company_id")
           .eq("user_id", userId)
           .limit(1)
           .maybeSingle();
+
         if (cm?.company_id) {
           const companyId = cm.company_id;
           const { data: credits } = await admin
@@ -126,7 +128,6 @@ serve(async (req) => {
             .eq("company_id", companyId)
             .maybeSingle();
 
-          // Pooled top-ups: every top-up attached to this company
           const { data: companyTopups } = await admin
             .from("topups")
             .select("id, amount, currency, status, description, paid_at, created_at, mollie_payment_id, user_id")
@@ -134,7 +135,6 @@ serve(async (req) => {
             .order("created_at", { ascending: false })
             .limit(50);
 
-          // Member list (for the "shared with N teammates" hint)
           const { data: memberRows } = await admin
             .from("company_members")
             .select("user_id")
@@ -148,7 +148,6 @@ serve(async (req) => {
           const creditsBalance = Number(credits?.balance ?? 0);
           const balanceValue = paidTopupsTotal + creditsBalance;
 
-          // Sum lifetime spend across all company-shared Meta/TikTok integrations
           const { data: companyIntegrations } = await admin
             .from("company_integrations")
             .select("integration_type, access_token, ad_account_id")
@@ -186,10 +185,40 @@ serve(async (req) => {
             { headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
+
+        // Company mode is ON but user has no company yet:
+        // return only this user's own data, do NOT fall back to legacy pooled logic.
+        const { data: ownTopups } = await admin
+          .from("topups")
+          .select("id, amount, currency, status, description, paid_at, created_at, mollie_payment_id, user_id")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(20);
+
+        let paidTotal = 0;
+        for (const t of (ownTopups as any[]) || []) {
+          if (t.status === "paid") paidTotal += Number(t.amount ?? 0);
+        }
+
+        return new Response(
+          JSON.stringify({
+            balance: paidTotal,
+            totalTopups: paidTotal,
+            totalCosts: 0,
+            currency: "EUR",
+            topups: ownTopups || [],
+            groupUserIds: [userId],
+            companyMode: true,
+            noCompany: true,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
       }
     } catch (e) {
       console.warn("company mode balance lookup skipped", e);
     }
+
+
 
 
     const { data: members } = await admin
