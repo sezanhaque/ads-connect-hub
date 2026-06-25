@@ -150,7 +150,7 @@ const Companies = () => {
   const filtered = q
     ? companies.filter(
         (c) =>
-          c.domain.toLowerCase().includes(q) ||
+          (c.domain ?? '').toLowerCase().includes(q) ||
           c.display_name.toLowerCase().includes(q) ||
           c.members.some((m) => m.email.toLowerCase().includes(q)),
       )
