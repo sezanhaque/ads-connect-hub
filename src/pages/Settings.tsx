@@ -49,7 +49,24 @@ const Settings = () => {
     if (!profile?.user_id) return;
 
     try {
-      // Fetch all memberships for this user and choose the safest (member > admin > owner)
+      // 1. Prefer assigned company via company_members
+      const { data: companyMember } = await supabase
+        .from('company_members')
+        .select('role, company_id, companies:company_id ( id, display_name, domain )')
+        .eq('user_id', profile.user_id)
+        .maybeSingle();
+
+      if (companyMember?.companies) {
+        const c: any = companyMember.companies;
+        setOrganizationData({
+          name: c.display_name || c.domain || '',
+          role: companyMember.role || '',
+          id: c.id || '',
+        });
+        return;
+      }
+
+      // 2. Fallback to sign-up organization name
       const { data: memberships, error: memberErr } = await supabase
         .from('members')
         .select('role, org_id')
@@ -60,29 +77,19 @@ const Settings = () => {
         return;
       }
 
-      const preferred = (() => {
-        if (!memberships || memberships.length === 0) return null;
-        return (
-          memberships.find((m: any) => m.role === 'owner') ||
-          memberships.find((m: any) => m.role === 'admin') ||
-          memberships.find((m: any) => m.role === 'member') ||
-          memberships[0]
-        );
-      })();
+      const preferred =
+        memberships?.find((m: any) => m.role === 'owner') ||
+        memberships?.find((m: any) => m.role === 'admin') ||
+        memberships?.find((m: any) => m.role === 'member') ||
+        memberships?.[0];
 
-      if (!preferred?.org_id) return; // not a member yet
+      if (!preferred?.org_id) return;
 
-      // Fetch organization details
-      const { data: org, error: orgErr } = await supabase
+      const { data: org } = await supabase
         .from('organizations')
         .select('id, name')
         .eq('id', preferred.org_id)
         .maybeSingle();
-
-      if (orgErr) {
-        console.error('Error fetching organization:', orgErr);
-        return;
-      }
 
       if (org) {
         setOrganizationData({
@@ -95,6 +102,7 @@ const Settings = () => {
       console.error('Error fetching organization info:', error);
     }
   };
+
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
